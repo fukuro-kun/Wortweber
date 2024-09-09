@@ -1,4 +1,4 @@
-# Dateiname: whisper_push_to_talk.py
+# Dateiname: src/whisper_push_to_talk.py
 
 import pyaudio
 import numpy as np
