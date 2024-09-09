@@ -1,6 +1,5 @@
 # Dateiname: src/whisper_push_to_talk.py
 
-import pyaudio
 import numpy as np
 import whisper
 import tkinter as tk
@@ -9,20 +8,26 @@ from pynput import keyboard
 import threading
 import time
 import warnings
-from scipy import signal
-import pyperclip
-
-# Unterdrücke Warnungen von ALSA
-warnings.filterwarnings("ignore", category=UserWarning)
+import pyaudio
+import wave
+import os
+from queue import Queue
 
 # Konstanten
-CHUNK = 4096
+CHUNK = 1024
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
-RATE = 44100
-TARGET_RATE = 16000
+RATE = 16000
+CHUNK_DURATION = 5  # Sekunden
+CHUNK_SIZE = CHUNK_DURATION * RATE
 DEVICE_INDEX = 6
 MIN_RECORD_SECONDS = 0.5
+
+# Globale Variablen
+recording = False
+audio_queue = Queue()
+transcription_queue = Queue()
+chunks_to_transcribe = Queue()
 
 # Whisper-Modell laden
 print("Lade Whisper-Modell...")
