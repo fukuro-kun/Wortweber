@@ -206,7 +206,7 @@ def on_model_change(*args):
     if loading_label:
         loading_label.grid_remove()
     loading_label = ttk.Label(main_frame, text="Modell wird geladen...", foreground="blue")
-    loading_label.grid(column=0, row=5, columnspan=2, pady=5)
+    loading_label.grid(column=0, row=2, columnspan=2, pady=5)
     root.update()
     threading.Thread(target=lambda: load_whisper_model(model_var.get()), daemon=True).start()
 
@@ -229,49 +229,56 @@ main_frame.grid(column=0, row=0, sticky="nsew")
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 
-# Anweisungen
-instruction_label = ttk.Label(main_frame, text="Drücken und halten Sie F12, um zu sprechen")
-instruction_label.grid(column=0, row=0, columnspan=2, pady=10)
-
-# Timer
-timer_var = tk.StringVar()
-timer_var.set("Aufnahmezeit: 0.0 s")
-timer_label = ttk.Label(main_frame, textvariable=timer_var)
-timer_label.grid(column=0, row=1, columnspan=2, pady=5)
-
-# Transkriptionstimer
-transcription_timer_var = tk.StringVar()
-transcription_timer_var.set("Transkriptionszeit: 0.00 s")
-transcription_timer_label = ttk.Label(main_frame, textvariable=transcription_timer_var)
-transcription_timer_label.grid(column=0, row=2, columnspan=2, pady=5)
-
-# Status
-status_var = tk.StringVar()
-status_label = ttk.Label(main_frame, textvariable=status_var)
-status_label.grid(column=0, row=3, columnspan=2, pady=5)
-update_status("Initialisiere...", "blue")
+# Linke Seite: Sprachauswahl und Modellauswahl
+left_frame = ttk.Frame(main_frame)
+left_frame.grid(column=0, row=0, sticky="nw")
 
 # Sprachauswahl
 language_var = tk.StringVar(value=DEFAULT_LANGUAGE)
-language_frame = ttk.LabelFrame(main_frame, text="Sprache")
-language_frame.grid(column=0, row=4, columnspan=2, pady=5, sticky="ew")
+language_frame = ttk.LabelFrame(left_frame, text="Sprache")
+language_frame.grid(column=0, row=0, pady=5, sticky="ew")
 for lang_code, lang_name in SUPPORTED_LANGUAGES.items():
     ttk.Radiobutton(language_frame, text=lang_name, variable=language_var, value=lang_code).pack(side=tk.LEFT, padx=5)
 
 # Modellauswahl
 model_var = tk.StringVar(value=WHISPER_MODEL)
-model_frame = ttk.LabelFrame(main_frame, text="Whisper-Modell")
-model_frame.grid(column=0, row=5, columnspan=2, pady=5, sticky="ew")
-
+model_frame = ttk.LabelFrame(left_frame, text="Whisper-Modell")
+model_frame.grid(column=0, row=1, pady=5, sticky="ew")
 model_dropdown = ttk.Combobox(model_frame, textvariable=model_var, values=WHISPER_MODELS, state="readonly")
 model_dropdown.pack(side=tk.LEFT, padx=5)
 model_var.trace("w", on_model_change)
 
+# Rechte Seite: Anweisungen, Timer und Status
+right_frame = ttk.Frame(main_frame)
+right_frame.grid(column=1, row=0, sticky="ne")
+
+# Anweisungen
+instruction_label = ttk.Label(right_frame, text="Drücken und halten Sie F12, um zu sprechen")
+instruction_label.grid(column=0, row=0, pady=5)
+
+# Timer
+timer_var = tk.StringVar()
+timer_var.set("Aufnahmezeit: 0.0 s")
+timer_label = ttk.Label(right_frame, textvariable=timer_var)
+timer_label.grid(column=0, row=1, pady=5)
+
+# Transkriptionstimer
+transcription_timer_var = tk.StringVar()
+transcription_timer_var.set("Transkriptionszeit: 0.00 s")
+transcription_timer_label = ttk.Label(right_frame, textvariable=transcription_timer_var)
+transcription_timer_label.grid(column=0, row=2, pady=5)
+
+# Status
+status_var = tk.StringVar()
+status_label = ttk.Label(right_frame, textvariable=status_var)
+status_label.grid(column=0, row=3, pady=5)
+update_status("Initialisiere...", "blue")
+
 # Transkriptionsbereich
 transcription_frame = ttk.LabelFrame(main_frame, text="Transkription")
-transcription_frame.grid(column=0, row=6, columnspan=2, sticky="nsew", pady=10)
+transcription_frame.grid(column=0, row=1, columnspan=2, sticky="nsew", pady=10)
 main_frame.columnconfigure(0, weight=1)
-main_frame.rowconfigure(6, weight=1)
+main_frame.rowconfigure(1, weight=1)
 
 transcription_text = scrolledtext.ScrolledText(transcription_frame, wrap=tk.WORD, width=80, height=20)
 transcription_text.pack(expand=True, fill=tk.BOTH, padx=5, pady=5)
@@ -287,7 +294,7 @@ transcription_text.tag_configure("highlight", background="light green")
 
 # Buttons
 button_frame = ttk.Frame(main_frame)
-button_frame.grid(column=0, row=7, columnspan=2, pady=10)
+button_frame.grid(column=0, row=2, columnspan=2, pady=10)
 
 clear_button = ttk.Button(button_frame, text="Transkription löschen", command=clear_transcription)
 clear_button.pack(side=tk.LEFT, padx=5)
@@ -300,7 +307,7 @@ quit_button.pack(side=tk.LEFT, padx=5)
 
 # Whisper-Modell laden
 loading_label = ttk.Label(main_frame, text="Modell wird geladen...", foreground="blue")
-loading_label.grid(column=0, row=8, columnspan=2, pady=5)
+loading_label.grid(column=0, row=3, columnspan=2, pady=5)
 root.update()
 
 # Tastaturlistener starten
