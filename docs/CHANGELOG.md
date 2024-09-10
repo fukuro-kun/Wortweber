@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+### Added
+- Dropdown-Menü zur Auswahl verschiedener Whisper-Modelle
+- Anzeige der Transkriptionszeit für jede Aufnahme
+
 ## [0.4.0] - 2024-09-10
 ### Changed
 - Projekt umbenannt zu "Wortweber"
