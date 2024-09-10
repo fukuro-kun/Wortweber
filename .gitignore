@@ -6,10 +6,12 @@ __pycache__/
 # Virtual environment
 venv/
 env/
+.env
 
 # IDE files
 .vscode/
 .idea/
+pyrightconfig.json
 
 # Audio files
 *.wav
