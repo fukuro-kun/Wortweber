@@ -17,7 +17,7 @@
 AUDIO_CHUNK = 4096
 AUDIO_FORMAT = 'paInt16'
 AUDIO_CHANNELS = 1
-AUDIO_RATE = 44100  # Native sample rate des Audio Gerrätes
+AUDIO_RATE = 44100  # Native sample rate des Audio Gerätes
 TARGET_RATE = 16000  # Ziel sample rate für Whisper
 DEVICE_INDEX = 6
 
@@ -33,6 +33,9 @@ SUPPORTED_LANGUAGES = {
     "de": "Deutsch",
     "en": "English"
 }
+
+# GUI settings
+HIGHLIGHT_DURATION = 2000  # Dauer der Hervorhebung in Millisekunden
 
 # Important notes
 RESAMPLING_NOTE = """
