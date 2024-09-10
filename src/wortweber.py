@@ -65,6 +65,7 @@ def load_whisper_model(model_name):
     print("Spracherkennungsmodell geladen.")
     if loading_label:
         loading_label.grid_remove()
+    update_status("Bereit", "green")
 
 def list_audio_devices():
     info = p.get_host_api_info_by_index(0)
@@ -216,6 +217,12 @@ list_audio_devices()
 root = tk.Tk()
 root.title("Wortweber Transkription")
 
+# Stil konfigurieren
+style = ttk.Style()
+style.theme_use('clam')
+style.configure('TLabelframe', borderwidth=0)  # Entfernt Rahmen von LabelFrames
+style.configure('TCombobox', selectbackground='#0078D7', selectforeground='white')
+
 # Hauptframe
 main_frame = ttk.Frame(root, padding="10")
 main_frame.grid(column=0, row=0, sticky="nsew")
@@ -242,7 +249,7 @@ transcription_timer_label.grid(column=0, row=2, columnspan=2, pady=5)
 status_var = tk.StringVar()
 status_label = ttk.Label(main_frame, textvariable=status_var)
 status_label.grid(column=0, row=3, columnspan=2, pady=5)
-update_status("Bereit", "green")
+update_status("Initialisiere...", "blue")
 
 # Sprachauswahl
 language_var = tk.StringVar(value=DEFAULT_LANGUAGE)
@@ -255,10 +262,6 @@ for lang_code, lang_name in SUPPORTED_LANGUAGES.items():
 model_var = tk.StringVar(value=WHISPER_MODEL)
 model_frame = ttk.LabelFrame(main_frame, text="Whisper-Modell")
 model_frame.grid(column=0, row=5, columnspan=2, pady=5, sticky="ew")
-
-style = ttk.Style()
-style.theme_use('clam')  # Sie können auch andere Themes wie 'alt', 'default', 'classic' ausprobieren
-style.configure('TCombobox', selectbackground='#0078D7', selectforeground='white')
 
 model_dropdown = ttk.Combobox(model_frame, textvariable=model_var, values=WHISPER_MODELS, state="readonly")
 model_dropdown.pack(side=tk.LEFT, padx=5)
@@ -295,14 +298,17 @@ copy_all_button.pack(side=tk.LEFT, padx=5)
 quit_button = ttk.Button(button_frame, text="Beenden", command=root.quit)
 quit_button.pack(side=tk.LEFT, padx=5)
 
-# Initiales Laden des Whisper-Modells
-load_whisper_model(WHISPER_MODEL)
+# Whisper-Modell laden
+loading_label = ttk.Label(main_frame, text="Modell wird geladen...", foreground="blue")
+loading_label.grid(column=0, row=8, columnspan=2, pady=5)
+root.update()
 
 # Tastaturlistener starten
 listener = keyboard.Listener(on_press=on_press, on_release=on_release)
 listener.start()
 
 # GUI-Loop starten
+root.after(100, lambda: threading.Thread(target=lambda: load_whisper_model(WHISPER_MODEL), daemon=True).start())
 root.mainloop()
 
 # Aufräumen
