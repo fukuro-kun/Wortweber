@@ -43,6 +43,34 @@ Wortweber ist eine leistungsstarke und benutzerfreundliche Anwendung zur Echtzei
 
 3. Drücken und halten Sie die F12-Taste, um zu sprechen. Lassen Sie die Taste los, um die Aufnahme zu beenden und die Transkription zu starten.
 
+## Versionen
+
+Dieses Projekt ist in zwei Versionen verfügbar:
+
+1. Hauptversion (main branch): Diese Version verwendet eine eigene Implementierung für die Zahlwort-zu-Ziffer und Ziffer-zu-Zahlwort Konvertierung.
+
+2. Erweiterte Version (feature/num2words_and_gui_improvements branch): Diese Version verwendet zusätzliche Bibliotheken für erweiterte Zahlwort-Konvertierungsfunktionen.
+
+### Wechseln zwischen den Versionen
+
+Um zwischen den Versionen zu wechseln, verwenden Sie die folgenden Git-Befehle:
+
+Für die Hauptversion:
+```bash
+git checkout main
+```
+
+Für die erweiterte Version:
+```bash
+git checkout feature/num2words_and_gui_improvements
+```
+
+Bitte beachten Sie, dass die erweiterte Version zusätzliche Abhängigkeiten hat. Nach dem Wechsel zur erweiterten Version führen Sie bitte folgende Befehle aus:
+
+```bash
+pip install -r requirements.txt
+```
+
 ## Wichtiger Hinweis
 
 Dieses Tool wurde entwickelt, um in einer isolierten Conda-Umgebung zu laufen.
@@ -104,3 +132,4 @@ Beiträge zu diesem Projekt sind willkommen! Wenn Sie Verbesserungen vorschlagen
 ## Lizenz
 
 Dieses Projekt steht unter der Apache License 2.0. Weitere Details finden Sie in der [LICENSE](LICENSE) Datei.
+Bitte beachten Sie, dass die erweiterte Version zusätzliche Abhängigkeiten hat und möglicherweise anderen Lizenzbedingungen unterliegt. Stellen Sie sicher, dass Sie die Lizenzbedingungen aller verwendeten Bibliotheken in der erweiterten Version überprüfen und einhalten.
