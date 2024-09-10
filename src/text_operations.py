@@ -19,8 +19,6 @@
 # word2number: MIT License
 
 import re
-from num2words import num2words
-from word2number import w2n
 
 def detect_language(text):
     """Erkennt die Sprache des Textes basierend auf spezifischen Wörtern."""
@@ -37,45 +35,46 @@ def words_to_digits(text):
     """Wandelt Zahlwörter in einem Text in Ziffern um."""
     language = detect_language(text)
     if language == 'de':
-        # Deutsches Wörterbuch für Zahlen
         number_dict = {
-            'null': '0', 'eins': '1', 'zwei': '2', 'drei': '3', 'vier': '4', 'fünf': '5',
-            'sechs': '6', 'sieben': '7', 'acht': '8', 'neun': '9', 'zehn': '10'
+            'null': '0', 'ein': '1', 'eins': '1', 'zwei': '2', 'drei': '3', 'vier': '4', 'fünf': '5',
+            'sechs': '6', 'sieben': '7', 'acht': '8', 'neun': '9', 'zehn': '10', 'elf': '11', 'zwölf': '12',
+            'dreizehn': '13', 'vierzehn': '14', 'fünfzehn': '15', 'sechzehn': '16', 'siebzehn': '17',
+            'achtzehn': '18', 'neunzehn': '19', 'zwanzig': '20', 'dreißig': '30', 'vierzig': '40',
+            'fünfzig': '50', 'sechzig': '60', 'siebzig': '70', 'achtzig': '80', 'neunzig': '90',
+            'hundert': '100', 'tausend': '1000', 'million': '1000000', 'milliarde': '1000000000'
         }
-        # Regex-Muster für deutsche Zahlwörter
+
         pattern = r'\b(' + '|'.join(number_dict.keys()) + r')\b'
-        return re.sub(pattern, lambda m: number_dict[m.group()], text)
+        return re.sub(pattern, lambda m: number_dict[m.group().lower()], text, flags=re.IGNORECASE)
     else:
-        # Für Englisch verwenden wir word2number
-        words = text.split()
-        result = []
-        i = 0
-        while i < len(words):
-            try:
-                number = w2n.word_to_num(' '.join(words[i:i+3]))  # Versuche bis zu 3 Wörter zu konvertieren
-                result.append(str(number))
-                i += len(' '.join(words[i:i+3]).split())  # Überspringe konvertierte Wörter
-            except ValueError:
-                result.append(words[i])
-                i += 1
-        return ' '.join(result)
+        # Einfache englische Zahlenkonvertierung
+        english_dict = {
+            'zero': '0', 'one': '1', 'two': '2', 'three': '3', 'four': '4', 'five': '5',
+            'six': '6', 'seven': '7', 'eight': '8', 'nine': '9', 'ten': '10'
+        }
+        pattern = r'\b(' + '|'.join(english_dict.keys()) + r')\b'
+        return re.sub(pattern, lambda m: english_dict[m.group().lower()], text, flags=re.IGNORECASE)
 
 def digits_to_words(text):
     """Wandelt Ziffern in einem Text in Zahlwörter um."""
     language = detect_language(text)
 
-    def replace_number(match):
-        number = int(match.group())
-        return num2words(number, lang=language)
+    if language == 'de':
+        number_dict = {v: k for k, v in words_to_digits.number_dict.items() if v.isdigit()}
+    else:
+        number_dict = {v: k for k, v in words_to_digits.english_dict.items()}
 
-    return re.sub(r'\b\d+\b', replace_number, text)
+    pattern = r'\b\d+\b'
+    return re.sub(pattern, lambda m: number_dict.get(m.group(), m.group()), text)
 
 # Testfunktion
 if __name__ == "__main__":
     test_texts = [
         "Ich habe dreiundzwanzig Äpfel und vierhundertsechsundfünfzig Birnen.",
         "I have twenty-three apples and four hundred fifty-six pears.",
-        "eins, zwei, drei, vier, fünf, sechs, sieben, acht, neun, zehn. Das ist ein kleiner Test."
+        "eins, zwei, drei, vier, fünf, sechs, sieben, acht, neun, zehn. Das ist ein kleiner Test.",
+        "Das ist ein kleiner Test. 12, 23, 45, 4567",
+        "Das ist ein kleiner Test. zwölf, dreiundzwanzig, fünfundvierzig, viertausendfünfhundertsiebenundsechzig"
     ]
 
     for test_text in test_texts:
