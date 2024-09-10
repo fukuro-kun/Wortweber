@@ -35,6 +35,10 @@ Wortweber ist eine benutzerfreundliche Anwendung zur Echtzeit-Transkription von 
 3. Installieren Sie die Abhängigkeiten: `pip install -r requirements.txt`
 4. Starten Sie die Anwendung: `python src/wortweber.py`
 
+## Hinweise für Entwickler
+
+- Das `whisper`-Paket wird von diesem Projekt verwendet und muss installiert sein. Warnungen des statischen Analysators bezüglich des Imports von `whisper` können ignoriert werden, solange das Paket korrekt installiert ist.
+
 ## Entwicklung und Beiträge
 1. Forken Sie das Repository auf GitHub
 2. Erstellen Sie einen Feature-Branch: `git checkout -b feature/neue-funktion`
@@ -100,7 +104,7 @@ git show 4dfd1b0ac4998e306fc97c35e6c3abb9fbd71b0c:src/whisper_push_to_talk_dev.p
 ```
 
 ## Lizenz
-MIT-Lizenz (siehe LICENSE-Datei)
+Apache 2.0 -Lizenz (siehe LICENSE-Datei)
 
 ## Kontakt
 Für Fragen und Support, bitte ein Issue auf GitHub erstellen oder sich an den Projektbetreuer wenden.
