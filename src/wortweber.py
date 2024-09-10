@@ -16,13 +16,14 @@ import pyaudio
 import numpy as np
 import whisper
 import tkinter as tk
-from tkinter import scrolledtext, ttk
+from tkinter import scrolledtext, ttk, Menu
 from pynput import keyboard
 import threading
 import time
 import warnings
 from scipy import signal
 import pyperclip
+import text_operations
 
 # Am Anfang der Datei
 print("Starte Wortweber...")
@@ -210,6 +211,33 @@ def on_model_change(*args):
     root.update()
     threading.Thread(target=lambda: load_whisper_model(model_var.get()), daemon=True).start()
 
+def create_context_menu(event):
+    context_menu = Menu(root, tearoff=0)
+    context_menu.add_command(label="Ausschneiden", command=lambda: transcription_text.event_generate("<<Cut>>"))
+    context_menu.add_command(label="Kopieren", command=lambda: transcription_text.event_generate("<<Copy>>"))
+    context_menu.add_command(label="Einfügen", command=lambda: transcription_text.event_generate("<<Paste>>"))
+    context_menu.add_command(label="Löschen", command=lambda: transcription_text.event_generate("<<Clear>>"))
+    context_menu.add_separator()
+    context_menu.add_command(label="Zahlwörter nach Ziffern", command=words_to_digits)
+    context_menu.add_command(label="Ziffern nach Zahlwörtern", command=digits_to_words)
+    context_menu.tk_popup(event.x_root, event.y_root)
+
+def words_to_digits():
+    if transcription_text is not None:
+        current_text = transcription_text.get(1.0, tk.END).strip()
+        converted_text = text_operations.words_to_digits(current_text)
+        transcription_text.delete(1.0, tk.END)
+        transcription_text.insert(tk.END, converted_text)
+        update_status("Zahlwörter in Ziffern umgewandelt", "green")
+
+def digits_to_words():
+    if transcription_text is not None:
+        current_text = transcription_text.get(1.0, tk.END).strip()
+        converted_text = text_operations.digits_to_words(current_text)
+        transcription_text.delete(1.0, tk.END)
+        transcription_text.insert(tk.END, converted_text)
+        update_status("Ziffern in Zahlwörter umgewandelt", "green")
+
 # Liste verfügbare Audiogeräte auf
 list_audio_devices()
 
@@ -282,6 +310,7 @@ main_frame.rowconfigure(1, weight=1)
 
 transcription_text = scrolledtext.ScrolledText(transcription_frame, wrap=tk.WORD, width=80, height=20)
 transcription_text.pack(expand=True, fill=tk.BOTH, padx=5, pady=5)
+transcription_text.bind("<Button-3>", create_context_menu)  # Rechtsklick-Ereignis binden
 
 # Cursor-Farbe und -Breite anpassen
 transcription_text.config(insertbackground="red", insertwidth=2)

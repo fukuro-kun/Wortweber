@@ -36,20 +36,29 @@ def detect_language(text):
 def words_to_digits(text):
     """Wandelt Zahlwörter in einem Text in Ziffern um."""
     language = detect_language(text)
-    words = text.split()
-    result = []
-    i = 0
-    while i < len(words):
-        try:
-            # Versuche, das Wort oder die Wortgruppe in eine Zahl umzuwandeln
-            number = w2n.word_to_num(words[i])
-            result.append(str(number))
-            i += 1
-        except ValueError:
-            # Wenn es keine Zahl ist, füge das Wort unverändert hinzu
-            result.append(words[i])
-            i += 1
-    return ' '.join(result)
+    if language == 'de':
+        # Deutsches Wörterbuch für Zahlen
+        number_dict = {
+            'null': '0', 'eins': '1', 'zwei': '2', 'drei': '3', 'vier': '4', 'fünf': '5',
+            'sechs': '6', 'sieben': '7', 'acht': '8', 'neun': '9', 'zehn': '10'
+        }
+        # Regex-Muster für deutsche Zahlwörter
+        pattern = r'\b(' + '|'.join(number_dict.keys()) + r')\b'
+        return re.sub(pattern, lambda m: number_dict[m.group()], text)
+    else:
+        # Für Englisch verwenden wir word2number
+        words = text.split()
+        result = []
+        i = 0
+        while i < len(words):
+            try:
+                number = w2n.word_to_num(' '.join(words[i:i+3]))  # Versuche bis zu 3 Wörter zu konvertieren
+                result.append(str(number))
+                i += len(' '.join(words[i:i+3]).split())  # Überspringe konvertierte Wörter
+            except ValueError:
+                result.append(words[i])
+                i += 1
+        return ' '.join(result)
 
 def digits_to_words(text):
     """Wandelt Ziffern in einem Text in Zahlwörter um."""
@@ -59,13 +68,14 @@ def digits_to_words(text):
         number = int(match.group())
         return num2words(number, lang=language)
 
-    return re.sub(r'\d+', replace_number, text)
+    return re.sub(r'\b\d+\b', replace_number, text)
 
 # Testfunktion
 if __name__ == "__main__":
     test_texts = [
         "Ich habe dreiundzwanzig Äpfel und vierhundertsechsundfünfzig Birnen.",
-        "I have twenty-three apples and four hundred fifty-six pears."
+        "I have twenty-three apples and four hundred fifty-six pears.",
+        "eins, zwei, drei, vier, fünf, sechs, sieben, acht, neun, zehn. Das ist ein kleiner Test."
     ]
 
     for test_text in test_texts:
