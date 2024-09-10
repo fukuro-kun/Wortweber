@@ -64,7 +64,7 @@ def load_whisper_model(model_name):
     print(f"Lade Spracherkennungsmodell: {model_name}")
     model = whisper.load_model(model_name)
     print("Spracherkennungsmodell geladen.")
-    loading_label.pack_forget()  # Verstecke das Label wieder
+    loading_label.grid_remove()  # Verstecke das Label wieder
     update_status("Bereit", "green")
 
 def list_audio_devices():
@@ -202,8 +202,7 @@ def copy_all_to_clipboard():
         update_status("Gesamter Text in die Zwischenablage kopiert", "green")
 
 def on_model_change(*args):
-    global loading_label
-    loading_label.pack(side=tk.LEFT, padx=(10, 0))  # Zeige das Label an
+    loading_label.grid()  # Zeige das Label an
     root.update()
     threading.Thread(target=lambda: load_whisper_model(model_var.get()), daemon=True).start()
 
@@ -220,7 +219,7 @@ def create_context_menu(event):
 
 def words_to_digits():
     if transcription_text is not None:
-        current_text = transcription_text.get(1.0, tk.END).strip()
+        current_text = transcription_text.get(1.0, tk.END)
         converted_text = text_operations.words_to_digits(current_text)
         transcription_text.delete(1.0, tk.END)
         transcription_text.insert(tk.END, converted_text)
@@ -228,7 +227,7 @@ def words_to_digits():
 
 def digits_to_words():
     if transcription_text is not None:
-        current_text = transcription_text.get(1.0, tk.END).strip()
+        current_text = transcription_text.get(1.0, tk.END)
         converted_text = text_operations.digits_to_words(current_text)
         transcription_text.delete(1.0, tk.END)
         transcription_text.insert(tk.END, converted_text)
@@ -269,15 +268,15 @@ model_frame = ttk.Frame(left_frame)
 model_frame.grid(column=0, row=1, pady=5, sticky="ew")
 
 model_label = ttk.Label(model_frame, text="Whisper-Modell:")
-model_label.pack(side=tk.LEFT, padx=(0, 5))
+model_label.grid(column=0, row=0, padx=(0, 5))
 
 model_var = tk.StringVar(value=WHISPER_MODEL)
 model_dropdown = ttk.Combobox(model_frame, textvariable=model_var, values=WHISPER_MODELS, state="readonly", width=10)
-model_dropdown.pack(side=tk.LEFT)
+model_dropdown.grid(column=1, row=0)
 
 loading_label = ttk.Label(model_frame, text="Modell wird geladen...", foreground="blue")
-loading_label.pack(side=tk.LEFT, padx=(10, 0))
-loading_label.pack_forget()  # Verstecke das Label initial
+loading_label.grid(column=2, row=0, padx=(10, 0))
+loading_label.grid_remove()  # Verstecke das Label initial
 
 model_var.trace("w", on_model_change)
 
@@ -338,11 +337,6 @@ copy_all_button.pack(side=tk.LEFT, padx=5)
 
 quit_button = ttk.Button(button_frame, text="Beenden", command=root.quit)
 quit_button.pack(side=tk.LEFT, padx=5)
-
-# Whisper-Modell laden
-loading_label = ttk.Label(main_frame, text="Modell wird geladen...", foreground="blue")
-loading_label.grid(column=0, row=3, columnspan=2, pady=5)
-root.update()
 
 # Tastaturlistener starten
 listener = keyboard.Listener(on_press=on_press, on_release=on_release)
