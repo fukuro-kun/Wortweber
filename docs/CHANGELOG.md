@@ -1,5 +1,32 @@
 # Changelog
 
+## [Unreleased]
+### Added
+- Dropdown-Menü zur Auswahl verschiedener Whisper-Modelle
+- Anzeige der Transkriptionszeit für jede Aufnahme
+- "Alles kopieren (Zwischenablage)" Button zur einfachen Übernahme des gesamten Transkriptionstexts
+- Kontextmenü für das Transkriptionsfeld mit Optionen zum Ausschneiden, Kopieren, Einfügen und Löschen
+- Platzhalter-Optionen im Kontextmenü für die Konvertierung von Zahlwörtern zu Ziffern und umgekehrt
+
+
+### Changed
+- Verbesserte Cursor-Sichtbarkeit im Transkriptionsfeld
+- Neuer transkribierter Text wird nun an der Cursorposition eingefügt
+- Asynchrones Laden des Whisper-Modells mit Ladeanzeige
+- Entfernung des zusätzlichen Zeilenumbruchs am Ende des eingefügten Texts
+- Temporäre Hervorhebung (2 Sekunden) des neu eingefügten Texts
+- Verbessertes visuelles Feedback für das Whisper-Modell Dropdown-Menü
+- Klarerer Text für den "Alles kopieren" Button
+- Verbesserte Ladereihenfolge der GUI-Elemente für eine konsistentere Darstellung beim Start
+- Entfernung unerwünschter Rahmen um bestimmte GUI-Elemente
+- Feinabstimmung des visuellen Stils für eine einheitlichere Erscheinung
+- Verbesserte GUI-Layout-Struktur für platzsparendere Anordnung
+- Sprachauswahl und Modellauswahl nun oben links
+- Anweisungen, Timer und Statusanzeigen oben rechts platziert
+- Entfernung der Abhängigkeit von num2words
+- Implementierung einer eigenen Lösung für Zahlwort-zu-Ziffer und Ziffer-zu-Zahlwort Konvertierung
+
+
 ## [0.4.0] - 2024-09-10
 ### Changed
 - Projekt umbenannt zu "Wortweber"

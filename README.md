@@ -8,10 +8,11 @@ Wortweber ist eine leistungsstarke und benutzerfreundliche Anwendung zur Echtzei
 - Transkription in Deutsch und Englisch
 - Intuitive grafische Benutzeroberfläche
 - Automatisches Kopieren der Transkription in die Zwischenablage
+- Einfache Umwandlung von Zahlwörtern in Ziffern und umgekehrt
 
 ## Installation und Nutzung
 
-## Installation
+### Installation
 
 1. Stellen Sie sicher, dass Sie Conda installiert haben.
 
@@ -28,32 +29,32 @@ Wortweber ist eine leistungsstarke und benutzerfreundliche Anwendung zur Echtzei
 
 4. Folgen Sie den Anweisungen im Terminal. Sie werden möglicherweise nach Ihrem Passwort gefragt, um Systemabhängigkeiten zu installieren.
 
-## Verwendung
+### Verwendung
 
 1. Aktivieren Sie die Conda-Umgebung:
    ```
-   conda activate whisper_transcription
+   conda activate wortweber
    ```
 
 2. Führen Sie das Skript aus:
    ```
-   python whisper_push_to_talk.py
+   python src/wortweber.py
    ```
 
-3. Drücken und halten Sie die F3-Taste, um zu sprechen. Lassen Sie die Taste los, um die Aufnahme zu beenden und die Transkription zu starten.
+3. Drücken und halten Sie die F12-Taste, um zu sprechen. Lassen Sie die Taste los, um die Aufnahme zu beenden und die Transkription zu starten.
 
 ## Wichtiger Hinweis
 
 Dieses Tool wurde entwickelt, um in einer isolierten Conda-Umgebung zu laufen.
-Bitte stellen Sie sicher, dass Sie die Whisper-Transkriptions-Umgebung aktiviert haben,
+Bitte stellen Sie sicher, dass Sie die Wortweber-Umgebung aktiviert haben,
 bevor Sie das Tool verwenden. Dies gewährleistet die korrekte Funktionalität und verhindert
 unbeabsichtigte Änderungen an Ihrem System-Python.
 
 ## Deinstallation
 
-Um die Whisper-Transkriptions-Umgebung zu entfernen, führen Sie folgenden Befehl aus:
+Um die Wortweber-Umgebung zu entfernen, führen Sie folgenden Befehl aus:
 ```
-conda remove --name whisper_transcription --all
+conda remove --name wortweber --all
 ```
 
 ## Problembehebung
@@ -94,7 +95,7 @@ Dieses Tool wurde erfolgreich getestet auf:
 
 ## Funktionsweise
 
-Das Whisper Transkriptions-Tool nutzt das OpenAI Whisper Modell für Echtzeit-Spracherkennung. Es nimmt Audioaufnahmen über das Mikrofon auf und verarbeitet diese mit Whisper, um eine textuelle Transkription zu erzeugen.
+Das Wortweber-Tool nutzt das OpenAI Whisper Modell für Echtzeit-Spracherkennung. Es nimmt Audioaufnahmen über das Mikrofon auf und verarbeitet diese mit Whisper, um eine textuelle Transkription zu erzeugen.
 
 ## Beitragen
 

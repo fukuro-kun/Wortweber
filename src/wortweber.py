@@ -16,17 +16,17 @@ import pyaudio
 import numpy as np
 import whisper
 import tkinter as tk
-from tkinter import scrolledtext, ttk
+from tkinter import scrolledtext, ttk, Menu
 from pynput import keyboard
 import threading
 import time
 import warnings
 from scipy import signal
 import pyperclip
+import text_operations
 
 # Am Anfang der Datei
 print("Starte Wortweber...")
-
 
 # Unterdrücke Warnungen von ALSA
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -37,13 +37,8 @@ FORMAT = getattr(pyaudio, AUDIO_FORMAT)
 CHANNELS = AUDIO_CHANNELS
 RATE = AUDIO_RATE
 
-# Whisper-Modell laden
-print("Lade Spracherkennungsmodell...")
-model = whisper.load_model(WHISPER_MODEL)
-print("Spracherkennungsmodell geladen.")
-
-# PyAudio-Objekt initialisieren
-p = pyaudio.PyAudio()
+# Whisper-Modelle
+WHISPER_MODELS = ["tiny", "base", "small", "medium", "large"]
 
 # Globale Variablen
 recording = False
@@ -55,20 +50,40 @@ transcription_text = None
 timer_var = None
 timer_thread = None
 language_var = None
+model_var = None
+transcription_timer_var = None
+transcription_time = 0
+model = None
+loading_label = None
+
+# PyAudio-Objekt initialisieren
+p = pyaudio.PyAudio()
+
+def load_whisper_model(model_name):
+    global model, loading_label
+    print(f"Lade Spracherkennungsmodell: {model_name}")
+    model = whisper.load_model(model_name)
+    print("Spracherkennungsmodell geladen.")
+    if loading_label:
+        loading_label.grid_remove()  # Verstecke das Label wieder
+    update_status("Bereit", "green")
 
 def list_audio_devices():
     info = p.get_host_api_info_by_index(0)
     numdevices = info.get('deviceCount')
-    for i in range(0, numdevices):
-        device_info = p.get_device_info_by_host_api_device_index(0, i)
-        if device_info.get('maxInputChannels') > 0:
-            print(f"Input Device id {i} - {device_info.get('name')}")
+    if numdevices is not None:
+        for i in range(int(numdevices)):
+            device_info = p.get_device_info_by_host_api_device_index(0, i)
+            max_channels = device_info.get('maxInputChannels')
+            if max_channels is not None and int(max_channels) > 0:
+                print(f"Input Device id {i} - {device_info.get('name')}")
 
 def update_timer():
     global start_time, timer_var
     while recording:
         elapsed_time = time.time() - start_time
-        timer_var.set(f"Aufnahmezeit: {elapsed_time:.1f} s")
+        if timer_var is not None:
+            timer_var.set(f"Aufnahmezeit: {elapsed_time:.1f} s")
         time.sleep(0.1)
 
 def record_audio():
@@ -104,7 +119,7 @@ def resample_audio(audio_np, orig_sr, target_sr):
     return resampled
 
 def transcribe_audio():
-    global audio_data, language_var
+    global audio_data, language_var, transcription_time
     if not audio_data:
         return "Keine Audiodaten aufgenommen."
 
@@ -115,9 +130,17 @@ def transcribe_audio():
 
     try:
         # Whisper-Konfiguration anpassen
-        options = whisper.DecodingOptions(language=language_var.get(), without_timestamps=True)
-        result = model.transcribe(audio_resampled, **options.__dict__)
-        return result["text"].strip()
+        if language_var is not None:
+            options = whisper.DecodingOptions(language=language_var.get(), without_timestamps=True)
+            start_time = time.time()
+            if model is not None:
+                result = model.transcribe(audio_resampled, **options.__dict__)
+                transcription_time = time.time() - start_time
+                return result["text"].strip()
+            else:
+                return "Modell nicht geladen. Bitte warten Sie, bis das Modell vollständig geladen ist."
+        else:
+            return "Sprachauswahl nicht verfügbar."
     except Exception as e:
         return f"Fehler bei der Transkription: {e}"
 
@@ -130,10 +153,27 @@ def update_status(message, color="black"):
 def transcribe_and_update():
     update_status("Transkribiere...", "orange")
     text = transcribe_audio()
-    transcription_text.insert(tk.END, f"{text}\n\n")
-    transcription_text.see(tk.END)
+    if transcription_text is not None:
+        # Aktuelle Cursorposition speichern
+        current_position = transcription_text.index(tk.INSERT)
+
+        # Text an der Cursorposition einfügen (ohne zusätzlichen Zeilenumbruch)
+        transcription_text.insert(current_position, f"{text}")
+
+        # Neu eingefügten Text markieren
+        end_position = transcription_text.index(f"{current_position} + {len(text)}c")
+        transcription_text.tag_add("highlight", current_position, end_position)
+
+        # Sicherstellen, dass der neue Text sichtbar ist
+        transcription_text.see(end_position)
+
+        # Timer starten, um die Hervorhebung nach 2 Sekunden zu entfernen
+        root.after(2000, lambda: transcription_text.tag_remove("highlight", current_position, end_position))
+
     pyperclip.copy(text)
     update_status("Text transkribiert und in Zwischenablage kopiert", "green")
+    if transcription_timer_var is not None:
+        transcription_timer_var.set(f"Transkriptionszeit: {transcription_time:.2f} s")
 
 def on_press(key):
     global recording, recording_thread
@@ -152,10 +192,53 @@ def on_release(key):
             recording_thread.join()
         if timer_thread:
             timer_thread.join()
-        timer_var.set("Aufnahmezeit: 0.0 s")
+        if timer_var is not None:
+            timer_var.set("Aufnahmezeit: 0.0 s")
 
 def clear_transcription():
-    transcription_text.delete(1.0, tk.END)
+    if transcription_text is not None:
+        transcription_text.delete(1.0, tk.END)
+
+def copy_all_to_clipboard():
+    if transcription_text is not None:
+        all_text = transcription_text.get(1.0, tk.END)
+        pyperclip.copy(all_text)
+        update_status("Gesamter Text in die Zwischenablage kopiert", "green")
+
+def on_model_change(*args):
+    global loading_label
+    if loading_label:
+        loading_label.grid()  # Zeige das Label an
+    root.update()
+    threading.Thread(target=lambda: load_whisper_model(model_var.get() if model_var else WHISPER_MODEL), daemon=True).start()
+
+def create_context_menu(event):
+    context_menu = Menu(root, tearoff=0)
+    if transcription_text:
+        context_menu.add_command(label="Ausschneiden", command=lambda: transcription_text.event_generate("<<Cut>>"))
+        context_menu.add_command(label="Kopieren", command=lambda: transcription_text.event_generate("<<Copy>>"))
+        context_menu.add_command(label="Einfügen", command=lambda: transcription_text.event_generate("<<Paste>>"))
+        context_menu.add_command(label="Löschen", command=lambda: transcription_text.event_generate("<<Clear>>"))
+        context_menu.add_separator()
+        context_menu.add_command(label="Zahlwörter nach Ziffern", command=words_to_digits)
+        context_menu.add_command(label="Ziffern nach Zahlwörtern", command=digits_to_words)
+    context_menu.tk_popup(event.x_root, event.y_root)
+
+def words_to_digits():
+    if transcription_text is not None:
+        current_text = transcription_text.get(1.0, tk.END)
+        converted_text = text_operations.words_to_digits(current_text)
+        transcription_text.delete(1.0, tk.END)
+        transcription_text.insert(tk.END, converted_text)
+        update_status("Zahlwörter in Ziffern umgewandelt", "green")
+
+def digits_to_words():
+    if transcription_text is not None:
+        current_text = transcription_text.get(1.0, tk.END)
+        converted_text = text_operations.digits_to_words(current_text)
+        transcription_text.delete(1.0, tk.END)
+        transcription_text.insert(tk.END, converted_text)
+        update_status("Ziffern in Zahlwörter umgewandelt", "green")
 
 # Liste verfügbare Audiogeräte auf
 list_audio_devices()
@@ -164,59 +247,110 @@ list_audio_devices()
 root = tk.Tk()
 root.title("Wortweber Transkription")
 
+# Stil konfigurieren
+style = ttk.Style()
+style.theme_use('clam')
+style.configure('TLabelframe', borderwidth=0)  # Entfernt Rahmen von LabelFrames
+style.configure('TCombobox', selectbackground='#0078D7', selectforeground='white')
+
 # Hauptframe
 main_frame = ttk.Frame(root, padding="10")
 main_frame.grid(column=0, row=0, sticky="nsew")
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 
+# Linke Seite: Sprachauswahl und Modellauswahl
+left_frame = ttk.Frame(main_frame)
+left_frame.grid(column=0, row=0, sticky="nw")
+
+# Sprachauswahl
+language_var = tk.StringVar(value=DEFAULT_LANGUAGE)
+language_frame = ttk.LabelFrame(left_frame, text="Sprache")
+language_frame.grid(column=0, row=0, pady=5, sticky="ew")
+for lang_code, lang_name in SUPPORTED_LANGUAGES.items():
+    ttk.Radiobutton(language_frame, text=lang_name, variable=language_var, value=lang_code).pack(side=tk.LEFT, padx=5)
+
+# Modellauswahl
+model_frame = ttk.Frame(left_frame)
+model_frame.grid(column=0, row=1, pady=5, sticky="ew")
+
+model_label = ttk.Label(model_frame, text="Whisper-Modell:")
+model_label.grid(column=0, row=0, padx=(0, 5))
+
+model_var = tk.StringVar(value=WHISPER_MODEL)
+model_dropdown = ttk.Combobox(model_frame, textvariable=model_var, values=WHISPER_MODELS, state="readonly", width=10)
+model_dropdown.grid(column=1, row=0)
+
+loading_label = ttk.Label(model_frame, text="Modell wird geladen...", foreground="blue")
+loading_label.grid(column=2, row=0, padx=(10, 0))
+loading_label.grid_remove()  # Verstecke das Label initial
+
+model_var.trace("w", on_model_change)
+
+# Rechte Seite: Anweisungen, Timer und Status
+right_frame = ttk.Frame(main_frame)
+right_frame.grid(column=1, row=0, sticky="ne")
+
 # Anweisungen
-instruction_label = ttk.Label(main_frame, text="Drücken und halten Sie F12, um zu sprechen")
-instruction_label.grid(column=0, row=0, columnspan=2, pady=10)
+instruction_label = ttk.Label(right_frame, text="Drücken und halten Sie F12, um zu sprechen")
+instruction_label.grid(column=0, row=0, pady=5)
 
 # Timer
 timer_var = tk.StringVar()
 timer_var.set("Aufnahmezeit: 0.0 s")
-timer_label = ttk.Label(main_frame, textvariable=timer_var)
-timer_label.grid(column=0, row=1, columnspan=2, pady=5)
+timer_label = ttk.Label(right_frame, textvariable=timer_var)
+timer_label.grid(column=0, row=1, pady=5)
+
+# Transkriptionstimer
+transcription_timer_var = tk.StringVar()
+transcription_timer_var.set("Transkriptionszeit: 0.00 s")
+transcription_timer_label = ttk.Label(right_frame, textvariable=transcription_timer_var)
+transcription_timer_label.grid(column=0, row=2, pady=5)
 
 # Status
 status_var = tk.StringVar()
-status_label = ttk.Label(main_frame, textvariable=status_var)
-status_label.grid(column=0, row=2, columnspan=2, pady=5)
-update_status("Bereit", "green")
-
-# Sprachauswahl
-language_var = tk.StringVar(value=DEFAULT_LANGUAGE)
-language_frame = ttk.LabelFrame(main_frame, text="Sprache")
-language_frame.grid(column=0, row=3, columnspan=2, pady=5, sticky="ew")
-for lang_code, lang_name in SUPPORTED_LANGUAGES.items():
-    ttk.Radiobutton(language_frame, text=lang_name, variable=language_var, value=lang_code).pack(side=tk.LEFT, padx=5)
+status_label = ttk.Label(right_frame, textvariable=status_var)
+status_label.grid(column=0, row=3, pady=5)
+update_status("Initialisiere...", "blue")
 
 # Transkriptionsbereich
 transcription_frame = ttk.LabelFrame(main_frame, text="Transkription")
-transcription_frame.grid(column=0, row=4, columnspan=2, sticky="nsew", pady=10)
+transcription_frame.grid(column=0, row=1, columnspan=2, sticky="nsew", pady=10)
 main_frame.columnconfigure(0, weight=1)
-main_frame.rowconfigure(4, weight=1)
+main_frame.rowconfigure(1, weight=1)
 
 transcription_text = scrolledtext.ScrolledText(transcription_frame, wrap=tk.WORD, width=80, height=20)
 transcription_text.pack(expand=True, fill=tk.BOTH, padx=5, pady=5)
+transcription_text.bind("<Button-3>", create_context_menu)  # Rechtsklick-Ereignis binden
+
+# Cursor-Farbe und -Breite anpassen
+transcription_text.config(insertbackground="red", insertwidth=2)
 
 # Gelbe Hintergrundfarbe beim Markieren
 transcription_text.config(selectbackground="yellow", selectforeground="black")
 
-# Buttons
-clear_button = ttk.Button(main_frame, text="Transkription löschen", command=clear_transcription)
-clear_button.grid(column=0, row=5, pady=10)
+# Tag für Hervorhebung des neu eingefügten Texts erstellen
+transcription_text.tag_configure("highlight", background="light green")
 
-quit_button = ttk.Button(main_frame, text="Beenden", command=root.quit)
-quit_button.grid(column=1, row=5, pady=10)
+# Buttons
+button_frame = ttk.Frame(main_frame)
+button_frame.grid(column=0, row=2, columnspan=2, pady=10)
+
+clear_button = ttk.Button(button_frame, text="Transkription löschen", command=clear_transcription)
+clear_button.pack(side=tk.LEFT, padx=5)
+
+copy_all_button = ttk.Button(button_frame, text="Alles kopieren (Zwischenablage)", command=copy_all_to_clipboard)
+copy_all_button.pack(side=tk.LEFT, padx=5)
+
+quit_button = ttk.Button(button_frame, text="Beenden", command=root.quit)
+quit_button.pack(side=tk.LEFT, padx=5)
 
 # Tastaturlistener starten
 listener = keyboard.Listener(on_press=on_press, on_release=on_release)
 listener.start()
 
 # GUI-Loop starten
+root.after(100, lambda: threading.Thread(target=lambda: load_whisper_model(WHISPER_MODEL), daemon=True).start())
 root.mainloop()
 
 # Aufräumen
