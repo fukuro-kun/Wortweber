@@ -10,8 +10,6 @@ import threading
 import time
 import warnings
 import pyaudio
-import wave
-import os
 from queue import Queue
 from scipy import signal
 import pyperclip
@@ -27,7 +25,6 @@ FORMAT = getattr(pyaudio, AUDIO_FORMAT)
 CHANNELS = AUDIO_CHANNELS
 RATE = AUDIO_RATE
 
-
 # Globale Variablen
 recording = False
 audio_queue = Queue()
@@ -39,6 +36,9 @@ status_var = None
 transcription_text = None
 timer_var = None
 timer_thread = None
+last_transcribed_text = ""
+normalize_numbers_var = None
+language_var = None
 
 # Whisper-Modell laden
 print("Lade Whisper-Modell...")
@@ -47,6 +47,7 @@ print("Whisper-Modell geladen.")
 
 # PyAudio-Objekt initialisieren
 p = pyaudio.PyAudio()
+
 def detect_pause(audio_chunk, threshold=PAUSE_THRESHOLD, min_pause_duration=MIN_PAUSE_DURATION):
     """
     Erkennt Pausen in einem Audio-Chunk basierend auf der Amplitude.
@@ -63,7 +64,7 @@ def detect_pause(audio_chunk, threshold=PAUSE_THRESHOLD, min_pause_duration=MIN_
         audio_chunk = np.frombuffer(audio_chunk, dtype=np.int16).astype(np.float32) / 32768.0
 
     # Berechne die RMS-Amplitude (Root Mean Square) für kleine Fenster
-    window_size = int(AUDIO_RATE * PAUSE_WINDOW_SIZE)
+    window_size = int(RATE * PAUSE_WINDOW_SIZE)
     chunks = np.array_split(audio_chunk, len(audio_chunk) // window_size)
     # Diese Änderung fügt `np.maximum(np.mean(window**2), 1e-10)` hinzu, um sicherzustellen, dass wir nie versuchen, die Quadratwurzel aus einer negativen Zahl oder Null zu ziehen.
     rms = np.array([np.sqrt(np.maximum(np.mean(chunk**2), 1e-10)) for chunk in chunks])
@@ -72,7 +73,7 @@ def detect_pause(audio_chunk, threshold=PAUSE_THRESHOLD, min_pause_duration=MIN_
     is_pause = rms < threshold
 
     # Prüfe, ob die Pause lang genug ist
-    pause_samples = int(min_pause_duration * (len(rms) / (len(audio_chunk) / AUDIO_RATE)))
+    pause_samples = int(min_pause_duration * (len(rms) / (len(audio_chunk) / RATE)))
     if np.sum(is_pause) >= pause_samples:
         return True
     return False
@@ -80,23 +81,25 @@ def detect_pause(audio_chunk, threshold=PAUSE_THRESHOLD, min_pause_duration=MIN_
 def list_audio_devices():
     info = p.get_host_api_info_by_index(0)
     numdevices = info.get('deviceCount')
-    for i in range(0, numdevices):
-        device_info = p.get_device_info_by_host_api_device_index(0, i)
-        if device_info.get('maxInputChannels') > 0:
-            print(f"Input Device id {i} - {device_info.get('name')}")
+    if numdevices is not None:
+        for i in range(0, numdevices):
+            device_info = p.get_device_info_by_host_api_device_index(0, i)
+            if device_info.get('maxInputChannels') is not None and device_info.get('maxInputChannels') > 0:
+                print(f"Input Device id {i} - {device_info.get('name')}")
 
 def update_timer():
     global start_time, timer_var
     while recording:
         elapsed_time = time.time() - start_time
-        timer_var.set(f"Aufnahmezeit: {elapsed_time:.1f} s")
+        if timer_var is not None:
+            timer_var.set(f"Aufnahmezeit: {elapsed_time:.1f} s")
         time.sleep(0.1)
 
 def record_audio():
     global recording, audio_queue, start_time, timer_thread
     try:
-        stream = p.open(format=FORMAT, channels=AUDIO_CHANNELS, rate=AUDIO_RATE, input=True,
-                        frames_per_buffer=AUDIO_CHUNK, input_device_index=DEVICE_INDEX)
+        stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True,
+                        frames_per_buffer=CHUNK, input_device_index=DEVICE_INDEX)
 
         print("Aufnahme gestartet.")
         start_time = time.time()
@@ -106,7 +109,7 @@ def record_audio():
         timer_thread.start()
 
         while recording:
-            data = stream.read(AUDIO_CHUNK, exception_on_overflow=False)
+            data = stream.read(CHUNK, exception_on_overflow=False)
             current_chunk.append(data)
 
             audio_np = np.frombuffer(b''.join(current_chunk), dtype=np.int16)
@@ -117,7 +120,7 @@ def record_audio():
                     audio_queue.put(b''.join(current_chunk))
 
                     # Überlappung für den nächsten Chunk
-                    overlap_samples = int(CHUNK_OVERLAP * AUDIO_RATE)
+                    overlap_samples = int(CHUNK_OVERLAP * RATE)
                     current_chunk = current_chunk[-overlap_samples:]
 
                     chunk_start_time = time.time() - CHUNK_OVERLAP
@@ -138,6 +141,20 @@ def record_audio():
         audio_queue.put(None)  # Signal für das Ende der Aufnahme
 
 def process_audio_chunks():
+    """
+    Verarbeitet die aufgenommenen Audio-Chunks und führt die Transkription durch.
+
+    Diese Funktion läuft in einem separaten Thread und führt folgende Schritte aus:
+    1. Holt Audio-Chunks aus der audio_queue
+    2. Konvertiert die Audio-Daten in das richtige Format für Whisper
+    3. Führt die Transkription mit Whisper durch
+    4. Verarbeitet den transkribierten Text, um Überlappungen zu entfernen
+    5. Sendet den neuen Text an die GUI zur Anzeige
+
+    Die Funktion läuft, bis ein None-Objekt in der Queue empfangen wird, was das Ende der Aufnahme signalisiert.
+    """
+    global last_transcribed_text
+    full_transcription = ""
     while True:
         chunk = audio_queue.get()
         if chunk is None:
@@ -145,26 +162,70 @@ def process_audio_chunks():
 
         audio_np = np.frombuffer(chunk, dtype=np.int16).astype(np.float32) / 32768.0
 
-        if AUDIO_RATE != TARGET_RATE:
-            audio_resampled = resample_audio(audio_np, AUDIO_RATE, TARGET_RATE)
+        if RATE != TARGET_RATE:
+            audio_resampled = resample_audio(audio_np, RATE, TARGET_RATE)
         else:
             audio_resampled = audio_np
 
         try:
-            options = whisper.DecodingOptions(language="de", without_timestamps=True)
+            options = whisper.DecodingOptions(language=language_var.get(), without_timestamps=True)
             result = model.transcribe(audio_resampled, **options.__dict__)
-            transcription_queue.put(result["text"].strip())
+            new_text = result["text"].strip()
 
-            # Sofortige Ausgabe des transkribierten Chunks
-            update_transcription_gui(result["text"].strip())
+            # Finde den neuen Teil des Texts
+            if full_transcription:
+                # Finde den längsten gemeinsamen Suffix/Präfix
+                overlap = find_overlap(full_transcription, new_text)
+                new_text = new_text[overlap:]
+
+            if new_text:
+                full_transcription += " " + new_text
+                transcription_queue.put(new_text)
+                update_transcription_gui(new_text)
         except Exception as e:
             print(f"Fehler bei der Transkription: {e}")
 
     transcription_queue.put(None)  # Signal für das Ende der Transkription
 
+def find_overlap(a, b):
+    """Findet die Länge des längsten gemeinsamen Suffix von a und Präfix von b."""
+    min_len = min(len(a), len(b))
+    for i in range(min_len, 0, -1):
+        if a[-i:] == b[:i]:
+            return i
+    return 0
+
+def normalize_numbers(text):
+    """Konvertiert Zahlwörter in Ziffern und umgekehrt, um Konsistenz zu gewährleisten."""
+    if language_var.get() == "de":
+        number_words = {
+            'null': '0', 'eins': '1', 'zwei': '2', 'drei': '3', 'vier': '4', 'fünf': '5',
+            'sechs': '6', 'sieben': '7', 'acht': '8', 'neun': '9', 'zehn': '10',
+            'elf': '11', 'zwölf': '12', 'dreizehn': '13', 'vierzehn': '14', 'fünfzehn': '15'
+        }
+    else:  # Englisch
+        number_words = {
+            'zero': '0', 'one': '1', 'two': '2', 'three': '3', 'four': '4', 'five': '5',
+            'six': '6', 'seven': '7', 'eight': '8', 'nine': '9', 'ten': '10',
+            'eleven': '11', 'twelve': '12', 'thirteen': '13', 'fourteen': '14', 'fifteen': '15'
+        }
+
+    words = text.split()
+    normalized = []
+    for word in words:
+        if word.lower() in number_words:
+            normalized.append(number_words[word.lower()])
+        elif word.isdigit() and int(word) <= 15:
+            normalized.append(list(number_words.keys())[list(number_words.values()).index(word)])
+        else:
+            normalized.append(word)
+    return ' '.join(normalized)
+
 def update_transcription_gui(text):
-    if text:
-        transcription_text.insert(tk.END, f"{text}\n")
+    if text and transcription_text is not None:
+        if normalize_numbers_var.get():
+            text = normalize_numbers(text)
+        transcription_text.insert(tk.END, f"{text} ")
         transcription_text.see(tk.END)
         root.update_idletasks()  # Aktualisiert die GUI sofort
 
@@ -199,7 +260,8 @@ def on_release(key):
             processing_thread.join()
         if timer_thread:
             timer_thread.join()
-        timer_var.set("Aufnahmezeit: 0.0 s")
+        if timer_var is not None:
+            timer_var.set("Aufnahmezeit: 0.0 s")
         update_transcription()
 
 def update_transcription():
@@ -211,7 +273,8 @@ def update_transcription():
     update_status("Transkription abgeschlossen", "green")
 
 def clear_transcription():
-    transcription_text.delete(1.0, tk.END)
+    if transcription_text is not None:
+        transcription_text.delete(1.0, tk.END)
 
 # Liste verfügbare Audiogeräte auf
 list_audio_devices()
@@ -228,25 +291,36 @@ root.rowconfigure(0, weight=1)
 
 # Anweisungen
 instruction_label = ttk.Label(main_frame, text="Drücken und halten Sie F12, um zu sprechen")
-instruction_label.grid(column=0, row=0, columnspan=2, pady=10)
+instruction_label.grid(column=0, row=0, columnspan=3, pady=10)
 
 # Timer
 timer_var = tk.StringVar()
 timer_var.set("Aufnahmezeit: 0.0 s")
 timer_label = ttk.Label(main_frame, textvariable=timer_var)
-timer_label.grid(column=0, row=1, columnspan=2, pady=5)
+timer_label.grid(column=0, row=1, columnspan=3, pady=5)
 
 # Status
 status_var = tk.StringVar()
 status_label = ttk.Label(main_frame, textvariable=status_var)
-status_label.grid(column=0, row=2, columnspan=2, pady=5)
+status_label.grid(column=0, row=2, columnspan=3, pady=5)
 update_status("Bereit", "green")
+
+# Sprachauswahl
+language_var = tk.StringVar(value="de")
+language_frame = ttk.LabelFrame(main_frame, text="Sprache")
+language_frame.grid(column=0, row=3, columnspan=3, pady=5, sticky="ew")
+ttk.Radiobutton(language_frame, text="Deutsch", variable=language_var, value="de").pack(side=tk.LEFT, padx=5)
+ttk.Radiobutton(language_frame, text="Englisch", variable=language_var, value="en").pack(side=tk.LEFT, padx=5)
+
+# Zahlennormalisierung
+normalize_numbers_var = tk.BooleanVar(value=False)
+ttk.Checkbutton(main_frame, text="Zahlennormalisierung", variable=normalize_numbers_var).grid(column=0, row=4, columnspan=3, pady=5)
 
 # Transkriptionsbereich
 transcription_frame = ttk.LabelFrame(main_frame, text="Transkription")
-transcription_frame.grid(column=0, row=3, columnspan=2, sticky="nsew", pady=10)
+transcription_frame.grid(column=0, row=5, columnspan=3, sticky="nsew", pady=10)
 main_frame.columnconfigure(0, weight=1)
-main_frame.rowconfigure(3, weight=1)
+main_frame.rowconfigure(5, weight=1)
 
 transcription_text = scrolledtext.ScrolledText(transcription_frame, wrap=tk.WORD, width=80, height=20)
 transcription_text.pack(expand=True, fill=tk.BOTH, padx=5, pady=5)
@@ -256,10 +330,10 @@ transcription_text.config(selectbackground="yellow", selectforeground="black")
 
 # Buttons
 clear_button = ttk.Button(main_frame, text="Transkription löschen", command=clear_transcription)
-clear_button.grid(column=0, row=4, pady=10)
+clear_button.grid(column=0, row=6, pady=10)
 
 quit_button = ttk.Button(main_frame, text="Beenden", command=root.quit)
-quit_button.grid(column=1, row=4, pady=10)
+quit_button.grid(column=2, row=6, pady=10)
 
 # Tastaturlistener starten
 listener = keyboard.Listener(on_press=on_press, on_release=on_release)
