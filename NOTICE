@@ -1,0 +1,30 @@
+Wortweber
+Copyright 2024 fukuro-kun
+Das Projekt Wortweber wurde von fukuro-kun (https://github.com/fukuro-kun) initiiert und wird von ihm gepflegt.
+
+Dieses Projekt nutzt das OpenAI Whisper-Modell für Spracherkennung.
+OpenAI Whisper: https://github.com/openai/whisper
+Copyright (c) 2022 OpenAI
+
+Verwendet Bibliotheken:
+
+PyAudio: https://people.csail.mit.edu/hubert/pyaudio/
+Copyright (c) 2006 Hubert Pham
+
+NumPy: https://numpy.org/
+Copyright (c) 2005-2024 NumPy Developers
+
+SciPy: https://www.scipy.org/
+Copyright (c) 2001-2024 SciPy Developers
+
+Tkinter: Teil der Python Standard Library
+Copyright (c) 2001-2024 Python Software Foundation
+
+Pynput: https://github.com/moses-palmer/pynput
+Copyright (c) 2015-2024 Moses Palmér
+
+PyPerclip: https://github.com/asweigart/pyperclip
+Copyright (c) 2014 Al Sweigart
+
+Diese Bibliotheken werden unter ihren jeweiligen Lizenzen verwendet.
+Für Details siehe die entsprechenden Lizenzdateien oder Projektseiten.
