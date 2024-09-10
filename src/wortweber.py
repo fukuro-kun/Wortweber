@@ -53,15 +53,18 @@ model_var = None
 transcription_timer_var = None
 transcription_time = 0
 model = None
+loading_label = None
+
+# PyAudio-Objekt initialisieren
+p = pyaudio.PyAudio()
 
 def load_whisper_model(model_name):
     global model
     print(f"Lade Spracherkennungsmodell: {model_name}")
     model = whisper.load_model(model_name)
     print("Spracherkennungsmodell geladen.")
-
-# PyAudio-Objekt initialisieren
-p = pyaudio.PyAudio()
+    if loading_label:
+        loading_label.grid_remove()
 
 def list_audio_devices():
     info = p.get_host_api_info_by_index(0)
@@ -149,15 +152,18 @@ def transcribe_and_update():
         # Aktuelle Cursorposition speichern
         current_position = transcription_text.index(tk.INSERT)
 
-        # Text an der Cursorposition einfügen
-        transcription_text.insert(current_position, f"{text}\n\n")
+        # Text an der Cursorposition einfügen (ohne zusätzlichen Zeilenumbruch)
+        transcription_text.insert(current_position, f"{text}")
 
         # Neu eingefügten Text markieren
-        end_position = transcription_text.index(f"{current_position} + {len(text) + 2}c")
+        end_position = transcription_text.index(f"{current_position} + {len(text)}c")
         transcription_text.tag_add("highlight", current_position, end_position)
 
         # Sicherstellen, dass der neue Text sichtbar ist
         transcription_text.see(end_position)
+
+        # Timer starten, um die Hervorhebung nach 2 Sekunden zu entfernen
+        root.after(2000, lambda: transcription_text.tag_remove("highlight", current_position, end_position))
 
     pyperclip.copy(text)
     update_status("Text transkribiert und in Zwischenablage kopiert", "green")
@@ -188,8 +194,20 @@ def clear_transcription():
     if transcription_text is not None:
         transcription_text.delete(1.0, tk.END)
 
+def copy_all_to_clipboard():
+    if transcription_text is not None:
+        all_text = transcription_text.get(1.0, tk.END)
+        pyperclip.copy(all_text)
+        update_status("Gesamter Text in die Zwischenablage kopiert", "green")
+
 def on_model_change(*args):
-    load_whisper_model(model_var.get())
+    global loading_label
+    if loading_label:
+        loading_label.grid_remove()
+    loading_label = ttk.Label(main_frame, text="Modell wird geladen...", foreground="blue")
+    loading_label.grid(column=0, row=5, columnspan=2, pady=5)
+    root.update()
+    threading.Thread(target=lambda: load_whisper_model(model_var.get()), daemon=True).start()
 
 # Liste verfügbare Audiogeräte auf
 list_audio_devices()
@@ -237,7 +255,12 @@ for lang_code, lang_name in SUPPORTED_LANGUAGES.items():
 model_var = tk.StringVar(value=WHISPER_MODEL)
 model_frame = ttk.LabelFrame(main_frame, text="Whisper-Modell")
 model_frame.grid(column=0, row=5, columnspan=2, pady=5, sticky="ew")
-model_dropdown = ttk.Combobox(model_frame, textvariable=model_var, values=WHISPER_MODELS)
+
+style = ttk.Style()
+style.theme_use('clam')  # Sie können auch andere Themes wie 'alt', 'default', 'classic' ausprobieren
+style.configure('TCombobox', selectbackground='#0078D7', selectforeground='white')
+
+model_dropdown = ttk.Combobox(model_frame, textvariable=model_var, values=WHISPER_MODELS, state="readonly")
 model_dropdown.pack(side=tk.LEFT, padx=5)
 model_var.trace("w", on_model_change)
 
@@ -260,11 +283,17 @@ transcription_text.config(selectbackground="yellow", selectforeground="black")
 transcription_text.tag_configure("highlight", background="light green")
 
 # Buttons
-clear_button = ttk.Button(main_frame, text="Transkription löschen", command=clear_transcription)
-clear_button.grid(column=0, row=7, pady=10)
+button_frame = ttk.Frame(main_frame)
+button_frame.grid(column=0, row=7, columnspan=2, pady=10)
 
-quit_button = ttk.Button(main_frame, text="Beenden", command=root.quit)
-quit_button.grid(column=1, row=7, pady=10)
+clear_button = ttk.Button(button_frame, text="Transkription löschen", command=clear_transcription)
+clear_button.pack(side=tk.LEFT, padx=5)
+
+copy_all_button = ttk.Button(button_frame, text="Alles kopieren (Zwischenablage)", command=copy_all_to_clipboard)
+copy_all_button.pack(side=tk.LEFT, padx=5)
+
+quit_button = ttk.Button(button_frame, text="Beenden", command=root.quit)
+quit_button.pack(side=tk.LEFT, padx=5)
 
 # Initiales Laden des Whisper-Modells
 load_whisper_model(WHISPER_MODEL)
