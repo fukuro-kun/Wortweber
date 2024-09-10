@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Whisper Transkriptions-Tool: Projektübersicht
 
 ## Einführung
@@ -25,7 +24,6 @@ Das Whisper Transkriptions-Tool ist eine benutzerfreundliche Anwendung zur Echtz
 - src/
   - config.py: Zentrale Konfigurationsdatei
   - whisper_push_to_talk.py: Hauptanwendung
-  - whisper_push_to_talk_dev.py: Entwicklungsversion mit zusätzlichen Features
 - docs/
   - README.md: Allgemeine Projektinformationen
   - CHANGELOG.md: Änderungsprotokoll
@@ -45,15 +43,41 @@ Das Whisper Transkriptions-Tool ist eine benutzerfreundliche Anwendung zur Echtz
 4. Pushen Sie zum Branch: `git push origin feature/neue-funktion`
 5. Erstellen Sie einen Pull Request
 
-## Lizenz
-MIT-Lizenz (siehe LICENSE-Datei)
+## Git-Workflow Best Practices
 
-## Kontakt
-Für Fragen und Support, bitte ein Issue auf GitHub erstellen oder sich an den Projektbetreuer wenden.
-=======
-## Chunk-weise Verarbeitung und Echtzeittranskription (Experimentell)
+1. Vor jeder Operation den aktuellen Status und Branch prüfen:
+   ```
+   git status
+   git branch
+   ```
 
-Die Implementierung der Chunk-weisen Verarbeitung und Echtzeittranskription war ein experimenteller Ansatz, der letztendlich nicht wie erwartet funktionierte und daher nicht in den Hauptentwicklungszweig integriert wurde.
+2. Vor dem Beginn neuer Entwicklungen sicherstellen, dass der lokale Branch aktuell ist:
+   ```
+   git pull origin [branch-name]
+   ```
+
+3. Regelmäßig den Status der Änderungen überprüfen:
+   ```
+   git status
+   ```
+
+4. Nach jedem Merge oder Branch-Wechsel den aktiven Branch verifizieren:
+   ```
+   git branch
+   ```
+
+5. Vor dem Push zum Remote-Repository den finalen Status prüfen:
+   ```
+   git status
+   ```
+
+Diese Schritte helfen, versehentliche Änderungen im falschen Branch oder unbeabsichtigte Merges zu vermeiden.
+
+## Experimenteller Code
+
+### Chunk-weise Verarbeitung und Echtzeittranskription (Experimentell)
+
+Ein experimenteller Ansatz zur chunk-weisen Verarbeitung wurde implementiert, aber letztendlich nicht in den Hauptentwicklungszweig integriert.
 
 Hauptmerkmale des Versuchs:
 1. Dynamische Anpassung der Chunk-Größe basierend auf erkannten Sprechpausen.
@@ -70,5 +94,14 @@ Relevante Commits:
 - ddeff46, f32bcbb, b0e8adc: Versuche, die Robustheit der Pausenerkennung zu verbessern
 - ed6015e: Hinzufügung von Sprachauswahl und Zahlennormalisierung
 
-Dieser Entwicklungszweig wird nicht weiter aktiv verfolgt, bleibt aber als Referenz und für mögliche zukünftige Überarbeitungen erhalten.
->>>>>>> 4dfd1b0 (Dokumentiere Probleme und Status der Chunk-weisen Verarbeitung)
+Dieser experimentelle Code wurde aus dem aktiven Entwicklungszweig entfernt, ist aber in der Git-Historie verfügbar. Um den Code einzusehen oder wiederherzustellen, kann folgender Befehl verwendet werden:
+
+```bash
+git show 4dfd1b0ac4998e306fc97c35e6c3abb9fbd71b0c:src/whisper_push_to_talk_dev.py
+```
+
+## Lizenz
+MIT-Lizenz (siehe LICENSE-Datei)
+
+## Kontakt
+Für Fragen und Support, bitte ein Issue auf GitHub erstellen oder sich an den Projektbetreuer wenden.
