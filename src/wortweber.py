@@ -64,8 +64,7 @@ def load_whisper_model(model_name):
     print(f"Lade Spracherkennungsmodell: {model_name}")
     model = whisper.load_model(model_name)
     print("Spracherkennungsmodell geladen.")
-    if loading_label:
-        loading_label.grid_remove()
+    loading_label.pack_forget()  # Verstecke das Label wieder
     update_status("Bereit", "green")
 
 def list_audio_devices():
@@ -204,10 +203,7 @@ def copy_all_to_clipboard():
 
 def on_model_change(*args):
     global loading_label
-    if loading_label:
-        loading_label.grid_remove()
-    loading_label = ttk.Label(main_frame, text="Modell wird geladen...", foreground="blue")
-    loading_label.grid(column=0, row=2, columnspan=2, pady=5)
+    loading_label.pack(side=tk.LEFT, padx=(10, 0))  # Zeige das Label an
     root.update()
     threading.Thread(target=lambda: load_whisper_model(model_var.get()), daemon=True).start()
 
@@ -269,11 +265,20 @@ for lang_code, lang_name in SUPPORTED_LANGUAGES.items():
     ttk.Radiobutton(language_frame, text=lang_name, variable=language_var, value=lang_code).pack(side=tk.LEFT, padx=5)
 
 # Modellauswahl
-model_var = tk.StringVar(value=WHISPER_MODEL)
-model_frame = ttk.LabelFrame(left_frame, text="Whisper-Modell")
+model_frame = ttk.Frame(left_frame)
 model_frame.grid(column=0, row=1, pady=5, sticky="ew")
-model_dropdown = ttk.Combobox(model_frame, textvariable=model_var, values=WHISPER_MODELS, state="readonly")
-model_dropdown.pack(side=tk.LEFT, padx=5)
+
+model_label = ttk.Label(model_frame, text="Whisper-Modell:")
+model_label.pack(side=tk.LEFT, padx=(0, 5))
+
+model_var = tk.StringVar(value=WHISPER_MODEL)
+model_dropdown = ttk.Combobox(model_frame, textvariable=model_var, values=WHISPER_MODELS, state="readonly", width=10)
+model_dropdown.pack(side=tk.LEFT)
+
+loading_label = ttk.Label(model_frame, text="Modell wird geladen...", foreground="blue")
+loading_label.pack(side=tk.LEFT, padx=(10, 0))
+loading_label.pack_forget()  # Verstecke das Label initial
+
 model_var.trace("w", on_model_change)
 
 # Rechte Seite: Anweisungen, Timer und Status
