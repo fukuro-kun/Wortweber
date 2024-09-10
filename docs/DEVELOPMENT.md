@@ -1,10 +1,18 @@
-# Wortweber: Projektübersicht
+# Wortweber: Entwicklungsdokumentation
 
-## Einführung
-Dieses Dokument bietet eine umfassende Übersicht über das Wortweber-Tool. Es dient als zentrale Informationsquelle für Entwickler, Benutzer und Stakeholder des Projekts.
+## Projektübersicht
+Wortweber ist ein Python-basiertes Einzelentwickler-Projekt mit KI-Unterstützung zur Echtzeit-Transkription von Sprache in Text. Es nutzt das OpenAI Whisper-Modell für die Spracherkennung und bietet eine benutzerfreundliche grafische Oberfläche mit Push-to-Talk-Funktionalität.
 
-## Projektbeschreibung
-Wortweber ist eine benutzerfreundliche Anwendung zur Echtzeit-Transkription von Sprache in Text. Es nutzt das OpenAI Whisper-Modell für präzise Spracherkennung und bietet eine intuitive grafische Benutzeroberfläche.
+## Entwicklungsworkflow
+- Direktes Arbeiten auf dem main-Branch
+- Einfache Commit- und Push-Operationen
+- Verwendung von Tags für Versionierung
+
+## Git-Workflow
+1. Änderungen vornehmen
+2. Änderungen committen: `git add . && git commit -m "Beschreibende Nachricht"`
+3. Änderungen pushen: `git push origin main`
+4. Bei neuen Versionen: `git tag -a v0.x.x -m "Version 0.x.x" && git push origin v0.x.x`
 
 ## Hauptfunktionen
 - Echtzeit-Audioaufnahme mit Push-to-Talk-Funktionalität (F12-Taste)
