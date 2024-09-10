@@ -27,3 +27,14 @@
    ```
 
 Diese Schritte helfen, versehentliche Änderungen im falschen Branch oder unbeabsichtigte Merges zu vermeiden.
+
+
+## Experimenteller Code
+
+Ein experimenteller Ansatz zur chunk-weisen Verarbeitung wurde in der Datei `src/whisper_push_to_talk_dev.py` implementiert.
+Dieser Code wurde aus dem aktiven Entwicklungszweig entfernt, ist aber in der Git-Historie verfügbar.
+Um den Code einzusehen oder wiederherzustellen, kann folgender Befehl verwendet werden:
+
+```bash
+git show 4dfd1b0ac4998e306fc97c35e6c3abb9fbd71b0c:src/whisper_push_to_talk_dev.py
+```
