@@ -4,10 +4,16 @@
 ### Added
 - Dropdown-Menü zur Auswahl verschiedener Whisper-Modelle
 - Anzeige der Transkriptionszeit für jede Aufnahme
+- "Alles kopieren (Zwischenablage)" Button zur einfachen Übernahme des gesamten Transkriptionstexts
+
 ### Changed
 - Verbesserte Cursor-Sichtbarkeit im Transkriptionsfeld
 - Neuer transkribierter Text wird nun an der Cursorposition eingefügt
-- Neu eingefügter Text wird kurzzeitig hervorgehoben
+- Asynchrones Laden des Whisper-Modells mit Ladeanzeige
+- Entfernung des zusätzlichen Zeilenumbruchs am Ende des eingefügten Texts
+- Temporäre Hervorhebung (2 Sekunden) des neu eingefügten Texts
+- Verbessertes visuelles Feedback für das Whisper-Modell Dropdown-Menü
+- Klarerer Text für den "Alles kopieren" Button
 
 ## [0.4.0] - 2024-09-10
 ### Changed
