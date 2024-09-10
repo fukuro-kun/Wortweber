@@ -103,3 +103,12 @@ Beiträge zu diesem Projekt sind willkommen! Wenn Sie Verbesserungen vorschlagen
 ## Lizenz
 
 Dieses Projekt steht unter der Apache License 2.0. Weitere Details finden Sie in der [LICENSE](LICENSE) Datei.
+
+## Externe Bibliotheken
+
+Dieses Projekt verwendet die num2words Bibliothek, die unter der LGPL-2.1 Lizenz steht.
+Der Quellcode von num2words kann unter folgendem Link bezogen werden:
+https://github.com/savoirfairelinux/num2words
+
+Um die vollständigen Lizenzbedingungen einzusehen, besuchen Sie:
+https://github.com/savoirfairelinux/num2words/blob/master/LICENSE

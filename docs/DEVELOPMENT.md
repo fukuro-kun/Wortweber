@@ -11,6 +11,7 @@ Wortweber ist eine benutzerfreundliche Anwendung zur Echtzeit-Transkription von 
 - Transkription in Deutsch und Englisch mit Sprachauswahl
 - Benutzerfreundliche GUI mit Statusanzeigen und Timer
 - Kopieren der Transkription in die Zwischenablage
+- Kontextmenü für Textbearbeitung und Zahlwort-Konvertierung (teilweise implementiert)
 
 ## Technische Details
 - Programmiersprache: Python 3.11

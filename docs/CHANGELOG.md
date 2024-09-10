@@ -5,6 +5,9 @@
 - Dropdown-Menü zur Auswahl verschiedener Whisper-Modelle
 - Anzeige der Transkriptionszeit für jede Aufnahme
 - "Alles kopieren (Zwischenablage)" Button zur einfachen Übernahme des gesamten Transkriptionstexts
+- Kontextmenü für das Transkriptionsfeld mit Optionen zum Ausschneiden, Kopieren, Einfügen und Löschen
+- Platzhalter-Optionen im Kontextmenü für die Konvertierung von Zahlwörtern zu Ziffern und umgekehrt
+
 
 ### Changed
 - Verbesserte Cursor-Sichtbarkeit im Transkriptionsfeld
