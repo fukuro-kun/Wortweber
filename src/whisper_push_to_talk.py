@@ -1,5 +1,6 @@
 # Dateiname: src/whisper_push_to_talk.py
 
+from config import *
 import pyaudio
 import numpy as np
 import whisper
@@ -15,18 +16,15 @@ import pyperclip
 # Unterdrücke Warnungen von ALSA
 warnings.filterwarnings("ignore", category=UserWarning)
 
-# Konstanten
-CHUNK = 4096
-FORMAT = pyaudio.paInt16
-CHANNELS = 1
-RATE = 44100
-TARGET_RATE = 16000
-DEVICE_INDEX = 6
-MIN_RECORD_SECONDS = 0.5
+# Konstanten aus der Konfiguration
+CHUNK = AUDIO_CHUNK
+FORMAT = getattr(pyaudio, AUDIO_FORMAT)
+CHANNELS = AUDIO_CHANNELS
+RATE = AUDIO_RATE
 
 # Whisper-Modell laden
 print("Lade Whisper-Modell...")
-model = whisper.load_model("small")  # base, small, medium, large
+model = whisper.load_model(WHISPER_MODEL)
 print("Whisper-Modell geladen.")
 
 # PyAudio-Objekt initialisieren
@@ -41,6 +39,7 @@ status_var = None
 transcription_text = None
 timer_var = None
 timer_thread = None
+language_var = None
 
 def list_audio_devices():
     info = p.get_host_api_info_by_index(0)
@@ -90,7 +89,7 @@ def resample_audio(audio_np, orig_sr, target_sr):
     return resampled
 
 def transcribe_audio():
-    global audio_data
+    global audio_data, language_var
     if not audio_data:
         return "Keine Audiodaten aufgenommen."
 
@@ -101,7 +100,7 @@ def transcribe_audio():
 
     try:
         # Whisper-Konfiguration anpassen
-        options = whisper.DecodingOptions(language="de", without_timestamps=True)
+        options = whisper.DecodingOptions(language=language_var.get(), without_timestamps=True)
         result = model.transcribe(audio_resampled, **options.__dict__)
         return result["text"].strip()
     except Exception as e:
@@ -172,11 +171,18 @@ status_label = ttk.Label(main_frame, textvariable=status_var)
 status_label.grid(column=0, row=2, columnspan=2, pady=5)
 update_status("Bereit", "green")
 
+# Sprachauswahl
+language_var = tk.StringVar(value=DEFAULT_LANGUAGE)
+language_frame = ttk.LabelFrame(main_frame, text="Sprache")
+language_frame.grid(column=0, row=3, columnspan=2, pady=5, sticky="ew")
+for lang_code, lang_name in SUPPORTED_LANGUAGES.items():
+    ttk.Radiobutton(language_frame, text=lang_name, variable=language_var, value=lang_code).pack(side=tk.LEFT, padx=5)
+
 # Transkriptionsbereich
 transcription_frame = ttk.LabelFrame(main_frame, text="Transkription")
-transcription_frame.grid(column=0, row=3, columnspan=2, sticky="nsew", pady=10)
+transcription_frame.grid(column=0, row=4, columnspan=2, sticky="nsew", pady=10)
 main_frame.columnconfigure(0, weight=1)
-main_frame.rowconfigure(3, weight=1)
+main_frame.rowconfigure(4, weight=1)
 
 transcription_text = scrolledtext.ScrolledText(transcription_frame, wrap=tk.WORD, width=80, height=20)
 transcription_text.pack(expand=True, fill=tk.BOTH, padx=5, pady=5)
@@ -186,10 +192,10 @@ transcription_text.config(selectbackground="yellow", selectforeground="black")
 
 # Buttons
 clear_button = ttk.Button(main_frame, text="Transkription löschen", command=clear_transcription)
-clear_button.grid(column=0, row=4, pady=10)
+clear_button.grid(column=0, row=5, pady=10)
 
 quit_button = ttk.Button(main_frame, text="Beenden", command=root.quit)
-quit_button.grid(column=1, row=4, pady=10)
+quit_button.grid(column=1, row=5, pady=10)
 
 # Tastaturlistener starten
 listener = keyboard.Listener(on_press=on_press, on_release=on_release)
