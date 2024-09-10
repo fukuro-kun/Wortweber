@@ -18,6 +18,7 @@ Wortweber ist eine benutzerfreundliche Anwendung zur Echtzeit-Transkription von 
 - Programmiersprache: Python 3.11
 - Hauptbibliotheken: OpenAI Whisper, PyAudio, Tkinter, NumPy, SciPy
 - Audioformat: 16-bit PCM
+- Audioaufnahme: Kontinuierliche Aufnahme in Chunks, gesammelt für einmalige Verarbeitung nach Beendigung der Aufnahme
 - Unterstützte Eingabegeräte: Alle vom System erkannten Audiogeräte
 - Whisper Modell: "small" (konfigurierbar)
 - Eigene Implementierung für Zahlwort-zu-Ziffer und Ziffer-zu-Zahlwort Konvertierung

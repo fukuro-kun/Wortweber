@@ -1,4 +1,8 @@
-## [0.5.0] - 2024-09-11
+## [Unreleased] - 2024-09-10
+### Changed
+- Korrigierte Beschreibung der Audioaufnahme und -verarbeitung in der Entwicklerdokumentation
+
+## [0.5.0] - 2024-09-10
 ### Added
 - Dropdown-Menü zur Auswahl verschiedener Whisper-Modelle
 - Anzeige der Transkriptionszeit für jede Aufnahme
