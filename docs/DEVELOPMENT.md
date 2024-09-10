@@ -50,6 +50,35 @@ Wortweber ist ein Python-basiertes Einzelentwickler-Projekt mit KI-Unterstützun
 4. Aktivieren Sie die Conda-Umgebung: `conda activate wortweber`
 5. Starten Sie die Anwendung: `python src/wortweber.py`
 
+## Umfassendes Refactoring (Version 0.6.0)
+
+Am 2024-09-11 wurde ein umfassendes Code-Refactoring durchgeführt, um die Struktur und Wartbarkeit des Projekts zu verbessern. Die Hauptänderungen umfassen:
+
+1. Einführung von Klassen:
+   - WordweberState: Verwaltet den Zustand der Anwendung
+   - AudioProcessor: Handhabt die Audioaufnahme und -verarbeitung
+   - Transcriber: Verantwortlich für die Transkription
+   - WordweberGUI: Hauptklasse für die grafische Benutzeroberfläche
+
+2. Verbesserte Dokumentation:
+   - Hinzufügung ausführlicher Docstrings zu allen Klassen und Methoden
+   - Aktualisierung der Kommentare im Code für bessere Verständlichkeit
+
+3. Typ-Annotationen und -Überprüfungen:
+   - Einführung von Typ-Annotationen für alle Funktionen und Methoden
+   - Implementierung expliziter Typüberprüfungen zur Vermeidung von None-Wert-Fehlern
+
+4. Konfigurationsverbesserungen:
+   - Einführung von HIGHLIGHT_DURATION in der Konfigurationsdatei für konsistentere Einstellungen
+
+5. Fehlerbehandlung:
+   - Überarbeitung der Fehlerbehandlung in kritischen Funktionen wie Audioaufnahme und Transkription
+
+Diese Änderungen zielen darauf ab, die Codebase robuster, lesbarer und einfacher zu warten zu machen.
+Entwickler, die an diesem Projekt arbeiten, sollten sich mit der neuen Struktur vertraut machen und die
+eingeführten Konventionen für zukünftige Entwicklungen beibehalten.
+
+
 ## Hinweise für Entwickler
 - Das `whisper`-Paket wird von diesem Projekt verwendet und muss installiert sein. Warnungen des statischen Analysators bezüglich des Imports von `whisper` können ignoriert werden, solange das Paket korrekt installiert ist.
 - Bei der Entwicklung neuer Features, beachten Sie bitte die bestehende Codestruktur und Namenskonventionen.
