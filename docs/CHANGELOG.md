@@ -14,6 +14,10 @@
 - Temporäre Hervorhebung (2 Sekunden) des neu eingefügten Texts
 - Verbessertes visuelles Feedback für das Whisper-Modell Dropdown-Menü
 - Klarerer Text für den "Alles kopieren" Button
+- Verbesserte Ladereihenfolge der GUI-Elemente für eine konsistentere Darstellung beim Start
+- Entfernung unerwünschter Rahmen um bestimmte GUI-Elemente
+- Feinabstimmung des visuellen Stils für eine einheitlichere Erscheinung
+
 
 ## [0.4.0] - 2024-09-10
 ### Changed
