@@ -1,17 +1,16 @@
-# Whisper Transkriptions-Tool: Projektübersicht
+# Wortweber: Projektübersicht
 
 ## Einführung
-Dieses Dokument bietet eine umfassende Übersicht über das Whisper Transkriptions-Tool. Es dient als zentrale Informationsquelle für Entwickler, Benutzer und Stakeholder des Projekts.
+Dieses Dokument bietet eine umfassende Übersicht über das Wortweber-Tool. Es dient als zentrale Informationsquelle für Entwickler, Benutzer und Stakeholder des Projekts.
 
 ## Projektbeschreibung
-Das Whisper Transkriptions-Tool ist eine benutzerfreundliche Anwendung zur Echtzeit-Transkription von Sprache in Text. Es nutzt das OpenAI Whisper-Modell für präzise Spracherkennung und bietet eine intuitive grafische Benutzeroberfläche.
+Wortweber ist eine benutzerfreundliche Anwendung zur Echtzeit-Transkription von Sprache in Text. Es nutzt das OpenAI Whisper-Modell für präzise Spracherkennung und bietet eine intuitive grafische Benutzeroberfläche.
 
 ## Hauptfunktionen
 - Echtzeit-Audioaufnahme mit Push-to-Talk-Funktionalität (F12-Taste)
 - Transkription in Deutsch und Englisch mit Sprachauswahl
 - Benutzerfreundliche GUI mit Statusanzeigen und Timer
 - Kopieren der Transkription in die Zwischenablage
-- Entwicklungsversion mit erweiterter Funktionalität
 
 ## Technische Details
 - Programmiersprache: Python 3.11
@@ -23,7 +22,7 @@ Das Whisper Transkriptions-Tool ist eine benutzerfreundliche Anwendung zur Echtz
 ## Projektstruktur
 - src/
   - config.py: Zentrale Konfigurationsdatei
-  - whisper_push_to_talk.py: Hauptanwendung
+  - wortweber.py: Hauptanwendung
 - docs/
   - README.md: Allgemeine Projektinformationen
   - CHANGELOG.md: Änderungsprotokoll
@@ -31,10 +30,10 @@ Das Whisper Transkriptions-Tool ist eine benutzerfreundliche Anwendung zur Echtz
 - requirements.txt: Liste der Python-Abhängigkeiten
 
 ## Installation und Nutzung
-1. Klonen Sie das Repository: `git clone https://github.com/fukuro-kun/whisper-transcription-tool.git`
-2. Navigieren Sie zum Projektverzeichnis: `cd whisper-transcription-tool`
+1. Klonen Sie das Repository: `git clone https://github.com/fukuro-kun/Wortweber.git`
+2. Navigieren Sie zum Projektverzeichnis: `cd Wortweber`
 3. Installieren Sie die Abhängigkeiten: `pip install -r requirements.txt`
-4. Starten Sie die Anwendung: `python src/whisper_push_to_talk.py`
+4. Starten Sie die Anwendung: `python src/wortweber.py`
 
 ## Entwicklung und Beiträge
 1. Forken Sie das Repository auf GitHub

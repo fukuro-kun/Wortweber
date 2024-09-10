@@ -1,4 +1,15 @@
-# Whisper Transkriptions-Tool
+# Wortweber
+
+Wortweber ist eine leistungsstarke und benutzerfreundliche Anwendung zur Echtzeit-Transkription von Sprache in Text. Mit Hilfe modernster KI-Technologie bietet Wortweber präzise Spracherkennung in Deutsch und Englisch.
+
+## Hauptfunktionen
+
+- Echtzeit-Audioaufnahme mit Push-to-Talk-Funktionalität
+- Transkription in Deutsch und Englisch
+- Intuitive grafische Benutzeroberfläche
+- Automatisches Kopieren der Transkription in die Zwischenablage
+
+## Installation und Nutzung
 
 ## Installation
 
@@ -6,8 +17,8 @@
 
 2. Klonen Sie dieses Repository:
    ```
-   git clone https://github.com/IHR_USERNAME/whisper-transcription-tool.git
-   cd whisper-transcription-tool
+   git clone https://github.com/fukuro-kun/Wortweber.git
+   cd Wortweber
    ```
 
 3. Führen Sie das Installations- und Testskript aus:
@@ -91,4 +102,4 @@ Beiträge zu diesem Projekt sind willkommen! Wenn Sie Verbesserungen vorschlagen
 
 ## Lizenz
 
-Dieses Projekt ist unter der MIT-Lizenz lizenziert. Siehe die LICENSE-Datei für Details.
+Dieses Projekt steht unter der Apache License 2.0. Weitere Details finden Sie in der [LICENSE](LICENSE) Datei.

@@ -12,11 +12,11 @@ check_error() {
 eval "$(conda shell.bash hook)"
 
 # Erstellen einer neuen Conda-Umgebung
-conda create -n whisper_transcription python=3.11 -y
+conda create -n wortweber python=3.11 -y
 check_error "Conda-Umgebung konnte nicht erstellt werden"
 
 # Aktivieren der Umgebung
-conda activate whisper_transcription
+conda activate wortweber
 check_error "Conda-Umgebung konnte nicht aktiviert werden"
 
 # Installation der Systemabhängigkeiten
@@ -40,11 +40,11 @@ python -c "import pyaudio, numpy, whisper, pynput, scipy, tqdm, tiktoken, numba;
 check_error "Nicht alle Module konnten importiert werden"
 
 # Ausführen des Hauptskripts
-python whisper_push_to_talk.py
+python src/wortweber.py
 check_error "Hauptskript konnte nicht ausgeführt werden"
 
 echo "Installation und Test erfolgreich abgeschlossen!"
-echo "Sie können die Whisper-Transkriptions-Umgebung nun mit 'conda activate whisper_transcription' aktivieren."
+echo "Sie können die Wortweber-Umgebung nun mit 'conda activate wortweber' aktivieren."
 
 # Deaktivieren der Umgebung am Ende des Skripts
 conda deactivate

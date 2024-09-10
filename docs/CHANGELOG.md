@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.0] - 2024-09-10
+### Changed
+- Projekt umbenannt zu "Wortweber"
+- Aktualisierte Dokumentation und Codebase, um den neuen Namen zu reflektieren
+
+## [Unreleased]
+### Added
+- Sprachauswahl-Funktionalität für Deutsch und Englisch
+- Aktualisierte Konfigurationsdatei mit Spracheinstellungen
+- Füge DEVELOPMENT.md für umfassende Projektdokumentation hinzu
+
 ## [0.3.0] - 2024-09-10
 ### Added
 - Implementierung der Echtzeit-Transkription mit OpenAI Whisper
@@ -26,8 +37,3 @@
 ### Added
 - Initialisierung des Projekts
 - Grundlegende Projektstruktur und Abhängigkeiten
-## [Unreleased]
-### Added
-- Sprachauswahl-Funktionalität für Deutsch und Englisch
-- Aktualisierte Konfigurationsdatei mit Spracheinstellungen
-- Füge DEVELOPMENT.md für umfassende Projektdokumentation hinzu

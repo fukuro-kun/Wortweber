@@ -11,6 +11,10 @@ import warnings
 from scipy import signal
 import pyperclip
 
+# Am Anfang der Datei
+print("Starte Wortweber...")
+
+
 # Unterdrücke Warnungen von ALSA
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -21,9 +25,9 @@ CHANNELS = AUDIO_CHANNELS
 RATE = AUDIO_RATE
 
 # Whisper-Modell laden
-print("Lade Whisper-Modell...")
+print("Lade Spracherkennungsmodell...")
 model = whisper.load_model(WHISPER_MODEL)
-print("Whisper-Modell geladen.")
+print("Spracherkennungsmodell geladen.")
 
 # PyAudio-Objekt initialisieren
 p = pyaudio.PyAudio()
@@ -145,7 +149,7 @@ list_audio_devices()
 
 # GUI erstellen
 root = tk.Tk()
-root.title("Whisper Transkription")
+root.title("Wortweber Transkription")
 
 # Hauptframe
 main_frame = ttk.Frame(root, padding="10")
