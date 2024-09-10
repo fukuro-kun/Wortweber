@@ -26,3 +26,7 @@
 ### Added
 - Initialisierung des Projekts
 - Grundlegende Projektstruktur und Abhängigkeiten
+## [Unreleased]
+### Added
+- Sprachauswahl-Funktionalität für Deutsch und Englisch
+- Aktualisierte Konfigurationsdatei mit Spracheinstellungen

@@ -4,21 +4,21 @@
 AUDIO_CHUNK = 4096
 AUDIO_FORMAT = 'paInt16'
 AUDIO_CHANNELS = 1
-AUDIO_RATE = 44100  # Native sample rate of audio devices
-TARGET_RATE = 16000  # Target sample rate for Whisper
+AUDIO_RATE = 44100  # Native sample rate des Audio Gerrätes
+TARGET_RATE = 16000  # Ziel sample rate für Whisper
 DEVICE_INDEX = 6
 
 # Recording settings
 MIN_RECORD_SECONDS = 0.5
 
 # Whisper model settings
-WHISPER_MODEL = "small"  # Options: "tiny", "base", "small", "medium", "large"
+WHISPER_MODEL = "small"  # Optionen: "tiny", "base", "small", "medium", "large"
 
 # Language settings
 DEFAULT_LANGUAGE = "de"
 SUPPORTED_LANGUAGES = {
     "de": "Deutsch",
-    "en": "Englisch"
+    "en": "English"
 }
 
 # Important notes
