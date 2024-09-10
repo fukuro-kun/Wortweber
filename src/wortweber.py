@@ -27,7 +27,6 @@ import pyperclip
 # Am Anfang der Datei
 print("Starte Wortweber...")
 
-
 # Unterdrücke Warnungen von ALSA
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -37,13 +36,8 @@ FORMAT = getattr(pyaudio, AUDIO_FORMAT)
 CHANNELS = AUDIO_CHANNELS
 RATE = AUDIO_RATE
 
-# Whisper-Modell laden
-print("Lade Spracherkennungsmodell...")
-model = whisper.load_model(WHISPER_MODEL)
-print("Spracherkennungsmodell geladen.")
-
-# PyAudio-Objekt initialisieren
-p = pyaudio.PyAudio()
+# Whisper-Modelle
+WHISPER_MODELS = ["tiny", "base", "small", "medium", "large"]
 
 # Globale Variablen
 recording = False
@@ -55,20 +49,36 @@ transcription_text = None
 timer_var = None
 timer_thread = None
 language_var = None
+model_var = None
+transcription_timer_var = None
+transcription_time = 0
+model = None
+
+def load_whisper_model(model_name):
+    global model
+    print(f"Lade Spracherkennungsmodell: {model_name}")
+    model = whisper.load_model(model_name)
+    print("Spracherkennungsmodell geladen.")
+
+# PyAudio-Objekt initialisieren
+p = pyaudio.PyAudio()
 
 def list_audio_devices():
     info = p.get_host_api_info_by_index(0)
     numdevices = info.get('deviceCount')
-    for i in range(0, numdevices):
-        device_info = p.get_device_info_by_host_api_device_index(0, i)
-        if device_info.get('maxInputChannels') > 0:
-            print(f"Input Device id {i} - {device_info.get('name')}")
+    if numdevices is not None:
+        for i in range(int(numdevices)):
+            device_info = p.get_device_info_by_host_api_device_index(0, i)
+            max_channels = device_info.get('maxInputChannels')
+            if max_channels is not None and int(max_channels) > 0:
+                print(f"Input Device id {i} - {device_info.get('name')}")
 
 def update_timer():
     global start_time, timer_var
     while recording:
         elapsed_time = time.time() - start_time
-        timer_var.set(f"Aufnahmezeit: {elapsed_time:.1f} s")
+        if timer_var is not None:
+            timer_var.set(f"Aufnahmezeit: {elapsed_time:.1f} s")
         time.sleep(0.1)
 
 def record_audio():
@@ -104,7 +114,7 @@ def resample_audio(audio_np, orig_sr, target_sr):
     return resampled
 
 def transcribe_audio():
-    global audio_data, language_var
+    global audio_data, language_var, transcription_time
     if not audio_data:
         return "Keine Audiodaten aufgenommen."
 
@@ -115,9 +125,14 @@ def transcribe_audio():
 
     try:
         # Whisper-Konfiguration anpassen
-        options = whisper.DecodingOptions(language=language_var.get(), without_timestamps=True)
-        result = model.transcribe(audio_resampled, **options.__dict__)
-        return result["text"].strip()
+        if language_var is not None:
+            options = whisper.DecodingOptions(language=language_var.get(), without_timestamps=True)
+            start_time = time.time()
+            result = model.transcribe(audio_resampled, **options.__dict__)
+            transcription_time = time.time() - start_time
+            return result["text"].strip()
+        else:
+            return "Sprachauswahl nicht verfügbar."
     except Exception as e:
         return f"Fehler bei der Transkription: {e}"
 
@@ -130,10 +145,13 @@ def update_status(message, color="black"):
 def transcribe_and_update():
     update_status("Transkribiere...", "orange")
     text = transcribe_audio()
-    transcription_text.insert(tk.END, f"{text}\n\n")
-    transcription_text.see(tk.END)
+    if transcription_text is not None:
+        transcription_text.insert(tk.END, f"{text}\n\n")
+        transcription_text.see(tk.END)
     pyperclip.copy(text)
     update_status("Text transkribiert und in Zwischenablage kopiert", "green")
+    if transcription_timer_var is not None:
+        transcription_timer_var.set(f"Transkriptionszeit: {transcription_time:.2f} s")
 
 def on_press(key):
     global recording, recording_thread
@@ -152,10 +170,15 @@ def on_release(key):
             recording_thread.join()
         if timer_thread:
             timer_thread.join()
-        timer_var.set("Aufnahmezeit: 0.0 s")
+        if timer_var is not None:
+            timer_var.set("Aufnahmezeit: 0.0 s")
 
 def clear_transcription():
-    transcription_text.delete(1.0, tk.END)
+    if transcription_text is not None:
+        transcription_text.delete(1.0, tk.END)
+
+def on_model_change(*args):
+    load_whisper_model(model_var.get())
 
 # Liste verfügbare Audiogeräte auf
 list_audio_devices()
@@ -180,24 +203,38 @@ timer_var.set("Aufnahmezeit: 0.0 s")
 timer_label = ttk.Label(main_frame, textvariable=timer_var)
 timer_label.grid(column=0, row=1, columnspan=2, pady=5)
 
+# Transkriptionstimer
+transcription_timer_var = tk.StringVar()
+transcription_timer_var.set("Transkriptionszeit: 0.00 s")
+transcription_timer_label = ttk.Label(main_frame, textvariable=transcription_timer_var)
+transcription_timer_label.grid(column=0, row=2, columnspan=2, pady=5)
+
 # Status
 status_var = tk.StringVar()
 status_label = ttk.Label(main_frame, textvariable=status_var)
-status_label.grid(column=0, row=2, columnspan=2, pady=5)
+status_label.grid(column=0, row=3, columnspan=2, pady=5)
 update_status("Bereit", "green")
 
 # Sprachauswahl
 language_var = tk.StringVar(value=DEFAULT_LANGUAGE)
 language_frame = ttk.LabelFrame(main_frame, text="Sprache")
-language_frame.grid(column=0, row=3, columnspan=2, pady=5, sticky="ew")
+language_frame.grid(column=0, row=4, columnspan=2, pady=5, sticky="ew")
 for lang_code, lang_name in SUPPORTED_LANGUAGES.items():
     ttk.Radiobutton(language_frame, text=lang_name, variable=language_var, value=lang_code).pack(side=tk.LEFT, padx=5)
 
+# Modellauswahl
+model_var = tk.StringVar(value=WHISPER_MODEL)
+model_frame = ttk.LabelFrame(main_frame, text="Whisper-Modell")
+model_frame.grid(column=0, row=5, columnspan=2, pady=5, sticky="ew")
+model_dropdown = ttk.Combobox(model_frame, textvariable=model_var, values=WHISPER_MODELS)
+model_dropdown.pack(side=tk.LEFT, padx=5)
+model_var.trace("w", on_model_change)
+
 # Transkriptionsbereich
 transcription_frame = ttk.LabelFrame(main_frame, text="Transkription")
-transcription_frame.grid(column=0, row=4, columnspan=2, sticky="nsew", pady=10)
+transcription_frame.grid(column=0, row=6, columnspan=2, sticky="nsew", pady=10)
 main_frame.columnconfigure(0, weight=1)
-main_frame.rowconfigure(4, weight=1)
+main_frame.rowconfigure(6, weight=1)
 
 transcription_text = scrolledtext.ScrolledText(transcription_frame, wrap=tk.WORD, width=80, height=20)
 transcription_text.pack(expand=True, fill=tk.BOTH, padx=5, pady=5)
@@ -207,10 +244,13 @@ transcription_text.config(selectbackground="yellow", selectforeground="black")
 
 # Buttons
 clear_button = ttk.Button(main_frame, text="Transkription löschen", command=clear_transcription)
-clear_button.grid(column=0, row=5, pady=10)
+clear_button.grid(column=0, row=7, pady=10)
 
 quit_button = ttk.Button(main_frame, text="Beenden", command=root.quit)
-quit_button.grid(column=1, row=5, pady=10)
+quit_button.grid(column=1, row=7, pady=10)
+
+# Initiales Laden des Whisper-Modells
+load_whisper_model(WHISPER_MODEL)
 
 # Tastaturlistener starten
 listener = keyboard.Listener(on_press=on_press, on_release=on_release)
