@@ -30,3 +30,4 @@
 ### Added
 - Sprachauswahl-Funktionalität für Deutsch und Englisch
 - Aktualisierte Konfigurationsdatei mit Spracheinstellungen
+- Füge DEVELOPMENT.md für umfassende Projektdokumentation hinzu
