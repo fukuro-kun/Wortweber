@@ -7,4 +7,4 @@ tqdm==4.66.5
 tiktoken==0.7.0
 numba==0.60.0
 pyperclip
-word2number==1.1
+num2words==0.5.10
