@@ -23,6 +23,9 @@
 - Verbesserte GUI-Layout-Struktur für platzsparendere Anordnung
 - Sprachauswahl und Modellauswahl nun oben links
 - Anweisungen, Timer und Statusanzeigen oben rechts platziert
+- Entfernung der Abhängigkeit von num2words
+- Implementierung einer eigenen Lösung für Zahlwort-zu-Ziffer und Ziffer-zu-Zahlwort Konvertierung
+
 
 ## [0.4.0] - 2024-09-10
 ### Changed

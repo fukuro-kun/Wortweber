@@ -39,7 +39,7 @@ sudo apt-get install -y portaudio19-dev python3-tk
 check_error "Systemabhängigkeiten konnten nicht installiert werden"
 
 # Installation der Python-Abhängigkeiten
-pip install -r custom_requirements.txt
+pip install -r requirements.txt
 check_error "Python-Abhängigkeiten konnten nicht installiert werden"
 
 # Kopieren der libstdc++.so.6 (falls erforderlich)
