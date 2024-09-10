@@ -60,11 +60,12 @@ loading_label = None
 p = pyaudio.PyAudio()
 
 def load_whisper_model(model_name):
-    global model
+    global model, loading_label
     print(f"Lade Spracherkennungsmodell: {model_name}")
     model = whisper.load_model(model_name)
     print("Spracherkennungsmodell geladen.")
-    loading_label.grid_remove()  # Verstecke das Label wieder
+    if loading_label:
+        loading_label.grid_remove()  # Verstecke das Label wieder
     update_status("Bereit", "green")
 
 def list_audio_devices():
@@ -132,9 +133,12 @@ def transcribe_audio():
         if language_var is not None:
             options = whisper.DecodingOptions(language=language_var.get(), without_timestamps=True)
             start_time = time.time()
-            result = model.transcribe(audio_resampled, **options.__dict__)
-            transcription_time = time.time() - start_time
-            return result["text"].strip()
+            if model is not None:
+                result = model.transcribe(audio_resampled, **options.__dict__)
+                transcription_time = time.time() - start_time
+                return result["text"].strip()
+            else:
+                return "Modell nicht geladen. Bitte warten Sie, bis das Modell vollständig geladen ist."
         else:
             return "Sprachauswahl nicht verfügbar."
     except Exception as e:
@@ -202,19 +206,22 @@ def copy_all_to_clipboard():
         update_status("Gesamter Text in die Zwischenablage kopiert", "green")
 
 def on_model_change(*args):
-    loading_label.grid()  # Zeige das Label an
+    global loading_label
+    if loading_label:
+        loading_label.grid()  # Zeige das Label an
     root.update()
-    threading.Thread(target=lambda: load_whisper_model(model_var.get()), daemon=True).start()
+    threading.Thread(target=lambda: load_whisper_model(model_var.get() if model_var else WHISPER_MODEL), daemon=True).start()
 
 def create_context_menu(event):
     context_menu = Menu(root, tearoff=0)
-    context_menu.add_command(label="Ausschneiden", command=lambda: transcription_text.event_generate("<<Cut>>"))
-    context_menu.add_command(label="Kopieren", command=lambda: transcription_text.event_generate("<<Copy>>"))
-    context_menu.add_command(label="Einfügen", command=lambda: transcription_text.event_generate("<<Paste>>"))
-    context_menu.add_command(label="Löschen", command=lambda: transcription_text.event_generate("<<Clear>>"))
-    context_menu.add_separator()
-    context_menu.add_command(label="Zahlwörter nach Ziffern", command=words_to_digits)
-    context_menu.add_command(label="Ziffern nach Zahlwörtern", command=digits_to_words)
+    if transcription_text:
+        context_menu.add_command(label="Ausschneiden", command=lambda: transcription_text.event_generate("<<Cut>>"))
+        context_menu.add_command(label="Kopieren", command=lambda: transcription_text.event_generate("<<Copy>>"))
+        context_menu.add_command(label="Einfügen", command=lambda: transcription_text.event_generate("<<Paste>>"))
+        context_menu.add_command(label="Löschen", command=lambda: transcription_text.event_generate("<<Clear>>"))
+        context_menu.add_separator()
+        context_menu.add_command(label="Zahlwörter nach Ziffern", command=words_to_digits)
+        context_menu.add_command(label="Ziffern nach Zahlwörtern", command=digits_to_words)
     context_menu.tk_popup(event.x_root, event.y_root)
 
 def words_to_digits():
