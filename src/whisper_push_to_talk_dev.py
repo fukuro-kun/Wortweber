@@ -64,8 +64,9 @@ def detect_pause(audio_chunk, threshold=PAUSE_THRESHOLD, min_pause_duration=MIN_
 
     # Berechne die RMS-Amplitude (Root Mean Square) für kleine Fenster
     window_size = int(AUDIO_RATE * PAUSE_WINDOW_SIZE)
+    chunks = np.array_split(audio_chunk, len(audio_chunk) // window_size)
     # Diese Änderung fügt `np.maximum(np.mean(window**2), 1e-10)` hinzu, um sicherzustellen, dass wir nie versuchen, die Quadratwurzel aus einer negativen Zahl oder Null zu ziehen.
-    rms = np.array([np.sqrt(np.maximum(np.mean(window**2), 1e-10)) for window in windows])
+    rms = np.array([np.sqrt(np.maximum(np.mean(chunk**2), 1e-10)) for chunk in chunks])
 
     # Finde Bereiche, wo die RMS unter dem Schwellenwert liegt
     is_pause = rms < threshold
