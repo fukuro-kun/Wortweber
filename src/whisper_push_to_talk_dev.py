@@ -26,15 +26,13 @@ CHUNK = AUDIO_CHUNK
 FORMAT = getattr(pyaudio, AUDIO_FORMAT)
 CHANNELS = AUDIO_CHANNELS
 RATE = AUDIO_RATE
-CHUNK_SIZE = CHUNK_DURATION * RATE
+
 
 # Globale Variablen
 recording = False
 audio_queue = Queue()
 transcription_queue = Queue()
-chunks_to_transcribe = Queue()
 processing_thread = None
-audio_data = []
 start_time = 0
 recording_thread = None
 status_var = None
@@ -49,7 +47,7 @@ print("Whisper-Modell geladen.")
 
 # PyAudio-Objekt initialisieren
 p = pyaudio.PyAudio()
-def detect_pause(audio_chunk, threshold=0.03, min_pause_duration=0.3):
+def detect_pause(audio_chunk, threshold=PAUSE_THRESHOLD, min_pause_duration=MIN_PAUSE_DURATION):
     """
     Erkennt Pausen in einem Audio-Chunk basierend auf der Amplitude.
 
@@ -63,14 +61,14 @@ def detect_pause(audio_chunk, threshold=0.03, min_pause_duration=0.3):
         audio_chunk = np.frombuffer(audio_chunk, dtype=np.int16).astype(np.float32) / 32768.0
 
     # Berechne die RMS-Amplitude (Root Mean Square) für kleine Fenster
-    window_size = int(RATE * 0.01)  # 10ms Fenster
+    window_size = int(AUDIO_RATE * PAUSE_WINDOW_SIZE)
     rms = np.array([np.sqrt(np.mean(window**2)) for window in np.array_split(audio_chunk, len(audio_chunk) // window_size)])
 
     # Finde Bereiche, wo die RMS unter dem Schwellenwert liegt
     is_pause = rms < threshold
 
     # Prüfe, ob die Pause lang genug ist
-    pause_samples = int(min_pause_duration * (len(rms) / (len(audio_chunk) / RATE)))
+    pause_samples = int(min_pause_duration * (len(rms) / (len(audio_chunk) / AUDIO_RATE)))
     if np.sum(is_pause) >= pause_samples:
         return True
     return False
@@ -93,8 +91,8 @@ def update_timer():
 def record_audio():
     global recording, audio_queue, start_time, timer_thread
     try:
-        stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True,
-                        frames_per_buffer=CHUNK, input_device_index=DEVICE_INDEX)
+        stream = p.open(format=FORMAT, channels=AUDIO_CHANNELS, rate=AUDIO_RATE, input=True,
+                        frames_per_buffer=AUDIO_CHUNK, input_device_index=DEVICE_INDEX)
 
         print("Aufnahme gestartet.")
         start_time = time.time()
@@ -104,23 +102,24 @@ def record_audio():
         timer_thread.start()
 
         while recording:
-            data = stream.read(CHUNK, exception_on_overflow=False)
+            data = stream.read(AUDIO_CHUNK, exception_on_overflow=False)
             current_chunk.append(data)
 
-            # Prüfe auf Pausen und Chunk-Länge
             audio_np = np.frombuffer(b''.join(current_chunk), dtype=np.int16)
             chunk_duration = time.time() - chunk_start_time
 
-            if detect_pause(audio_np) or chunk_duration >= 60:  # Max. 60 Sekunden pro Chunk
-                if chunk_duration >= 30:  # Min. 30 Sekunden pro Chunk
+            if detect_pause(audio_np) or chunk_duration >= MAX_CHUNK_DURATION:
+                if chunk_duration >= MIN_CHUNK_DURATION:
                     audio_queue.put(b''.join(current_chunk))
-                    current_chunk = []
-                    chunk_start_time = time.time()
-                elif chunk_duration < 30:
-                    # Warte noch bis mindestens 30 Sekunden erreicht sind
+
+                    # Überlappung für den nächsten Chunk
+                    overlap_samples = int(CHUNK_OVERLAP * AUDIO_RATE)
+                    current_chunk = current_chunk[-overlap_samples:]
+
+                    chunk_start_time = time.time() - CHUNK_OVERLAP
+                elif chunk_duration < MIN_CHUNK_DURATION:
                     continue
 
-        # Verarbeite den letzten unvollständigen Chunk
         if current_chunk:
             audio_queue.put(b''.join(current_chunk))
 
@@ -140,24 +139,30 @@ def process_audio_chunks():
         if chunk is None:
             break
 
-        # Konvertiere den Chunk in ein NumPy-Array
         audio_np = np.frombuffer(chunk, dtype=np.int16).astype(np.float32) / 32768.0
 
-        # Resampling (falls notwendig)
-        if RATE != TARGET_RATE:
-            audio_resampled = resample_audio(audio_np, RATE, TARGET_RATE)
+        if AUDIO_RATE != TARGET_RATE:
+            audio_resampled = resample_audio(audio_np, AUDIO_RATE, TARGET_RATE)
         else:
             audio_resampled = audio_np
 
         try:
-            # Whisper-Konfiguration anpassen
             options = whisper.DecodingOptions(language="de", without_timestamps=True)
             result = model.transcribe(audio_resampled, **options.__dict__)
             transcription_queue.put(result["text"].strip())
+
+            # Sofortige Ausgabe des transkribierten Chunks
+            update_transcription_gui(result["text"].strip())
         except Exception as e:
             print(f"Fehler bei der Transkription: {e}")
 
     transcription_queue.put(None)  # Signal für das Ende der Transkription
+
+def update_transcription_gui(text):
+    if text:
+        transcription_text.insert(tk.END, f"{text}\n")
+        transcription_text.see(tk.END)
+        root.update_idletasks()  # Aktualisiert die GUI sofort
 
 def resample_audio(audio_np, orig_sr, target_sr):
     resampled = signal.resample(audio_np, int(len(audio_np) * target_sr / orig_sr))
@@ -198,8 +203,7 @@ def update_transcription():
         text = transcription_queue.get()
         if text is None:
             break
-        transcription_text.insert(tk.END, f"{text}\n")
-        transcription_text.see(tk.END)
+        # Die GUI-Aktualisierung wird jetzt in update_transcription_gui gehandhabt
     update_status("Transkription abgeschlossen", "green")
 
 def clear_transcription():
