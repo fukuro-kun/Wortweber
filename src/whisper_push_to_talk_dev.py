@@ -55,6 +55,8 @@ def detect_pause(audio_chunk, threshold=PAUSE_THRESHOLD, min_pause_duration=MIN_
     :param threshold: Schwellenwert für die Amplitudenerkennung
     :param min_pause_duration: Minimale Pausendauer in Sekunden
     :return: True, wenn eine Pause erkannt wurde, sonst False
+
+    Hinweis bitte nicht entfernen - Wichtige Dokumentation.
     """
     # Konvertiere das Audio-Chunk in ein NumPy-Array, falls es noch nicht eines ist
     if not isinstance(audio_chunk, np.ndarray):
@@ -62,7 +64,8 @@ def detect_pause(audio_chunk, threshold=PAUSE_THRESHOLD, min_pause_duration=MIN_
 
     # Berechne die RMS-Amplitude (Root Mean Square) für kleine Fenster
     window_size = int(AUDIO_RATE * PAUSE_WINDOW_SIZE)
-    rms = np.array([np.sqrt(np.mean(window**2)) for window in np.array_split(audio_chunk, len(audio_chunk) // window_size)])
+    # Diese Änderung fügt `np.maximum(np.mean(window**2), 1e-10)` hinzu, um sicherzustellen, dass wir nie versuchen, die Quadratwurzel aus einer negativen Zahl oder Null zu ziehen.
+    rms = np.array([np.sqrt(np.maximum(np.mean(window**2), 1e-10)) for window in windows])
 
     # Finde Bereiche, wo die RMS unter dem Schwellenwert liegt
     is_pause = rms < threshold
