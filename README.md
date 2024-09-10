@@ -45,11 +45,17 @@ Wortweber ist eine leistungsstarke und benutzerfreundliche Anwendung zur Echtzei
 
 ## Versionen
 
-Dieses Projekt ist in zwei Versionen verfügbar:
+Dieses Projekt ist in zwei Versionen verfügbar, um unterschiedliche Anforderungen und Lizenzierungspräferenzen zu berücksichtigen:
 
-1. Hauptversion (main branch): Diese Version verwendet eine eigene Implementierung für die Zahlwort-zu-Ziffer und Ziffer-zu-Zahlwort Konvertierung.
+1. Hauptversion (main branch):
+   - Verwendet eine eigene Implementierung für die Zahlwort-zu-Ziffer und Ziffer-zu-Zahlwort Konvertierung.
+   - Ist unabhängig von externen Bibliotheken für diese Funktionalität.
+   - Empfohlen für die meisten Anwendungsfälle.
 
-2. Erweiterte Version (feature/num2words_and_gui_improvements branch): Diese Version verwendet zusätzliche Bibliotheken für erweiterte Zahlwort-Konvertierungsfunktionen.
+2. Erweiterte Version (feature/num2words_and_gui_improvements branch):
+   - Verwendet zusätzliche Bibliotheken für erweiterte Zahlwort-Konvertierungsfunktionen.
+   - Bietet umfangreichere Unterstützung für verschiedene Sprachen und Zahlensysteme.
+   - Kann zusätzlichen Lizenzbedingungen unterliegen.
 
 ### Wechseln zwischen den Versionen
 
@@ -65,11 +71,13 @@ Für die erweiterte Version:
 git checkout feature/num2words_and_gui_improvements
 ```
 
-Bitte beachten Sie, dass die erweiterte Version zusätzliche Abhängigkeiten hat. Nach dem Wechsel zur erweiterten Version führen Sie bitte folgende Befehle aus:
+Bitte beachten Sie: Nach dem Wechsel zur erweiterten Version müssen Sie die zusätzlichen Abhängigkeiten installieren:
 
 ```bash
 pip install -r requirements.txt
 ```
+
+Stellen Sie sicher, dass Sie die Lizenzbedingungen aller verwendeten Bibliotheken in der erweiterten Version überprüfen und einhalten.
 
 ## Wichtiger Hinweis
 

@@ -1,15 +1,13 @@
-# Changelog
-
-## [Unreleased]
+## [0.5.0] - 2024-09-11
 ### Added
 - Dropdown-Menü zur Auswahl verschiedener Whisper-Modelle
 - Anzeige der Transkriptionszeit für jede Aufnahme
 - "Alles kopieren (Zwischenablage)" Button zur einfachen Übernahme des gesamten Transkriptionstexts
 - Kontextmenü für das Transkriptionsfeld mit Optionen zum Ausschneiden, Kopieren, Einfügen und Löschen
-- Platzhalter-Optionen im Kontextmenü für die Konvertierung von Zahlwörtern zu Ziffern und umgekehrt
-
+- Eigene Implementierung für die Konvertierung von Zahlwörtern zu Ziffern und umgekehrt
 
 ### Changed
+- Entfernung der Abhängigkeit von num2words
 - Verbesserte Cursor-Sichtbarkeit im Transkriptionsfeld
 - Neuer transkribierter Text wird nun an der Cursorposition eingefügt
 - Asynchrones Laden des Whisper-Modells mit Ladeanzeige
@@ -23,29 +21,23 @@
 - Verbesserte GUI-Layout-Struktur für platzsparendere Anordnung
 - Sprachauswahl und Modellauswahl nun oben links
 - Anweisungen, Timer und Statusanzeigen oben rechts platziert
-- Entfernung der Abhängigkeit von num2words
-- Implementierung einer eigenen Lösung für Zahlwort-zu-Ziffer und Ziffer-zu-Zahlwort Konvertierung
-
 
 ## [0.4.0] - 2024-09-10
 ### Changed
 - Projekt umbenannt zu "Wortweber"
 - Aktualisierte Dokumentation und Codebase, um den neuen Namen zu reflektieren
 
-## [Unreleased]
 ### Added
 - Sprachauswahl-Funktionalität für Deutsch und Englisch
 - Aktualisierte Konfigurationsdatei mit Spracheinstellungen
-- Füge DEVELOPMENT.md für umfassende Projektdokumentation hinzu
+- DEVELOPMENT.md für umfassende Projektdokumentation hinzugefügt
 
 ## [0.3.0] - 2024-09-10
 ### Added
 - Implementierung der Echtzeit-Transkription mit OpenAI Whisper
-- Dynamische Chunk-Erstellung basierend auf Sprachpausen
 - GUI mit Tkinter für einfache Bedienung
 - Push-to-Talk-Funktionalität mit F12-Taste
 - Sprachauswahl (Deutsch/Englisch) in der Benutzeroberfläche
-- Überlappungserkennung zur Reduzierung von Wiederholungen
 
 ### Changed
 - Optimierung der Audioaufnahme und -verarbeitung
