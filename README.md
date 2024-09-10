@@ -79,6 +79,14 @@ pip install -r requirements.txt
 
 Stellen Sie sicher, dass Sie die Lizenzbedingungen aller verwendeten Bibliotheken in der erweiterten Version überprüfen und einhalten.
 
+## Projektstruktur
+- `src/`: Enthält den Quellcode
+- `docs/`: Enthält die Dokumentation
+- `requirements.txt`: Liste der Python-Abhängigkeiten
+- `install_and_test.sh`: Installations- und Testskript
+- `VERSION`: Aktuelle Versionsnummer des Projekts
+
+
 ## Wichtiger Hinweis
 
 Dieses Tool wurde entwickelt, um in einer isolierten Conda-Umgebung zu laufen.

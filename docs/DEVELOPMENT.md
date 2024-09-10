@@ -42,6 +42,7 @@ Wortweber ist ein Python-basiertes Einzelentwickler-Projekt mit KI-Unterstützun
   - DEVELOPMENT.md: Entwicklerdokumentation (dieses Dokument)
 - requirements.txt: Liste der Python-Abhängigkeiten
 - install_and_test.sh: Installations- und Testskript
+- VERSION: Aktuelle Versionsnummer des Projekts
 
 ## Installation und Nutzung
 1. Klonen Sie das Repository: `git clone https://github.com/fukuro-kun/Wortweber.git`
@@ -49,6 +50,21 @@ Wortweber ist ein Python-basiertes Einzelentwickler-Projekt mit KI-Unterstützun
 3. Führen Sie das Installations- und Testskript aus: `./install_and_test.sh`
 4. Aktivieren Sie die Conda-Umgebung: `conda activate wortweber`
 5. Starten Sie die Anwendung: `python src/wortweber.py`
+
+## Git-Workflow
+1. Änderungen vornehmen
+2. VERSION-Datei aktualisieren, falls nötig
+3. Änderungen committen: `git add . && git commit -m "Beschreibende Nachricht"`
+4. Änderungen pushen: `git push origin main`
+5. Bei neuen Versionen:
+   - Sicherstellen, dass die VERSION-Datei aktualisiert wurde
+   - `git tag -a v$(cat VERSION) -m "Version $(cat VERSION)" && git push origin v$(cat VERSION)`
+
+## Versionierung
+- Die aktuelle Version des Projekts wird in der VERSION-Datei im Hauptverzeichnis gespeichert.
+- Bei jeder Änderung, die eine neue Version rechtfertigt, muss diese Datei aktualisiert werden.
+- Das Format der Versionsnummer folgt der Semantischen Versionierung (MAJOR.MINOR.PATCH).
+- Bei der Erstellung eines neuen Git-Tags sollte die Versionsnummer aus dieser Datei verwendet werden.
 
 ## Umfassendes Refactoring (Version 0.6.0)
 
