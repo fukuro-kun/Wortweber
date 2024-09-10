@@ -17,7 +17,9 @@
 - Verbesserte Ladereihenfolge der GUI-Elemente für eine konsistentere Darstellung beim Start
 - Entfernung unerwünschter Rahmen um bestimmte GUI-Elemente
 - Feinabstimmung des visuellen Stils für eine einheitlichere Erscheinung
-
+- Verbesserte GUI-Layout-Struktur für platzsparendere Anordnung
+- Sprachauswahl und Modellauswahl nun oben links
+- Anweisungen, Timer und Statusanzeigen oben rechts platziert
 
 ## [0.4.0] - 2024-09-10
 ### Changed
