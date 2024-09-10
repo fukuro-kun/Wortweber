@@ -1,5 +1,3 @@
-# Dateiname: src/whisper_push_to_talk.py
-
 from config import *
 import pyaudio
 import numpy as np
