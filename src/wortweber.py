@@ -146,8 +146,19 @@ def transcribe_and_update():
     update_status("Transkribiere...", "orange")
     text = transcribe_audio()
     if transcription_text is not None:
-        transcription_text.insert(tk.END, f"{text}\n\n")
-        transcription_text.see(tk.END)
+        # Aktuelle Cursorposition speichern
+        current_position = transcription_text.index(tk.INSERT)
+
+        # Text an der Cursorposition einfügen
+        transcription_text.insert(current_position, f"{text}\n\n")
+
+        # Neu eingefügten Text markieren
+        end_position = transcription_text.index(f"{current_position} + {len(text) + 2}c")
+        transcription_text.tag_add("highlight", current_position, end_position)
+
+        # Sicherstellen, dass der neue Text sichtbar ist
+        transcription_text.see(end_position)
+
     pyperclip.copy(text)
     update_status("Text transkribiert und in Zwischenablage kopiert", "green")
     if transcription_timer_var is not None:
@@ -239,8 +250,14 @@ main_frame.rowconfigure(6, weight=1)
 transcription_text = scrolledtext.ScrolledText(transcription_frame, wrap=tk.WORD, width=80, height=20)
 transcription_text.pack(expand=True, fill=tk.BOTH, padx=5, pady=5)
 
+# Cursor-Farbe und -Breite anpassen
+transcription_text.config(insertbackground="red", insertwidth=2)
+
 # Gelbe Hintergrundfarbe beim Markieren
 transcription_text.config(selectbackground="yellow", selectforeground="black")
+
+# Tag für Hervorhebung des neu eingefügten Texts erstellen
+transcription_text.tag_configure("highlight", background="light green")
 
 # Buttons
 clear_button = ttk.Button(main_frame, text="Transkription löschen", command=clear_transcription)
