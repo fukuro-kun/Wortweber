@@ -4,6 +4,10 @@
 ### Added
 - Dropdown-Menü zur Auswahl verschiedener Whisper-Modelle
 - Anzeige der Transkriptionszeit für jede Aufnahme
+### Changed
+- Verbesserte Cursor-Sichtbarkeit im Transkriptionsfeld
+- Neuer transkribierter Text wird nun an der Cursorposition eingefügt
+- Neu eingefügter Text wird kurzzeitig hervorgehoben
 
 ## [0.4.0] - 2024-09-10
 ### Changed
