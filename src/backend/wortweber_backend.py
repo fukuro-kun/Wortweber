@@ -11,7 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import List, Optional
+
+from typing import List, Optional, Tuple, Callable
 import whisper
 import numpy as np
 from src.config import RATE, TARGET_RATE, FORMAT, CHANNELS, CHUNK, DEVICE_INDEX
@@ -27,6 +28,7 @@ class WordweberState:
         self.start_time: float = 0
         self.model: Optional[whisper.Whisper] = None
         self.transcription_time: float = 0
+        self.language: str = "de"
 
 class WordweberBackend:
     def __init__(self):
@@ -34,6 +36,7 @@ class WordweberBackend:
         self.audio_processor = AudioProcessor()
         self.transcriber = Transcriber()
         self.model_loaded = threading.Event()
+        self.on_transcription_complete: Optional[Callable[[str], None]] = None
 
     def start_recording(self):
         self.state.recording = True
@@ -44,18 +47,29 @@ class WordweberBackend:
         self.state.recording = False
 
     def _record_audio(self):
-        self.audio_processor.record_audio(self.state)
+        duration = self.audio_processor.record_audio(self.state)
 
     def process_and_transcribe(self, language: str) -> str:
         if not self.model_loaded.is_set():
             raise RuntimeError("Modell nicht geladen. Bitte warten Sie, bis das Modell vollständig geladen ist.")
+
         audio_np = np.frombuffer(b''.join(self.state.audio_data), dtype=np.int16).astype(np.float32) / 32768.0
         audio_resampled = self.audio_processor.resample_audio(audio_np)
-        return self.transcriber.transcribe(audio_resampled, language)
+
+        transcribed_text = self.transcriber.transcribe(audio_resampled, language)
+
+        if self.on_transcription_complete:
+            self.on_transcription_complete(transcribed_text)
+
+        return transcribed_text
 
     def load_transcriber_model(self, model_name: str):
-        self.transcriber.load_model(model_name)
-        self.model_loaded.set()
+        try:
+            self.transcriber.load_model(model_name)
+            self.model_loaded.set()
+        except Exception as e:
+            logging.error(f"Fehler beim Laden des Modells: {e}")
+            self.model_loaded.clear()
 
     def list_audio_devices(self):
         self.audio_processor.list_audio_devices()
@@ -69,3 +83,6 @@ class WordweberBackend:
         except Exception as e:
             logging.error(f"Fehler beim Überprüfen des Audiogeräts: {e}")
             return False
+
+    def set_language(self, language: str):
+        self.state.language = language

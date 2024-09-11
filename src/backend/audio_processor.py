@@ -1,9 +1,25 @@
+# Copyright 2024 fukuro-kun
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from src.config import FORMAT, CHANNELS, RATE, CHUNK, DEVICE_INDEX, TARGET_RATE
 import pyaudio
 import numpy as np
 from scipy import signal
 import time
 import warnings
+import logging
+
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 class AudioProcessor:
@@ -21,7 +37,6 @@ class AudioProcessor:
                 max_channels = device_info.get('maxInputChannels')
                 if max_channels is not None and int(max_channels) > 0:
                     print(f"Input Device id {i} - {device_info.get('name')}")
-
 
     def record_audio(self, state):
         try:
@@ -42,28 +57,14 @@ class AudioProcessor:
 
             return duration
         except Exception as e:
-            print(f"Fehler bei der Audioaufnahme: {e}")
-            print(f"Fehlertyp: {type(e).__name__}")
-            print(f"Geräteinformationen: {self.p.get_device_info_by_index(DEVICE_INDEX)}")
+            logging.error(f"Fehler bei der Audioaufnahme: {e}")
+            logging.error(f"Fehlertyp: {type(e).__name__}")
+            logging.error(f"Geräteinformationen: {self.p.get_device_info_by_index(DEVICE_INDEX)}")
             return 0
 
     def resample_audio(self, audio_np):
         if len(audio_np) == 0:
             return audio_np
-        target_length = max(2, int(len(audio_np) * self.TARGET_RATE / self.RATE))
+        target_length = int(len(audio_np) * self.TARGET_RATE / self.RATE)
         resampled = signal.resample(audio_np, target_length)
-        print(f"Debug: Resampling from {len(audio_np)} to {len(resampled)} samples")
         return resampled
-
-    def process_audio(self, state):
-        print(f"Debug: Raw audio data: {state.audio_data}")
-        audio_np = np.frombuffer(b''.join(state.audio_data), dtype=np.int16)
-        print(f"Debug: Audio as int16: {audio_np}")
-        audio_float = audio_np.astype(np.float32) / 32767.0
-        print(f"Debug: Normalized audio: {audio_float}")
-        resampled = self.resample_audio(audio_float)
-        print(f"Debug: Resampled audio: {resampled}")
-        if len(resampled) < 2:
-            print("Warning: Resampled audio has less than 2 samples. Padding with zeros.")
-            resampled = np.pad(resampled, (0, 2 - len(resampled)), 'constant')
-        return resampled # Stellen Sie sicher, dass dies ein numpy array ist
