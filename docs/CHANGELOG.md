@@ -5,7 +5,18 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
-## [0.8.0] - 2024-09-12
+## [0.8.2] - 2024-09-11
+### Changed
+- Verschoben `text_operations.py` in `backend/text_processor.py` für eine konsistentere Struktur
+- Aktualisierte Importe in anderen Dateien, die `text_operations` verwenden
+
+### Removed
+- Entfernte die leere Datei `src/text_operations.py`
+
+### Added
+- Erweiterte Dokumentation zur neuen Struktur der Textoperationen im Backend
+
+## [0.8.0] - 2024-09-11
 ### Changed
 - Umfassendes Refactoring: Trennung von Frontend und Backend
 - Verbesserung der Codestruktur und Modularität

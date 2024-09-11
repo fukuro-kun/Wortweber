@@ -81,6 +81,24 @@ Wortweber ist ein Python-basiertes Einzelentwickler-Projekt mit KI-Unterstützun
 - Das Format der Versionsnummer folgt der Semantischen Versionierung (MAJOR.MINOR.PATCH).
 - Bei der Erstellung eines neuen Git-Tags sollte die Versionsnummer aus dieser Datei verwendet werden.
 
+## Restrukturierung der Textoperationen (Version 0.8.2)
+
+Am 2024-09-13 wurden die Textoperationen restrukturiert, um die Projektstruktur zu verbessern und konsistenter zu machen:
+
+1. Verschiebung von Funktionalitäten:
+   - `text_operations.py` wurde in `backend/text_processor.py` verschoben
+   - Alle Textverarbeitungsfunktionen sind nun im Backend-Verzeichnis
+
+2. Aktualisierung von Imports:
+   - Alle Dateien, die `text_operations` verwendeten, wurden aktualisiert, um die neue Struktur zu reflektieren
+
+3. Entfernung redundanter Dateien:
+   - Die leere Datei `src/text_operations.py` wurde entfernt
+
+4. Dokumentation:
+   - Aktualisierung der Projektdokumentation, um die neue Struktur der Textoperationen zu reflektieren
+
+
 ## Umfassendes Refactoring (Version 0.8.0)
 
 Am 2024-09-12 wurde ein umfassendes Refactoring durchgeführt, um die Projektstruktur zu verbessern und die Trennung von Frontend und Backend zu implementieren. Die Hauptänderungen umfassen:

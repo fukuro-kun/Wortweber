@@ -22,7 +22,7 @@ from pynput.keyboard import Key, Controller as KeyboardController
 import pyperclip
 import time
 from src.config import WHISPER_MODEL, WHISPER_MODELS, SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE, HIGHLIGHT_DURATION
-from src import text_operations
+from src.backend.text_processor import words_to_digits, digits_to_words
 
 class WordweberGUI:
     def __init__(self, backend: WordweberBackend):
