@@ -66,6 +66,15 @@ Wortweber ist ein Python-basiertes Einzelentwickler-Projekt mit KI-Unterstützun
 - Das Format der Versionsnummer folgt der Semantischen Versionierung (MAJOR.MINOR.PATCH).
 - Bei der Erstellung eines neuen Git-Tags sollte die Versionsnummer aus dieser Datei verwendet werden.
 
+## Neue Features (Version 0.7.0)
+
+- Implementierung einer Zwischenablage-Option für die Texteingabe an der Systemcursor-Position
+- Hinzufügung eines benutzerdefinierten Eingabefelds für die Verzögerung bei zeichenweiser Eingabe
+- Dynamische Aktivierung/Deaktivierung von Verzögerungsoptionen basierend auf dem ausgewählten Eingabemodus
+- Verbesserung der pynput-Integration für zuverlässigere Tastatureingaben
+
+Diese Änderungen verbessern die Flexibilität und Benutzerfreundlichkeit der Anwendung, indem sie mehr Kontrolle über die Texteingabe bieten und die Benutzeroberfläche reaktiver gestalten.
+
 ## Umfassendes Refactoring (Version 0.6.0)
 
 Am 2024-09-11 wurde ein umfassendes Code-Refactoring durchgeführt, um die Struktur und Wartbarkeit des Projekts zu verbessern. Die Hauptänderungen umfassen:

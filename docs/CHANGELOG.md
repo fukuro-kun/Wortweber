@@ -4,6 +4,16 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
+## [0.7.0] - 2024-09-11
+### Added
+- Neue Zwischenablage-Option für die Texteingabe an der Systemcursor-Position
+- Benutzerdefiniertes Eingabefeld für die Verzögerung bei zeichenweiser Eingabe
+
+### Changed
+- Verbesserte Benutzeroberfläche mit dynamischer Aktivierung/Deaktivierung von Verzögerungsoptionen
+
+### Fixed
+- Behebung eines Fehlers bei der Verwendung der Zwischenablagefunktion mit pynput
 
 ## [0.6.0] - 2024-09-11
 ### Changed

@@ -25,18 +25,12 @@ import pyperclip
 import text_operations
 from config import *
 from pynput import keyboard
+from pynput.keyboard import Key, Controller as KeyboardController
 import warnings
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 print("Starte Wortweber...")
-
-WHISPER_MODELS = ["tiny", "base", "small", "medium", "large"]
-FORMAT = getattr(pyaudio, AUDIO_FORMAT)
-CHANNELS = AUDIO_CHANNELS
-RATE = AUDIO_RATE
-CHUNK = AUDIO_CHUNK
-
 
 class WordweberState:
     """Klasse zur Verwaltung des Zustands der Wortweber-Anwendung."""
@@ -208,6 +202,46 @@ class WordweberGUI:
         self.loading_label.grid_remove()
 
         self.model_var.trace("w", self.on_model_change)
+
+        self.setup_input_mode(left_frame)
+        self.setup_delay_options(left_frame)
+
+    def setup_input_mode(self, parent):
+        input_mode_frame = ttk.LabelFrame(parent, text="Eingabemodus")
+        input_mode_frame.grid(column=0, row=2, pady=5, sticky="ew")
+
+        self.input_mode_var = tk.StringVar(value="textfenster")
+        ttk.Radiobutton(input_mode_frame, text="Ins Textfenster", variable=self.input_mode_var, value="textfenster", command=self.toggle_delay_options).pack(side=tk.LEFT, padx=5)
+        ttk.Radiobutton(input_mode_frame, text="An Systemcursor-Position", variable=self.input_mode_var, value="systemcursor", command=self.toggle_delay_options).pack(side=tk.LEFT, padx=5)
+
+    def setup_delay_options(self, parent):
+        self.delay_frame = ttk.LabelFrame(parent, text="Verzögerungsmodus")
+        self.delay_frame.grid(column=0, row=3, pady=5, sticky="ew")
+
+        self.delay_mode_var = tk.StringVar(value="no_delay")
+        self.no_delay_radio = ttk.Radiobutton(self.delay_frame, text="Keine Verzögerung", variable=self.delay_mode_var, value="no_delay")
+        self.no_delay_radio.pack(anchor=tk.W)
+
+        char_delay_frame = ttk.Frame(self.delay_frame)
+        char_delay_frame.pack(anchor=tk.W, fill=tk.X)
+        self.char_delay_radio = ttk.Radiobutton(char_delay_frame, text="Zeichenweise", variable=self.delay_mode_var, value="char_delay")
+        self.char_delay_radio.pack(side=tk.LEFT)
+        self.char_delay_entry = ttk.Entry(char_delay_frame, width=5)
+        self.char_delay_entry.pack(side=tk.LEFT, padx=(5, 0))
+        self.char_delay_entry.insert(0, "10")
+        self.char_delay_label = ttk.Label(char_delay_frame, text="ms")
+        self.char_delay_label.pack(side=tk.LEFT)
+
+        self.clipboard_radio = ttk.Radiobutton(self.delay_frame, text="Zwischenablage", variable=self.delay_mode_var, value="clipboard")
+        self.clipboard_radio.pack(anchor=tk.W)
+
+        self.toggle_delay_options()
+
+    def toggle_delay_options(self):
+        state = 'disabled' if self.input_mode_var.get() == "textfenster" else 'normal'
+        for widget in [self.no_delay_radio, self.char_delay_radio, self.char_delay_entry, self.clipboard_radio]:
+            widget.configure(state=state)
+        self.char_delay_label.configure(state=state)
 
     def setup_right_frame(self, parent):
         """Richtet den rechten Rahmen der GUI ein."""
@@ -384,13 +418,35 @@ class WordweberGUI:
         audio_resampled = self.audio_processor.resample_audio(audio_np, RATE, TARGET_RATE)
         text = self.transcriber.transcribe(audio_resampled, self.language_var.get())
 
-        if self.transcription_text:
-            current_position = self.transcription_text.index(tk.INSERT)
-            self.transcription_text.insert(current_position, f"{text}")
-            end_position = self.transcription_text.index(f"{current_position} + {len(text)}c")
-            self.transcription_text.tag_add("highlight", current_position, end_position)
-            self.transcription_text.see(end_position)
-            self.root.after(HIGHLIGHT_DURATION, lambda: self.transcription_text.tag_remove("highlight", current_position, end_position))
+        if self.input_mode_var.get() == "textfenster":
+            if self.transcription_text:
+                current_position = self.transcription_text.index(tk.INSERT)
+                self.transcription_text.insert(current_position, f"{text}")
+                end_position = self.transcription_text.index(f"{current_position} + {len(text)}c")
+                self.transcription_text.tag_add("highlight", current_position, end_position)
+                self.transcription_text.see(end_position)
+                self.root.after(HIGHLIGHT_DURATION, lambda: self.transcription_text.tag_remove("highlight", current_position, end_position))
+        else:
+            delay_mode = self.delay_mode_var.get()
+
+            if delay_mode == "no_delay":
+                keyboard = KeyboardController()
+                keyboard.type(text)
+            elif delay_mode == "char_delay":
+                try:
+                    delay = float(self.char_delay_entry.get()) / 1000
+                except ValueError:
+                    delay = 0.01  # Fallback to 10ms if invalid input
+                keyboard = KeyboardController()
+                for char in text:
+                    keyboard.type(char)
+                    time.sleep(delay)
+            elif delay_mode == "clipboard":
+                pyperclip.copy(text)
+                keyboard = KeyboardController()
+                with keyboard.pressed(Key.ctrl):
+                    keyboard.press('v')
+                    keyboard.release('v')
 
         pyperclip.copy(text)
         self.update_status("Text transkribiert und in Zwischenablage kopiert", "green")
