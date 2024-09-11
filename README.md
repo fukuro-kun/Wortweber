@@ -82,10 +82,20 @@ Stellen Sie sicher, dass Sie die Lizenzbedingungen aller verwendeten Bibliotheke
 ## Projektstruktur
 - `src/`: Enthält den Quellcode
 - `docs/`: Enthält die Dokumentation
+- `tests/`: Enthält die Struktur für automatische Tests
 - `requirements.txt`: Liste der Python-Abhängigkeiten
 - `install_and_test.sh`: Installations- und Testskript
 - `VERSION`: Aktuelle Versionsnummer des Projekts
 
+## Tests
+
+Um alle Tests auszuführen, verwenden Sie den folgenden Befehl im Hauptverzeichnis des Projekts:
+
+```
+python run_tests.py
+```
+
+Dies wird alle Tests in der `tests/`-Struktur ausführen.
 
 ## Wichtiger Hinweis
 
