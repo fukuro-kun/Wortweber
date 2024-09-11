@@ -14,10 +14,11 @@
 from typing import List, Optional
 import whisper
 import numpy as np
-from src.config import RATE, TARGET_RATE
+from src.config import RATE, TARGET_RATE, FORMAT, CHANNELS, CHUNK, DEVICE_INDEX
 from src.backend.audio_processor import AudioProcessor
 from src.backend.transcriber import Transcriber
 import threading
+import logging
 
 class WordweberState:
     def __init__(self):
@@ -32,6 +33,7 @@ class WordweberBackend:
         self.state = WordweberState()
         self.audio_processor = AudioProcessor()
         self.transcriber = Transcriber()
+        self.model_loaded = threading.Event()
 
     def start_recording(self):
         self.state.recording = True
@@ -45,12 +47,25 @@ class WordweberBackend:
         self.audio_processor.record_audio(self.state)
 
     def process_and_transcribe(self, language: str) -> str:
+        if not self.model_loaded.is_set():
+            raise RuntimeError("Modell nicht geladen. Bitte warten Sie, bis das Modell vollständig geladen ist.")
         audio_np = np.frombuffer(b''.join(self.state.audio_data), dtype=np.int16).astype(np.float32) / 32768.0
         audio_resampled = self.audio_processor.resample_audio(audio_np)
         return self.transcriber.transcribe(audio_resampled, language)
 
     def load_transcriber_model(self, model_name: str):
         self.transcriber.load_model(model_name)
+        self.model_loaded.set()
 
     def list_audio_devices(self):
         self.audio_processor.list_audio_devices()
+
+    def check_audio_device(self):
+        try:
+            stream = self.audio_processor.p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True,
+                                                 frames_per_buffer=CHUNK, input_device_index=DEVICE_INDEX)
+            stream.close()
+            return True
+        except Exception as e:
+            logging.error(f"Fehler beim Überprüfen des Audiogeräts: {e}")
+            return False

@@ -81,6 +81,20 @@ Wortweber ist ein Python-basiertes Einzelentwickler-Projekt mit KI-Unterstützun
 - Das Format der Versionsnummer folgt der Semantischen Versionierung (MAJOR.MINOR.PATCH).
 - Bei der Erstellung eines neuen Git-Tags sollte die Versionsnummer aus dieser Datei verwendet werden.
 
+## Neue Features (Version 0.10.0)
+
+- Implementierung der Speicherung und des Ladens von Benutzereinstellungen
+- Automatisches Speichern der Fenstergröße und des Textfensterinhalts
+- Wiederherstellung der letzten Einstellungen beim Programmstart
+
+### Technische Details zur Einstellungsspeicherung
+
+- Die Einstellungen werden in einer JSON-Datei (`user_settings.json`) im Hauptverzeichnis der Anwendung gespeichert.
+- Beim Starten der Anwendung werden die gespeicherten Einstellungen geladen und angewendet.
+- Bei Änderungen an den Einstellungen oder beim Beenden der Anwendung werden die aktuellen Einstellungen automatisch gespeichert.
+- Fehlerbehandlung wurde implementiert, um Probleme beim Laden der Einstellungen zu behandeln.
+
+
 ## Restrukturierung der Textoperationen (Version 0.8.2)
 
 Am 2024-09-13 wurden die Textoperationen restrukturiert, um die Projektstruktur zu verbessern und konsistenter zu machen:
