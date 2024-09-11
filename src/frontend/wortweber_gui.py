@@ -14,6 +14,7 @@
 
 import tkinter as tk
 from tkinter import ttk, scrolledtext
+import ttkthemes
 from src.backend.wortweber_backend import WordweberBackend
 import threading
 from pynput import keyboard
@@ -26,9 +27,17 @@ from src import text_operations
 class WordweberGUI:
     def __init__(self, backend: WordweberBackend):
         self.backend = backend
-        self.root = tk.Tk()
+        self.root = ttkthemes.ThemedTk()
         self.root.title("Wortweber Transkription")
         self.auto_copy_var = tk.BooleanVar(value=True)
+
+        self.themes = sorted(ttkthemes.THEMES)
+        self.current_theme_index = 0
+        self.current_theme = tk.StringVar(value=self.themes[self.current_theme_index])
+
+        self.language_var = tk.StringVar(value=DEFAULT_LANGUAGE)
+        self.model_var = tk.StringVar(value=WHISPER_MODEL)
+
         self.setup_ui()
 
     def setup_ui(self):
@@ -44,9 +53,67 @@ class WordweberGUI:
         self.setup_transcription_area(main_frame)
         self.setup_buttons(main_frame)
 
+    def setup_left_frame(self, parent):
+        left_frame = ttk.Frame(parent)
+        left_frame.grid(column=0, row=0, sticky="nw")
+
+        self.notebook = ttk.Notebook(left_frame)
+        self.notebook.pack(fill=tk.BOTH, expand=True)
+
+        options_tab = ttk.Frame(self.notebook)
+        self.themes_tab = ttk.Frame(self.notebook)
+
+        self.notebook.add(options_tab, text="Optionen")
+        self.notebook.add(self.themes_tab, text="Themes")
+
+        self.setup_options_tab(options_tab)
+        self.setup_themes_tab(self.themes_tab)
+
+    def setup_options_tab(self, parent):
+        language_frame = ttk.LabelFrame(parent, text="Sprache")
+        language_frame.pack(fill=tk.X, pady=5)
+        for lang_code, lang_name in SUPPORTED_LANGUAGES.items():
+            ttk.Radiobutton(language_frame, text=lang_name, variable=self.language_var, value=lang_code).pack(side=tk.LEFT, padx=5)
+
+        model_frame = ttk.Frame(parent)
+        model_frame.pack(fill=tk.X, pady=5)
+
+        ttk.Label(model_frame, text="Whisper-Modell:").grid(column=0, row=0, padx=(0, 5))
+
+        model_dropdown = ttk.Combobox(model_frame, textvariable=self.model_var, values=WHISPER_MODELS, state="readonly", width=10)
+        model_dropdown.grid(column=1, row=0)
+
+        self.loading_label = ttk.Label(model_frame, text="Modell wird geladen...", foreground="blue")
+        self.loading_label.grid(column=2, row=0, padx=(10, 0))
+        self.loading_label.grid_remove()
+
+        self.model_var.trace("w", self.on_model_change)
+        self.setup_delay_options(parent)
+        self.setup_input_mode(parent)
+
+    def setup_themes_tab(self, parent):
+        theme_frame = ttk.Frame(parent, padding="10")
+        theme_frame.pack(fill=tk.BOTH, expand=True)
+
+        ttk.Label(theme_frame, text="Theme Auswahl", font=("Arial", 12, "bold")).pack(pady=(0, 10))
+
+        self.theme_var = tk.StringVar(value=self.themes[0])
+        self.theme_dropdown = ttk.Combobox(theme_frame, textvariable=self.theme_var, values=self.themes, state="readonly")
+        self.theme_dropdown.pack(fill=tk.X, pady=(0, 20))
+        self.theme_dropdown.bind("<<ComboboxSelected>>", self.on_theme_change)
+
+        ttk.Label(theme_frame, text="Wählen Sie ein Theme aus der Dropdown-Liste aus.", wraplength=200).pack()
+
+    def on_theme_change(self, event):
+        selected_theme = self.theme_var.get()
+        self.change_theme(selected_theme)
+
+    def change_theme(self, theme_name):
+        self.root.set_theme(theme_name)
+
     def setup_delay_options(self, parent):
         delay_frame = ttk.LabelFrame(parent, text="Verzögerungsmodus")
-        delay_frame.grid(column=0, row=2, pady=5, sticky="ew")
+        delay_frame.pack(fill=tk.X, pady=5)
 
         self.delay_mode_var = tk.StringVar(value="no_delay")
         self.no_delay_radio = ttk.Radiobutton(delay_frame, text="Keine Verzögerung", variable=self.delay_mode_var, value="no_delay")
@@ -67,38 +134,11 @@ class WordweberGUI:
 
     def setup_input_mode(self, parent):
         input_mode_frame = ttk.LabelFrame(parent, text="Eingabemodus")
-        input_mode_frame.grid(column=0, row=3, pady=5, sticky="ew")
+        input_mode_frame.pack(fill=tk.X, pady=5)
 
         self.input_mode_var = tk.StringVar(value="textfenster")
         ttk.Radiobutton(input_mode_frame, text="Ins Textfenster", variable=self.input_mode_var, value="textfenster", command=self.toggle_delay_options).pack(side=tk.LEFT, padx=5)
         ttk.Radiobutton(input_mode_frame, text="An Systemcursor-Position", variable=self.input_mode_var, value="systemcursor", command=self.toggle_delay_options).pack(side=tk.LEFT, padx=5)
-
-    def setup_left_frame(self, parent):
-        left_frame = ttk.Frame(parent)
-        left_frame.grid(column=0, row=0, sticky="nw")
-
-        self.language_var = tk.StringVar(value=DEFAULT_LANGUAGE)
-        language_frame = ttk.LabelFrame(left_frame, text="Sprache")
-        language_frame.grid(column=0, row=0, pady=5, sticky="ew")
-        for lang_code, lang_name in SUPPORTED_LANGUAGES.items():
-            ttk.Radiobutton(language_frame, text=lang_name, variable=self.language_var, value=lang_code).pack(side=tk.LEFT, padx=5)
-
-        model_frame = ttk.Frame(left_frame)
-        model_frame.grid(column=0, row=1, pady=5, sticky="ew")
-
-        ttk.Label(model_frame, text="Whisper-Modell:").grid(column=0, row=0, padx=(0, 5))
-
-        self.model_var = tk.StringVar(value=WHISPER_MODEL)
-        model_dropdown = ttk.Combobox(model_frame, textvariable=self.model_var, values=WHISPER_MODELS, state="readonly", width=10)
-        model_dropdown.grid(column=1, row=0)
-
-        self.loading_label = ttk.Label(model_frame, text="Modell wird geladen...", foreground="blue")
-        self.loading_label.grid(column=2, row=0, padx=(10, 0))
-        self.loading_label.grid_remove()
-
-        self.model_var.trace("w", self.on_model_change)
-        self.setup_delay_options(left_frame)
-        self.setup_input_mode(left_frame)
 
     def setup_right_frame(self, parent):
         right_frame = ttk.Frame(parent)
