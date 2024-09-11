@@ -66,6 +66,15 @@ Wortweber ist ein Python-basiertes Einzelentwickler-Projekt mit KI-Unterstützun
 - Das Format der Versionsnummer folgt der Semantischen Versionierung (MAJOR.MINOR.PATCH).
 - Bei der Erstellung eines neuen Git-Tags sollte die Versionsnummer aus dieser Datei verwendet werden.
 
+## Neue Features (Version 0.7.1)
+
+- Eine neue Checkbox wurde hinzugefügt, um das automatische Kopieren in die Zwischenablage optional zu machen. Diese Funktion gibt den Benutzern mehr Kontrolle über die Handhabung der transkribierten Texte.
+
+## Nächste Schritte
+- Testen der neuen Checkbox-Funktionalität in verschiedenen Szenarien
+- Überprüfen, ob weitere Benutzereinstellungen von einer ähnlichen Optionalisierung profitieren könnten
+
+
 ## Neue Features (Version 0.7.0)
 
 - Implementierung einer Zwischenablage-Option für die Texteingabe an der Systemcursor-Position

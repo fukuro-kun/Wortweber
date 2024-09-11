@@ -158,6 +158,7 @@ class WordweberGUI:
         self.transcriber = transcriber
         self.root = tk.Tk()
         self.root.title("Wortweber Transkription")
+        self.auto_copy_var = tk.BooleanVar(value=True)  # Neue Variable für die Checkbox
         self.setup_gui()
 
     def setup_gui(self):
@@ -256,9 +257,14 @@ class WordweberGUI:
         self.transcription_timer_var = tk.StringVar(value="Transkriptionszeit: 0.00 s")
         ttk.Label(right_frame, textvariable=self.transcription_timer_var).grid(column=0, row=2, pady=5)
 
+        # Neue Checkbox für automatisches Kopieren
+        self.auto_copy_checkbox = ttk.Checkbutton(right_frame, text="Automatisch in Zwischenablage kopieren",
+                                                  variable=self.auto_copy_var)
+        self.auto_copy_checkbox.grid(column=0, row=3, pady=5, sticky="w")
+
         self.status_var = tk.StringVar()
         self.status_label = ttk.Label(right_frame, textvariable=self.status_var)
-        self.status_label.grid(column=0, row=3, pady=5)
+        self.status_label.grid(column=0, row=4, pady=5)
         self.update_status("Initialisiere...", "blue")
 
     def setup_transcription_area(self, parent):
@@ -448,8 +454,13 @@ class WordweberGUI:
                     keyboard.press('v')
                     keyboard.release('v')
 
-        pyperclip.copy(text)
-        self.update_status("Text transkribiert und in Zwischenablage kopiert", "green")
+        # Automatisches Kopieren nur, wenn die Checkbox aktiviert ist
+        if self.auto_copy_var.get():
+            pyperclip.copy(text)
+            self.update_status("Text transkribiert und in Zwischenablage kopiert", "green")
+        else:
+            self.update_status("Text transkribiert", "green")
+
         self.transcription_timer_var.set(f"Transkriptionszeit: {self.state.transcription_time:.2f} s")
 
     def run(self):
