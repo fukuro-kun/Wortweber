@@ -5,6 +5,17 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.10.0] - 2024-09-11
+### Added
+- Funktion zum Speichern und Laden von Benutzereinstellungen
+- Automatisches Speichern der Fenstergröße und des Textfensterinhalts
+- Wiederherstellung der letzten Einstellungen beim Programmstart
+
+## [0.9.0] - 2024-09-11
+### Changed
+- Abschluss des Frontend-Backend-Refactorings
+- Verbesserte Modularität und Wartbarkeit des Codes
+
 ## [0.8.2] - 2024-09-11
 ### Changed
 - Verschoben `text_operations.py` in `backend/text_processor.py` für eine konsistentere Struktur
