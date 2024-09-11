@@ -33,6 +33,15 @@ Wortweber ist ein Python-basiertes Einzelentwickler-Projekt mit KI-Unterstützun
 
 ## Projektstruktur
 - src/
+  - backend/
+    - __init__.py
+    - audio_processor.py
+    - transcriber.py
+    - wortweber_backend.py
+  - frontend/
+    - __init__.py
+    - wortweber_gui.py
+  - __init__.py
   - config.py: Zentrale Konfigurationsdatei
   - wortweber.py: Hauptanwendung
   - text_operations.py: Funktionen für Textoperationen
@@ -40,6 +49,12 @@ Wortweber ist ein Python-basiertes Einzelentwickler-Projekt mit KI-Unterstützun
   - README.md: Allgemeine Projektinformationen
   - CHANGELOG.md: Änderungsprotokoll
   - DEVELOPMENT.md: Entwicklerdokumentation (dieses Dokument)
+- tests/
+  - backend/
+    - __init__.py
+    - test_audio_processor.py
+  - __init__.py
+  - Audioaufnahme_Testskript.py
 - requirements.txt: Liste der Python-Abhängigkeiten
 - install_and_test.sh: Installations- und Testskript
 - VERSION: Aktuelle Versionsnummer des Projekts
@@ -66,14 +81,37 @@ Wortweber ist ein Python-basiertes Einzelentwickler-Projekt mit KI-Unterstützun
 - Das Format der Versionsnummer folgt der Semantischen Versionierung (MAJOR.MINOR.PATCH).
 - Bei der Erstellung eines neuen Git-Tags sollte die Versionsnummer aus dieser Datei verwendet werden.
 
+## Umfassendes Refactoring (Version 0.8.0)
+
+Am 2024-09-12 wurde ein umfassendes Refactoring durchgeführt, um die Projektstruktur zu verbessern und die Trennung von Frontend und Backend zu implementieren. Die Hauptänderungen umfassen:
+
+1. Neue Verzeichnisstruktur:
+   - Einführung von `src/backend/` und `src/frontend/` Verzeichnissen
+   - Aufteilung der Logik in separate Module
+
+2. Backend-Struktur:
+   - Implementierung von `AudioProcessor`, `Transcriber`, und `WordweberBackend` Klassen
+   - Verbesserte Kapselung und Modularität
+
+3. Frontend-Anpassungen:
+   - Überarbeitung der `WordweberGUI` Klasse zur Nutzung des neuen Backends
+   - Verbesserung der Benutzeroberfläche und Interaktionslogik
+
+4. Fehlerbehandlung und Logging:
+   - Einführung verbesserter Fehlerbehandlungsmechanismen
+   - Erweitertes Logging für bessere Debuggingmöglichkeiten
+
+5. Dokumentation:
+   - Aktualisierung aller Docstrings und Kommentare
+   - Erweiterung der Projektdokumentation zur Reflexion der neuen Struktur
+
+Diese Änderungen zielen darauf ab, die Codebase modularer, wartbarer und erweiterbar zu machen.
+Entwickler sollten sich mit der neuen Struktur vertraut machen und die eingeführten Konventionen
+für zukünftige Entwicklungen beibehalten.
+
 ## Neue Features (Version 0.7.1)
 
 - Eine neue Checkbox wurde hinzugefügt, um das automatische Kopieren in die Zwischenablage optional zu machen. Diese Funktion gibt den Benutzern mehr Kontrolle über die Handhabung der transkribierten Texte.
-
-## Nächste Schritte
-- Testen der neuen Checkbox-Funktionalität in verschiedenen Szenarien
-- Überprüfen, ob weitere Benutzereinstellungen von einer ähnlichen Optionalisierung profitieren könnten
-
 
 ## Neue Features (Version 0.7.0)
 
@@ -83,35 +121,6 @@ Wortweber ist ein Python-basiertes Einzelentwickler-Projekt mit KI-Unterstützun
 - Verbesserung der pynput-Integration für zuverlässigere Tastatureingaben
 
 Diese Änderungen verbessern die Flexibilität und Benutzerfreundlichkeit der Anwendung, indem sie mehr Kontrolle über die Texteingabe bieten und die Benutzeroberfläche reaktiver gestalten.
-
-## Umfassendes Refactoring (Version 0.6.0)
-
-Am 2024-09-11 wurde ein umfassendes Code-Refactoring durchgeführt, um die Struktur und Wartbarkeit des Projekts zu verbessern. Die Hauptänderungen umfassen:
-
-1. Einführung von Klassen:
-   - WordweberState: Verwaltet den Zustand der Anwendung
-   - AudioProcessor: Handhabt die Audioaufnahme und -verarbeitung
-   - Transcriber: Verantwortlich für die Transkription
-   - WordweberGUI: Hauptklasse für die grafische Benutzeroberfläche
-
-2. Verbesserte Dokumentation:
-   - Hinzufügung ausführlicher Docstrings zu allen Klassen und Methoden
-   - Aktualisierung der Kommentare im Code für bessere Verständlichkeit
-
-3. Typ-Annotationen und -Überprüfungen:
-   - Einführung von Typ-Annotationen für alle Funktionen und Methoden
-   - Implementierung expliziter Typüberprüfungen zur Vermeidung von None-Wert-Fehlern
-
-4. Konfigurationsverbesserungen:
-   - Einführung von HIGHLIGHT_DURATION in der Konfigurationsdatei für konsistentere Einstellungen
-
-5. Fehlerbehandlung:
-   - Überarbeitung der Fehlerbehandlung in kritischen Funktionen wie Audioaufnahme und Transkription
-
-Diese Änderungen zielen darauf ab, die Codebase robuster, lesbarer und einfacher zu warten zu machen.
-Entwickler, die an diesem Projekt arbeiten, sollten sich mit der neuen Struktur vertraut machen und die
-eingeführten Konventionen für zukünftige Entwicklungen beibehalten.
-
 
 ## Hinweise für Entwickler
 - Das `whisper`-Paket wird von diesem Projekt verwendet und muss installiert sein. Warnungen des statischen Analysators bezüglich des Imports von `whisper` können ignoriert werden, solange das Paket korrekt installiert ist.
@@ -124,9 +133,6 @@ eingeführten Konventionen für zukünftige Entwicklungen beibehalten.
 3. Committen Sie Ihre Änderungen: `git commit -am 'Füge neue Funktion hinzu'`
 4. Pushen Sie zum Branch: `git push origin feature/neue-funktion`
 5. Erstellen Sie einen Pull Request
-
-## Git-Workflow Best Practices
-[Der Abschnitt bleibt unverändert]
 
 ## Lizenz
 Apache 2.0 -Lizenz (siehe LICENSE-Datei)

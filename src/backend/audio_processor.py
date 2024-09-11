@@ -1,4 +1,4 @@
-from ..config import FORMAT, CHANNELS, RATE, CHUNK, DEVICE_INDEX, TARGET_RATE
+from src.config import FORMAT, CHANNELS, RATE, CHUNK, DEVICE_INDEX, TARGET_RATE
 import pyaudio
 import numpy as np
 from scipy import signal
@@ -22,6 +22,7 @@ class AudioProcessor:
                 if max_channels is not None and int(max_channels) > 0:
                     print(f"Input Device id {i} - {device_info.get('name')}")
 
+
     def record_audio(self, state):
         try:
             stream = self.p.open(format=FORMAT, channels=CHANNELS, rate=self.RATE, input=True,
@@ -42,12 +43,13 @@ class AudioProcessor:
             return duration
         except Exception as e:
             print(f"Fehler bei der Audioaufnahme: {e}")
+            print(f"Fehlertyp: {type(e).__name__}")
+            print(f"Geräteinformationen: {self.p.get_device_info_by_index(DEVICE_INDEX)}")
             return 0
 
     def resample_audio(self, audio_np):
         if len(audio_np) == 0:
             return audio_np
-        # Ensure we always have at least 2 samples after resampling
         target_length = max(2, int(len(audio_np) * self.TARGET_RATE / self.RATE))
         resampled = signal.resample(audio_np, target_length)
         print(f"Debug: Resampling from {len(audio_np)} to {len(resampled)} samples")
@@ -64,4 +66,4 @@ class AudioProcessor:
         if len(resampled) < 2:
             print("Warning: Resampled audio has less than 2 samples. Padding with zeros.")
             resampled = np.pad(resampled, (0, 2 - len(resampled)), 'constant')
-        return resampled
+        return resampled # Stellen Sie sicher, dass dies ein numpy array ist

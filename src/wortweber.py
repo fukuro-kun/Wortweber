@@ -12,15 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-   # src/wortweber.py
+# src/wortweber.py
+import sys
+import os
 
-from backend.audio_processor import AudioProcessor
-from backend.transcriber import Transcriber
-from frontend.wortweber_gui import WordweberGUI
-from backend.wortweber_backend import WordweberBackend
+# Füge den Projektordner zum Python-Pfad hinzu
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, project_root)
+
+from src.backend.wortweber_backend import WordweberBackend
+from src.frontend.wortweber_gui import WordweberGUI
 
 def main():
     backend = WordweberBackend()
+    backend.list_audio_devices()
     gui = WordweberGUI(backend)
     gui.run()
 
