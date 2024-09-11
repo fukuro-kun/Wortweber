@@ -13,6 +13,8 @@
 # limitations under the License.
 # config.py
 
+import pyaudio
+
 # Audio settings
 AUDIO_CHUNK = 4096
 AUDIO_FORMAT = 'paInt16'
@@ -26,6 +28,7 @@ MIN_RECORD_SECONDS = 0.5
 
 # Whisper model settings
 WHISPER_MODEL = "small"  # Optionen: "tiny", "base", "small", "medium", "large"
+WHISPER_MODELS = ["tiny", "base", "small", "medium", "large"]
 
 # Language settings
 DEFAULT_LANGUAGE = "de"
@@ -36,6 +39,12 @@ SUPPORTED_LANGUAGES = {
 
 # GUI settings
 HIGHLIGHT_DURATION = 2000  # Dauer der Hervorhebung in Millisekunden
+
+# PyAudio format
+FORMAT = getattr(pyaudio, AUDIO_FORMAT)
+CHANNELS = AUDIO_CHANNELS
+RATE = AUDIO_RATE
+CHUNK = AUDIO_CHUNK
 
 # Important notes
 RESAMPLING_NOTE = """
