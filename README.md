@@ -4,30 +4,35 @@ Wortweber ist eine leistungsstarke und benutzerfreundliche Anwendung zur Echtzei
 
 ## Hauptfunktionen
 
-- Echtzeit-Audioaufnahme mit Push-to-Talk-Funktionalität
-- Transkription in Deutsch und Englisch
-- Intuitive grafische Benutzeroberfläche
-- Automatisches Kopieren der Transkription in die Zwischenablage
+- Echtzeit-Audioaufnahme mit Push-to-Talk-Funktionalität (F12-Taste)
+- Transkription in Deutsch und Englisch mit verschiedenen Whisper-Modellen
+- Intuitive grafische Benutzeroberfläche mit anpassbaren Themes
+- Automatisches Kopieren der Transkription in die Zwischenablage (optional)
 - Einfache Umwandlung von Zahlwörtern in Ziffern und umgekehrt
+- Flexible Eingabemodi: Textfenster oder Systemcursor-Position
+- Speichern und Wiederherstellen von Benutzereinstellungen
 
 ## Installation und Nutzung
 
+### Voraussetzungen
+
+- Python 3.11 oder höher
+- Conda (empfohlen für einfache Installation und Verwaltung der Umgebung)
+
 ### Installation
 
-1. Stellen Sie sicher, dass Sie Conda installiert haben.
-
-2. Klonen Sie dieses Repository:
+1. Klonen Sie dieses Repository:
    ```
    git clone https://github.com/fukuro-kun/Wortweber.git
    cd Wortweber
    ```
 
-3. Führen Sie das Installations- und Testskript aus:
+2. Führen Sie das Installations- und Testskript aus:
    ```
-   ./install_and_test.sh
+   bash install_and_test.sh
    ```
 
-4. Folgen Sie den Anweisungen im Terminal. Sie werden möglicherweise nach Ihrem Passwort gefragt, um Systemabhängigkeiten zu installieren.
+3. Folgen Sie den Anweisungen im Terminal. Sie werden möglicherweise nach Ihrem Passwort gefragt, um Systemabhängigkeiten zu installieren.
 
 ### Verwendung
 
@@ -36,53 +41,20 @@ Wortweber ist eine leistungsstarke und benutzerfreundliche Anwendung zur Echtzei
    conda activate wortweber
    ```
 
-2. Führen Sie das Skript aus:
+2. Starten Sie die Anwendung:
    ```
    python src/wortweber.py
    ```
 
 3. Drücken und halten Sie die F12-Taste, um zu sprechen. Lassen Sie die Taste los, um die Aufnahme zu beenden und die Transkription zu starten.
 
-## Versionen
-
-Dieses Projekt ist in zwei Versionen verfügbar, um unterschiedliche Anforderungen und Lizenzierungspräferenzen zu berücksichtigen:
-
-1. Hauptversion (main branch):
-   - Verwendet eine eigene Implementierung für die Zahlwort-zu-Ziffer und Ziffer-zu-Zahlwort Konvertierung.
-   - Ist unabhängig von externen Bibliotheken für diese Funktionalität.
-   - Empfohlen für die meisten Anwendungsfälle.
-
-2. Erweiterte Version (feature/num2words_and_gui_improvements branch):
-   - Verwendet zusätzliche Bibliotheken für erweiterte Zahlwort-Konvertierungsfunktionen.
-   - Bietet umfangreichere Unterstützung für verschiedene Sprachen und Zahlensysteme.
-   - Kann zusätzlichen Lizenzbedingungen unterliegen.
-
-### Wechseln zwischen den Versionen
-
-Um zwischen den Versionen zu wechseln, verwenden Sie die folgenden Git-Befehle:
-
-Für die Hauptversion:
-```bash
-git checkout main
-```
-
-Für die erweiterte Version:
-```bash
-git checkout feature/num2words_and_gui_improvements
-```
-
-Bitte beachten Sie: Nach dem Wechsel zur erweiterten Version müssen Sie die zusätzlichen Abhängigkeiten installieren:
-
-```bash
-pip install -r requirements.txt
-```
-
-Stellen Sie sicher, dass Sie die Lizenzbedingungen aller verwendeten Bibliotheken in der erweiterten Version überprüfen und einhalten.
-
 ## Projektstruktur
+
 - `src/`: Enthält den Quellcode
-- `docs/`: Enthält die Dokumentation
-- `tests/`: Enthält die Struktur für automatische Tests
+  - `backend/`: Backend-Logik für Audioaufnahme und Transkription
+  - `frontend/`: GUI-Komponenten und Benutzerschnittstelle
+- `docs/`: Enthält die Projektdokumentation
+- `tests/`: Enthält Unittests und Integrationstests
 - `requirements.txt`: Liste der Python-Abhängigkeiten
 - `install_and_test.sh`: Installations- und Testskript
 - `VERSION`: Aktuelle Versionsnummer des Projekts
@@ -95,21 +67,10 @@ Um alle Tests auszuführen, verwenden Sie den folgenden Befehl im Hauptverzeichn
 python run_tests.py
 ```
 
-Dies wird alle Tests in der `tests/`-Struktur ausführen.
+## Wichtige Hinweise
 
-## Wichtiger Hinweis
-
-Dieses Tool wurde entwickelt, um in einer isolierten Conda-Umgebung zu laufen.
-Bitte stellen Sie sicher, dass Sie die Wortweber-Umgebung aktiviert haben,
-bevor Sie das Tool verwenden. Dies gewährleistet die korrekte Funktionalität und verhindert
-unbeabsichtigte Änderungen an Ihrem System-Python.
-
-## Deinstallation
-
-Um die Wortweber-Umgebung zu entfernen, führen Sie folgenden Befehl aus:
-```
-conda remove --name wortweber --all
-```
+- Stellen Sie sicher, dass Sie die Wortweber-Umgebung aktiviert haben, bevor Sie die Anwendung starten.
+- Die Anwendung wurde für die Verwendung in einer isolierten Conda-Umgebung entwickelt, um Konflikte mit System-Python-Installationen zu vermeiden.
 
 ## Problembehebung
 
@@ -128,28 +89,29 @@ da die in Conda enthaltene Version möglicherweise nicht mit den Systemanforderu
 
 1. Stellen Sie sicher, dass Sie die neueste Version von Conda verwenden.
 2. Überprüfen Sie, ob alle Systemabhängigkeiten korrekt installiert sind.
-3. Bei ALSA-Fehlern versuchen Sie, die ALSA-Bibliotheken zu aktualisieren:
-   ```
-   sudo apt-get install --reinstall libasound2 libasound2-plugins
-   ```
-4. Wenn Sie Probleme mit PyAudio haben, versuchen Sie, es neu zu installieren:
+3. Bei Problemen mit PyAudio, versuchen Sie eine Neuinstallation:
    ```
    pip uninstall pyaudio
    pip install --no-binary :all: pyaudio
    ```
+4. Bei Problemen mit der Audiogeräte-Erkennung, passen Sie den DEVICE_INDEX in der `config.py` an.
+
+### Bekannte Probleme
+
+- ALSA-Warnungen können in den meisten Fällen ignoriert werden und sind nicht kritisch für die Funktionalität der Anwendung.
+- Bei ALSA-bezogenen Fehlern können Sie versuchen, die ALSA-Bibliotheken zu aktualisieren:
+  ```
+  sudo apt-get install --reinstall libasound2 libasound2-plugins
+  ```
 
 Wenn Sie weiterhin Probleme haben, überprüfen Sie die Konsolenausgabe auf spezifische Fehlermeldungen und suchen Sie nach diesen online oder eröffnen Sie ein Issue in diesem Repository.
 
 ## Systemanforderungen
 
-Dieses Tool wurde erfolgreich getestet auf:
+Diese Anwendung wurde erfolgreich getestet auf:
 - Ubuntu 22.04 LTS
 - Python 3.11
 - Conda 23.11.0
-
-## Funktionsweise
-
-Das Wortweber-Tool nutzt das OpenAI Whisper Modell für Echtzeit-Spracherkennung. Es nimmt Audioaufnahmen über das Mikrofon auf und verarbeitet diese mit Whisper, um eine textuelle Transkription zu erzeugen.
 
 ## Beitragen
 
@@ -158,4 +120,3 @@ Beiträge zu diesem Projekt sind willkommen! Wenn Sie Verbesserungen vorschlagen
 ## Lizenz
 
 Dieses Projekt steht unter der Apache License 2.0. Weitere Details finden Sie in der [LICENSE](LICENSE) Datei.
-Bitte beachten Sie, dass die erweiterte Version zusätzliche Abhängigkeiten hat und möglicherweise anderen Lizenzbedingungen unterliegt. Stellen Sie sicher, dass Sie die Lizenzbedingungen aller verwendeten Bibliotheken in der erweiterten Version überprüfen und einhalten.
