@@ -2,6 +2,7 @@ from pynput import keyboard
 from pynput.keyboard import Key, Controller as KeyboardController
 import pyperclip
 import time
+import threading
 
 class InputProcessor:
     def __init__(self, gui):
@@ -40,6 +41,12 @@ class InputProcessor:
                 self.gui.transcribe_and_update()
             else:
                 self.gui.status_panel.update_status("Aufnahme gespeichert. Warte auf Modell-Bereitschaft.", "orange")
+                threading.Thread(target=self.wait_and_transcribe, daemon=True).start()
+
+    def wait_and_transcribe(self):
+        while not self.gui.backend.model_loaded.is_set():
+            time.sleep(0.5)
+        self.gui.transcribe_and_update()
 
     def process_text(self, text):
         input_mode = self.gui.options_panel.input_mode_var.get()

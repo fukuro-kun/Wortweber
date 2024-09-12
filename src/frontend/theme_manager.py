@@ -1,5 +1,6 @@
 import ttkthemes
 import tkinter as tk
+from tkinter import ttk
 
 class ThemeManager:
     def __init__(self, root, settings_manager):

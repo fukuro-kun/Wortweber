@@ -3,6 +3,7 @@ from tkinter import ttk
 import ttkthemes
 import time
 import logging
+import threading
 from src.backend.wortweber_backend import WordweberBackend
 from src.frontend.main_window import MainWindow
 from src.frontend.transcription_panel import TranscriptionPanel
@@ -29,6 +30,7 @@ class WordweberGUI:
 
         self.setup_logging()
         self.load_saved_settings()
+        self.load_initial_model()
 
     def setup_logging(self):
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -38,6 +40,20 @@ class WordweberGUI:
         window_size = self.settings_manager.get_setting("window_size")
         self.root.geometry(window_size)
         self.theme_manager.apply_saved_theme()
+
+    def load_initial_model(self):
+        model_name = self.settings_manager.get_setting("model")
+        self.load_model_async(model_name)
+
+    def load_model_async(self, model_name: str):
+        self.status_panel.update_status("Lade Modell...", "blue")
+        threading.Thread(target=self._load_model_thread, args=(model_name,), daemon=True).start()
+
+    def _load_model_thread(self, model_name: str):
+        self.backend.load_transcriber_model(model_name)
+        self.status_panel.update_status("Modell geladen", "green")
+        if self.backend.pending_audio:
+            self.transcribe_and_update()
 
     def run(self):
         logging.debug("Starte Anwendung")
@@ -71,11 +87,6 @@ class WordweberGUI:
         text = self.backend.process_and_transcribe(self.options_panel.language_var.get())
         self.input_processor.process_text(text)
         self.status_panel.update_transcription_timer(self.backend.state.transcription_time)
-
-    def load_model(self, model_name: str):
-        self.status_panel.update_status("Lade Modell...", "blue")
-        self.backend.load_transcriber_model(model_name)
-        self.status_panel.update_status("Modell geladen", "green")
 
 if __name__ == "__main__":
     backend = WordweberBackend()

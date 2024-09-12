@@ -34,15 +34,20 @@ class OptionsPanel(ttk.Frame):
         delay_frame = ttk.LabelFrame(self, text="Verzögerungsmodus")
         delay_frame.pack(fill=tk.X, pady=5)
         self.delay_mode_var = tk.StringVar(value=self.gui.settings_manager.get_setting("delay_mode"))
-        ttk.Radiobutton(delay_frame, text="Keine Verzögerung", variable=self.delay_mode_var, value="no_delay").pack(anchor=tk.W)
+        self.no_delay_radio = ttk.Radiobutton(delay_frame, text="Keine Verzögerung", variable=self.delay_mode_var, value="no_delay")
+        self.no_delay_radio.pack(anchor=tk.W)
         char_delay_frame = ttk.Frame(delay_frame)
         char_delay_frame.pack(anchor=tk.W, fill=tk.X)
-        ttk.Radiobutton(char_delay_frame, text="Zeichenweise", variable=self.delay_mode_var, value="char_delay").pack(side=tk.LEFT)
+        self.char_delay_radio = ttk.Radiobutton(char_delay_frame, text="Zeichenweise", variable=self.delay_mode_var, value="char_delay")
+        self.char_delay_radio.pack(side=tk.LEFT)
         self.char_delay_entry = ttk.Entry(char_delay_frame, width=5)
         self.char_delay_entry.pack(side=tk.LEFT, padx=(5, 0))
         self.char_delay_entry.insert(0, self.gui.settings_manager.get_setting("char_delay"))
         ttk.Label(char_delay_frame, text="ms").pack(side=tk.LEFT)
-        ttk.Radiobutton(delay_frame, text="Zwischenablage", variable=self.delay_mode_var, value="clipboard").pack(anchor=tk.W)
+        self.clipboard_radio = ttk.Radiobutton(delay_frame, text="Zwischenablage", variable=self.delay_mode_var, value="clipboard")
+        self.clipboard_radio.pack(anchor=tk.W)
+
+        self.delay_widgets = [self.no_delay_radio, self.char_delay_radio, self.char_delay_entry, self.clipboard_radio]
 
     def setup_input_mode(self):
         input_mode_frame = ttk.LabelFrame(self, text="Eingabemodus")
@@ -50,10 +55,16 @@ class OptionsPanel(ttk.Frame):
         self.input_mode_var = tk.StringVar(value=self.gui.settings_manager.get_setting("input_mode"))
         ttk.Radiobutton(input_mode_frame, text="Ins Textfenster", variable=self.input_mode_var, value="textfenster").pack(side=tk.LEFT, padx=5)
         ttk.Radiobutton(input_mode_frame, text="An Systemcursor-Position", variable=self.input_mode_var, value="systemcursor").pack(side=tk.LEFT, padx=5)
+        self.input_mode_var.trace_add("write", self.toggle_delay_options)
 
     def on_language_change(self):
         self.gui.settings_manager.set_setting("language", self.language_var.get())
 
     def on_model_change(self, event):
         self.gui.settings_manager.set_setting("model", self.model_var.get())
-        self.gui.load_model(self.model_var.get())
+        self.gui.load_model_async(self.model_var.get())
+
+    def toggle_delay_options(self, *args):
+        state = 'normal' if self.input_mode_var.get() == "systemcursor" else 'disabled'
+        for widget in self.delay_widgets:
+            widget.configure(state=state)

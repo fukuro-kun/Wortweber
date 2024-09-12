@@ -9,6 +9,7 @@ class TranscriptionPanel(ttk.Frame):
         super().__init__(parent)
         self.gui = gui
         self.setup_ui()
+        self.load_saved_text()
 
     def setup_ui(self):
         self.transcription_text = scrolledtext.ScrolledText(self, wrap=tk.WORD, width=80, height=20)
@@ -32,11 +33,22 @@ class TranscriptionPanel(ttk.Frame):
         self.transcription_text.tag_add("highlight", current_position, end_position)
         self.transcription_text.see(end_position)
         self.gui.root.after(HIGHLIGHT_DURATION, lambda: self.transcription_text.tag_remove("highlight", current_position, end_position))
+        self.save_text()
 
     def clear_transcription(self):
         self.transcription_text.delete(1.0, tk.END)
+        self.save_text()
 
     def copy_all_to_clipboard(self):
         all_text = self.transcription_text.get(1.0, tk.END)
         pyperclip.copy(all_text)
         self.gui.status_panel.update_status("Gesamter Text in die Zwischenablage kopiert", "green")
+
+    def save_text(self):
+        text_content = self.transcription_text.get(1.0, tk.END).strip()
+        self.gui.settings_manager.set_setting("text_content", text_content)
+
+    def load_saved_text(self):
+        saved_text = self.gui.settings_manager.get_setting("text_content")
+        if saved_text:
+            self.transcription_text.insert(tk.END, saved_text)

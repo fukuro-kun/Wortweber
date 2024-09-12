@@ -37,4 +37,5 @@ class SettingsManager:
             "delay_mode": "no_delay",
             "char_delay": "10",
             "auto_copy": True,
+            "text_content": "",
         }
