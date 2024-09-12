@@ -5,6 +5,26 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.11.2] - 2024-09-12
+### Added
+- Verbesserte Fehlerbehandlung bei der Transkription
+- Mehrfache Transkriptionsversuche bei initialen Fehlern
+- Unterstützung für Aufnahmen vor vollständigem Laden des Modells
+- Dynamische Anpassung der Maskengröße für verbesserte Kompatibilität
+
+### Changed
+- Optimierte Verarbeitung von Audio-Eingaben
+- Verbesserte Rückmeldung über den Transkriptionsstatus in der Benutzeroberfläche
+- Erhöhte Robustheit bei der Verarbeitung von Aufnahmen während des Modellladens
+
+### Fixed
+- Problem mit der Anzeige der ersten Transkription behoben
+- Verbesserte Konsistenz bei der Ausgabe von Transkriptionen, unabhängig vom Modellladestatus
+
+### Technical
+- Refactoring des Backend-Codes für bessere Modularität und Wartbarkeit
+- Implementierung einer verzögerten Verarbeitung für Aufnahmen während des Modellladens
+
 ## [0.11.0] - 2024-09-12
 ### Added
 - Implementierung der verzögerten Verarbeitung von Audioaufnahmen während des Modellladens
