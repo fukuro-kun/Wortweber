@@ -81,6 +81,36 @@ Wortweber ist ein Python-basiertes Einzelentwickler-Projekt mit KI-Unterstützun
 - Das Format der Versionsnummer folgt der Semantischen Versionierung (MAJOR.MINOR.PATCH).
 - Bei der Erstellung eines neuen Git-Tags sollte die Versionsnummer aus dieser Datei verwendet werden.
 
+## Umfangreiches GUI-Refactoring (Version 0.11.0)
+
+In Version 0.11.0 wurde ein umfassendes Refactoring der GUI-Komponente durchgeführt, um die Modularität, Wartbarkeit und Erweiterbarkeit des Codes zu verbessern. Die Hauptänderungen umfassen:
+
+1. Aufteilung der GUI-Logik:
+   - Die monolithische `wortweber_gui.py` wurde in mehrere spezialisierte Module aufgeteilt.
+   - Neue Module: `main_window.py`, `transcription_panel.py`, `options_panel.py`, `status_panel.py`, `theme_manager.py`, `input_processor.py`, `settings_manager.py`
+
+2. Einführung spezialisierter Klassen:
+   - `MainWindow`: Verantwortlich für das Hauptfensterlayout und die Integration aller GUI-Komponenten.
+   - `TranscriptionPanel`: Verwaltet den Transkriptionsbereich und zugehörige Funktionen.
+   - `OptionsPanel`: Handhabt alle Benutzeroptionen und Einstellungen.
+   - `StatusPanel`: Zeigt Statusmeldungen und Timer an.
+
+3. Verbesserte Themenverwaltung:
+   - Implementierung eines `ThemeManager` für zentralisierte Theme-Verwaltung und -Anwendung.
+
+4. Zentralisierte Einstellungsverwaltung:
+   - Einführung eines `SettingsManager` für das Laden, Speichern und Verwalten von Benutzereinstellungen.
+
+5. Dedizierte Eingabeverarbeitung:
+   - `InputProcessor` zur Handhabung von Tastatureingaben und Aufnahmesteuerung.
+
+6. Verbesserte Fehlerbehandlung und Logging:
+   - Implementierung robusterer Fehlerbehandlungsmechanismen in allen GUI-Komponenten.
+   - Erweitertes Logging für bessere Nachvollziehbarkeit und Debugging.
+
+Diese Änderungen verbessern die Codestruktur erheblich und erleichtern zukünftige Erweiterungen und Wartungsarbeiten.
+Entwickler sollten sich mit der neuen Modulstruktur vertraut machen und die eingeführten Konventionen für zukünftige Entwicklungen beibehalten.
+
 ## Neue Features (Version 0.10.0)
 
 - Implementierung der Speicherung und des Ladens von Benutzereinstellungen
