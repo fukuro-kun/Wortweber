@@ -25,5 +25,19 @@ class MainWindow:
         self.status_panel.grid(column=1, row=0, sticky="ne")
         self.transcription_panel.grid(column=0, row=1, columnspan=2, sticky="nsew")
 
+        # Theme-Manager-UI in Options-Panel integrieren
+        self.gui.theme_manager.setup_theme_selection(self.options_panel)
+
         main_frame.columnconfigure(0, weight=1)
         main_frame.rowconfigure(1, weight=1)
+
+        # Buttons am unteren Rand hinzufügen
+        button_frame = ttk.Frame(main_frame)
+        button_frame.grid(column=0, row=2, columnspan=2, pady=10)
+
+        ttk.Button(button_frame, text="Transkription löschen",
+                   command=self.transcription_panel.clear_transcription).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Alles kopieren",
+                   command=self.transcription_panel.copy_all_to_clipboard).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Beenden",
+                   command=self.root.quit).pack(side=tk.LEFT, padx=5)
