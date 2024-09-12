@@ -81,6 +81,35 @@ Wortweber ist ein Python-basiertes Einzelentwickler-Projekt mit KI-Unterstützun
 - Das Format der Versionsnummer folgt der Semantischen Versionierung (MAJOR.MINOR.PATCH).
 - Bei der Erstellung eines neuen Git-Tags sollte die Versionsnummer aus dieser Datei verwendet werden.
 
+## Aktuelle Entwicklung (Version 0.11.1)
+
+Mit Version 0.11.1 wurden wichtige Stabilitätsverbesserungen implementiert:
+
+1. Audioaufnahme und -verarbeitung:
+   - Verbesserte Fehlerbehandlung während des Aufnahmeprozesses
+   - Optimierung für konsistentere Eingaben in das Whisper-Modell
+
+2. GUI-Verbesserungen:
+   - Behebung von Problemen bei der Anzeige von Transkriptionen im Textfenster
+
+3. Allgemeine Stabilität:
+   - Verbesserung der Fehlerprotokolle für eine effektivere Fehlerdiagnose
+   - Optimierung des Ressourcenmanagements
+
+Diese Version stellt einen stabilen Punkt in der Entwicklung dar und dient als Grundlage für zukünftige Verbesserungen.
+
+### Hinweis zur Versionierung
+
+Bei der Entwicklung der nachfolgenden Version 0.11.2 traten unerwartete Probleme auf. Als Konsequenz daraus wurden folgende Lehren für zukünftige Entwicklungen gezogen:
+
+1. Verstärkte inkrementelle Entwicklung und Testing
+2. Verbesserung der Testabdeckung, insbesondere für kritische Funktionen
+3. Einrichtung einer Staging-Umgebung für gründlichere Tests vor Veröffentlichungen
+4. Entwicklung eines klaren Rollback-Plans für problematische Releases
+5. Detailliertere Dokumentation von Änderungen und deren erwarteten Auswirkungen
+
+Diese Erkenntnisse werden in die zukünftige Entwicklungsstrategie einfließen, um die Stabilität und Zuverlässigkeit des Projekts weiter zu verbessern.
+
 ## Umfangreiches GUI-Refactoring (Version 0.11.0)
 
 In Version 0.11.0 wurde ein umfassendes Refactoring der GUI-Komponente durchgeführt, um die Modularität, Wartbarkeit und Erweiterbarkeit des Codes zu verbessern. Die Hauptänderungen umfassen:
@@ -110,6 +139,7 @@ In Version 0.11.0 wurde ein umfassendes Refactoring der GUI-Komponente durchgef�
 
 Diese Änderungen verbessern die Codestruktur erheblich und erleichtern zukünftige Erweiterungen und Wartungsarbeiten.
 Entwickler sollten sich mit der neuen Modulstruktur vertraut machen und die eingeführten Konventionen für zukünftige Entwicklungen beibehalten.
+
 
 ## Neue Features (Version 0.10.0)
 

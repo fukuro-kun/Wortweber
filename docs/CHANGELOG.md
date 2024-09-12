@@ -5,6 +5,20 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.11.1] - 2024-09-13
+### Fixed
+- Korrektur von Stabilitätsproblemen bei der Audioaufnahme und -verarbeitung
+- Behebung von Fehlern bei der Anzeige von Transkriptionen im GUI
+
+### Improved
+- Verbesserung der Zuverlässigkeit des Audioaufnahmeprozesses
+- Optimierung der Fehlerprotokolle für eine bessere Diagnose von Problemen
+
+### Note
+- Diese Version stellt eine stabile Verbesserung gegenüber früheren Versionen dar und wird als aktuell empfohlene Version betrachtet.
+- Aufgrund von Problemen in der nachfolgenden Version 0.11.2 wird empfohlen, bei dieser Version zu bleiben, bis eine neuere stabile Version veröffentlicht wird.
+
+
 ## [0.11.0] - 2024-09-12
 ### Added
 - Implementierung der verzögerten Verarbeitung von Audioaufnahmen während des Modellladens
