@@ -63,6 +63,7 @@ class WordweberGUI:
         self.backend.load_transcriber_model(model_name)
         self.status_panel.update_status("Modell geladen", "green")
         if self.backend.pending_audio:
+            self.status_panel.update_status("Verarbeite zurückgehaltene Aufnahmen...", "orange")
             self.transcribe_and_update()
 
     def run(self):
@@ -103,11 +104,22 @@ class WordweberGUI:
 
     def transcribe_and_update(self):
         self.status_panel.update_status("Transkribiere...", "orange")
-        start_time = time.time()
-        text = self.backend.process_and_transcribe(self.options_panel.language_var.get())
-        transcription_time = time.time() - start_time
-        self.input_processor.process_text(text)
-        self.status_panel.update_transcription_timer(transcription_time)
+        try:
+            start_time = time.time()
+            text = self.backend.process_and_transcribe(self.options_panel.language_var.get())
+            transcription_time = time.time() - start_time
+            if text:
+                self.input_processor.process_text(text)
+                self.status_panel.update_transcription_timer(transcription_time)
+                if "[Transkription fehlgeschlagen]" in text:
+                    self.status_panel.update_status("Teilweise Transkription fehlgeschlagen", "orange")
+                else:
+                    self.status_panel.update_status("Text transkribiert", "green")
+            else:
+                self.status_panel.update_status("Keine Transkription verfügbar", "red")
+        except Exception as e:
+            self.status_panel.update_status(f"Fehler bei der Transkription: {str(e)}", "red")
+        logging.info(f"Transkription abgeschlossen. Text: {text}")
 
 if __name__ == "__main__":
     backend = WordweberBackend()

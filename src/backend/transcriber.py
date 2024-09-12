@@ -37,6 +37,14 @@ class Transcriber:
             logging.exception("Detaillierter Traceback beim Laden des Modells:")
             raise
 
+    def adjust_mask_size(self, mask, target_size):
+        if mask.size(0) < target_size:
+            new_mask = torch.empty(target_size, target_size, device=mask.device).fill_(-np.inf)
+            new_mask[:mask.size(0), :mask.size(1)] = mask
+            new_mask = new_mask.triu_(1)
+            return new_mask
+        return mask[:target_size, :target_size]
+
     def transcribe(self, audio: np.ndarray, language: str) -> str:
         if self.model is None:
             raise RuntimeError("Modell nicht geladen. Bitte warten Sie, bis das Modell vollständig geladen ist.")
@@ -44,6 +52,11 @@ class Transcriber:
         try:
             logging.debug(f"Transkription gestartet. Audio shape: {audio.shape}, dtype: {audio.dtype}")
             options = whisper.DecodingOptions(language=language, without_timestamps=True)
+
+            # Anpassen der Maskengröße vor der Transkription
+            n_ctx = audio.shape[0]
+            self.model.decoder.mask = self.adjust_mask_size(self.model.decoder.mask, n_ctx)
+
             result = self.model.transcribe(audio, **options.__dict__)
             transcribed_text = result["text"].strip() if isinstance(result["text"], str) else str(result["text"])
             logging.debug(f"Transkribierter Text: {transcribed_text[:100]}...")

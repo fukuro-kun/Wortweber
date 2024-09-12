@@ -21,6 +21,7 @@ from src.backend.audio_processor import AudioProcessor
 from src.backend.transcriber import Transcriber
 import threading
 import logging
+import time
 
 class WordweberState:
     def __init__(self):
@@ -61,18 +62,32 @@ class WordweberBackend:
         if not self.model_loaded.is_set():
             raise RuntimeError("Modell nicht geladen. Bitte warten Sie, bis das Modell vollständig geladen ist.")
 
+        transcribed_text = ""
         audio_to_process = self.pending_audio + [np.frombuffer(b''.join(self.state.audio_data), dtype=np.int16).astype(np.float32) / 32768.0]
         self.pending_audio = []  # Leere die Liste der ausstehenden Aufnahmen
 
-        transcribed_text = ""
         for audio_np in audio_to_process:
             audio_resampled = self.audio_processor.resample_audio(audio_np)
-            transcribed_text += self.transcriber.transcribe(audio_resampled, language)
+            max_attempts = 10
+            for attempt in range(max_attempts):
+                try:
+                    result = self.transcriber.transcribe(audio_resampled, language)
+                    if not result.startswith("Fehler bei der Transkription:"):
+                        transcribed_text += result + " "
+                        logging.info(f"Erfolgreiche Transkription: {result}")
+                        break
+                except Exception as e:
+                    logging.warning(f"Transkriptionsversuch {attempt + 1} fehlgeschlagen: {str(e)}")
+                    if attempt < max_attempts - 1:
+                        time.sleep(0.5)  # Kurze Pause zwischen den Versuchen
+                    else:
+                        logging.error(f"Alle Versuche fehlgeschlagen für Audio mit Shape {audio_resampled.shape}")
+                        transcribed_text += "[Transkription fehlgeschlagen] "
 
         if self.on_transcription_complete:
             self.on_transcription_complete(transcribed_text)
 
-        return transcribed_text
+        return transcribed_text.strip()
 
     def load_transcriber_model(self, model_name: str):
         try:
