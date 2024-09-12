@@ -1,3 +1,5 @@
+# Wortweber/src/backend/wortweber_backend.py
+
 # Copyright 2024 fukuro-kun
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +15,6 @@
 # limitations under the License.
 
 from typing import List, Optional, Tuple, Callable
-import whisper
 import numpy as np
 from src.config import RATE, TARGET_RATE, FORMAT, CHANNELS, CHUNK, DEVICE_INDEX
 from src.backend.audio_processor import AudioProcessor
@@ -26,7 +27,6 @@ class WordweberState:
         self.recording: bool = False
         self.audio_data: List[bytes] = []
         self.start_time: float = 0
-        self.model: Optional[whisper.Whisper] = None
         self.transcription_time: float = 0
         self.language: str = "de"
 
@@ -37,6 +37,7 @@ class WordweberBackend:
         self.transcriber = Transcriber()
         self.model_loaded = threading.Event()
         self.on_transcription_complete: Optional[Callable[[str], None]] = None
+        self.pending_audio: List[np.ndarray] = []
 
     def start_recording(self):
         self.state.recording = True
@@ -45,6 +46,13 @@ class WordweberBackend:
 
     def stop_recording(self):
         self.state.recording = False
+        if self.model_loaded.is_set():
+            self.process_and_transcribe(self.state.language)
+        else:
+            audio_np = np.frombuffer(b''.join(self.state.audio_data), dtype=np.int16).astype(np.float32) / 32768.0
+            audio_resampled = self.audio_processor.resample_audio(audio_np)
+            self.pending_audio.append(audio_resampled)
+            logging.info("Aufnahme gespeichert. Warte auf Modell-Bereitschaft.")
 
     def _record_audio(self):
         duration = self.audio_processor.record_audio(self.state)
@@ -53,10 +61,13 @@ class WordweberBackend:
         if not self.model_loaded.is_set():
             raise RuntimeError("Modell nicht geladen. Bitte warten Sie, bis das Modell vollständig geladen ist.")
 
-        audio_np = np.frombuffer(b''.join(self.state.audio_data), dtype=np.int16).astype(np.float32) / 32768.0
-        audio_resampled = self.audio_processor.resample_audio(audio_np)
+        audio_to_process = self.pending_audio + [np.frombuffer(b''.join(self.state.audio_data), dtype=np.int16).astype(np.float32) / 32768.0]
+        self.pending_audio = []  # Leere die Liste der ausstehenden Aufnahmen
 
-        transcribed_text = self.transcriber.transcribe(audio_resampled, language)
+        transcribed_text = ""
+        for audio_np in audio_to_process:
+            audio_resampled = self.audio_processor.resample_audio(audio_np)
+            transcribed_text += self.transcriber.transcribe(audio_resampled, language)
 
         if self.on_transcription_complete:
             self.on_transcription_complete(transcribed_text)
@@ -67,6 +78,9 @@ class WordweberBackend:
         try:
             self.transcriber.load_model(model_name)
             self.model_loaded.set()
+            # Verarbeite ausstehende Aufnahmen
+            if self.pending_audio:
+                self.process_and_transcribe(self.state.language)
         except Exception as e:
             logging.error(f"Fehler beim Laden des Modells: {e}")
             self.model_loaded.clear()

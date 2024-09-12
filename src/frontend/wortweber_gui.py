@@ -1,3 +1,5 @@
+# Wortweber/src/frontend/wortweber_gui.py
+
 # Copyright 2024 fukuro-kun
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -53,6 +55,9 @@ class WordweberGUI:
         # Fensterverwaltung
         self.last_window_save_time = 0
         self.last_saved_position = None
+
+        # Aufnahmestatus
+        self.recording_in_progress = False
 
         # Logging-Konfiguration
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -278,6 +283,8 @@ class WordweberGUI:
                 self.update_status("Bereit", "green")
                 self.model_loaded.set()
                 logging.info(f"Modell erfolgreich geladen: {model_name}")
+                if self.backend.pending_audio:
+                    self.transcribe_and_update()
                 return
             except Exception as e:
                 logging.error(f"Fehler beim Laden des Modells: {e}")
@@ -325,11 +332,10 @@ class WordweberGUI:
         self.update_status("Gesamter Text in die Zwischenablage kopiert", "green")
 
     def on_press(self, key):
-        # Handler für Tastendruck (F12)
-        if key == keyboard.Key.f12 and not self.backend.state.recording:
-            if not self.model_loaded.is_set():
-                self.update_status("Modell wird noch geladen. Bitte warten.", "orange")
-                return
+        if key == keyboard.Key.f12 and not self.recording_in_progress:
+            self.recording_in_progress = True
+            if not self.backend.model_loaded.is_set():
+                self.update_status("Modell wird noch geladen. Aufnahme startet trotzdem.", "orange")
             try:
                 if self.backend.check_audio_device():
                     self.backend.start_recording()
@@ -337,17 +343,22 @@ class WordweberGUI:
                     self.start_timer()
                 else:
                     self.update_status("Audiogerät nicht verfügbar", "red")
+                    self.recording_in_progress = False
             except Exception as e:
                 logging.error(f"Fehler beim Starten der Aufnahme: {e}")
                 self.update_status("Fehler beim Starten der Aufnahme", "red")
+                self.recording_in_progress = False
 
     def on_release(self, key):
-        # Handler für Tastenfreigabe (F12)
-        if key == keyboard.Key.f12 and self.backend.state.recording:
+        if key == keyboard.Key.f12 and self.recording_in_progress:
             self.backend.stop_recording()
+            self.recording_in_progress = False
             self.update_status("Aufnahme beendet", "orange")
             self.stop_timer()
-            self.transcribe_and_update()
+            if self.backend.model_loaded.is_set():
+                self.transcribe_and_update()
+            else:
+                self.update_status("Aufnahme gespeichert. Warte auf Modell-Bereitschaft.", "orange")
 
     def start_timer(self):
         # Aufnahmetimer starten
