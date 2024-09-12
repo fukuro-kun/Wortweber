@@ -5,6 +5,25 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.11.0] - 2024-09-12
+### Added
+- Verbesserte Einstellungsspeicherung für Eingabemodus und Verzögerungsoptionen
+- Implementierung des initialen Ausgrauens der Verzögerungsoptionen im Textfenstermodus
+
+### Changed
+- Optimierte Handhabung des Eingabemodus zwischen Neustarts
+- Verbesserte Fehlerbehandlung beim Laden des Whisper-Modells
+- Aktualisierte GUI-Logik für konsistentere Benutzererfahrung
+
+### Fixed
+- Problem mit dem Zurücksetzen des Eingabemodus beim Neustart behoben
+- Abstürze beim Beenden der Anwendung durch verbesserte Ressourcenfreigabe behoben
+- Korrektur der Persistenz von Benutzereinstellungen über Sitzungen hinweg
+
+### Improved
+- Erhöhte Stabilität der GUI-Funktionalität
+- Verbesserte Benutzerfeedback-Mechanismen für Modellladestatus
+
 ## [0.10.0] - 2024-09-11
 ### Added
 - Funktion zum Speichern und Laden von Benutzereinstellungen

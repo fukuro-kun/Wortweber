@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import tkinter as tk
 from tkinter import ttk, scrolledtext
 import ttkthemes
@@ -29,32 +30,44 @@ from src.backend.text_processor import words_to_digits, digits_to_words
 
 class WordweberGUI:
     def __init__(self, backend: WordweberBackend):
+        # Initialisierung der GUI-Klasse
         self.backend = backend
         self.root = ttkthemes.ThemedTk()
         self.root.title("Wortweber Transkription")
         self.auto_copy_var = tk.BooleanVar(value=True)
 
+        # Theme-Verwaltung
         self.themes = sorted(ttkthemes.THEMES)
         self.current_theme_index = 0
         self.current_theme = tk.StringVar(value=self.themes[self.current_theme_index])
 
+        # Spracheinstellungen und Modellauswahl
         self.language_var = tk.StringVar(value=DEFAULT_LANGUAGE)
         self.model_var = tk.StringVar(value=WHISPER_MODEL)
 
+        # Einstellungsverwaltung
         self.settings_file = "user_settings.json"
         self.model_loaded = threading.Event()
         self.loading_animation = None
 
+        # Fensterverwaltung
         self.last_window_save_time = 0
         self.last_saved_position = None
 
+        # Logging-Konfiguration
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
         logging.debug("WordweberGUI initialisiert")
 
+        # UI-Setup und Einstellungen laden
         self.setup_ui()
         self.load_settings()
 
+        # Trace für Eingabemodus und Verzögerungsmodus hinzufügen
+        self.input_mode_var.trace_add("write", self.on_input_mode_change)
+        self.delay_mode_var.trace_add("write", self.on_delay_mode_change)
+
     def setup_ui(self):
+        # Hauptfenster-Setup
         self.root.geometry("800x600")
 
         main_frame = ttk.Frame(self.root, padding="10")
@@ -62,16 +75,19 @@ class WordweberGUI:
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
 
+        # UI-Komponenten einrichten
         self.setup_left_frame(main_frame)
         self.setup_right_frame(main_frame)
         self.setup_transcription_area(main_frame)
         self.setup_buttons(main_frame)
 
+        # Fensterkonfiguration-Event binden
         self.root.bind("<Configure>", self.on_window_configure)
 
         logging.debug("UI Setup abgeschlossen")
 
     def setup_left_frame(self, parent):
+        # Linker Frame mit Optionen und Themes
         left_frame = ttk.Frame(parent)
         left_frame.grid(column=0, row=0, sticky="nw")
 
@@ -88,6 +104,7 @@ class WordweberGUI:
         self.setup_themes_tab(self.themes_tab)
 
     def setup_options_tab(self, parent):
+        # Optionen-Tab mit Sprachauswahl, Modellauswahl und Eingabeoptionen
         language_frame = ttk.LabelFrame(parent, text="Sprache")
         language_frame.pack(fill=tk.X, pady=5)
         for lang_code, lang_name in SUPPORTED_LANGUAGES.items():
@@ -110,6 +127,7 @@ class WordweberGUI:
         self.setup_input_mode(parent)
 
     def setup_themes_tab(self, parent):
+        # Themes-Tab mit Theme-Auswahl
         theme_frame = ttk.Frame(parent, padding="10")
         theme_frame.pack(fill=tk.BOTH, expand=True)
 
@@ -123,16 +141,19 @@ class WordweberGUI:
         ttk.Label(theme_frame, text="Wählen Sie ein Theme aus der Dropdown-Liste aus.", wraplength=200).pack()
 
     def on_theme_change(self, event):
+        # Handler für Theme-Änderungen
         selected_theme = self.theme_var.get()
         self.change_theme(selected_theme)
 
     def change_theme(self, theme_name):
+        # Theme ändern und Einstellungen speichern
         self.root.set_theme(theme_name)
         self.theme_var.set(theme_name)
         self.save_settings()
         logging.debug(f"Theme geändert zu: {theme_name}")
 
     def setup_delay_options(self, parent):
+        # Verzögerungsoptionen einrichten
         delay_frame = ttk.LabelFrame(parent, text="Verzögerungsmodus")
         delay_frame.pack(fill=tk.X, pady=5)
 
@@ -154,14 +175,16 @@ class WordweberGUI:
         self.clipboard_radio.pack(anchor=tk.W)
 
     def setup_input_mode(self, parent):
+        # Eingabemodus-Optionen einrichten
         input_mode_frame = ttk.LabelFrame(parent, text="Eingabemodus")
         input_mode_frame.pack(fill=tk.X, pady=5)
 
         self.input_mode_var = tk.StringVar(value="textfenster")
-        ttk.Radiobutton(input_mode_frame, text="Ins Textfenster", variable=self.input_mode_var, value="textfenster", command=self.toggle_delay_options).pack(side=tk.LEFT, padx=5)
-        ttk.Radiobutton(input_mode_frame, text="An Systemcursor-Position", variable=self.input_mode_var, value="systemcursor", command=self.toggle_delay_options).pack(side=tk.LEFT, padx=5)
+        ttk.Radiobutton(input_mode_frame, text="Ins Textfenster", variable=self.input_mode_var, value="textfenster").pack(side=tk.LEFT, padx=5)
+        ttk.Radiobutton(input_mode_frame, text="An Systemcursor-Position", variable=self.input_mode_var, value="systemcursor").pack(side=tk.LEFT, padx=5)
 
     def setup_right_frame(self, parent):
+        # Rechter Frame mit Statusanzeigen und Optionen
         right_frame = ttk.Frame(parent)
         right_frame.grid(column=1, row=0, sticky="ne")
 
@@ -183,6 +206,7 @@ class WordweberGUI:
         self.update_status("Initialisiere...", "blue")
 
     def setup_transcription_area(self, parent):
+        # Transkriptionsbereich einrichten
         transcription_frame = ttk.LabelFrame(parent, text="Transkription")
         transcription_frame.grid(column=0, row=1, columnspan=2, sticky="nsew", pady=10)
         parent.columnconfigure(0, weight=1)
@@ -200,6 +224,7 @@ class WordweberGUI:
         )
 
     def setup_buttons(self, parent):
+        # Buttons am unteren Rand einrichten
         button_frame = ttk.Frame(parent)
         button_frame.grid(column=0, row=2, columnspan=2, pady=10)
 
@@ -208,15 +233,18 @@ class WordweberGUI:
         ttk.Button(button_frame, text="Beenden", command=self.root.quit).pack(side=tk.LEFT, padx=5)
 
     def update_status(self, message: str, color: str = "black"):
+        # Statusnachricht aktualisieren
         self.status_var.set(message)
         self.status_label.config(foreground=color)
         self.root.update()
 
     def on_language_change(self, *args):
+        # Handler für Sprachänderungen
         self.save_settings()
         logging.debug(f"Sprache geändert zu: {self.language_var.get()}")
 
     def on_model_change(self, *args):
+        # Handler für Modelländerungen
         self.loading_label.grid()
         self.start_loading_animation()
         self.root.update()
@@ -225,10 +253,12 @@ class WordweberGUI:
         logging.debug(f"Modell geändert zu: {self.model_var.get()}")
 
     def start_loading_animation(self):
+        # Ladeanimation starten
         self.loading_animation = threading.Thread(target=self._animate_loading, daemon=True)
         self.loading_animation.start()
 
     def _animate_loading(self):
+        # Ladeanimation anzeigen
         for c in itertools.cycle(['|', '/', '-', '\\']):
             if self.model_loaded.is_set():
                 break
@@ -238,6 +268,7 @@ class WordweberGUI:
         self.root.after(2000, self.loading_label.grid_remove)
 
     def load_model(self, model_name: str):
+        # Whisper-Modell laden
         max_retries = 3
         for attempt in range(max_retries):
             try:
@@ -257,6 +288,7 @@ class WordweberGUI:
         self.model_loaded.set()  # Stoppe die Animation auch im Fehlerfall
 
     def create_context_menu(self, event):
+        # Kontextmenü für Textbereich erstellen
         context_menu = tk.Menu(self.root, tearoff=0)
         context_menu.add_command(label="Ausschneiden", command=self.cut_selected)
         context_menu.add_command(label="Kopieren", command=self.copy_selected)
@@ -270,24 +302,30 @@ class WordweberGUI:
         context_menu.tk_popup(event.x_root, event.y_root)
 
     def copy_selected(self):
+        # Ausgewählten Text kopieren
         self.transcription_text.event_generate("<<Copy>>")
 
     def paste(self):
+        # Text einfügen
         self.transcription_text.event_generate("<<Paste>>")
 
     def select_all(self):
+        # Gesamten Text auswählen
         self.transcription_text.tag_add(tk.SEL, "1.0", tk.END)
 
     def clear_transcription(self):
+        # Transkriptionstext löschen
         self.transcription_text.delete(1.0, tk.END)
         self.save_settings()
 
     def copy_all_to_clipboard(self):
+        # Gesamten Text in die Zwischenablage kopieren
         all_text = self.transcription_text.get(1.0, tk.END)
         pyperclip.copy(all_text)
         self.update_status("Gesamter Text in die Zwischenablage kopiert", "green")
 
     def on_press(self, key):
+        # Handler für Tastendruck (F12)
         if key == keyboard.Key.f12 and not self.backend.state.recording:
             if not self.model_loaded.is_set():
                 self.update_status("Modell wird noch geladen. Bitte warten.", "orange")
@@ -304,6 +342,7 @@ class WordweberGUI:
                 self.update_status("Fehler beim Starten der Aufnahme", "red")
 
     def on_release(self, key):
+        # Handler für Tastenfreigabe (F12)
         if key == keyboard.Key.f12 and self.backend.state.recording:
             self.backend.stop_recording()
             self.update_status("Aufnahme beendet", "orange")
@@ -311,19 +350,23 @@ class WordweberGUI:
             self.transcribe_and_update()
 
     def start_timer(self):
+        # Aufnahmetimer starten
         self.start_time = time.time()
         self.update_timer()
 
     def stop_timer(self):
+        # Aufnahmetimer stoppen
         self.timer_var.set("Aufnahmezeit: 0.0 s")
 
     def update_timer(self):
+        # Aufnahmetimer aktualisieren
         if self.backend.state.recording:
             elapsed_time = time.time() - self.start_time
             self.timer_var.set(f"Aufnahmezeit: {elapsed_time:.1f} s")
             self.root.after(100, self.update_timer)
 
     def transcribe_and_update(self):
+        # Transkription durchführen und UI aktualisieren
         self.update_status("Transkribiere...", "orange")
         text = self.backend.process_and_transcribe(self.language_var.get())
 
@@ -366,20 +409,24 @@ class WordweberGUI:
         self.save_settings()
 
     def toggle_delay_options(self):
+        # Verzögerungsoptionen ein-/ausblenden
         state = 'disabled' if self.input_mode_var.get() == "textfenster" else 'normal'
         for widget in [self.no_delay_radio, self.char_delay_radio, self.char_delay_entry, self.clipboard_radio]:
             widget.configure(state=state)
         self.char_delay_label.configure(state=state)
 
     def cut_selected(self):
+        # Ausgewählten Text ausschneiden
         self.transcription_text.event_generate("<<Cut>>")
         self.save_settings()
 
     def delete_selected(self):
+        # Ausgewählten Text löschen
         self.transcription_text.event_generate("<<Clear>>")
         self.save_settings()
 
     def words_to_digits(self):
+        # Zahlwörter in Ziffern umwandeln
         try:
             selected_text = self.transcription_text.get(tk.SEL_FIRST, tk.SEL_LAST)
             converted_text = words_to_digits(selected_text)
@@ -387,10 +434,11 @@ class WordweberGUI:
             self.transcription_text.insert(tk.INSERT, converted_text)
             self.save_settings()
         except tk.TclError:
-            # No text selected
+            # Kein Text ausgewählt
             pass
 
     def digits_to_words(self):
+        # Ziffern in Zahlwörter umwandeln
         try:
             selected_text = self.transcription_text.get(tk.SEL_FIRST, tk.SEL_LAST)
             converted_text = digits_to_words(selected_text)
@@ -398,10 +446,11 @@ class WordweberGUI:
             self.transcription_text.insert(tk.INSERT, converted_text)
             self.save_settings()
         except tk.TclError:
-            # No text selected
+            # Kein Text ausgewählt
             pass
 
     def save_settings(self):
+        # Benutzereinstellungen speichern
         settings = {
             "language": self.language_var.get(),
             "model": self.model_var.get(),
@@ -418,6 +467,7 @@ class WordweberGUI:
         logging.debug(f"Einstellungen gespeichert: {settings}")
 
     def load_settings(self):
+        # Benutzereinstellungen laden
         if os.path.exists(self.settings_file):
             try:
                 with open(self.settings_file, "r") as f:
@@ -438,14 +488,17 @@ class WordweberGUI:
                 self.transcription_text.insert("1.0", settings.get("text_content", ""))
 
                 self.change_theme(self.theme_var.get())
+                self.toggle_delay_options()
 
                 logging.debug("Einstellungen erfolgreich angewendet")
             except json.JSONDecodeError:
                 logging.error("Fehler beim Laden der Einstellungen. Verwende Standardeinstellungen.")
         else:
             logging.debug("Keine Einstellungsdatei gefunden. Verwende Standardeinstellungen.")
+            self.toggle_delay_options()
 
     def on_window_configure(self, event):
+        # Handler für Fenster-Konfigurationsänderungen
         if event.widget == self.root:
             current_time = time.time()
             current_position = self.root.geometry()
@@ -456,7 +509,25 @@ class WordweberGUI:
                 self.last_window_save_time = current_time
                 self.last_saved_position = current_position
 
+    def on_input_mode_change(self, *args):
+        # Handler für Änderungen des Eingabemodus
+        self.toggle_delay_options()
+        self.save_settings()
+
+    def on_delay_mode_change(self, *args):
+        # Handler für Änderungen des Verzögerungsmodus
+        self.save_settings()
+
+    def on_closing(self):
+        # Handler für das Schließen der Anwendung
+        logging.debug("Anwendung wird geschlossen")
+        self.save_settings()
+        if self.backend.transcriber.model is not None:
+            del self.backend.transcriber.model
+        self.root.destroy()
+
     def run(self):
+        # Hauptschleife der Anwendung starten
         logging.debug("Starte Anwendung")
         listener = keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
         listener.start()
@@ -466,8 +537,3 @@ class WordweberGUI:
         self.root.mainloop()
 
         listener.stop()
-
-    def on_closing(self):
-        logging.debug("Anwendung wird geschlossen")
-        self.save_settings()
-        self.root.destroy()

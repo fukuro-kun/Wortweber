@@ -26,8 +26,16 @@ class Transcriber:
 
     def load_model(self, model_name: str):
         print(f"Lade Spracherkennungsmodell: {model_name}")
-        self.model = whisper.load_model(model_name)
-        print("Spracherkennungsmodell geladen.")
+        try:
+            if torch.cuda.is_available():
+                self.model = whisper.load_model(model_name).cuda()
+            else:
+                self.model = whisper.load_model(model_name)
+            print("Spracherkennungsmodell geladen.")
+        except Exception as e:
+            print(f"Fehler beim Laden des Modells: {e}")
+            logging.exception("Detaillierter Traceback beim Laden des Modells:")
+            raise
 
     def transcribe(self, audio: np.ndarray, language: str) -> str:
         if self.model is None:

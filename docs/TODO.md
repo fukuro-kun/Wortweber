@@ -1,5 +1,8 @@
 # TODO Liste für Wortweber
 
+## Dringendes
+- [ ] Das initiale Ausgrauen der Verzögerungs-Optionen, wenn Eingabemodus="Ins Textfenster" implementieren!
+
 ## Fensterposition und -größe
 - [ ] Untersuchen, warum die gespeicherte Fensterposition nicht zuverlässig wiederhergestellt wird
 - [ ] Implementieren einer robusteren Methode zur Speicherung und Wiederherstellung der Fensterposition
