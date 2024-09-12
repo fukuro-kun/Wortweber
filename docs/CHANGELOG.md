@@ -7,10 +7,17 @@ und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lan
 
 ## [0.11.0] - 2024-09-12
 ### Added
-- Verbesserte Einstellungsspeicherung für Eingabemodus und Verzögerungsoptionen
-- Implementierung des initialen Ausgrauens der Verzögerungsoptionen im Textfenstermodus
+- Implementierung der verzögerten Verarbeitung von Audioaufnahmen während des Modellladens
+- Neue Methode zum Speichern und Wiederherstellen der Fensterposition und -größe
+- Funktion zum Speichern manueller Textänderungen im Transkriptionsfenster
 
 ### Changed
+- Umfangreiches Refactoring der GUI-Struktur:
+  - Aufteilung der `wortweber_gui.py` in mehrere spezialisierte Module
+  - Einführung separater Klassen für MainWindow, TranscriptionPanel, OptionsPanel, StatusPanel
+  - Implementierung eines ThemeManagers für verbesserte Theme-Verwaltung
+  - Erstellung eines dedizierten InputProcessors für Eingabehandlung
+  - Einführung eines SettingsManagers für zentralisierte Einstellungsverwaltung
 - Optimierte Handhabung des Eingabemodus zwischen Neustarts
 - Verbesserte Fehlerbehandlung beim Laden des Whisper-Modells
 - Aktualisierte GUI-Logik für konsistentere Benutzererfahrung
@@ -21,6 +28,8 @@ und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lan
 - Korrektur der Persistenz von Benutzereinstellungen über Sitzungen hinweg
 
 ### Improved
+- Erhöhte Modularität und Wartbarkeit des GUI-Codes
+- Verbesserte Trennung von Belangen innerhalb der GUI-Komponenten
 - Erhöhte Stabilität der GUI-Funktionalität
 - Verbesserte Benutzerfeedback-Mechanismen für Modellladestatus
 
