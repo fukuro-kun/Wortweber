@@ -5,6 +5,14 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.11.3] - 2024-09-13
+   ### Fixed
+   - Verbesserungen und Stabilisierung basierend auf Version 0.11.1
+   - Aktualisierte Dokumentation zur Reflektion der neuesten Änderungen
+
+   ### Changed
+   - Zusammenführung der Dokumentationsänderungen aus verschiedenen Entwicklungszweigen
+
 ## [0.11.1] - 2024-09-13
 ### Fixed
 - Korrektur von Stabilitätsproblemen bei der Audioaufnahme und -verarbeitung
