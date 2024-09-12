@@ -113,9 +113,38 @@ Diese Anwendung wurde erfolgreich getestet auf:
 - Python 3.11
 - Conda 23.11.0
 
-## Beitragen
+## Projektstatuslage und Beiträge
 
-Beiträge zu diesem Projekt sind willkommen! Wenn Sie Verbesserungen vorschlagen oder Fehler melden möchten, erstellen Sie bitte ein Issue oder einen Pull Request auf GitHub.
+![Maintenance](https://img.shields.io/badge/Maintained%3F-passive-yellow.svg)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome%20but%20may%20be%20slow-brightgreen.svg)
+
+Wortweber ist ein Open-Source-Projekt, das hauptsächlich zu Demonstrationszwecken und für persönliche Nutzung entwickelt wurde. Um Missverständnisse zu vermeiden, möchte ich die aktuelle Projektstatuslage transparent kommunizieren:
+
+1. **Wartung**: Das Projekt wird passiv gewartet. Updates und Fehlerbehebungen erfolgen unregelmäßig und nach persönlichem Bedarf.
+
+2. **Pull Requests (PRs)**:
+   - PRs sind willkommen und werden geschätzt.
+   - Die Überprüfung und Integration von PRs kann erhebliche Zeit in Anspruch nehmen.
+   - Es besteht keine Garantie, dass alle PRs akzeptiert werden.
+   - Bitte haben Sie Verständnis, wenn die Bearbeitung länger dauert oder Vorschläge nicht übernommen werden können.
+
+3. **Issues**:
+   - Fehlerberichte und Verbesserungsvorschläge können eingereicht werden.
+   - Bitte verstehen Sie, dass ihre Bearbeitung nicht garantiert ist und möglicherweise lange dauern kann.
+
+4. **Support**:
+   - Aufgrund zeitlicher Beschränkungen kann kein aktiver Support angeboten werden.
+   - Die Dokumentation in diesem Repository sollte die meisten Fragen beantworten.
+
+5. **Forking und eigene Nutzung**:
+   - Sie sind herzlich eingeladen, das Projekt zu forken und für Ihre eigenen Bedürfnisse anzupassen.
+   - Wenn Sie Verbesserungen vornehmen, die Sie teilen möchten, können Sie diese gerne als PR einreichen.
+
+6. **Erwartungsmanagement**:
+   - Bitte erwarten Sie keine schnellen Antworten oder Umsetzungen von Vorschlägen.
+   - Das Projekt wird nach bestem Wissen und Gewissen, aber ohne Garantien oder Verpflichtungen gepflegt.
+
+Dieses Projekt ist eine Einladung zum Lernen und Experimentieren. Ich freue mich über Ihr Interesse und danke für Ihr Verständnis bezüglich der begrenzten Ressourcen für die Projektpflege.
 
 ## Lizenz
 
