@@ -32,7 +32,7 @@ class SettingsManager:
             "language": DEFAULT_LANGUAGE,
             "model": WHISPER_MODEL,
             "theme": "arc",
-            "window_size": "800x600",
+            "window_geometry": "800x600",  # Geändert von "window_size"
             "input_mode": "textfenster",
             "delay_mode": "no_delay",
             "char_delay": "10",

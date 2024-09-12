@@ -66,13 +66,17 @@ class InputProcessor:
                     self.keyboard_controller.type(char)
                     time.sleep(delay)
             elif delay_mode == "clipboard":
+                original_clipboard = pyperclip.paste()  # Speichern des ursprünglichen Inhalts
                 pyperclip.copy(text)
                 with self.keyboard_controller.pressed(Key.ctrl):
                     self.keyboard_controller.press('v')
                     self.keyboard_controller.release('v')
+                pyperclip.copy(original_clipboard)  # Wiederherstellen des ursprünglichen Inhalts
 
         if self.gui.status_panel.auto_copy_var.get():
+            original_clipboard = pyperclip.paste()  # Speichern des ursprünglichen Inhalts
             pyperclip.copy(text)
             self.gui.status_panel.update_status("Text transkribiert und in Zwischenablage kopiert", "green")
+            # Hier könnte man einen Timer setzen, um den ursprünglichen Inhalt nach einer Verzögerung wiederherzustellen
         else:
             self.gui.status_panel.update_status("Text transkribiert", "green")

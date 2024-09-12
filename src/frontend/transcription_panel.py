@@ -23,6 +23,9 @@ class TranscriptionPanel(ttk.Frame):
             selectforeground="black"
         )
 
+        # Event-Handler für Textänderungen hinzufügen
+        self.transcription_text.bind("<<Modified>>", self.on_text_modified)
+
     def show_context_menu(self, event):
         create_context_menu(self.transcription_text, event)
 
@@ -47,8 +50,16 @@ class TranscriptionPanel(ttk.Frame):
     def save_text(self):
         text_content = self.transcription_text.get(1.0, tk.END).strip()
         self.gui.settings_manager.set_setting("text_content", text_content)
+        self.gui.settings_manager.save_settings()
 
     def load_saved_text(self):
         saved_text = self.gui.settings_manager.get_setting("text_content")
         if saved_text:
             self.transcription_text.insert(tk.END, saved_text)
+
+    def on_text_modified(self, event):
+        # Überprüfen, ob der Text tatsächlich geändert wurde
+        if self.transcription_text.edit_modified():
+            self.save_text()
+            # Zurücksetzen des modified flags
+            self.transcription_text.edit_modified(False)
