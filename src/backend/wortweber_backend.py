@@ -16,7 +16,7 @@
 
 from typing import List, Optional, Tuple, Callable
 import numpy as np
-from src.config import RATE, TARGET_RATE, FORMAT, CHANNELS, CHUNK, DEVICE_INDEX
+from src.config import AUDIO_RATE, AUDIO_FORMAT, AUDIO_CHANNELS, AUDIO_CHUNK, DEVICE_INDEX, TARGET_RATE
 from src.backend.audio_processor import AudioProcessor
 from src.backend.transcriber import Transcriber
 import threading
@@ -90,8 +90,8 @@ class WordweberBackend:
 
     def check_audio_device(self):
         try:
-            stream = self.audio_processor.p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True,
-                                                 frames_per_buffer=CHUNK, input_device_index=DEVICE_INDEX)
+            stream = self.audio_processor.p.open(format=AUDIO_FORMAT, channels=AUDIO_CHANNELS, rate=AUDIO_RATE, input=True,
+                                                 frames_per_buffer=AUDIO_CHUNK, input_device_index=DEVICE_INDEX)
             stream.close()
             return True
         except Exception as e:

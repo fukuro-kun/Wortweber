@@ -1,3 +1,4 @@
+# src/frontend/wortweber_gui.py
 import tkinter as tk
 from tkinter import ttk
 import ttkthemes
@@ -12,6 +13,7 @@ from src.frontend.status_panel import StatusPanel
 from src.frontend.theme_manager import ThemeManager
 from src.frontend.input_processor import InputProcessor
 from src.frontend.settings_manager import SettingsManager
+from src.config import DEFAULT_WINDOW_SIZE
 
 class WordweberGUI:
     def __init__(self, backend: WordweberBackend):
@@ -27,7 +29,7 @@ class WordweberGUI:
             self.root.geometry(saved_geometry)
         else:
             # Standardgröße, falls keine gespeicherte Geometrie vorhanden ist
-            self.root.geometry("800x600")
+            self.root.geometry(DEFAULT_WINDOW_SIZE)
 
         self.theme_manager = ThemeManager(self.root, self.settings_manager)
         self.input_processor = InputProcessor(self)

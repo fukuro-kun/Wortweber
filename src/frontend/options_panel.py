@@ -1,6 +1,14 @@
+# src/frontend/options_panel.py
+
 from tkinter import ttk
 import tkinter as tk
-from src.config import SUPPORTED_LANGUAGES, WHISPER_MODELS
+from src.config import (
+    SUPPORTED_LANGUAGES,
+    WHISPER_MODELS,
+    DEFAULT_CHAR_DELAY,
+    DEFAULT_LANGUAGE,
+    DEFAULT_WHISPER_MODEL
+)
 
 class OptionsPanel(ttk.Frame):
     def __init__(self, parent, gui):
@@ -18,7 +26,7 @@ class OptionsPanel(ttk.Frame):
     def setup_language_frame(self):
         language_frame = ttk.LabelFrame(self, text="Sprache")
         language_frame.pack(fill=tk.X, pady=5)
-        self.language_var = tk.StringVar(value=self.gui.settings_manager.get_setting("language"))
+        self.language_var = tk.StringVar(value=self.gui.settings_manager.get_setting("language") or DEFAULT_LANGUAGE)
         for lang_code, lang_name in SUPPORTED_LANGUAGES.items():
             ttk.Radiobutton(language_frame, text=lang_name, variable=self.language_var, value=lang_code, command=self.on_language_change).pack(side=tk.LEFT, padx=5)
 
@@ -26,7 +34,7 @@ class OptionsPanel(ttk.Frame):
         model_frame = ttk.Frame(self)
         model_frame.pack(fill=tk.X, pady=5)
         ttk.Label(model_frame, text="Whisper-Modell:").grid(column=0, row=0, padx=(0, 5))
-        self.model_var = tk.StringVar(value=self.gui.settings_manager.get_setting("model"))
+        self.model_var = tk.StringVar(value=self.gui.settings_manager.get_setting("model") or DEFAULT_WHISPER_MODEL)
         model_dropdown = ttk.Combobox(model_frame, textvariable=self.model_var, values=WHISPER_MODELS, state="readonly", width=10)
         model_dropdown.grid(column=1, row=0)
         model_dropdown.bind("<<ComboboxSelected>>", self.on_model_change)
@@ -43,17 +51,13 @@ class OptionsPanel(ttk.Frame):
         self.char_delay_radio.pack(side=tk.LEFT)
         self.char_delay_entry = ttk.Entry(char_delay_frame, width=5)
         self.char_delay_entry.pack(side=tk.LEFT, padx=(5, 0))
-        self.char_delay_entry.insert(0, self.gui.settings_manager.get_setting("char_delay"))
+        self.char_delay_entry.insert(0, str(self.gui.settings_manager.get_setting("char_delay") or DEFAULT_CHAR_DELAY))
         self.char_delay_entry.bind("<FocusOut>", self.on_char_delay_change)
         ttk.Label(char_delay_frame, text="ms").pack(side=tk.LEFT)
         self.clipboard_radio = ttk.Radiobutton(delay_frame, text="Zwischenablage", variable=self.delay_mode_var, value="clipboard", command=self.on_delay_mode_change)
         self.clipboard_radio.pack(anchor=tk.W)
 
         self.delay_widgets = [self.no_delay_radio, self.char_delay_radio, self.char_delay_entry, self.clipboard_radio]
-
-    def on_delay_mode_change(self):
-        self.gui.settings_manager.set_setting("delay_mode", self.delay_mode_var.get())
-        self.gui.settings_manager.save_settings()
 
     def setup_input_mode(self):
         input_mode_frame = ttk.LabelFrame(self, text="Eingabemodus")
@@ -79,6 +83,10 @@ class OptionsPanel(ttk.Frame):
         state = 'normal' if self.input_mode_var.get() == "systemcursor" else 'disabled'
         for widget in self.delay_widgets:
             widget.configure(state=state)
+
+    def on_delay_mode_change(self):
+        self.gui.settings_manager.set_setting("delay_mode", self.delay_mode_var.get())
+        self.gui.settings_manager.save_settings()
 
     def on_char_delay_change(self, *args):
         self.gui.settings_manager.set_setting("char_delay", self.char_delay_entry.get())
