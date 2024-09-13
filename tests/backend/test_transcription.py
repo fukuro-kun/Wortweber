@@ -17,9 +17,11 @@ import os
 import numpy as np
 import wave
 import librosa
-from src.backend.transcriber import Transcriber
+from src.backend.wortweber_transcriber import Transcriber
 from src.config import DEFAULT_WHISPER_MODEL
 import whisper
+from src.backend.wortweber_backend import WordweberBackend
+import time
 
 class TestTranscription(unittest.TestCase):
     """
@@ -74,28 +76,32 @@ class TestTranscription(unittest.TestCase):
                       f"Die erwartete Phrase '{expected_phrase}' wurde nicht in der Transkription gefunden. "
                       f"Transkribierter Text: '{transcribed_text}'")
 
+class TestModelLoading(unittest.TestCase):
+    def test_audio_processing_before_model_loading(self):
+        backend = WordweberBackend()
+
+        # Simuliere eine Audioaufnahme vor dem Laden des Modells
+        dummy_audio = np.random.rand(16000).astype(np.float32)
+        backend.state.audio_data = [dummy_audio.tobytes()]
+
+        # Stoppe die "Aufnahme", was die Daten in pending_audio speichern sollte
+        backend.stop_recording()
+
+        self.assertEqual(len(backend.pending_audio), 1, "Audio wurde nicht in pending_audio gespeichert")
+
+        # Lade das Modell
+        backend.load_transcriber_model(DEFAULT_WHISPER_MODEL)
+
+        # Warte auf das Laden des Modells
+        timeout = 60  # 60 Sekunden Timeout
+        start_time = time.time()
+        while not backend.model_loaded.is_set() and time.time() - start_time < timeout:
+            time.sleep(1)
+
+        self.assertTrue(backend.model_loaded.is_set(), "Modell wurde nicht innerhalb des Timeouts geladen")
+
+        # Überprüfe, ob pending_audio verarbeitet wurde
+        self.assertEqual(len(backend.pending_audio), 0, "Pending audio wurde nicht verarbeitet")
+
 if __name__ == '__main__':
     unittest.main()
-
-# Zusätzliche Erklärungen:
-
-# 1. Testdatenvorbereitung:
-#    Der Test lädt ein vordefiniertes Sprachsample und bereitet es für die Verarbeitung vor.
-#    Dies stellt sicher, dass wir konsistente Eingabedaten für unsere Tests haben.
-
-# 2. Audiovorverarbeitung:
-#    Das Audio wird normalisiert und auf die von Whisper erwartete Sampling-Rate umgewandelt.
-#    Dies ist entscheidend, da Whisper spezifische Anforderungen an das Eingabeformat hat.
-
-# 3. Modellinitialisierung:
-#    Der Test verwendet das in der Konfiguration definierte Standard-Whisper-Modell.
-#    Dies ermöglicht eine konsistente Testumgebung und erleichtert Änderungen des Modells.
-
-# 4. Fehlerbehandlung:
-#    Der Test verwendet einen AssertIn-Check, um zu überprüfen, ob die erwartete Phrase
-#    in der Transkription enthalten ist. Dies ermöglicht eine gewisse Flexibilität bei
-#    der Bewertung der Transkriptionsgenauigkeit.
-
-# 5. Debugging-Ausgaben:
-#    Umfangreiche Print-Statements geben Einblick in die Eigenschaften des Audios
-#    in verschiedenen Verarbeitungsstufen, was bei der Fehlersuche hilfreich ist.
