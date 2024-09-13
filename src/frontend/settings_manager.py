@@ -2,7 +2,7 @@
 import json
 import os
 from src.config import (DEFAULT_LANGUAGE, DEFAULT_WHISPER_MODEL, DEFAULT_THEME,
-                        DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY)
+                        DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY, DEFAULT_FONT_SIZE)
 
 class SettingsManager:
     def __init__(self):
@@ -22,8 +22,8 @@ class SettingsManager:
         with open(self.settings_file, "w") as f:
             json.dump(self.settings, f, indent=4)
 
-    def get_setting(self, key):
-        return self.settings.get(key, self.get_default_settings().get(key))
+    def get_setting(self, key, default=None):
+        return self.settings.get(key, default or self.get_default_settings().get(key))
 
     def set_setting(self, key, value):
         self.settings[key] = value
@@ -40,4 +40,5 @@ class SettingsManager:
             "char_delay": str(DEFAULT_CHAR_DELAY),
             "auto_copy": True,
             "text_content": "",
+            "font_size": DEFAULT_FONT_SIZE,
         }
