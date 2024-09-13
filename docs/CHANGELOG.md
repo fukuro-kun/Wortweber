@@ -5,6 +5,16 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.14.0] - 2024-09-14
+### Added
+- Umfassende Kommentierung des gesamten Quellcodes
+- Detaillierte Inline-Kommentare und Docstrings für alle Funktionen und Klassen
+- Zusätzliche Erklärungen für komplexe Code-Abschnitte
+
+### Improved
+- Verbesserte Lesbarkeit und Verständlichkeit des Codes
+- Erweiterte Dokumentation zur Unterstützung neuer Entwickler
+
 ## [0.13.1] - 2024-09-13
 ### Added
 - Implementierung der Textgrößenspeicherung
