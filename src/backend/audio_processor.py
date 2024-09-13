@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from src.config import FORMAT, CHANNELS, RATE, CHUNK, DEVICE_INDEX, TARGET_RATE
+# src/backend/audio_processor.py
+from src.config import AUDIO_FORMAT, AUDIO_CHANNELS, AUDIO_RATE, AUDIO_CHUNK, DEVICE_INDEX, TARGET_RATE
 import pyaudio
 import numpy as np
 from scipy import signal
@@ -25,7 +26,7 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 class AudioProcessor:
     def __init__(self):
         self.p = pyaudio.PyAudio()
-        self.RATE = RATE
+        self.RATE = AUDIO_RATE
         self.TARGET_RATE = TARGET_RATE
 
     def list_audio_devices(self):
@@ -40,14 +41,14 @@ class AudioProcessor:
 
     def record_audio(self, state):
         try:
-            stream = self.p.open(format=FORMAT, channels=CHANNELS, rate=self.RATE, input=True,
-                                 frames_per_buffer=CHUNK, input_device_index=DEVICE_INDEX)
+            stream = self.p.open(format=AUDIO_FORMAT, channels=AUDIO_CHANNELS, rate=self.RATE, input=True,
+                                 frames_per_buffer=AUDIO_CHUNK, input_device_index=DEVICE_INDEX)
 
             print("Aufnahme gestartet.")
             start_time = time.time()
             state.audio_data = []
             while state.recording:
-                data = stream.read(CHUNK, exception_on_overflow=False)
+                data = stream.read(AUDIO_CHUNK, exception_on_overflow=False)
                 state.audio_data.append(data)
 
             stream.stop_stream()

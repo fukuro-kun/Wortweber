@@ -1,6 +1,8 @@
+# src/frontend/settings_manager.py
 import json
 import os
-from src.config import DEFAULT_LANGUAGE, WHISPER_MODEL
+from src.config import (DEFAULT_LANGUAGE, DEFAULT_WHISPER_MODEL, DEFAULT_THEME,
+                        DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY)
 
 class SettingsManager:
     def __init__(self):
@@ -30,12 +32,12 @@ class SettingsManager:
     def get_default_settings(self):
         return {
             "language": DEFAULT_LANGUAGE,
-            "model": WHISPER_MODEL,
-            "theme": "arc",
-            "window_geometry": "800x600",  # Geändert von "window_size"
+            "model": DEFAULT_WHISPER_MODEL,
+            "theme": DEFAULT_THEME,
+            "window_geometry": DEFAULT_WINDOW_SIZE,
             "input_mode": "textfenster",
             "delay_mode": "no_delay",
-            "char_delay": "10",
+            "char_delay": str(DEFAULT_CHAR_DELAY),
             "auto_copy": True,
             "text_content": "",
         }

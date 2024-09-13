@@ -1,3 +1,26 @@
+## Refactoring der Konfigurationseinstellungen (Version 0.12.0)
+
+Am 2024-09-13 wurde ein umfassendes Refactoring durchgeführt, um die Konfigurationseinstellungen zu zentralisieren:
+
+1. Zentralisierung der Konfiguration:
+   - Alle wichtigen Konfigurationseinstellungen wurden in `src/config.py` zusammengeführt.
+   - Dies umfasst Einstellungen für Audio, GUI, Sprache, und Standardwerte.
+
+2. Anpassung der Module:
+   - Alle betroffenen Module wurden aktualisiert, um die zentralisierten Konfigurationen zu nutzen.
+   - Dies betrifft insbesondere `audio_processor.py`, `transcriber.py`, `input_processor.py`, `options_panel.py`, `settings_manager.py`, und `wortweber_gui.py`.
+
+3. Verbesserung der Wartbarkeit:
+   - Durch die Zentralisierung wird die zukünftige Wartung und Anpassung von Konfigurationseinstellungen erheblich erleichtert.
+   - Risiko von Inkonsistenzen zwischen verschiedenen Teilen der Anwendung wurde reduziert.
+
+4. Standardisierung:
+   - Einführung von klaren Benennungskonventionen für Konfigurationsvariablen.
+   - Verbesserte Dokumentation der Konfigurationsoptionen direkt in der `config.py`.
+
+Diese Änderungen verbessern die Codestruktur signifikant und erleichtern zukünftige Anpassungen und Erweiterungen.
+Entwickler sollten sich mit der neuen zentralen Konfigurationsdatei vertraut machen und diese für alle projektweiten Einstellungen nutzen.
+
 # Refactoring-Notizen: GUI-Modularisierung
 
 ## Begründung für das Refactoring

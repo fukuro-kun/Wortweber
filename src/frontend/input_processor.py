@@ -1,8 +1,10 @@
+# src/frontend/input_processor.py
 from pynput import keyboard
 from pynput.keyboard import Key, Controller as KeyboardController
 import pyperclip
 import time
 import threading
+from src.config import PUSH_TO_TALK_KEY
 
 class InputProcessor:
     def __init__(self, gui):
@@ -19,7 +21,7 @@ class InputProcessor:
             self.listener.stop()
 
     def on_press(self, key):
-        if key == keyboard.Key.f12 and not self.gui.backend.state.recording:
+        if key == getattr(keyboard.Key, PUSH_TO_TALK_KEY.lower()) and not self.gui.backend.state.recording:
             if not self.gui.backend.model_loaded.is_set():
                 self.gui.status_panel.update_status("Modell wird noch geladen. Aufnahme startet trotzdem.", "orange")
             try:
@@ -33,7 +35,7 @@ class InputProcessor:
                 self.gui.status_panel.update_status(f"Fehler beim Starten der Aufnahme: {e}", "red")
 
     def on_release(self, key):
-        if key == keyboard.Key.f12 and self.gui.backend.state.recording:
+        if key == getattr(keyboard.Key, PUSH_TO_TALK_KEY.lower()) and self.gui.backend.state.recording:
             self.gui.backend.stop_recording()
             self.gui.status_panel.update_status("Aufnahme beendet", "orange")
             self.gui.stop_timer()
