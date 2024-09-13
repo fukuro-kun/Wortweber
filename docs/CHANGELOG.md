@@ -5,6 +5,25 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.13.1] - 2024-09-13
+### Added
+- Implementierung der Textgrößenspeicherung
+- Zentralisierung der Standardwerte in `config.py`
+
+### Changed
+- Verbesserte Handhabung von Standardwerten in `SettingsManager`
+
+### Fixed
+- Bugfix in `SettingsManager.get_setting()` Methode für korrekte Handhabung von Standardwerten
+
+## [0.13.0] - 2024-09-13
+### Added
+- Implementierung des Optionsmenüs mit Textgrößenanpassung
+- Verbesserung des Zwischenablage-Loggings
+
+### Changed
+- Restrukturierung der GUI-Komponenten für bessere Modularität
+
 ## [0.12.0] - 2024-09-13
 ### Changed
 - Umfangreiches Refactoring zur Zentralisierung der Konfigurationseinstellungen in `config.py`
