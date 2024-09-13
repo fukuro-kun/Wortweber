@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, scrolledtext
+import tkinter.font as tkFont
 import pyperclip
 from src.config import HIGHLIGHT_DURATION
 from src.frontend.context_menu import create_context_menu
@@ -8,6 +9,7 @@ class TranscriptionPanel(ttk.Frame):
     def __init__(self, parent, gui):
         super().__init__(parent)
         self.gui = gui
+        self.font_size = 10  # Standardgröße
         self.setup_ui()
         self.load_saved_text()
 
@@ -16,6 +18,7 @@ class TranscriptionPanel(ttk.Frame):
         self.transcription_text.pack(expand=True, fill=tk.BOTH, padx=5, pady=5)
         self.transcription_text.bind("<Button-3>", self.show_context_menu)
         self.transcription_text.tag_configure("highlight", background="yellow")
+        self.set_font_size(self.font_size)
         self.transcription_text.config(
             insertbackground="red",
             insertwidth=2,
@@ -63,3 +66,12 @@ class TranscriptionPanel(ttk.Frame):
             self.save_text()
             # Zurücksetzen des modified flags
             self.transcription_text.edit_modified(False)
+
+    def set_font_size(self, size):
+        self.font_size = size
+        current_font = tkFont.Font(font=self.transcription_text['font'])
+        current_font.configure(size=size)
+        self.transcription_text.configure(font=current_font)
+
+    def get_font_size(self):
+        return self.font_size

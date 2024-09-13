@@ -1,9 +1,9 @@
-# src/frontend/input_processor.py
 from pynput import keyboard
 from pynput.keyboard import Key, Controller as KeyboardController
 import pyperclip
 import time
 import threading
+import logging
 from src.config import PUSH_TO_TALK_KEY
 
 class InputProcessor:
@@ -54,6 +54,8 @@ class InputProcessor:
         input_mode = self.gui.options_panel.input_mode_var.get()
         delay_mode = self.gui.options_panel.delay_mode_var.get()
 
+        logging.debug(f"Verarbeite Text: Eingabemodus = {input_mode}, Verzögerungsmodus = {delay_mode}")
+
         if input_mode == "textfenster":
             self.gui.transcription_panel.insert_text(text)
         else:
@@ -68,17 +70,23 @@ class InputProcessor:
                     self.keyboard_controller.type(char)
                     time.sleep(delay)
             elif delay_mode == "clipboard":
-                original_clipboard = pyperclip.paste()  # Speichern des ursprünglichen Inhalts
+                original_clipboard = pyperclip.paste()
+                logging.debug(f"Originaler Zwischenablage-Inhalt: {original_clipboard[:50]}...")
+
                 pyperclip.copy(text)
                 with self.keyboard_controller.pressed(Key.ctrl):
                     self.keyboard_controller.press('v')
                     self.keyboard_controller.release('v')
-                pyperclip.copy(original_clipboard)  # Wiederherstellen des ursprünglichen Inhalts
+
+                pyperclip.copy(original_clipboard)
+                logging.debug(f"Zwischenablage-Inhalt nach Wiederherstellung: {pyperclip.paste()[:50]}...")
 
         if self.gui.status_panel.auto_copy_var.get():
-            original_clipboard = pyperclip.paste()  # Speichern des ursprünglichen Inhalts
+            original_clipboard = pyperclip.paste()
             pyperclip.copy(text)
+            logging.debug(f"Text in Zwischenablage kopiert: {text[:50]}...")
             self.gui.status_panel.update_status("Text transkribiert und in Zwischenablage kopiert", "green")
-            # Hier könnte man einen Timer setzen, um den ursprünglichen Inhalt nach einer Verzögerung wiederherzustellen
         else:
             self.gui.status_panel.update_status("Text transkribiert", "green")
+
+        logging.debug(f"Finaler Zwischenablage-Inhalt: {pyperclip.paste()[:50]}...")

@@ -43,4 +43,4 @@ class MainWindow:
                    command=self.root.quit).pack(side=tk.LEFT, padx=5)
 
     def open_options_window(self):
-        OptionsWindow(self.root, self.gui.theme_manager)
+        OptionsWindow(self.root, self.gui.theme_manager, self.transcription_panel)

@@ -9,6 +9,7 @@ from src.backend.wortweber_backend import WordweberBackend
 from src.frontend.main_window import MainWindow
 from src.frontend.transcription_panel import TranscriptionPanel
 from src.frontend.options_panel import OptionsPanel
+from src.frontend.options_window import OptionsWindow
 from src.frontend.status_panel import StatusPanel
 from src.frontend.theme_manager import ThemeManager
 from src.frontend.input_processor import InputProcessor
@@ -84,6 +85,9 @@ class WordweberGUI:
         if self.backend.transcriber.model is not None:
             del self.backend.transcriber.model
         self.root.destroy()
+
+    def open_options_window(self):
+        OptionsWindow(self.root, self.theme_manager, self.transcription_panel)
 
     def on_window_configure(self, event):
         if event.widget == self.root:
