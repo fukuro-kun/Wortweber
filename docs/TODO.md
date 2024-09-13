@@ -4,13 +4,12 @@
 - [ ] Überprüfung und Optimierung der Gerätekompatibilität für verschiedene Systemkonfigurationen
 
 ## Priorität Hoch
-- [ ] Implementierung zusätzlicher Tests für die neue Audiovorverarbeitungslogik
 - [ ] Verbesserung der Shortcut-Funktionalität (Manuelle Einstellung, Erfassung, Zuverlässigkeit)
-- [ ] Implementierung von Unit-Tests für jedes neue Modul zur Verbesserung der Codequalität und Wartbarkeit
-- [ ] Optimierung der Theme-Auswahl und -Anwendung im Kontext von Openbox Einstellungen und Linux MATE-Themes
-- [ ] Erweiterung der Fehlerprotokolle für detailliertere Diagnosen bei Transkriptionsproblemen
+
+
 
 ## Priorität Mittel
+- [ ] Beheben der DeprecationWarnings für `unittest.makeSuite()` durch Umstellung auf `unittest.TestLoader.loadTestsFromTestCase()`
 - [ ] Implementierung zusätzlicher Module für die Ausgabe (z.B. Ollama-Unterstützung)
 - [ ] Erweiterung der Testabdeckung, insbesondere für kritische Funktionen
 - [ ] Einrichtung einer Staging-Umgebung für gründlichere Tests vor Veröffentlichungen
@@ -24,6 +23,8 @@
 - [ ] Untersuchung möglicher Performance-Probleme beim Laden großer Transkriptionen
 - [ ] Hinzufügen von Tooltips für verschiedene Optionen in der GUI
 - [ ] Implementierung einer Funktion zum Zurücksetzen der Einstellungen auf Standardwerte
+- [ ] Überprüfung und mögliche Optimierung der Parallelisierungseffizienz der Tests
+- [ ] Überprüfen und gegebenenfalls Unterdrücken der ALSA-Warnungen am Anfang der Testausgabe für eine übersichtlichere Darstellung
 
 ## Kontinuierliche Verbesserungen
 - [ ] Regelmäßige Code-Reviews durchführen
@@ -33,6 +34,10 @@
 - [ ] Regelmäßige Überprüfung und Aktualisierung der Kommentare im Code
 
 ## Abgeschlossen
+- [x] Erweiterung der Fehlerprotokolle für detailliertere Diagnosen bei Transkriptionsproblemen
+- [x] Implementierung zusätzlicher Tests für die neue Audiovorverarbeitungslogik
+- [x] Implementierung von Unit-Tests für jedes neue Modul zur Verbesserung der Codequalität und Wartbarkeit
+- [x] Optimierung der Theme-Auswahl und -Anwendung im Kontext von Openbox Einstellungen und Linux MATE-Themes
 - [x] Implementieren einer robusteren Methode zur Speicherung und Wiederherstellung der Fensterposition
 - [x] Optimieren der Häufigkeit der Einstellungsspeicherung
 - [x] Verbessern der Fehlerbehandlung beim Laden der Einstellungen

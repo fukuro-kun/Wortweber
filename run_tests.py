@@ -17,59 +17,61 @@
 import unittest
 import sys
 from termcolor import colored
-import warnings
+import argparse
+from src.backend.wortweber_utils import check_gpu_resources
+from tests.test_config import MIN_GPU_MEMORY, MAX_PARALLEL_TESTS
+from tests.test_sequential_transcription import SequentialTranscriptionTest
+from tests.test_parallel_transcription import ParallelTranscriptionTest
 
-# Unterdrücke Warnungen, die oft bei Audiooperationen auftreten können
-warnings.filterwarnings("ignore", category=RuntimeWarning)
+# Importieren Sie hier alle anderen Testklassen
+from tests.backend.test_audio_processor import TestAudioProcessor
+from tests.backend.test_transcription import TestTranscription
+# Fügen Sie hier weitere Importe für andere Testklassen hinzu
 
 class ColorTextTestResult(unittest.TextTestResult):
-    """
-    Angepasste TestResult-Klasse für farbige Ausgabe der Testergebnisse.
-    """
+    """Angepasste TestResult-Klasse für farbige Ausgabe der Testergebnisse."""
 
     def addSuccess(self, test):
-        """
-        Wird aufgerufen, wenn ein Test erfolgreich ist.
-
-        :param test: Der erfolgreich durchgeführte Test
-        """
         super().addSuccess(test)
         self.stream.writeln(colored(f"OK: {test.shortDescription() or test.id()}", "green"))
 
     def addError(self, test, err):
-        """
-        Wird aufgerufen, wenn bei einem Test ein Fehler auftritt.
-
-        :param test: Der fehlgeschlagene Test
-        :param err: Die aufgetretene Fehlerinformation
-        """
         super().addError(test, err)
         self.stream.writeln(colored(f"ERROR: {test.shortDescription() or test.id()}", "red"))
         self.stream.writeln(self.errors[-1][1])
 
     def addFailure(self, test, err):
-        """
-        Wird aufgerufen, wenn ein Test fehlschlägt.
-
-        :param test: Der fehlgeschlagene Test
-        :param err: Die Fehlerinformation
-        """
         super().addFailure(test, err)
         self.stream.writeln(colored(f"FAIL: {test.shortDescription() or test.id()}", "red"))
         self.stream.writeln(self.failures[-1][1])
 
 class ColorTextTestRunner(unittest.TextTestRunner):
-    """
-    Angepasster TestRunner für die Verwendung des ColorTextTestResult.
-    """
+    """Angepasster TestRunner für die Verwendung des ColorTextTestResult."""
     resultclass = ColorTextTestResult
 
-if __name__ == "__main__":
-    test_loader = unittest.TestLoader()
-    test_suite = test_loader.discover('tests')
+def run_tests(parallel=False, run_all=False):
+    """
+    Führt die spezifizierten Tests aus.
+
+    :param parallel: Wenn True, werden Transkriptionstests parallel ausgeführt
+    :param run_all: Wenn True, werden alle Tests einschließlich Nicht-Transkriptionstests ausgeführt
+    :return: TestResult-Objekt mit den Testergebnissen
+    """
+    suite = unittest.TestSuite()
+
+    if run_all:
+        # Fügen Sie hier alle Testklassen hinzu
+        suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestAudioProcessor))
+        suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestTranscription))
+        # Fügen Sie hier weitere Testklassen hinzu
+
+    if parallel:
+        suite.addTest(unittest.TestLoader().loadTestsFromTestCase(ParallelTranscriptionTest))
+    else:
+        suite.addTest(unittest.TestLoader().loadTestsFromTestCase(SequentialTranscriptionTest))
 
     runner = ColorTextTestRunner(verbosity=2)
-    result = runner.run(test_suite)
+    result = runner.run(suite)
 
     print("\nTest Summary:")
     print(f"Ran {result.testsRun} tests")
@@ -77,20 +79,55 @@ if __name__ == "__main__":
     print(colored(f"Failures: {len(result.failures)}", "red" if result.failures else "green"))
     print(colored(f"Errors: {len(result.errors)}", "red" if result.errors else "green"))
 
+    return result
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run Wortweber tests")
+    parser.add_argument('--parallel', action='store_true', help='Run transcription tests in parallel')
+    parser.add_argument('--all', action='store_true', help='Run all tests including non-transcription tests')
+    args = parser.parse_args()
+
+    gpu_available, gpu_memory = check_gpu_resources()
+
+    if not gpu_available:
+        print(colored("WARNUNG: Keine GPU verfügbar. Tests werden auf der CPU ausgeführt.", "yellow"))
+        args.parallel = False
+    elif gpu_memory < MIN_GPU_MEMORY:
+        print(colored(f"WARNUNG: Nicht genug GPU-Speicher. Verfügbar: {gpu_memory:.2f} GB, Benötigt: {MIN_GPU_MEMORY} GB", "yellow"))
+        print(colored("Transkriptionstests werden sequenziell ausgeführt.", "yellow"))
+        args.parallel = False
+
+    if args.parallel:
+        print(colored(f"Führe parallele Transkriptionstests mit maximal {MAX_PARALLEL_TESTS} gleichzeitigen Tests aus.", "cyan"))
+    else:
+        print(colored("Führe sequenzielle Transkriptionstests aus.", "cyan"))
+
+    if args.all:
+        print(colored("Führe alle Tests aus, einschließlich Nicht-Transkriptionstests.", "cyan"))
+
+    result = run_tests(parallel=args.parallel, run_all=args.all)
+
     sys.exit(not result.wasSuccessful())
 
 # Zusätzliche Erklärungen:
 
-# 1. ColorTextTestResult:
-#    Diese Klasse erweitert die StandardTestResult-Klasse, um farbige Ausgaben zu ermöglichen.
-#    Sie überschreibt die Methoden für erfolgreiche Tests, Fehler und Fehlschläge.
+# 1. Die Datei verwendet argparse für die Verarbeitung von Befehlszeilenargumenten,
+#    was eine flexible Konfiguration der Testausführung ermöglicht.
 
-# 2. ColorTextTestRunner:
-#    Ein angepasster TestRunner, der die ColorTextTestResult-Klasse verwendet.
+# 2. GPU-Ressourcen werden überprüft, um sicherzustellen, dass parallele Tests
+#    nur bei ausreichenden Ressourcen ausgeführt werden.
 
-# 3. Test Discovery:
-#    Der TestLoader durchsucht automatisch das 'tests'-Verzeichnis nach Testdateien.
+# 3. Die ColorTextTestResult und ColorTextTestRunner Klassen ermöglichen
+#    eine farbige und übersichtliche Ausgabe der Testergebnisse.
 
-# 4. Zusammenfassung:
-#    Am Ende wird eine Zusammenfassung der Testergebnisse ausgegeben, einschließlich
-#    der Anzahl der durchgeführten Tests, Erfolge, Fehlschläge und Fehler.
+# 4. Die run_tests Funktion ist flexibel gestaltet und kann sowohl parallele
+#    als auch sequenzielle Tests sowie alle oder nur spezifische Tests ausführen.
+
+# 5. Am Ende wird eine Zusammenfassung der Testergebnisse ausgegeben, die
+#    einen schnellen Überblick über die Testresultate ermöglicht.
+
+# Verwendung:
+
+# - Für alle Tests: `python run_tests.py --all`
+# - Für parallele Transkriptionstests: `python run_tests.py --parallel`
+# - Für alle Tests mit parallelen Transkriptionstests: `python run_tests.py --all --parallel`

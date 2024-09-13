@@ -5,7 +5,22 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
-## [0.15.1] - 2024-09-16
+## [0.16.0] - 2024-09-14
+### Added
+- Implementierung von parallelen Transkriptionstests
+- Neue Utility-Funktionen für GPU-Ressourcenüberprüfung
+- Erweiterte Konfigurationsoptionen für Tests
+
+### Changed
+- Umfassende Überarbeitung der Teststruktur
+- Verbesserung der Testausgabe mit farbiger Darstellung
+- Aktualisierung der run_tests.py für flexiblere Testausführung
+
+### Improved
+- Optimierte Ressourcennutzung bei parallelen Tests
+- Verbesserte Lesbarkeit und Wartbarkeit des Testcodes
+
+## [0.15.1] - 2024-09-13
 ### Fixed
 - Behebung von Gerätekompatibilitätsproblemen bei der Transkription
 - Korrektur der Audiovorverarbeitung für konsistente Eingaben in das Whisper-Modell
@@ -22,7 +37,7 @@ und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lan
 - Verbesserte Integration der Whisper-Bibliotheksfunktionen für optimale Kompatibilität
 - Erhöhte Zuverlässigkeit der Transkriptionsfunktion
 
-## [0.15.0] - 2024-09-15
+## [0.15.0] - 2024-09-13
 ### Added
 - Implementierung der Audioaufnahme-Funktion für Testaufnahmen
 - Erweiterung der Tests für AudioProcessor und Audioaufnahme
@@ -36,7 +51,7 @@ und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lan
 - Erhöhte Testabdeckung für kritische Audiofunktionen
 - Verbesserte Modularität der Audioverarbeitungskomponenten
 
-## [0.14.0] - 2024-09-14
+## [0.14.0] - 2024-09-13
 ### Added
 - Umfassende Kommentierung des gesamten Quellcodes
 - Detaillierte Inline-Kommentare und Docstrings für alle Funktionen und Klassen

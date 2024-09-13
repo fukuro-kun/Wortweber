@@ -1,3 +1,36 @@
+# Refactoring-Notizen: Teststruktur und Parallelisierung (Version 0.16.0)
+
+## Begründung für das Refactoring
+
+1. Verbesserte Testabdeckung: Einführung paralleler Tests für effizientere Ausführung.
+2. Erhöhte Modularität: Schaffung einer Basis-Testklasse für gemeinsam genutzte Funktionalitäten.
+3. Flexibilität: Implementierung von Konfigurationsoptionen für verschiedene Testszenarien.
+4. Verbesserte Lesbarkeit: Einführung farbiger Testausgaben für schnellere Ergebnisanalyse.
+
+## Hauptänderungen
+
+1. Einführung von `BaseTranscriptionTest`:
+   - Gemeinsame Funktionalitäten für sequenzielle und parallele Tests.
+   - Verbesserte Audio-Lade- und Vorbereitungsmethoden.
+
+2. Implementierung von `ParallelTranscriptionTest`:
+   - Nutzung von `ThreadPoolExecutor` für gleichzeitige Modell-Tests.
+   - Flexibele Konfiguration der Anzahl paralleler Tests.
+
+3. Überarbeitung von `run_tests.py`:
+   - Neue Befehlszeilenoptionen für parallele und umfassende Tests.
+   - Verbesserte Ausgabeformatierung mit farbiger Darstellung.
+
+4. Einführung von `test_config.py`:
+   - Zentralisierte Konfiguration für Testparameter.
+   - Einfache Anpassung von Testeinstellungen ohne Codeänderungen.
+
+## Auswirkungen und zukünftige Überlegungen
+
+- Die neue Teststruktur ermöglicht effizientere und umfassendere Tests.
+- Zukünftige Erweiterungen können leicht in die bestehende Struktur integriert werden.
+- Regelmäßige Überprüfung der Parallelisierungseffizienz wird empfohlen.
+
 # Refactoring-Notizen: Audiokomponenten und Teststruktur (Version 0.15.0)
 
 ## Begründung für das Refactoring
