@@ -90,6 +90,49 @@ Diese Richtlinien sollten bei zukünftigen Codeänderungen und -erweiterungen be
 - Das Format der Versionsnummer folgt der Semantischen Versionierung (MAJOR.MINOR.PATCH).
 - Bei der Erstellung eines neuen Git-Tags sollte die Versionsnummer aus dieser Datei verwendet werden.
 
+## Kritisches Problem: Gerätekompatibilität und Audiovorverarbeitung (Version 0.15.1)
+
+### Ausgangslage
+In Version 0.15.0 wurde eine Testaufnahme-Funktion implementiert und die Tests für AudioProcessor erweitert. Jedoch traten bei der Transkription kritische Fehler auf, die die Funktionalität der gesamten Anwendung beeinträchtigten.
+
+### Kritische Probleme und Knackpunkte
+1. Gerätekompatibilität:
+   - Fehler: "Expected all tensors to be on the same device, but found at least two devices, cpu and cuda:0!"
+   - Ursache: Inkonsistente Gerätezuweisung zwischen Modelldaten und Eingabedaten.
+
+2. Audiovorverarbeitung:
+   - Problem: Inkorrekte Form des Mel-Spektrogramms für die Whisper-Modellverarbeitung.
+   - Auswirkung: Fehlerhafte oder fehlgeschlagene Transkriptionen.
+
+3. Modellinitialisierung:
+   - Problem: Unklare Gerätezuweisung beim Laden des Whisper-Modells.
+
+### Lösungsansatz
+1. Gerätekompatibilität:
+   - Implementierung: Explizite Zuweisung des Mel-Spektrogramms zum Modellgerät.
+   - Code: `mel = whisper.log_mel_spectrogram(audio).to(self.model.device)`
+
+2. Audiovorverarbeitung:
+   - Anpassung: Verwendung der Whisper-eigenen Funktionen für Audiovorverarbeitung.
+   - Implementierung: `audio = whisper.pad_or_trim(audio)` vor der Mel-Spektrogramm-Erstellung.
+
+3. Modellinitialisierung:
+   - Lösung: Explizite Gerätezuweisung beim Laden des Modells.
+   - Code:
+     ```python
+     device = "cuda" if torch.cuda.is_available() else "cpu"
+     self.model = whisper.load_model(model_name).to(device)
+     ```
+
+### Auswirkungen und Lehren
+1. Konsistenz: Sicherstellung der Gerätekompatibilität in allen Teilen der Anwendung.
+2. Bibliotheksnutzung: Verwendung der vorgesehenen Funktionen der Whisper-Bibliothek für optimale Kompatibilität.
+3. Explizite Konfiguration: Klare Definition des zu verwendenden Geräts (CPU/GPU) zur Vermeidung von Inkonsistenzen.
+4. Testabdeckung: Erweiterung der Tests zur frühzeitigen Erkennung von Kompatibilitätsproblemen.
+
+Diese Erfahrung unterstreicht die Wichtigkeit gründlicher Tests und sorgfältiger Handhabung von Gerätezuweisungen in ML-basierten Anwendungen, insbesondere bei der Integration von Drittanbieterbibliotheken wie Whisper.
+
+
 ## Aktuelle Entwicklung (Version 0.15.0)
 
 Mit Version 0.15.0 wurden wichtige Verbesserungen in der Audioaufnahme und -verarbeitung implementiert:

@@ -12,98 +12,95 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# src/backend/transcriber.py
-import whisper
-import numpy as np
-from typing import Optional
-import logging
 import torch
-from src.config import DEFAULT_WHISPER_MODEL
+import numpy as np
+import whisper
+from whisper.audio import SAMPLE_RATE, N_FRAMES, HOP_LENGTH
 
 class Transcriber:
-    """
-    Diese Klasse ist verantwortlich für die Transkription von Audiodaten in Text.
-    Sie verwendet das OpenAI Whisper-Modell für die Spracherkennung.
-    """
-
-    def __init__(self, model_name: str = DEFAULT_WHISPER_MODEL):
+    def __init__(self, model_name: str):
         """
-        Initialisiert den Transcriber.
+        Initialisiert den Transcriber mit einem spezifizierten Modellnamen.
 
-        :param model_name: Name des zu verwendenden Whisper-Modells (Standard ist in der Konfiguration definiert)
+        :param model_name: Name des zu ladenden Whisper-Modells
         """
-        self.model: Optional[whisper.Whisper] = None
+        self.model = None
         self.model_name = model_name
-        self.transcription_time: float = 0.0
 
     def load_model(self, model_name: str):
         """
-        Lädt das spezifizierte Whisper-Modell.
+        Lädt das spezifizierte Whisper-Modell und weist es dem korrekten Gerät zu.
 
-        :param model_name: Name des zu ladenden Modells
+        :param model_name: Name des zu ladenden Whisper-Modells
         """
         print(f"Lade Spracherkennungsmodell: {model_name}")
         try:
-            # Wenn CUDA verfügbar ist, wird das Modell auf die GPU geladen
-            if torch.cuda.is_available():
-                self.model = whisper.load_model(model_name).cuda()
-            else:
-                self.model = whisper.load_model(model_name)
-            print("Spracherkennungsmodell geladen.")
+            # Bestimme das verfügbare Gerät (CUDA GPU wenn verfügbar, sonst CPU)
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            # Lade das Modell und weise es dem bestimmten Gerät zu
+            self.model = whisper.load_model(model_name).to(device)
+            print(f"Spracherkennungsmodell geladen auf {device}.")
         except Exception as e:
             print(f"Fehler beim Laden des Modells: {e}")
-            logging.exception("Detaillierter Traceback beim Laden des Modells:")
             raise
 
     def transcribe(self, audio: np.ndarray, language: str) -> str:
         """
-        Transkribiert das gegebene Audio in Text.
+        Führt die Transkription des gegebenen Audioarrays durch.
 
-        :param audio: NumPy-Array mit den Audiodaten
-        :param language: Sprache des Audios ('de' für Deutsch, 'en' für Englisch)
+        :param audio: NumPy-Array des Audiosamples
+        :param language: Sprache des Audios für die Transkription
         :return: Transkribierter Text
         """
         if self.model is None:
             raise RuntimeError("Modell nicht geladen. Bitte warten Sie, bis das Modell vollständig geladen ist.")
 
         try:
-            logging.debug(f"Transkription gestartet. Audio shape: {audio.shape}, dtype: {audio.dtype}")
+            print(f"Transcribe Input - Audio shape: {audio.shape}, dtype: {audio.dtype}")
+
+            # Stelle sicher, dass das Audio die korrekte Form und den korrekten Typ hat
+            if len(audio.shape) == 2:
+                audio = audio.mean(axis=1)  # Konvertiere Stereo zu Mono
+            audio = audio.astype(np.float32)
+
+            # Padde oder kürze das Audio auf die korrekte Länge
+            audio = whisper.pad_or_trim(audio)
+
+            # Erstelle das log-Mel-Spektrogramm und verschiebe es auf das Gerät des Modells
+            mel = whisper.log_mel_spectrogram(audio).to(self.model.device)
+
+            print(f"Mel-Spektrogramm shape: {mel.shape}")
+
+            # Dekodiere das Audio
             options = whisper.DecodingOptions(language=language, without_timestamps=True)
-            result = self.model.transcribe(audio, **options.__dict__)
-            transcribed_text = result["text"].strip() if isinstance(result["text"], str) else str(result["text"])
-            logging.debug(f"Transkribierter Text: {transcribed_text[:100]}...")
+            result = whisper.decode(self.model, mel, options)
+
+            transcribed_text = result.text.strip()
+            print(f"Whisper Ausgabe: {transcribed_text}")
             return transcribed_text
+
         except Exception as e:
-            logging.error(f"Fehler bei der Transkription: {e}")
-            logging.exception("Detaillierter Traceback:")
+            print(f"Fehler bei der Transkription: {e}")
+            import traceback
+            print(f"Detaillierter Traceback: {traceback.format_exc()}")
             return f"Fehler bei der Transkription: {str(e)}"
-
-    def is_model_loaded(self) -> bool:
-        """
-        Überprüft, ob das Modell geladen ist.
-
-        :return: True, wenn das Modell geladen ist, sonst False
-        """
-        return self.model is not None
 
 # Zusätzliche Erklärungen:
 
-# 1. Whisper-Modell:
-#    OpenAI's Whisper ist ein leistungsfähiges Spracherkennungsmodell, das mehrere Sprachen unterstützt.
-#    Es kann Sprache in Text umwandeln und bietet verschiedene Modellgrößen für unterschiedliche Genauigkeits- und Geschwindigkeitsanforderungen.
+# 1. Gerätekompatibilität:
+#    Die explizite Zuweisung des Mel-Spektrogramms zum Modellgerät (mel.to(self.model.device))
+#    stellt sicher, dass alle Tensoren auf demselben Gerät sind, was kritisch für die
+#    reibungslose Ausführung des Modells ist.
 
-# 2. CUDA-Unterstützung:
-#    Die Methode `load_model` prüft auf CUDA-Verfügbarkeit. CUDA ermöglicht die Nutzung von NVIDIA GPUs für beschleunigte Berechnungen,
-#    was die Transkriptionsgeschwindigkeit erheblich verbessern kann.
+# 2. Audiovorverarbeitung:
+#    Die Verwendung von whisper.pad_or_trim() und whisper.log_mel_spectrogram()
+#    gewährleistet, dass das Audio in einem Format vorliegt, das vom Whisper-Modell
+#    erwartet wird, und verhindert Formfehler.
 
 # 3. Fehlerbehandlung:
-#    Sowohl beim Laden des Modells als auch bei der Transkription werden ausführliche Fehlerprotokolle erstellt.
-#    Dies ist besonders wichtig für die Diagnose von Problemen in Produktionsumgebungen.
+#    Umfassende Try-Except-Blöcke mit detaillierten Fehlerausgaben erleichtern das
+#    Debugging und die Identifikation von Problemen während der Transkription.
 
-# 4. Transkriptionsoptions:
-#    Die `DecodingOptions` in der `transcribe`-Methode ermöglichen eine feinere Kontrolle über den Transkriptionsprozess.
-#    Hier wird die Sprache festgelegt und Zeitstempel werden deaktiviert.
-
-# 5. Modellstatus:
-#    Die Methode `is_model_loaded` dient als einfache Statusprüfung, die von anderen Teilen der Anwendung verwendet werden kann,
-#    um sicherzustellen, dass das Modell bereit ist, bevor eine Transkription versucht wird.
+# 4. Logging:
+#    Ausführliche Print-Statements geben Einblick in den Zustand des Audios und
+#    des Mel-Spektrogramms in verschiedenen Verarbeitungsstufen.

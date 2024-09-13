@@ -12,11 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# src/backend/wortweber_backend.py
+"""
+Dieses Modul enthält die Hauptlogik für das Backend der Wortweber-Anwendung.
+Es koordiniert die Audioaufnahme, Transkription und Datenverwaltung.
+"""
 
 from typing import List, Optional, Tuple, Callable
 import numpy as np
-from src.config import AUDIO_RATE, AUDIO_FORMAT, AUDIO_CHANNELS, AUDIO_CHUNK, DEVICE_INDEX, TARGET_RATE
+from src.config import AUDIO_RATE, AUDIO_FORMAT, AUDIO_CHANNELS, AUDIO_CHUNK, DEVICE_INDEX, TARGET_RATE, DEFAULT_WHISPER_MODEL
 from src.backend.audio_processor import AudioProcessor
 from src.backend.transcriber import Transcriber
 import threading
@@ -41,7 +44,7 @@ class WordweberBackend:
     def __init__(self):
         self.state = WordweberState()
         self.audio_processor = AudioProcessor()
-        self.transcriber = Transcriber()
+        self.transcriber = Transcriber(DEFAULT_WHISPER_MODEL)
         self.model_loaded = threading.Event()
         self.on_transcription_complete: Optional[Callable[[str], None]] = None
         self.pending_audio: List[np.ndarray] = []
@@ -159,3 +162,14 @@ class WordweberBackend:
 # 5. Flexibilität:
 #    Die Möglichkeit, ausstehende Audioaufnahmen zu speichern und später zu verarbeiten,
 #    erhöht die Robustheit der Anwendung, insbesondere wenn das Modell noch nicht geladen ist.
+
+# 6. Designentscheidungen:
+#    - Die Trennung von Aufnahme- und Verarbeitungslogik ermöglicht eine bessere Skalierbarkeit.
+#    - Die Verwendung von NumPy-Arrays für die Audiodaten optimiert die Speichernutzung und Verarbeitung.
+#    - Die Implementierung eines Callback-Mechanismus (`on_transcription_complete`) ermöglicht
+#      eine lose Kopplung zwischen Backend und Frontend.
+
+# 7. Mögliche zukünftige Erweiterungen:
+#    - Implementierung einer Warteschlange für parallele Verarbeitung mehrerer Audioaufnahmen.
+#    - Einführung von Caching-Mechanismen für häufig verwendete Modelle zur Leistungsoptimierung.
+#    - Erweiterung um zusätzliche Sprachmodelle oder Transkriptionsdienste für erhöhte Flexibilität.

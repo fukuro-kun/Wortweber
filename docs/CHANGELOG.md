@@ -5,6 +5,23 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.15.1] - 2024-09-16
+### Fixed
+- Behebung von Gerätekompatibilitätsproblemen bei der Transkription
+- Korrektur der Audiovorverarbeitung für konsistente Eingaben in das Whisper-Modell
+
+### Changed
+- Verbesserung der Modellinitialisierung mit expliziter Gerätezuweisung
+- Optimierung der Mel-Spektrogramm-Erstellung und -Verarbeitung
+
+### Added
+- Erweiterte Fehlerprotokolle für bessere Diagnose von Transkriptionsproblemen
+- Implementierung robusterer Fehlerbehandlung in kritischen Audiokomponenten
+
+### Improved
+- Verbesserte Integration der Whisper-Bibliotheksfunktionen für optimale Kompatibilität
+- Erhöhte Zuverlässigkeit der Transkriptionsfunktion
+
 ## [0.15.0] - 2024-09-15
 ### Added
 - Implementierung der Audioaufnahme-Funktion für Testaufnahmen
