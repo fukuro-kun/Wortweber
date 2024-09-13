@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# src/frontend/options_window.py
+
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
@@ -19,21 +21,23 @@ import tkinter.font as tkFont
 class OptionsWindow(tk.Toplevel):
     """
     Fenster für erweiterte Optionen in der Wortweber-Anwendung.
-    Ermöglicht die Anpassung von Theme und Textgröße.
+    Ermöglicht die Anpassung von Theme, Textgröße und Testaufnahme-Einstellungen.
     """
 
-    def __init__(self, parent, theme_manager, transcription_panel):
+    def __init__(self, parent, theme_manager, transcription_panel, gui):
         """
         Initialisiert das OptionsWindow.
 
         :param parent: Das übergeordnete Tkinter-Fenster
         :param theme_manager: Instanz des ThemeManagers zur Verwaltung der Themes
         :param transcription_panel: Referenz auf das TranscriptionPanel für Textgrößenänderungen
+        :param gui: Referenz auf die Hauptgui-Instanz
         """
         super().__init__(parent)
         self.title("Erweiterte Optionen")
         self.theme_manager = theme_manager
         self.transcription_panel = transcription_panel
+        self.gui = gui
         self.setup_ui()
 
     def setup_ui(self):
@@ -50,6 +54,11 @@ class OptionsWindow(tk.Toplevel):
         text_size_frame = ttk.Frame(notebook)
         notebook.add(text_size_frame, text="Textgröße")
         self.setup_text_size_options(text_size_frame)
+
+        # Testaufnahme-Einstellungen
+        test_recording_frame = ttk.Frame(notebook)
+        notebook.add(test_recording_frame, text="Testaufnahme")
+        self.setup_test_recording_options(test_recording_frame)
 
         ttk.Button(self, text="Schließen", command=self.destroy).pack(pady=10)
 
@@ -74,6 +83,25 @@ class OptionsWindow(tk.Toplevel):
 
         ttk.Button(parent, text="Anwenden", command=update_size).pack(pady=(5, 10))
 
+    def setup_test_recording_options(self, parent):
+        """
+        Richtet die Optionen für die Testaufnahme ein.
+
+        :param parent: Das übergeordnete Frame für die Testaufnahmeoptionen
+        """
+        self.save_test_recording_var = tk.BooleanVar(value=self.gui.settings_manager.get_setting("save_test_recording", False))
+        ttk.Checkbutton(parent, text="Letzte Aufnahme als Testdatei speichern",
+                        variable=self.save_test_recording_var,
+                        command=self.on_save_test_recording_change).pack(pady=10)
+
+    def on_save_test_recording_change(self):
+        """
+        Behandelt Änderungen der Testaufnahme-Einstellung.
+        Speichert die neue Einstellung und aktualisiert die Konfiguration.
+        """
+        self.gui.settings_manager.set_setting("save_test_recording", self.save_test_recording_var.get())
+        self.gui.settings_manager.save_settings()
+
 # Zusätzliche Erklärungen:
 
 # 1. Toplevel-Fenster:
@@ -91,10 +119,10 @@ class OptionsWindow(tk.Toplevel):
 #    Die Textgrößenanpassung verwendet ein Spinbox-Widget, das eine einfache numerische Eingabe ermöglicht.
 #    Die update_size-Funktion stellt sicher, dass nur gültige Werte angewendet werden.
 
-# 5. Modularität:
-#    Durch die Aufteilung in separate Methoden (setup_ui, setup_text_size_options) bleibt der Code übersichtlich
-#    und ermöglicht einfache Erweiterungen um zusätzliche Optionen in der Zukunft.
+# 5. Testaufnahme-Option:
+#    Die neue Option zum Speichern der letzten Aufnahme als Testdatei wird mit einer Checkbox implementiert.
+#    Die Einstellung wird direkt in den Benutzereinstellungen gespeichert.
 
-# 6. Fehlerbehandlung:
-#    Die try-except-Struktur in update_size fängt potenzielle Fehler bei der Eingabe ungültiger Werte ab,
-#    was die Robustheit der Anwendung erhöht.
+# 6. Modularität:
+#    Durch die Aufteilung in separate Methoden (setup_ui, setup_text_size_options, setup_test_recording_options)
+#    bleibt der Code übersichtlich und ermöglicht einfache Erweiterungen um zusätzliche Optionen in der Zukunft.

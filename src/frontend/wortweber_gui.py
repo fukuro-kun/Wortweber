@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# src/frontend/wortweber_gui.py
+
 import tkinter as tk
 from tkinter import ttk
 import ttkthemes
@@ -126,7 +128,7 @@ class WordweberGUI:
 
     def open_options_window(self):
         """Öffnet das Fenster für erweiterte Optionen."""
-        OptionsWindow(self.root, self.theme_manager, self.transcription_panel)
+        OptionsWindow(self.root, self.theme_manager, self.transcription_panel, self)
 
     def on_window_configure(self, event):
         """
@@ -164,6 +166,10 @@ class WordweberGUI:
         self.input_processor.process_text(text)
         self.status_panel.update_transcription_timer(transcription_time)
 
+        # Speichern der Testaufnahme, wenn aktiviert
+        if self.settings_manager.get_setting("save_test_recording", False):
+            self.backend.audio_processor.save_last_recording()
+
 # Zusätzliche Erklärungen:
 
 # 1. Modularität:
@@ -191,3 +197,7 @@ class WordweberGUI:
 # 7. Ressourcenmanagement:
 #    In der on_closing Methode werden explizit Ressourcen freigegeben (z.B. Modell-Deallokation),
 #    um Speicherlecks zu vermeiden.
+
+# 8. Testaufnahme-Speicherung:
+#    Die Funktion zum Speichern der letzten Aufnahme als Testdatei wird in transcribe_and_update integriert,
+#    basierend auf der Benutzereinstellung.

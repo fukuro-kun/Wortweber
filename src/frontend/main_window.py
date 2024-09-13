@@ -72,7 +72,7 @@ class MainWindow:
 
     def open_options_window(self):
         """Öffnet das Fenster für erweiterte Optionen."""
-        OptionsWindow(self.root, self.gui.theme_manager, self.transcription_panel)
+        OptionsWindow(self.root, self.gui.theme_manager, self.transcription_panel, self.gui)
 
 # Zusätzliche Erklärungen:
 

@@ -21,6 +21,8 @@ from scipy import signal
 import time
 import warnings
 import logging
+import os
+import wave
 
 # Unterdrücke RuntimeWarnings, die oft bei Audiooperationen auftreten können
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -40,6 +42,7 @@ class AudioProcessor:
         self.p = pyaudio.PyAudio()
         self.RATE = AUDIO_RATE
         self.TARGET_RATE = TARGET_RATE
+        self.last_recording = None
 
     def list_audio_devices(self):
         """
@@ -81,6 +84,7 @@ class AudioProcessor:
             duration = time.time() - start_time
             print(f"Aufnahme beendet. Dauer: {duration:.2f} Sekunden")
 
+            self.last_recording = state.audio_data  # Speichern der letzten Aufnahme
             return duration
         except Exception as e:
             logging.error(f"Fehler bei der Audioaufnahme: {e}")
@@ -103,6 +107,29 @@ class AudioProcessor:
         resampled = signal.resample(audio_np, target_length)
         return resampled
 
+    def save_last_recording(self, filename="tests/test_data/speech_sample.wav"):
+        """
+        Speichert die letzte Aufnahme als Testdatei.
+
+        :param filename: Der Pfad und Name der zu speichernden Datei.
+        :return: True, wenn die Aufnahme erfolgreich gespeichert wurde, sonst False.
+        """
+        if not self.last_recording:
+            print("Keine Aufnahme verfügbar.")
+            return False
+
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+
+        wf = wave.open(filename, 'wb')
+        wf.setnchannels(AUDIO_CHANNELS)
+        wf.setsampwidth(self.p.get_sample_size(AUDIO_FORMAT))
+        wf.setframerate(self.RATE)
+        wf.writeframes(b''.join(self.last_recording))
+        wf.close()
+
+        print(f"Letzte Aufnahme gespeichert als {filename}")
+        return True
+
 # Zusätzliche Erklärungen:
 
 # 1. PyAudio:
@@ -120,3 +147,8 @@ class AudioProcessor:
 # 4. Zustandsbasierte Aufnahme:
 #    Die Verwendung eines state-Objekts ermöglicht eine flexible Kontrolle der Aufnahmedauer
 #    und eine einfache Integration mit der Benutzeroberfläche.
+
+# 5. Testaufnahme-Speicherung:
+#    Die neue Methode `save_last_recording` ermöglicht es, die zuletzt aufgenommene Audiodatei
+#    für Testzwecke zu speichern. Dies ist nützlich für die Entwicklung und das Debugging
+#    der Audioaufnahme- und Verarbeitungsfunktionen.

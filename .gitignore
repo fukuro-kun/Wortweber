@@ -24,3 +24,5 @@ pyrightconfig.json
 Thumbs.db
 user_settings.json
 model.py
+
+tests/test_data/

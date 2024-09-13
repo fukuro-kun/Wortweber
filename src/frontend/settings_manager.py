@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# src/frontend/settings_manager.py
+
 import json
 import os
 from src.config import (DEFAULT_LANGUAGE, DEFAULT_WHISPER_MODEL, DEFAULT_THEME,
@@ -84,6 +86,7 @@ class SettingsManager:
             "auto_copy": True,
             "text_content": "",
             "font_size": DEFAULT_FONT_SIZE,
+            "save_test_recording": False,  # Neue Einstellung für Testaufnahmen
         }
 
 # Zusätzliche Erklärungen:
@@ -111,3 +114,7 @@ class SettingsManager:
 # 6. Typsicherheit:
 #    Einige Werte (wie char_delay) werden als Strings gespeichert, um Konsistenz mit GUI-Elementen zu gewährleisten.
 #    Bei der Verwendung dieser Werte sollte eine entsprechende Typumwandlung erfolgen.
+
+# 7. Neue Einstellung für Testaufnahmen:
+#    Die Einstellung "save_test_recording" wurde hinzugefügt, um die Option zum Speichern von Testaufnahmen zu steuern.
+#    Standardmäßig ist diese Option deaktiviert.
