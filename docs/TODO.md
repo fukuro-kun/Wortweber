@@ -7,6 +7,7 @@
 - [x] Refactoring hinsichtlich aller Standardeinstellungen, welche als Variablen in config.py zu hinterlegen sind
 - [ ] Verbesserung der Shortcut-Funktionalität (Manuelle Einstellung, Erfassung, Zuverlässigkeit)
 - [ ] Implementierung von Unit-Tests für jedes neue Modul zur Verbesserung der Codequalität und Wartbarkeit
+- [x] Implementierung einer Testaufnahme-Funktion für Entwicklungs- und Debugging-Zwecke
 - [ ] Optimierung der Theme-Auswahl und -Anwendung im Kontext von Openbox Einstellungen und Linux MATE-Themes
 
 ## Priorität Mittel

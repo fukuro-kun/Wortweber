@@ -90,6 +90,25 @@ Diese Richtlinien sollten bei zukünftigen Codeänderungen und -erweiterungen be
 - Das Format der Versionsnummer folgt der Semantischen Versionierung (MAJOR.MINOR.PATCH).
 - Bei der Erstellung eines neuen Git-Tags sollte die Versionsnummer aus dieser Datei verwendet werden.
 
+## Aktuelle Entwicklung (Version 0.15.0)
+
+Mit Version 0.15.0 wurden wichtige Verbesserungen in der Audioaufnahme und -verarbeitung implementiert:
+
+1. Audioaufnahme-Funktion:
+   - Implementierung einer Testaufnahme-Funktion für Entwicklungs- und Debugging-Zwecke
+   - Integration in die bestehende GUI-Struktur
+
+2. Erweiterte Tests:
+   - Hinzufügung von Tests für die Audioaufnahme und -verarbeitung mit realen Audiosamples
+   - Verbesserung der Testabdeckung für AudioProcessor-Funktionalitäten
+
+3. Optimierte Audioverarbeitung:
+   - Verfeinerung des Resampling-Prozesses für konsistentere Audioeingaben
+   - Verbesserte Fehlerbehandlung in kritischen Audiokomponenten
+
+Diese Änderungen verbessern die Robustheit und Zuverlässigkeit der Audiokomponenten erheblich und bieten eine solide Grundlage für zukünftige Erweiterungen der Spracherkennungsfunktionen.
+
+
 ## Aktuelle Entwicklung (Version 0.11.1)
 
 Mit Version 0.11.1 wurden wichtige Stabilitätsverbesserungen implementiert:

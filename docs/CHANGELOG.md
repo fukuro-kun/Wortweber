@@ -5,6 +5,20 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.15.0] - 2024-09-15
+### Added
+- Implementierung der Audioaufnahme-Funktion für Testaufnahmen
+- Erweiterung der Tests für AudioProcessor und Audioaufnahme
+- Hinzufügung von Testdaten (speech_sample.wav) für realistische Audiotests
+
+### Changed
+- Verbesserung der Fehlerbehandlung in AudioProcessor
+- Optimierung der Resampling-Funktionalität für bessere Audioqualität
+
+### Improved
+- Erhöhte Testabdeckung für kritische Audiofunktionen
+- Verbesserte Modularität der Audioverarbeitungskomponenten
+
 ## [0.14.0] - 2024-09-14
 ### Added
 - Umfassende Kommentierung des gesamten Quellcodes

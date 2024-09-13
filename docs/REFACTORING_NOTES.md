@@ -1,3 +1,39 @@
+# Refactoring-Notizen: Audiokomponenten und Teststruktur (Version 0.15.0)
+
+## Begründung für das Refactoring
+
+1. Verbesserte Testbarkeit: Isolation der Audioaufnahmefunktionalität für einfachere und zuverlässigere Tests.
+2. Erhöhte Modularität: Trennung von Aufnahme- und Verarbeitungslogik für bessere Wartbarkeit.
+3. Robustere Fehlerbehandlung: Implementierung spezifischer Ausnahmen für Audioaufnahme-Fehler.
+4. Realistische Testszenarien: Einführung von echten Audiosamples für aussagekräftigere Tests.
+
+## Hauptänderungen
+
+1. Modularisierung der `AudioProcessor`-Klasse:
+   - Extraktion der Aufnahmefunktionalität in eine separate Methode.
+   - Einführung von Schnittstellen für flexiblere Audiogeräteverwaltung.
+
+2. Optimierung der Fehlerbehandlung:
+   - Implementierung spezifischer Ausnahmen für verschiedene Audioaufnahme-Szenarien.
+   - Verbesserung der Fehlerprotokolle für detailliertere Diagnosen.
+
+3. Erweiterung der Teststruktur:
+   - Einführung eines `test_data` Verzeichnisses für die Speicherung von Audiosamples.
+   - Implementierung von Mock-Objekten für hardwareunabhängige Tests.
+   - Hinzufügung von Tests für Resampling und Audioqualitätsprüfung.
+
+## Auswirkungen und zukünftige Überlegungen
+
+- Die verbesserte Modularität erleichtert zukünftige Erweiterungen der Audiokomponenten.
+- Die erweiterte Testabdeckung erhöht die Zuverlässigkeit der Audioaufnahme und -verarbeitung.
+- Zukünftige Entwicklungen sollten die neuen Testmöglichkeiten mit realen Audiosamples nutzen.
+- Eine regelmäßige Überprüfung und Erweiterung der Testfälle wird empfohlen, um die Codequalität zu sichern.
+
+## Fazit
+
+Die Überarbeitung verbessert die Codequalität und Testbarkeit signifikant, schafft eine solide Basis für zukünftige Entwicklungen im Audiobereich und erhöht die Gesamtrobustheit der Anwendung.
+
+
 # Refactoring-Notizen: Umfassende Codekommentierung (Version 0.14.0)
 
 ## Begründung für das Refactoring
