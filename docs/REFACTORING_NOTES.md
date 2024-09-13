@@ -1,3 +1,28 @@
+# Refactoring-Notizen: Umfassende Codekommentierung (Version 0.14.0)
+
+## Begründung für das Refactoring
+
+Die umfassende Kommentierung des Codes wurde aus folgenden Gründen durchgeführt:
+
+1. Verbesserte Wartbarkeit: Detaillierte Erklärungen erleichtern zukünftige Codeänderungen.
+2. Onboarding neuer Entwickler: Ausführliche Kommentare helfen neuen Teammitgliedern, sich schneller einzuarbeiten.
+3. Codequalität: Der Prozess der Kommentierung führte zur Identifikation und Dokumentation komplexer Abschnitte.
+4. Konsistenz: Einheitliche Kommentierungsrichtlinien wurden im gesamten Projekt angewendet.
+
+## Hauptänderungen
+
+1. Hinzufügung von Datei-Kopfkommentaren zur Erklärung des Zwecks jeder Datei.
+2. Implementierung von Docstrings für alle Klassen und Funktionen.
+3. Ergänzung von Inline-Kommentaren für komplexe Codeabschnitte.
+4. Hinzufügung von "Zusätzliche Erklärungen" Abschnitten am Ende jeder Datei.
+5. Integration von Copyright-Informationen in relevante Dateien.
+
+## Auswirkungen und zukünftige Überlegungen
+
+- Die Codebase ist nun besser dokumentiert, was die Einarbeitungszeit für neue Entwickler reduzieren sollte.
+- Bei zukünftigen Änderungen sollte darauf geachtet werden, die Kommentare aktuell zu halten.
+- Eine regelmäßige Überprüfung der Kommentare könnte in den Entwicklungsprozess integriert werden.
+
 ## Refactoring der Konfigurationseinstellungen (Version 0.12.0)
 
 Am 2024-09-13 wurde ein umfassendes Refactoring durchgeführt, um die Konfigurationseinstellungen zu zentralisieren:

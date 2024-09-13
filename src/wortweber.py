@@ -24,10 +24,51 @@ from src.backend.wortweber_backend import WordweberBackend
 from src.frontend.wortweber_gui import WordweberGUI
 
 def main():
+    """
+    Hauptfunktion der Wortweber-Anwendung.
+    Initialisiert das Backend und die GUI und startet die Anwendung.
+    """
     backend = WordweberBackend()
-    backend.list_audio_devices()
+    backend.list_audio_devices()  # Zeigt verfügbare Audiogeräte an
     gui = WordweberGUI(backend)
     gui.run()
 
 if __name__ == "__main__":
     main()
+
+# Zusätzliche Erklärungen:
+
+# 1. Pfadmanipulation:
+#    Die Zeilen, die den project_root bestimmen und zum sys.path hinzufügen,
+#    stellen sicher, dass Python die Module des Projekts finden kann, unabhängig davon,
+#    von wo aus das Skript ausgeführt wird.
+
+# 2. Modularität:
+#    Die Trennung von Backend und GUI in separate Klassen (WordweberBackend und WordweberGUI)
+#    folgt dem Prinzip der Trennung von Belangen (Separation of Concerns) und verbessert
+#    die Wartbarkeit und Erweiterbarkeit des Codes.
+
+# 3. Einstiegspunkt:
+#    Die main()-Funktion dient als zentraler Einstiegspunkt der Anwendung.
+#    Sie wird nur ausgeführt, wenn das Skript direkt gestartet wird (nicht wenn es importiert wird).
+
+# 4. Audiogeräte-Auflistung:
+#    Der Aufruf von backend.list_audio_devices() vor dem Start der GUI
+#    gibt dem Benutzer wichtige Informationen über verfügbare Audiogeräte,
+#    was bei der Konfiguration und Fehlerbehebung hilfreich sein kann.
+
+# 5. Flexibilität:
+#    Durch die Trennung von Backend und GUI ist es einfach, in Zukunft alternative
+#    Benutzeroberflächen (z.B. eine Kommandozeilenschnittstelle) zu implementieren,
+#    ohne das Backend ändern zu müssen.
+
+# 6. Startprozess:
+#    Die Reihenfolge der Operationen in main() - zuerst Backend initialisieren,
+#    dann Audiogeräte auflisten und schließlich die GUI starten - gewährleistet,
+#    dass alle notwendigen Komponenten bereit sind, bevor der Benutzer mit der Anwendung interagiert.
+
+# Hinweis zur Projektstruktur:
+# Diese Datei dient als Einstiegspunkt für die gesamte Anwendung.
+# Sie verbindet das Backend (die Logik der Anwendung) mit dem Frontend (der Benutzeroberfläche).
+# Diese Struktur ermöglicht eine klare Trennung der Verantwortlichkeiten und erleichtert
+# sowohl die Wartung als auch zukünftige Erweiterungen der Anwendung.

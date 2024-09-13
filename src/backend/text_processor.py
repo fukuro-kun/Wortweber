@@ -1,5 +1,3 @@
-# Wortweber/src/text_operations.py
-
 # Copyright 2024 fukuro-kun
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,10 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# src/backend/text_processor.py
+
 import re
 
 def detect_language(text):
-    """Erkennt die Sprache des Textes basierend auf spezifischen Wörtern."""
+    """
+    Erkennt die Sprache des Textes basierend auf spezifischen Wörtern.
+
+    :param text: Der zu analysierende Text
+    :return: 'de' für Deutsch oder 'en' für Englisch
+
+    Diese Funktion verwendet eine einfache Heuristik, indem sie zählt, wie viele
+    typische deutsche bzw. englische Wörter im Text vorkommen.
+    """
     german_words = set(['und', 'der', 'die', 'das', 'ein', 'eine', 'ist', 'sind', 'haben', 'hatte'])
     english_words = set(['and', 'the', 'a', 'an', 'is', 'are', 'have', 'had'])
 
@@ -43,7 +51,15 @@ ENGLISH_NUMBER_DICT = {
 }
 
 def words_to_digits(text):
-    """Wandelt Zahlwörter in einem Text in Ziffern um."""
+    """
+    Wandelt Zahlwörter in einem Text in Ziffern um.
+
+    :param text: Der zu verarbeitende Text
+    :return: Der Text mit umgewandelten Zahlwörtern
+
+    Diese Funktion erkennt zunächst die Sprache des Textes und wendet dann
+    das entsprechende Wörterbuch an, um Zahlwörter in Ziffern umzuwandeln.
+    """
     language = detect_language(text)
     if language == 'de':
         number_dict = GERMAN_NUMBER_DICT
@@ -54,7 +70,15 @@ def words_to_digits(text):
     return re.sub(pattern, lambda m: number_dict[m.group().lower()], text, flags=re.IGNORECASE)
 
 def digits_to_words(text):
-    """Wandelt Ziffern in einem Text in Zahlwörter um."""
+    """
+    Wandelt Ziffern in einem Text in Zahlwörter um.
+
+    :param text: Der zu verarbeitende Text
+    :return: Der Text mit umgewandelten Ziffern
+
+    Diese Funktion erkennt zunächst die Sprache des Textes und wendet dann
+    das entsprechende umgekehrte Wörterbuch an, um Ziffern in Zahlwörter umzuwandeln.
+    """
     language = detect_language(text)
 
     if language == 'de':
@@ -82,3 +106,27 @@ if __name__ == "__main__":
         words_text = digits_to_words(digits_text)
         print("Ziffern zu Zahlwörtern:", words_text)
         print()
+
+# Zusätzliche Erklärungen:
+
+# 1. Spracherkennung:
+#    Die `detect_language` Funktion verwendet eine einfache, aber effektive Methode zur Spracherkennung.
+#    Sie basiert auf der Annahme, dass bestimmte häufig vorkommende Wörter charakteristisch für eine Sprache sind.
+#    Diese Methode ist nicht perfekt, aber ausreichend für die Zwecke dieser Anwendung.
+
+# 2. Reguläre Ausdrücke:
+#    Die Funktionen `words_to_digits` und `digits_to_words` verwenden reguläre Ausdrücke (re.sub) für die Textumwandlung.
+#    Der Ausdruck r'\b(' + '|'.join(number_dict.keys()) + r')\b' erstellt ein Muster, das alle Schlüssel des Wörterbuchs als Wörter matcht.
+#    r'\b\d+\b' matcht alleinstehende Ziffernfolgen.
+
+# 3. Lambda-Funktionen:
+#    In den re.sub Aufrufen werden Lambda-Funktionen verwendet, um die eigentliche Ersetzung durchzuführen.
+#    Diese anonymen Funktionen erlauben eine kompakte Schreibweise für einfache Operationen.
+
+# 4. Wörterbuch-Umkehrung:
+#    In `digits_to_words` wird das Wörterbuch umgekehrt, um von Ziffern auf Wörter zu mappen.
+#    Die Verwendung von .isdigit() stellt sicher, dass nur numerische Schlüssel berücksichtigt werden.
+
+# 5. Testfunktion:
+#    Der __main__ Block enthält eine Testfunktion, die die Funktionalität der Textverarbeitung demonstriert.
+#    Dies ist nützlich für schnelle Tests und zur Veranschaulichung der Funktionsweise.

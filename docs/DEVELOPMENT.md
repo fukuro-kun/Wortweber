@@ -75,6 +75,15 @@ Wortweber ist ein Python-basiertes Einzelentwickler-Projekt mit KI-Unterstützun
    - Sicherstellen, dass die VERSION-Datei aktualisiert wurde
    - `git tag -a v$(cat VERSION) -m "Version $(cat VERSION)" && git push origin v$(cat VERSION)`
 
+## Kommentierungsrichtlinien
+Bei der jüngsten Überarbeitung wurden folgende Richtlinien für die Codekommentierung eingeführt:
+1. Jede Datei beginnt mit einem Kommentarblock, der den Zweck und die Hauptfunktionen erklärt.
+2. Alle Klassen und Funktionen haben Docstrings, die Parameter, Rückgabewerte und Seiteneffekte beschreiben.
+3. Komplexe Codeabschnitte werden durch Inline-Kommentare erklärt.
+4. Am Ende jeder Datei gibt es einen Abschnitt "Zusätzliche Erklärungen" für besonders komplexe Konzepte.
+5. Copyright-Informationen wurden zu relevanten Dateien hinzugefügt.
+Diese Richtlinien sollten bei zukünftigen Codeänderungen und -erweiterungen beibehalten werden.
+
 ## Versionierung
 - Die aktuelle Version des Projekts wird in der VERSION-Datei im Hauptverzeichnis gespeichert.
 - Bei jeder Änderung, die eine neue Version rechtfertigt, muss diese Datei aktualisiert werden.
