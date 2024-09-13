@@ -9,6 +9,7 @@ DEFAULT_THEME = "arc"
 # GUI-Einstellungen
 DEFAULT_WINDOW_SIZE = "800x600"
 HIGHLIGHT_DURATION = 2000  # in Millisekunden
+DEFAULT_FONT_SIZE = 10  # Neue Zeile für die Standard-Textgröße
 
 # Audio-Einstellungen
 AUDIO_FORMAT = pyaudio.paInt16

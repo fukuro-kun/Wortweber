@@ -2,14 +2,14 @@ import tkinter as tk
 from tkinter import ttk, scrolledtext
 import tkinter.font as tkFont
 import pyperclip
-from src.config import HIGHLIGHT_DURATION
+from src.config import HIGHLIGHT_DURATION, DEFAULT_FONT_SIZE
 from src.frontend.context_menu import create_context_menu
 
 class TranscriptionPanel(ttk.Frame):
     def __init__(self, parent, gui):
         super().__init__(parent)
         self.gui = gui
-        self.font_size = 10  # Standardgröße
+        self.font_size = self.gui.settings_manager.get_setting("font_size", DEFAULT_FONT_SIZE)
         self.setup_ui()
         self.load_saved_text()
 
@@ -72,6 +72,8 @@ class TranscriptionPanel(ttk.Frame):
         current_font = tkFont.Font(font=self.transcription_text['font'])
         current_font.configure(size=size)
         self.transcription_text.configure(font=current_font)
+        self.gui.settings_manager.set_setting("font_size", size)
+        self.gui.settings_manager.save_settings()
 
     def get_font_size(self):
         return self.font_size
