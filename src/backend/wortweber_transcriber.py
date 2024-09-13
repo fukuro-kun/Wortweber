@@ -27,7 +27,7 @@ class Transcriber:
         print(f"Lade Spracherkennungsmodell: {self.model_name}")
         try:
             self.model = whisper.load_model(self.model_name).to(self.device)
-            print(f"Spracherkennungsmodell geladen auf {self.device}.")
+            print(f"Spracherkennungsmodell {self.model_name} geladen auf {self.device}.")
         except Exception as e:
             print(f"Fehler beim Laden des Modells: {e}")
             raise

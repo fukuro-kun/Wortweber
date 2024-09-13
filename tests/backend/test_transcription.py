@@ -63,7 +63,7 @@ class TestTranscription(unittest.TestCase):
 
         # Initialisiere den Transcriber und lade das Modell
         transcriber = Transcriber(DEFAULT_WHISPER_MODEL)
-        transcriber.load_model(DEFAULT_WHISPER_MODEL)
+        transcriber.load_model()  # Kein zusätzliches Argument nötig
 
         # Führe die Transkription durch
         transcribed_text = transcriber.transcribe(audio_array, "de")
