@@ -9,7 +9,6 @@
 
 
 ## Priorität Mittel
-- [ ] Beheben der DeprecationWarnings für `unittest.makeSuite()` durch Umstellung auf `unittest.TestLoader.loadTestsFromTestCase()`
 - [ ] Implementierung zusätzlicher Module für die Ausgabe (z.B. Ollama-Unterstützung)
 - [ ] Erweiterung der Testabdeckung, insbesondere für kritische Funktionen
 - [ ] Einrichtung einer Staging-Umgebung für gründlichere Tests vor Veröffentlichungen
@@ -34,6 +33,7 @@
 - [ ] Regelmäßige Überprüfung und Aktualisierung der Kommentare im Code
 
 ## Abgeschlossen
+- [x] Beheben der DeprecationWarnings für `unittest.makeSuite()` durch Umstellung auf `unittest.TestLoader.loadTestsFromTestCase()`
 - [x] Erweiterung der Fehlerprotokolle für detailliertere Diagnosen bei Transkriptionsproblemen
 - [x] Implementierung zusätzlicher Tests für die neue Audiovorverarbeitungslogik
 - [x] Implementierung von Unit-Tests für jedes neue Modul zur Verbesserung der Codequalität und Wartbarkeit

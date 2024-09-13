@@ -11,6 +11,7 @@ Wortweber ist eine leistungsstarke und benutzerfreundliche Anwendung zur Echtzei
 - Einfache Umwandlung von Zahlwörtern in Ziffern und umgekehrt
 - Flexible Eingabemodi: Textfenster oder Systemcursor-Position
 - Speichern und Wiederherstellen von Benutzereinstellungen
+- Option zum Speichern von Testaufnahmen für Entwicklungs- und Debugging-Zwecke
 
 ## Installation und Nutzung
 
@@ -65,6 +66,14 @@ Um alle Tests auszuführen, verwenden Sie den folgenden Befehl im Hauptverzeichn
 
 ```
 python run_tests.py
+```
+
+Sie können auch spezifische Testoptionen verwenden:
+
+```
+- Für parallele Tests: `python run_tests.py --parallel`
+- Für alle Tests einschließlich Nicht-Transkriptionstests: `python run_tests.py --all`
+- Für alle Tests mit paralleler Ausführung: `python run_tests.py --all --parallel`
 ```
 
 ## Wichtige Hinweise

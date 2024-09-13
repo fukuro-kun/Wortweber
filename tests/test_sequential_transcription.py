@@ -17,12 +17,22 @@
 import unittest
 from tests.base_test import BaseTranscriptionTest
 from tests.test_config import MODELS_TO_TEST, TEST_LANGUAGES
+from src.backend.wortweber_transcriber import Transcriber
+import logging
 
 class SequentialTranscriptionTest(BaseTranscriptionTest):
     """
     Testklasse für sequenzielle Transkriptionstests.
     Führt Tests für verschiedene Whisper-Modelle nacheinander aus.
     """
+    def load_model(self, model_name: str):
+        """
+        Lädt das Whisper-Modell für den Test.
+
+        :param model_name: Name des zu ladenden Modells
+        """
+        self.transcriber = Transcriber(model_name)
+        self.transcriber.load_model()
 
     def test_sequential_transcription(self):
         """
@@ -43,6 +53,7 @@ class SequentialTranscriptionTest(BaseTranscriptionTest):
         :param model_name: Name des zu testenden Whisper-Modells
         :param language: Sprache für die Transkription
         """
+        logging.info(f"Starte Test für Modell {model_name} in Sprache {language}")
         self.load_model(model_name)
         if self.transcriber is None:
             raise ValueError("Transcriber wurde nicht korrekt initialisiert")
@@ -52,12 +63,16 @@ class SequentialTranscriptionTest(BaseTranscriptionTest):
 
         transcribed_text = self.transcriber.transcribe(audio_data, language)
 
+        logging.info(f"Transkribierter Text ({model_name}, {language}): {transcribed_text}")
+
         self.assertIsNotNone(transcribed_text)
         self.assertTrue(len(transcribed_text) > 0)
 
         expected_words = self.get_expected_words(language)
+        logging.info(f"Erwartete Wörter: {expected_words}")
         for word in expected_words:
-            self.assertIn(word.lower(), transcribed_text.lower())
+            self.assertIn(word.lower(), transcribed_text.lower(),
+                          f"Erwartetes Wort '{word}' nicht in '{transcribed_text}' gefunden")
 
 # Zusätzliche Erklärungen:
 

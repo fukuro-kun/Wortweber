@@ -26,10 +26,10 @@ MODELS_TO_TEST = ["tiny", "base", "small", "medium"]
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
 
 # Name der Testaudiodatei
-TEST_AUDIO_FILE = "speech_sample.wav"
+TEST_AUDIO_FILE = "speech_sample.wav" # Enthält den Satz "Das ist ein Test" (auf Deutsch)
 
 # Maximale Anzahl paralleler Tests
-MAX_PARALLEL_TESTS = 2
+MAX_PARALLEL_TESTS = 4
 
 # Timeout für einzelne Transkriptionen in Sekunden
 TRANSCRIPTION_TIMEOUT = 300  # 5 Minuten
@@ -46,7 +46,7 @@ TEST_AUDIO_CONFIG = {
 }
 
 # Sprachen für Transkriptionstests
-TEST_LANGUAGES = ["de", "en"]
+TEST_LANGUAGES = ["de"]  # Nur Deutsch, da das Testfile auf Deutsch ist
 
 # Zusätzliche Erklärungen:
 

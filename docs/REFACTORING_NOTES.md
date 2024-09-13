@@ -1,3 +1,23 @@
+# Refactoring der Testausführungslogik (Version 0.16.1)
+
+## Begründung für das Refactoring
+1. Verbesserte Kontrolle über die Testausführung
+2. Klarere Unterscheidung zwischen grundlegenden und Transkriptionstests
+3. Einführung von Kurzformen für Kommandozeilenoptionen
+
+## Hauptänderungen
+1. Überarbeitung der `run_tests.py`:
+   - Einführung von `-p`, `-s`, und `-a` als Kurzformen für Testoptionen
+   - Trennung von grundlegenden und Transkriptionstests
+   - Verbesserte Logik für die Auswahl der auszuführenden Tests
+
+2. Aktualisierung der Testdokumentation:
+   - Klarere Beschreibung der verfügbaren Testoptionen
+   - Ergänzung von Beispielen für verschiedene Testszenarien
+
+Diese Änderungen verbessern die Flexibilität und Benutzerfreundlichkeit des Testprozesses erheblich.
+
+
 # Refactoring-Notizen: Teststruktur und Parallelisierung (Version 0.16.0)
 
 ## Begründung für das Refactoring
