@@ -20,8 +20,8 @@ class OptionsPanel(ttk.Frame):
     def setup_ui(self):
         self.setup_language_frame()
         self.setup_model_frame()
-        self.setup_delay_options()
         self.setup_input_mode()
+        self.setup_delay_options()
 
     def setup_language_frame(self):
         language_frame = ttk.LabelFrame(self, text="Sprache")
@@ -40,24 +40,34 @@ class OptionsPanel(ttk.Frame):
         model_dropdown.bind("<<ComboboxSelected>>", self.on_model_change)
 
     def setup_delay_options(self):
-        delay_frame = ttk.LabelFrame(self, text="Verzögerungsmodus")
-        delay_frame.pack(fill=tk.X, pady=5)
+        self.delay_frame = ttk.LabelFrame(self, text="Verzögerungsmodus")
+        self.delay_frame.pack(fill=tk.X, pady=5)
+
         self.delay_mode_var = tk.StringVar(value=self.gui.settings_manager.get_setting("delay_mode"))
-        self.no_delay_radio = ttk.Radiobutton(delay_frame, text="Keine Verzögerung", variable=self.delay_mode_var, value="no_delay", command=self.on_delay_mode_change)
+
+        self.no_delay_radio = ttk.Radiobutton(self.delay_frame, text="Keine Verzögerung", variable=self.delay_mode_var, value="no_delay", command=self.on_delay_mode_change)
         self.no_delay_radio.pack(anchor=tk.W)
-        char_delay_frame = ttk.Frame(delay_frame)
+
+        char_delay_frame = ttk.Frame(self.delay_frame)
         char_delay_frame.pack(anchor=tk.W, fill=tk.X)
+
         self.char_delay_radio = ttk.Radiobutton(char_delay_frame, text="Zeichenweise", variable=self.delay_mode_var, value="char_delay", command=self.on_delay_mode_change)
         self.char_delay_radio.pack(side=tk.LEFT)
+
         self.char_delay_entry = ttk.Entry(char_delay_frame, width=5)
         self.char_delay_entry.pack(side=tk.LEFT, padx=(5, 0))
         self.char_delay_entry.insert(0, str(self.gui.settings_manager.get_setting("char_delay") or DEFAULT_CHAR_DELAY))
         self.char_delay_entry.bind("<FocusOut>", self.on_char_delay_change)
+
         ttk.Label(char_delay_frame, text="ms").pack(side=tk.LEFT)
-        self.clipboard_radio = ttk.Radiobutton(delay_frame, text="Zwischenablage", variable=self.delay_mode_var, value="clipboard", command=self.on_delay_mode_change)
+
+        self.clipboard_radio = ttk.Radiobutton(self.delay_frame, text="Zwischenablage", variable=self.delay_mode_var, value="clipboard", command=self.on_delay_mode_change)
         self.clipboard_radio.pack(anchor=tk.W)
 
         self.delay_widgets = [self.no_delay_radio, self.char_delay_radio, self.char_delay_entry, self.clipboard_radio]
+
+        # Anfänglich unsichtbar machen
+        self.toggle_delay_options()
 
     def setup_input_mode(self):
         input_mode_frame = ttk.LabelFrame(self, text="Eingabemodus")
@@ -80,9 +90,10 @@ class OptionsPanel(ttk.Frame):
         self.toggle_delay_options()
 
     def toggle_delay_options(self, *args):
-        state = 'normal' if self.input_mode_var.get() == "systemcursor" else 'disabled'
-        for widget in self.delay_widgets:
-            widget.configure(state=state)
+        if self.input_mode_var.get() == "textfenster":
+            self.delay_frame.pack_forget()
+        else:
+            self.delay_frame.pack(fill=tk.X, pady=5)
 
     def on_delay_mode_change(self):
         self.gui.settings_manager.set_setting("delay_mode", self.delay_mode_var.get())
