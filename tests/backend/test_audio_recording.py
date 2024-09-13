@@ -80,23 +80,29 @@ class TestAudioRecording(unittest.TestCase):
             self.assertGreater(len(audio_data), 0)
             self.assertNotEqual(np.max(np.abs(audio_data)), 0)  # Sicherstellen, dass nicht-Null-Audiodaten vorhanden sind
 
-# Zusätzliche Erklärungen:
-
-# 1. PyAudio Verwendung:
-#    PyAudio wird verwendet, um auf die Audiogeräte des Systems zuzugreifen und Audiostreams zu öffnen.
-#    Dies ermöglicht die direkte Aufnahme von Audio für Testzwecke.
-
-# 2. WAV-Datei Erstellung:
-#    Der Test erstellt eine temporäre WAV-Datei, um die aufgenommenen Audiodaten zu speichern.
-#    Dies simuliert den tatsächlichen Aufnahmeprozess in der Anwendung.
-
-# 3. Datenintegrität:
-#    Der Test überprüft nicht nur, ob die Datei erstellt wurde, sondern auch ob sie gültige Audiodaten enthält.
-#    Dies stellt sicher, dass der gesamte Aufnahme- und Speicherprozess korrekt funktioniert.
-
-# 4. Aufräumen:
-#    Die tearDown-Methode stellt sicher, dass alle verwendeten Ressourcen freigegeben und temporäre Dateien gelöscht werden.
-#    Dies ist wichtig für die Isolation zwischen den Tests und verhindert unerwünschte Seiteneffekte.
+        print("\nAudioaufnahme wurde erfolgreich durchgeführt, gespeichert und überprüft.")
 
 if __name__ == '__main__':
     unittest.main()
+
+# Zusätzliche Erklärungen:
+
+# 1. PyAudio Setup:
+#    Wir verwenden PyAudio, um auf die Audiogeräte des Systems zuzugreifen und Audiostreams zu öffnen.
+#    Dies ermöglicht realistische Tests der Audioaufnahmefunktionalität.
+
+# 2. Temporäre Datei:
+#    Der Test erstellt eine temporäre WAV-Datei, um die aufgenommenen Audiodaten zu speichern.
+#    Dies simuliert den tatsächlichen Aufnahmeprozess in der Anwendung.
+
+# 3. Dateiintegrität:
+#    Nach der Aufnahme überprüfen wir nicht nur die Existenz der Datei, sondern auch
+#    ihre Eigenschaften (Kanäle, Abtastrate) und den Inhalt (nicht-leere Audiodaten).
+
+# 4. Ressourcenmanagement:
+#    Die tearDown-Methode stellt sicher, dass alle verwendeten Ressourcen freigegeben
+#    und temporäre Dateien gelöscht werden, um Seiteneffekte zwischen Tests zu vermeiden.
+
+# 5. Konfigurationsabhängigkeit:
+#    Der Test verwendet Konfigurationsvariablen aus src.config, um sicherzustellen,
+#    dass die Testbedingungen mit den tatsächlichen Anwendungseinstellungen übereinstimmen.

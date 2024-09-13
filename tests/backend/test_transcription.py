@@ -63,7 +63,7 @@ class TestTranscription(unittest.TestCase):
 
         # Initialisiere den Transcriber und lade das Modell
         transcriber = Transcriber(DEFAULT_WHISPER_MODEL)
-        transcriber.load_model()  # Kein zusätzliches Argument nötig
+        transcriber.load_model()
 
         # Führe die Transkription durch
         transcribed_text = transcriber.transcribe(audio_array, "de")
@@ -75,9 +75,20 @@ class TestTranscription(unittest.TestCase):
         self.assertIn(expected_phrase, transcribed_text,
                       f"Die erwartete Phrase '{expected_phrase}' wurde nicht in der Transkription gefunden. "
                       f"Transkribierter Text: '{transcribed_text}'")
+        print(f"\nErwartete Phrase: '{expected_phrase}'")
+        print(f"Transkribierter Text: '{transcribed_text}'")
 
 class TestModelLoading(unittest.TestCase):
+    """
+    Testklasse für das Laden des Transkriptionsmodells.
+    Überprüft die korrekte Verarbeitung von Audiodaten vor und nach dem Modell-Laden.
+    """
+
     def test_audio_processing_before_model_loading(self):
+        """
+        Testet die Audioverarbeitung vor dem Laden des Modells.
+        Überprüft, ob Audiodaten korrekt zwischengespeichert und nach dem Modell-Laden verarbeitet werden.
+        """
         backend = WordweberBackend()
 
         # Simuliere eine Audioaufnahme vor dem Laden des Modells
@@ -88,6 +99,7 @@ class TestModelLoading(unittest.TestCase):
         backend.stop_recording()
 
         self.assertEqual(len(backend.pending_audio), 1, "Audio wurde nicht in pending_audio gespeichert")
+        print("\nAudio wurde erfolgreich in pending_audio gespeichert.")
 
         # Lade das Modell
         backend.load_transcriber_model(DEFAULT_WHISPER_MODEL)
@@ -99,9 +111,31 @@ class TestModelLoading(unittest.TestCase):
             time.sleep(1)
 
         self.assertTrue(backend.model_loaded.is_set(), "Modell wurde nicht innerhalb des Timeouts geladen")
+        print("Modell wurde erfolgreich geladen.")
 
-        # Überprüfe, ob pending_audio verarbeitet wurde
         self.assertEqual(len(backend.pending_audio), 0, "Pending audio wurde nicht verarbeitet")
+        print("Pending audio wurde erfolgreich verarbeitet.")
 
 if __name__ == '__main__':
     unittest.main()
+
+# Zusätzliche Erklärungen:
+
+# 1. Sprachsample-Test:
+#    Der test_transcription_accuracy verwendet ein voraufgezeichnetes Sprachsample,
+#    um die Genauigkeit der Transkription unter kontrollierten Bedingungen zu testen.
+
+# 2. Resampling:
+#    Vor der Transkription wird das Audio auf die von Whisper erwartete Abtastrate (16000 Hz) konvertiert.
+#    Dies stellt sicher, dass die Eingabe für das Modell korrekt formatiert ist.
+
+# 3. Modell-Ladetest:
+#    test_audio_processing_before_model_loading simuliert den realen Anwendungsfall,
+#    bei dem Audiodaten möglicherweise vor dem vollständigen Laden des Modells aufgenommen werden.
+
+# 4. Asynchrones Modell-Laden:
+#    Der Test wartet mit einem Timeout auf das Laden des Modells, um asynchrones Verhalten zu berücksichtigen.
+
+# 5. Debugging-Ausgaben:
+#    Umfangreiche Print-Statements helfen bei der Diagnose potenzieller Probleme
+#    und geben Einblick in den Zustand der Audiodaten und des Transkriptionsprozesses.
