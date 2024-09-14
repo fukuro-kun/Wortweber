@@ -19,7 +19,7 @@ Es koordiniert die Audioaufnahme, Transkription und Datenverwaltung.
 
 from typing import List, Optional, Tuple, Callable
 import numpy as np
-from src.config import AUDIO_RATE, AUDIO_FORMAT, AUDIO_CHANNELS, AUDIO_CHUNK, DEVICE_INDEX, TARGET_RATE, DEFAULT_WHISPER_MODEL
+from src.config import AUDIO_RATE, AUDIO_FORMAT, AUDIO_CHANNELS, AUDIO_CHUNK, DEVICE_INDEX, TARGET_RATE, DEFAULT_WHISPER_MODEL, DEFAULT_INCOGNITO_MODE
 from src.backend.audio_processor import AudioProcessor
 from src.backend.wortweber_transcriber import Transcriber
 import threading
@@ -42,6 +42,7 @@ class WordweberBackend:
         self.model_loaded = threading.Event()
         self.on_transcription_complete: Optional[Callable[[str], None]] = None
         self.pending_audio: List[np.ndarray] = []
+        self.settings_manager = None  # Wird später von der GUI gesetzt
         logger.info("WordweberBackend initialisiert")
 
     @handle_exceptions
@@ -93,7 +94,12 @@ class WordweberBackend:
         if self.on_transcription_complete:
             self.on_transcription_complete(transcribed_text)
 
-        logger.info(f"Transkription abgeschlossen. Länge des Textes: {len(transcribed_text)}")
+        incognito_mode = self.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE) if self.settings_manager else DEFAULT_INCOGNITO_MODE
+        if not incognito_mode:
+            logger.info(f"Transkription abgeschlossen. Länge des Textes: {len(transcribed_text)}")
+        else:
+            logger.info("Transkription abgeschlossen (Incognito-Modus aktiv)")
+
         return transcribed_text
 
     @handle_exceptions

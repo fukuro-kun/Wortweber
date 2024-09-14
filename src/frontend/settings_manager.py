@@ -17,7 +17,8 @@
 import json
 import os
 from src.config import (DEFAULT_LANGUAGE, DEFAULT_WHISPER_MODEL, DEFAULT_THEME,
-                        DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY, DEFAULT_FONT_SIZE)
+                        DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY, DEFAULT_FONT_SIZE,
+                        DEFAULT_INCOGNITO_MODE)
 from src.utils.error_handling import handle_exceptions, logger
 
 class SettingsManager:
@@ -80,7 +81,8 @@ class SettingsManager:
         """
         self.settings[key] = value
         self.save_settings()
-        logger.info(f"Einstellung geändert: {key} = {value}")
+        if key != "text_content":  # Vermeiden des Loggens von Transkriptionen
+            logger.info(f"Einstellung geändert: {key} = {value}")
 
     @handle_exceptions
     def get_default_settings(self):
@@ -101,38 +103,33 @@ class SettingsManager:
             "text_content": "",
             "font_size": DEFAULT_FONT_SIZE,
             "save_test_recording": False,
+            "incognito_mode": DEFAULT_INCOGNITO_MODE,
         }
         logger.debug("Standardeinstellungen abgerufen")
         return default_settings
 
-
-
 # Zusätzliche Erklärungen:
 
-# 1. JSON für Einstellungsspeicherung:
-#    JSON wird als Format für die Einstellungsdatei verwendet, da es leicht lesbar und schreibbar ist,
-#    sowohl für Menschen als auch für Maschinen.
+# 1. Neue Einstellung "incognito_mode":
+#    Diese Einstellung wurde zum Dictionary der Standardeinstellungen hinzugefügt.
+#    Sie steuert, ob Transkriptionsergebnisse protokolliert werden sollen.
 
-# 2. Fehlerbehandlung beim Laden:
-#    Die load_settings-Methode fängt JSONDecodeError ab, um robust mit beschädigten Einstellungsdateien umzugehen.
-#    In diesem Fall werden die Standardeinstellungen verwendet.
+# 2. Verwendung von DEFAULT_INCOGNITO_MODE:
+#    Der Standardwert für den Incognito-Modus wird aus der Konfigurationsdatei importiert.
+#    Dies gewährleistet Konsistenz und erleichtert zukünftige Änderungen.
 
-# 3. Standardwerte:
-#    Die get_default_settings-Methode zentralisiert die Definition von Standardwerten.
-#    Dies erleichtert die Wartung und stellt sicher, dass alle Teile der Anwendung konsistente Standardwerte verwenden.
+# 3. Fehlerbehandlung:
+#    Die Methoden sind mit dem @handle_exceptions Decorator versehen, was eine
+#    einheitliche Fehlerbehandlung und -protokollierung in der gesamten Anwendung sicherstellt.
 
-# 4. Einstellungspersistenz:
-#    Jeder Aufruf von set_setting speichert sofort die Änderungen. Dies stellt sicher,
-#    dass keine Einstellungen verloren gehen, selbst wenn die Anwendung unerwartet beendet wird.
+# 4. Logging:
+#    Ausführliche Logging-Aufrufe wurden implementiert, um die Nachvollziehbarkeit
+#    von Einstellungsänderungen und potenziellen Problemen zu verbessern.
 
 # 5. Flexibilität:
-#    Die Verwendung eines Dictionaries für Einstellungen ermöglicht eine einfache Erweiterung um neue Einstellungen,
-#    ohne die Struktur der Klasse ändern zu müssen.
+#    Die Struktur des SettingsManager erlaubt es, leicht neue Einstellungen hinzuzufügen,
+#    ohne bestehenden Code zu ändern. Dies erleichtert zukünftige Erweiterungen.
 
-# 6. Typsicherheit:
-#    Einige Werte (wie char_delay) werden als Strings gespeichert, um Konsistenz mit GUI-Elementen zu gewährleisten.
-#    Bei der Verwendung dieser Werte sollte eine entsprechende Typumwandlung erfolgen.
-
-# 7. Neue Einstellung für Testaufnahmen:
-#    Die Einstellung "save_test_recording" wurde hinzugefügt, um die Option zum Speichern von Testaufnahmen zu steuern.
-#    Standardmäßig ist diese Option deaktiviert.
+# 6. Persistenz:
+#    Durch das Speichern der Einstellungen in einer JSON-Datei bleiben Benutzereinstellungen
+#    über Anwendungsneustarts hinweg erhalten.

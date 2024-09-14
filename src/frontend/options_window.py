@@ -26,7 +26,7 @@ import tkinter.font as tkFont
 from tkcolorpicker import askcolor
 
 # Projektspezifische Module
-from src.config import DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE
+from src.config import DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE, DEFAULT_INCOGNITO_MODE
 from src.utils.error_handling import handle_exceptions, logger
 
 class OptionsWindow(tk.Toplevel):
@@ -206,6 +206,12 @@ class OptionsWindow(tk.Toplevel):
         ttk.Checkbutton(parent, text="Letzte Aufnahme als Testdatei speichern",
                         variable=self.save_test_recording_var,
                         command=self.on_save_test_recording_change).pack(pady=10)
+
+        self.incognito_var = tk.BooleanVar(value=self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE))
+        ttk.Checkbutton(parent, text="Incognito-Modus (keine Transkriptionsprotokollierung)",
+                        variable=self.incognito_var,
+                        command=self.on_incognito_change).pack(pady=10)
+
         logger.debug("Testaufnahmeoptionen eingerichtet")
 
     @handle_exceptions
@@ -220,6 +226,17 @@ class OptionsWindow(tk.Toplevel):
         logger.info(f"Testaufnahme-Einstellung geändert: {new_value}")
 
     @handle_exceptions
+    def on_incognito_change(self):
+        """
+        Behandelt Änderungen der Incognito-Modus-Einstellung.
+        Speichert die neue Einstellung und aktualisiert die Konfiguration.
+        """
+        new_value = self.incognito_var.get()
+        self.gui.settings_manager.set_setting("incognito_mode", new_value)
+        self.gui.settings_manager.save_settings()
+        logger.info(f"Incognito-Modus geändert: {new_value}")
+
+    @handle_exceptions
     def get_current_settings(self):
         """
         Erfasst die aktuellen Einstellungen.
@@ -231,6 +248,7 @@ class OptionsWindow(tk.Toplevel):
             "font_size": self.transcription_panel.get_font_size(),
             "font_family": self.transcription_panel.get_font_family(),
             "save_test_recording": self.gui.settings_manager.get_setting("save_test_recording", False),
+            "incognito_mode": self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE),
             "text_fg": self.theme_manager.text_fg.get(),
             "text_bg": self.theme_manager.text_bg.get(),
             "select_fg": self.theme_manager.select_fg.get(),
@@ -320,6 +338,7 @@ class OptionsWindow(tk.Toplevel):
         self.theme_manager.change_theme(self.initial_settings["theme"])
         self.transcription_panel.set_font(self.initial_settings["font_family"], self.initial_settings["font_size"])
         self.save_test_recording_var.set(self.initial_settings["save_test_recording"])
+        self.incognito_var.set(self.initial_settings["incognito_mode"])
 
         # Aktualisiere die UI-Elemente
         self.size_var.set(str(self.initial_settings["font_size"]))
@@ -379,18 +398,31 @@ class OptionsWindow(tk.Toplevel):
 
 # Zusätzliche Erklärungen:
 
-# 1. Speichern der Fenstergröße und -position:
-#    - Die Methode load_window_geometry() lädt die gespeicherte Geometrie beim Öffnen des Fensters.
-#    - Die Methode on_closing() speichert die aktuelle Geometrie beim Schließen des Fensters.
+# 1. Incognito-Modus:
+#    Die neue Checkbox für den Incognito-Modus wurde in setup_test_recording_options hinzugefügt.
+#    Sie ermöglicht es dem Benutzer, die Protokollierung von Transkriptionsergebnissen zu steuern.
 
-# 2. Erweiterung der Rückgängig-Funktionalität:
-#    - get_current_settings() erfasst nun auch die Farbeinstellungen.
-#    - undo_changes() setzt jetzt auch die Farbeinstellungen zurück und aktualisiert die GUI entsprechend.
+# 2. Einstellungspersistenz:
+#    Alle Einstellungen, einschließlich des Incognito-Modus, werden beim Schließen des Fensters gespeichert.
+#    Dies gewährleistet, dass die Benutzereinstellungen über Neustarts der Anwendung hinweg erhalten bleiben.
 
-# 3. Aktualisierung der Farben:
-#    - Nach dem Zurücksetzen der Farben wird theme_manager.update_colors() aufgerufen,
-#      um die Änderungen in der gesamten GUI zu reflektieren.
+# 3. Rückgängig-Funktionalität:
+#    Die undo_changes Methode wurde aktualisiert, um auch den Incognito-Modus zurückzusetzen.
+#    Dies ermöglicht es dem Benutzer, alle Änderungen auf einmal rückgängig zu machen.
 
-# Diese Implementierung stellt sicher, dass die Fenstergröße und -position gespeichert werden
-# und dass der Rückgängig-Button für alle Bereiche des Optionsmenüs funktioniert, einschließlich
-# der Farbeinstellungen.
+# 4. Fehlerbehandlung und Logging:
+#    Jede Methode ist mit dem @handle_exceptions Decorator versehen, was eine einheitliche
+#    Fehlerbehandlung in der gesamten Klasse gewährleistet. Ausführliche Logging-Aufrufe
+#    wurden implementiert, um die Nachvollziehbarkeit von Aktionen und potenziellen Problemen zu verbessern.
+
+# 5. Fenstergeometrie:
+#    Die Methoden load_window_geometry und on_closing stellen sicher, dass die Größe und Position
+#    des Optionsfensters zwischen den Sitzungen beibehalten werden, was die Benutzererfahrung verbessert.
+
+# 6. Modulare Struktur:
+#    Die Klasse ist in klar definierte Methoden unterteilt, was die Wartbarkeit und Lesbarkeit des Codes verbessert.
+#    Jede Methode hat eine spezifische Verantwortlichkeit, was dem Prinzip der Einzelverantwortung entspricht.
+
+# Diese Implementierung bietet eine umfassende und benutzerfreundliche Oberfläche für die Verwaltung
+# verschiedener Anwendungseinstellungen, einschließlich des neuen Incognito-Modus, und gewährleistet
+# gleichzeitig die Persistenz und Wiederherstellbarkeit aller Einstellungen.

@@ -27,6 +27,7 @@ import pyaudio
 DEFAULT_LANGUAGE = "de"  # Standardsprache für die Transkription
 DEFAULT_WHISPER_MODEL = "small"  # Standardmodell für Whisper
 DEFAULT_THEME = "arc"  # Standardtheme für die GUI
+DEFAULT_INCOGNITO_MODE = True  # Standardeinstellung für den Incognito-Modus
 
 # GUI-Einstellungen
 DEFAULT_WINDOW_SIZE = "800x600"  # Standardgröße des Anwendungsfensters
@@ -69,3 +70,27 @@ WICHTIG: Resampling ist notwendig, da die Audiogeräte 16000 Hz nicht unterstüt
 # Diese Konfigurationsdatei zentralisiert alle wichtigen Einstellungen für die Wortweber-Anwendung.
 # Sie erleichtert die Anpassung und Wartung der Anwendung, indem sie einen einzigen Ort für
 # häufig zu ändernde Parameter bereitstellt.
+
+# Zusätzliche Erklärungen:
+
+# 1. DEFAULT_INCOGNITO_MODE:
+#    Diese neue Einstellung steuert, ob Transkriptionsergebnisse standardmäßig protokolliert werden.
+#    Der Wert True bedeutet, dass der Incognito-Modus standardmäßig aktiviert ist,
+#    was die Privatsphäre der Benutzer schützt, indem keine Transkriptionen geloggt werden.
+
+# 2. Zentrale Konfiguration:
+#    Durch die Zentralisierung aller Standardeinstellungen in dieser Datei wird die
+#    Wartung und Anpassung der Anwendung erheblich erleichtert. Entwickler können
+#    schnell globale Änderungen vornehmen, ohne mehrere Dateien durchsuchen zu müssen.
+
+# 3. Dokumentation:
+#    Jeder Konfigurationsparameter ist mit einem Kommentar versehen, der seine Funktion erklärt.
+#    Dies ist besonders wichtig für neue Entwickler oder bei der Fehlersuche.
+
+# 4. Gruppierung:
+#    Die Einstellungen sind in logische Gruppen unterteilt (z.B. GUI, Audio, Eingabe),
+#    was die Übersichtlichkeit und Wartbarkeit verbessert.
+
+# 5. Erweiterbarkeit:
+#    Die Struktur ermöglicht es, einfach neue Konfigurationsparameter hinzuzufügen,
+#    ohne die Gesamtstruktur der Datei zu beeinträchtigen.

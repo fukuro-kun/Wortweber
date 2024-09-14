@@ -18,7 +18,7 @@ import pyperclip
 import time
 import threading
 import logging
-from src.config import PUSH_TO_TALK_KEY
+from src.config import PUSH_TO_TALK_KEY, DEFAULT_INCOGNITO_MODE
 from src.utils.error_handling import handle_exceptions, logger
 
 class InputProcessor:
@@ -118,7 +118,11 @@ class InputProcessor:
         input_mode = self.gui.options_panel.input_mode_var.get()
         delay_mode = self.gui.options_panel.delay_mode_var.get()
 
-        logger.debug(f"Verarbeite Text: Eingabemodus = {input_mode}, Verzögerungsmodus = {delay_mode}")
+        incognito_mode = self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
+        if not incognito_mode:
+            logger.debug(f"Verarbeite Text: Eingabemodus = {input_mode}, Verzögerungsmodus = {delay_mode}, Textlänge = {len(text)}")
+        else:
+            logger.debug(f"Verarbeite Text (Incognito-Modus aktiv): Eingabemodus = {input_mode}, Verzögerungsmodus = {delay_mode}")
 
         if input_mode == "textfenster":
             self.gui.transcription_panel.insert_text(text)
@@ -135,7 +139,8 @@ class InputProcessor:
                     time.sleep(delay)
             elif delay_mode == "clipboard":
                 original_clipboard = pyperclip.paste()
-                logger.debug(f"Originaler Zwischenablage-Inhalt: {original_clipboard[:50]}...")
+                if not incognito_mode:
+                    logger.debug(f"Originaler Zwischenablage-Inhalt: {original_clipboard[:50]}...")
 
                 pyperclip.copy(text)
                 with self.keyboard_controller.pressed(Key.ctrl):
@@ -143,17 +148,20 @@ class InputProcessor:
                     self.keyboard_controller.release('v')
 
                 pyperclip.copy(original_clipboard)
-                logger.debug(f"Zwischenablage-Inhalt nach Wiederherstellung: {pyperclip.paste()[:50]}...")
+                if not incognito_mode:
+                    logger.debug(f"Zwischenablage-Inhalt nach Wiederherstellung: {pyperclip.paste()[:50]}...")
 
         if self.gui.status_panel.auto_copy_var.get():
             original_clipboard = pyperclip.paste()
             pyperclip.copy(text)
-            logger.debug(f"Text in Zwischenablage kopiert: {text[:50]}...")
+            if not incognito_mode:
+                logger.debug(f"Text in Zwischenablage kopiert: {text[:50]}...")
             self.gui.status_panel.update_status("Text transkribiert und in Zwischenablage kopiert", "green")
         else:
             self.gui.status_panel.update_status("Text transkribiert", "green")
 
-        logger.debug(f"Finaler Zwischenablage-Inhalt: {pyperclip.paste()[:50]}...")
+        if not incognito_mode:
+            logger.debug(f"Finaler Zwischenablage-Inhalt: {pyperclip.paste()[:50]}...")
 
 # Zusätzliche Erklärungen:
 

@@ -19,6 +19,7 @@ import traceback
 from whisper.audio import SAMPLE_RATE, N_FRAMES, HOP_LENGTH
 from typing import Union
 from src.utils.error_handling import handle_exceptions, logger
+from src.config import DEFAULT_INCOGNITO_MODE
 
 class Transcriber:
     @handle_exceptions
@@ -31,6 +32,7 @@ class Transcriber:
         self.model = None
         self.model_name = model_name
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.settings_manager = None  # Wird später von der GUI gesetzt
         logger.info(f"Transcriber initialisiert mit Modell {model_name} auf Gerät {self.device}")
 
     @handle_exceptions
@@ -76,8 +78,18 @@ class Transcriber:
 
         try:
             result = whisper.decode(self.model, mel, options)
-            logger.info(f"Transkription erfolgreich durchgeführt für Sprache: {language}")
-            return result.text  # Hier wurde die Änderung vorgenommen
+            transcribed_text = result.text
+
+            incognito_mode = self.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE) if self.settings_manager else DEFAULT_INCOGNITO_MODE
+
+            if not incognito_mode:
+                logger.info(f"Transkription: {transcribed_text}")
+            else:
+                logger.info("Transkription abgeschlossen (Incognito-Modus aktiv)")
+
+            logger.info(f"Transkriptionslänge: {len(transcribed_text)} Zeichen")
+
+            return transcribed_text
         except Exception as e:
             logger.error(f"Fehler bei der Transkription: {e}")
             logger.error(f"Detaillierter Traceback: {traceback.format_exc()}")
@@ -97,24 +109,26 @@ class Transcriber:
 
 # Zusätzliche Erklärungen:
 
-# 1. Gerätekompatibilität:
-#    Die explizite Zuweisung des Mel-Spektrogramms zum Modellgerät (mel.to(self.device))
-#    stellt sicher, dass alle Tensoren auf demselben Gerät sind, was kritisch für die
-#    reibungslose Ausführung des Modells ist.
+# 1. Incognito-Modus Integration:
+#    In der transcribe Methode wurde eine Abfrage des Incognito-Modus hinzugefügt.
+#    Wenn der Incognito-Modus aktiv ist, wird der transkribierte Text nicht geloggt.
 
-# 2. Audiovorverarbeitung:
-#    Die Verwendung von whisper.pad_or_trim() und whisper.log_mel_spectrogram()
-#    gewährleistet, dass das Audio in einem Format vorliegt, das vom Whisper-Modell
-#    erwartet wird, und verhindert Formfehler.
+# 2. Flexibilität bei fehlender SettingsManager-Instanz:
+#    Die Implementierung berücksichtigt den Fall, dass der SettingsManager noch nicht
+#    gesetzt wurde, indem sie auf den Standardwert aus der Konfiguration zurückgreift.
 
-# 3. Fehlerbehandlung:
-#    Umfassende Try-Except-Blöcke mit detaillierten Fehlerausgaben erleichtern das
-#    Debugging und die Identifikation von Problemen während der Transkription.
+# 3. Konsistente Fehlerbehandlung:
+#    Alle Methoden verwenden den @handle_exceptions Decorator, was eine einheitliche
+#    Fehlerbehandlung und -protokollierung in der gesamten Klasse gewährleistet.
 
-# 4. Logging:
-#    Ausführliche Logging-Statements ersetzen Print-Statements und bieten bessere
-#    Möglichkeiten zur Fehlerdiagnose und Überwachung.
+# 4. Detailliertes Logging:
+#    Die Klasse verwendet ausführliches Logging, um den Transkriptionsprozess
+#    nachvollziehbar zu machen und potenzielle Probleme schnell identifizieren zu können.
 
-# 5. Ressourcenfreigabe:
-#    Die release_resources Methode ermöglicht eine explizite Freigabe der Modellressourcen,
-#    was besonders wichtig ist, wenn GPU-Speicher verwendet wird.
+# 5. Ressourcenmanagement:
+#    Die release_resources Methode stellt sicher, dass GPU-Ressourcen ordnungsgemäß
+#    freigegeben werden, was besonders wichtig ist, wenn die Anwendung auf Systemen
+#    mit begrenztem GPU-Speicher läuft.
+
+# Diese Implementierung ermöglicht es, den Incognito-Modus nahtlos in den
+# Transkriptionsprozess zu integrieren, ohne die Grundfunktionalität zu beeinträchtigen.

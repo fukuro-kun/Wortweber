@@ -6,6 +6,7 @@
 ## Priorität Hoch
 - [ ] Erweiterung der Typ-Annotationen auf alle Teile des Codes und Entwicklung eines Konzepts für konsistente Namenskonventionen
 - [ ] Wiederherstellung und Verbesserung der Textumwandlungen für Ziffern und Zahlwörter
+- [ ] Implementierung von Unit-Tests für die neue Incognito-Modus-Funktionalität
 
 ## Priorität Mittel
 - [ ] Implementierung zusätzlicher Module für die Ausgabe (z.B. Ollama-Unterstützung)
@@ -13,9 +14,9 @@
 - [ ] Einrichtung einer Staging-Umgebung und Entwicklung eines Rollback-Plans für Releases
 - [ ] Überprüfung und Optimierung der Importstruktur in allen Dateien
 - [ ] Implementierung eines Internationalisierungssystems für zukünftige Mehrsprachigkeit
+- [ ] Erstellung einer detaillierten Dokumentation für Benutzer über die Funktionsweise und Grenzen des Incognito-Modus
 
 ## Priorität Niedrig
-- [ ] Optimierung der Logging-Konfiguration für verschiedene Umgebungen und Verbesserung der Fehlerbehandlung
 - [ ] Implementierung eines Plugin-Systems und Untersuchung von Performance-Problemen
 - [ ] Verbesserung der Benutzerführung durch Tooltips und erweiterte Einstellungsmöglichkeiten
 - [ ] Optimierung der Testausführung, einschließlich Parallelisierung und ALSA-Warnungsunterdrückung
@@ -37,3 +38,8 @@
 - [ ] Anpassungen für Mehrbildschirm-Setups und Implementierung einer Mindestfenstergröße
 - [ ] Untersuchung der Unterstützung verschiedener Audiocodecs
 - [ ] Evaluierung alternativer Spracherkennungsmodelle für zukünftige Integration
+
+
+## Abgeschlossene Aufgaben
+- [x] Durchführung eines umfassenden Sicherheitsaudits zur Überprüfung der Effektivität des Incognito-Modus
+- [x] Optimierung der Logging-Konfiguration für verschiedene Umgebungen und Verbesserung der Fehlerbehandlung

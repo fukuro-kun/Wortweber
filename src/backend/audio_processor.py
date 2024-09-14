@@ -1,5 +1,3 @@
-# src/backend/audio_processor.py
-
 # Copyright 2024 fukuro-kun
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +13,7 @@
 # limitations under the License.
 
 from src.utils.error_handling import handle_exceptions, logger
-from src.config import AUDIO_FORMAT, AUDIO_CHANNELS, AUDIO_RATE, AUDIO_CHUNK, DEVICE_INDEX, TARGET_RATE
+from src.config import AUDIO_FORMAT, AUDIO_CHANNELS, AUDIO_RATE, AUDIO_CHUNK, DEVICE_INDEX, TARGET_RATE, DEFAULT_INCOGNITO_MODE
 import pyaudio
 import numpy as np
 from scipy import signal
@@ -45,6 +43,7 @@ class AudioProcessor:
         self.TARGET_RATE = TARGET_RATE
         self.last_recording = None
         self.p = pyaudio.PyAudio()
+        self.settings_manager = None  # Wird später von der GUI gesetzt
         logger.info("AudioProcessor initialisiert")
 
     def __del__(self):
@@ -160,7 +159,11 @@ class AudioProcessor:
             wf.setframerate(self.RATE)
             wf.writeframes(b''.join(self.last_recording))
 
-        logger.info(f"Letzte Aufnahme gespeichert als {filename}")
+        incognito_mode = self.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE) if self.settings_manager else DEFAULT_INCOGNITO_MODE
+        if not incognito_mode:
+            logger.info(f"Letzte Aufnahme gespeichert als {filename}")
+        else:
+            logger.info("Letzte Aufnahme gespeichert (Incognito-Modus aktiv)")
         return True
 
 # Zusätzliche Erklärungen:

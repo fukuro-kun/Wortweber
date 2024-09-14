@@ -1,3 +1,18 @@
+# Refactoring des Logging-Systems und Implementierung des Incognito-Modus (Version 0.19.0)
+
+## Begründung für das Refactoring
+1. Erhöhung des Datenschutzes durch Einführung eines Incognito-Modus
+2. Verbesserung der Debugging-Möglichkeiten bei deaktiviertem Incognito-Modus
+3. Konsistente Implementierung des selektiven Loggings in allen relevanten Modulen
+
+## Hauptänderungen
+1. Einführung einer globalen Incognito-Modus-Einstellung
+2. Anpassung aller Logging-Aufrufe zur Berücksichtigung des Incognito-Modus
+3. Erweiterung der Benutzeroberfläche um Incognito-Modus-Steuerung
+4. Überarbeitung der Datenspeicherung und -verarbeitung unter Berücksichtigung des Datenschutzes
+
+Diese Änderungen verbessern den Datenschutz erheblich und bieten gleichzeitig erweiterte Debugging-Möglichkeiten für Entwickler.
+
 # Refactoring des AudioProcessors und Transcribers (Version 0.17.3)
 
 ## Begründung für das Refactoring
