@@ -18,6 +18,7 @@ from src.frontend.transcription_panel import TranscriptionPanel
 from src.frontend.options_panel import OptionsPanel
 from src.frontend.status_panel import StatusPanel
 from src.frontend.options_window import OptionsWindow
+from src.utils.error_handling import handle_exceptions, logger
 
 class MainWindow:
     """
@@ -25,6 +26,7 @@ class MainWindow:
     Koordiniert die verschiedenen UI-Komponenten und deren Layout.
     """
 
+    @handle_exceptions
     def __init__(self, root, gui):
         """
         Initialisiert das Hauptfenster.
@@ -36,7 +38,9 @@ class MainWindow:
         self.gui = gui
 
         self.setup_ui()
+        logger.info("MainWindow initialisiert")
 
+    @handle_exceptions
     def setup_ui(self):
         """
         Richtet die Benutzeroberfläche ein, einschließlich aller Panels und Buttons.
@@ -70,8 +74,12 @@ class MainWindow:
         ttk.Button(button_frame, text="Beenden",
                    command=self.root.quit).pack(side=tk.LEFT, padx=5)
 
+        logger.info("UI-Setup abgeschlossen")
+
+    @handle_exceptions
     def open_options_window(self):
         """Öffnet das Fenster für erweiterte Optionen."""
+        logger.info("Öffne Optionsfenster")
         OptionsWindow(self.root, self.gui.theme_manager, self.transcription_panel, self.gui)
 
 # Zusätzliche Erklärungen:
@@ -83,12 +91,6 @@ class MainWindow:
 # 2. Tkinter Grid-Layout:
 #    Das Grid-Layout wird verwendet, um eine flexible und responsive Benutzeroberfläche zu erstellen.
 #    Die Verwendung von sticky="nsew" und weight-Parametern ermöglicht eine dynamische Größenanpassung der Elemente.
-#    - sticky definiert, wie sich ein Widget innerhalb seiner Zelle verhält, wenn die Zelle größer ist als das Widget.
-#    - "n, s, e, w" steht für North, South, East und West: Das Widget haftet am oberen, unteren, rechten oder linken Rand der Zelle.
-#    - Die Kombination "nsew" bedeutet, dass das Widget in alle Richtungen "klebt" und sich somit
-#      in alle Richtungen ausdehnt, um die gesamte Zelle auszufüllen.
-#    - weight=1 gibt an, dass diese Spalte oder Zeile sich ausdehnen soll, wenn das Fenster vergrößert wird.
-#    - In Kombination mit sticky="nsew" ermöglicht dies ein vollständig responsives Layout, verfügbarer Platz wird optimal ausgenutzt.
 
 # 3. Button-Funktionalität:
 #    Die Buttons am unteren Rand bieten schnellen Zugriff auf häufig verwendete Funktionen wie das Löschen der Transkription

@@ -17,14 +17,10 @@ import numpy as np
 import whisper
 from whisper.audio import SAMPLE_RATE, N_FRAMES, HOP_LENGTH
 from typing import Union
-import logging
+from src.utils.error_handling import handle_exceptions, logger
 
 class Transcriber:
-    """
-    Diese Klasse ist verantwortlich für die Transkription von Audiodaten
-    unter Verwendung des OpenAI Whisper-Modells.
-    """
-
+    @handle_exceptions
     def __init__(self, model_name: str):
         """
         Initialisiert den Transcriber.
@@ -34,21 +30,24 @@ class Transcriber:
         self.model = None
         self.model_name = model_name
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        logger.info(f"Transcriber initialisiert mit Modell {model_name} auf Gerät {self.device}")
 
+    @handle_exceptions
     def load_model(self) -> None:
         """
         Lädt das Whisper-Modell.
 
         :raises Exception: Wenn das Laden des Modells fehlschlägt
         """
-        logging.info(f"Lade Spracherkennungsmodell: {self.model_name}")
+        logger.info(f"Lade Spracherkennungsmodell: {self.model_name}")
         try:
             self.model = whisper.load_model(self.model_name).to(self.device)
-            logging.info(f"Spracherkennungsmodell {self.model_name} geladen auf {self.device}.")
+            logger.info(f"Spracherkennungsmodell {self.model_name} geladen auf {self.device}.")
         except Exception as e:
-            logging.error(f"Fehler beim Laden des Modells: {e}")
+            logger.error(f"Fehler beim Laden des Modells: {e}")
             raise
 
+    @handle_exceptions
     def transcribe(self, audio: Union[np.ndarray, torch.Tensor], language: str) -> str:
         """
         Transkribiert die gegebenen Audiodaten.
@@ -59,28 +58,31 @@ class Transcriber:
         :raises RuntimeError: Wenn das Modell nicht geladen ist
         """
         if self.model is None:
+            logger.error("Modell nicht geladen. Bitte warten Sie, bis das Modell vollständig geladen ist.")
             raise RuntimeError("Modell nicht geladen. Bitte warten Sie, bis das Modell vollständig geladen ist.")
 
         options = whisper.DecodingOptions(language=language, without_timestamps=True)
 
-        # Ensure audio is in the correct format
+        # Vergewissern, dass der Ton im richtigen Format vorliegt.
         audio = whisper.pad_or_trim(audio)
 
-        logging.debug(f"Audio shape after padding/trimming: {audio.shape}")
+        logger.debug(f"Audio shape after padding/trimming: {audio.shape}")
 
-        # Create the log-mel spectrogram and move to the same device as the model
+        # Erstellt das Log-Mel-Spektrogramm und verschiebt es auf das gleiche Gerät wie das Modell.
         mel = whisper.log_mel_spectrogram(audio).to(self.device)
 
-        logging.debug(f"Mel spectrogram shape: {mel.shape}")
+        logger.debug(f"Mel spectrogram shape: {mel.shape}")
 
         try:
             result = whisper.decode(self.model, mel, options)
+            logger.info(f"Transkription erfolgreich durchgeführt für Sprache: {language}")
             return result.text
         except Exception as e:
-            logging.error(f"Fehler bei der Transkription: {e}")
-            logging.error(f"Detaillierter Traceback: {traceback.format_exc()}")
+            logger.error(f"Fehler bei der Transkription: {e}")
+            logger.error(f"Detaillierter Traceback: {traceback.format_exc()}")
             return f"Fehler bei der Transkription: {str(e)}"
 
+    @handle_exceptions
     def release_resources(self) -> None:
         """
         Gibt die Ressourcen des Modells frei.
@@ -90,7 +92,7 @@ class Transcriber:
             self.model = None
             if self.device == "cuda":
                 torch.cuda.empty_cache()  # Explizit den GPU-Speicher leeren, falls CUDA verwendet wurde
-        logging.info("Modellressourcen freigegeben.")
+        logger.info("Modellressourcen freigegeben.")
 
 # Zusätzliche Erklärungen:
 
