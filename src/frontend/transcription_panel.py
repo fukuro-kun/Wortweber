@@ -46,7 +46,6 @@ class TranscriptionPanel(ttk.Frame):
         self.text_widget.tag_configure("highlight", background="yellow")
         self.text_widget.tag_configure("select", background="lightblue")
         self.set_font(self.font_family, self.font_size)
-        self.set_font_size(self.font_size)
         self.text_widget.config(
             insertbackground="red",
             insertwidth=2
@@ -145,27 +144,6 @@ class TranscriptionPanel(ttk.Frame):
             self.text_widget.tag_remove("select", "1.0", tk.END)
             self.text_widget.tag_add("select", "sel.first", "sel.last")
 
-    def set_font_size(self, size):
-        """
-        Ändert die Schriftgröße des Transkriptionsfelds.
-
-        :param size: Die neue Schriftgröße
-        """
-        self.font_size = size
-        current_font = tkFont.Font(font=self.text_widget['font'])
-        current_font.configure(size=size)
-        self.text_widget.configure(font=current_font)
-        self.gui.settings_manager.set_setting("font_size", size)
-        self.gui.settings_manager.save_settings()
-
-    def get_font_size(self):
-        """
-        Gibt die aktuelle Schriftgröße zurück.
-
-        :return: Die aktuelle Schriftgröße
-        """
-        return self.font_size
-
     def update_colors(self, text_fg, text_bg, select_fg, select_bg, highlight_fg, highlight_bg):
         """
         Aktualisiert die Farben des Textwidgets.
@@ -194,4 +172,4 @@ class TranscriptionPanel(ttk.Frame):
 # 4. Änderungen am Text werden automatisch gespeichert.
 # 5. Ein Kontextmenü ermöglicht zusätzliche Textbearbeitungsfunktionen.
 # 6. Die Klasse interagiert eng mit dem SettingsManager, um Benutzereinstellungen zu persistieren.
-# 7. Neue Methoden wie update_colors und on_selection_change wurden hinzugefügt, um die erweiterten Farbfunktionen zu unterstützen.
+# 7. Die update_colors Methode ermöglicht die dynamische Anpassung der Textfarben.

@@ -17,8 +17,6 @@ Dieses Modul enthält die Hauptlogik für das Backend der Wortweber-Anwendung.
 Es koordiniert die Audioaufnahme, Transkription und Datenverwaltung.
 """
 
-# src/backend/wortweber_backend.py
-
 from typing import List, Optional, Tuple, Callable
 import numpy as np
 from src.config import AUDIO_RATE, AUDIO_FORMAT, AUDIO_CHANNELS, AUDIO_CHUNK, DEVICE_INDEX, TARGET_RATE, DEFAULT_WHISPER_MODEL
@@ -44,12 +42,14 @@ class WordweberBackend:
         self.on_transcription_complete: Optional[Callable[[str], None]] = None
         self.pending_audio: List[np.ndarray] = []
 
-    def start_recording(self):
+    def start_recording(self) -> None:
+        """Startet die Audioaufnahme."""
         self.state.recording = True
         self.state.audio_data = []
         threading.Thread(target=self._record_audio, daemon=True).start()
 
-    def stop_recording(self):
+    def stop_recording(self) -> None:
+        """Stoppt die Audioaufnahme und verarbeitet die aufgenommenen Daten."""
         self.state.recording = False
         if self.model_loaded.is_set():
             self.process_and_transcribe(self.state.language)
@@ -59,10 +59,17 @@ class WordweberBackend:
             self.pending_audio.append(audio_resampled)
             logging.info("Aufnahme gespeichert. Warte auf Modell-Bereitschaft.")
 
-    def _record_audio(self):
+    def _record_audio(self) -> None:
+        """Interne Methode zur Audioaufnahme."""
         duration = self.audio_processor.record_audio(self.state)
 
     def process_and_transcribe(self, language: str) -> str:
+        """
+        Verarbeitet und transkribiert die aufgenommenen Audiodaten.
+
+        :param language: Die Sprache für die Transkription
+        :return: Der transkribierte Text
+        """
         if not self.model_loaded.is_set():
             raise RuntimeError("Modell nicht geladen. Bitte warten Sie, bis das Modell vollständig geladen ist.")
 
@@ -79,7 +86,12 @@ class WordweberBackend:
 
         return transcribed_text
 
-    def load_transcriber_model(self, model_name: str):
+    def load_transcriber_model(self, model_name: str) -> None:
+        """
+        Lädt das Transkriptionsmodell.
+
+        :param model_name: Der Name des zu ladenden Modells
+        """
         try:
             self.transcriber.load_model()
             self.model_loaded.set()
@@ -89,10 +101,16 @@ class WordweberBackend:
             logging.error(f"Fehler beim Laden des Modells: {e}")
             self.model_loaded.clear()
 
-    def list_audio_devices(self):
+    def list_audio_devices(self) -> None:
+        """Listet alle verfügbaren Audiogeräte auf."""
         self.audio_processor.list_audio_devices()
 
-    def check_audio_device(self):
+    def check_audio_device(self) -> bool:
+        """
+        Überprüft, ob das konfigurierte Audiogerät verfügbar ist.
+
+        :return: True, wenn das Gerät verfügbar ist, sonst False
+        """
         try:
             stream = self.audio_processor.p.open(format=AUDIO_FORMAT, channels=AUDIO_CHANNELS, rate=AUDIO_RATE, input=True,
                                                  frames_per_buffer=AUDIO_CHUNK, input_device_index=DEVICE_INDEX)
@@ -102,5 +120,33 @@ class WordweberBackend:
             logging.error(f"Fehler beim Überprüfen des Audiogeräts: {e}")
             return False
 
-    def set_language(self, language: str):
+    def set_language(self, language: str) -> None:
+        """
+        Setzt die Sprache für die Transkription.
+
+        :param language: Der Sprachcode (z.B. 'de' für Deutsch)
+        """
         self.state.language = language
+
+# Zusätzliche Erklärungen:
+
+# 1. WordweberState:
+#    Diese Klasse kapselt den Zustand der Anwendung, einschließlich Aufnahmestatus,
+#    Audiodaten und Zeitstempel. Dies verbessert die Übersichtlichkeit und erleichtert
+#    die Zustandsverwaltung.
+
+# 2. Asynchrone Verarbeitung:
+#    Die Verwendung von Threading ermöglicht es, Audioaufnahmen und Modellladung
+#    im Hintergrund durchzuführen, ohne die Hauptanwendung zu blockieren.
+
+# 3. Fehlerbehandlung:
+#    Umfassende Fehlerbehandlung und Logging sind implementiert, um robuste
+#    Ausführung und einfache Fehlerbehebung zu gewährleisten.
+
+# 4. Modellverwaltung:
+#    Das Backend verwaltet den Ladezustand des Transkriptionsmodells und
+#    ermöglicht die Verarbeitung von Audiodaten, sobald das Modell bereit ist.
+
+# 5. Flexibilität:
+#    Die Struktur erlaubt einfache Erweiterungen, wie z.B. das Hinzufügen
+#    neuer Transkriptionsmodelle oder Audioformate in der Zukunft.

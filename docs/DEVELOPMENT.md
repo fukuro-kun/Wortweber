@@ -83,6 +83,8 @@ Bei der jüngsten Überarbeitung wurden folgende Richtlinien für die Codekommen
 4. Am Ende jeder Datei gibt es einen Abschnitt "Zusätzliche Erklärungen" für besonders komplexe Konzepte.
 5. Copyright-Informationen wurden zu relevanten Dateien hinzugefügt.
 Diese Richtlinien sollten bei zukünftigen Codeänderungen und -erweiterungen beibehalten werden.
+6. Importe werden nach Standardbibliotheken, Drittanbieterbibliotheken und projektspezifischen Modulen gruppiert.
+7. Es werden absolute Importe anstelle von relativen Importen verwendet für bessere Lesbarkeit.
 
 ## Versionierung
 - Die aktuelle Version des Projekts wird in der VERSION-Datei im Hauptverzeichnis gespeichert.

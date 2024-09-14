@@ -15,10 +15,32 @@
 # src/wortweber.py
 import sys
 import os
+import warnings
+import ctypes
 
 # Füge den Projektordner zum Python-Pfad hinzu
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
+
+# Unterdrücke ALSA-Warnungen
+warnings.filterwarnings("ignore", category=RuntimeWarning, module="sounddevice")
+
+# Versuche, die ALSA-Fehlermeldungen zu unterdrücken
+ERROR_HANDLER_FUNC = ctypes.CFUNCTYPE(None, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p)
+
+def py_error_handler(filename, line, function, err, fmt):
+    pass
+
+c_error_handler = ERROR_HANDLER_FUNC(py_error_handler)
+
+try:
+    asound = ctypes.cdll.LoadLibrary('libasound.so.2')
+    asound.snd_lib_error_set_handler(c_error_handler)
+except:
+    pass
+
+# Setze Umgebungsvariable, um PulseAudio-Warnungen zu unterdrücken
+os.environ['PULSE_PROP_media.role'] = 'phone'
 
 from src.backend.wortweber_backend import WordweberBackend
 from src.frontend.wortweber_gui import WordweberGUI
@@ -66,6 +88,11 @@ if __name__ == "__main__":
 #    Die Reihenfolge der Operationen in main() - zuerst Backend initialisieren,
 #    dann Audiogeräte auflisten und schließlich die GUI starten - gewährleistet,
 #    dass alle notwendigen Komponenten bereit sind, bevor der Benutzer mit der Anwendung interagiert.
+
+# 7. ALSA-Warnung Unterdrückung:
+#    Der neu hinzugefügte Code am Anfang der Datei dient dazu, ALSA-bezogene Warnungen
+#    zu unterdrücken, die oft beim Start von Python-Programmen mit Audiogeräten auftreten.
+#    Dies verbessert die Benutzerfreundlichkeit, indem es unnötige Warnmeldungen in der Konsole reduziert.
 
 # Hinweis zur Projektstruktur:
 # Diese Datei dient als Einstiegspunkt für die gesamte Anwendung.

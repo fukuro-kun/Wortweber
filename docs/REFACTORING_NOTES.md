@@ -1,3 +1,21 @@
+# Refactoring des AudioProcessors und Transcribers (Version 0.17.3)
+
+## Begründung für das Refactoring
+1. Verbesserung der Ressourcenverwaltung im AudioProcessor
+2. Erhöhung der Typsicherheit im Transcriber
+3. Verbesserung der Fehlerdiagnose durch konsistente Verwendung von Logging
+
+## Hauptänderungen
+1. AudioProcessor:
+   - Einführung eines Kontextmanagers für die PyAudio-Instanz
+   - Beibehaltung einer persistenten PyAudio-Instanz für bestimmte Methoden
+
+2. Transcriber:
+   - Aktualisierung der Typannotationen für verbesserte Kompatibilität
+   - Ersetzung von Print-Statements durch Logging-Aufrufe
+
+Diese Änderungen verbessern die Robustheit und Wartbarkeit der Komponenten erheblich.
+
 # Refactoring der Farbverwaltung (Version 0.17.0)
 
 ## Begründung für das Refactoring

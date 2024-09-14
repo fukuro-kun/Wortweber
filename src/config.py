@@ -13,7 +13,15 @@
 # limitations under the License.
 
 # src/config.py
+
+# Standardbibliotheken
+# (Keine Standardbibliotheken werden in dieser Datei importiert)
+
+# Drittanbieterbibliotheken
 import pyaudio
+
+# Projektspezifische Module
+# (Keine projektspezifischen Module werden in dieser Datei importiert)
 
 # Allgemeine Einstellungen
 DEFAULT_LANGUAGE = "de"  # Standardsprache für die Transkription

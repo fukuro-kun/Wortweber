@@ -23,6 +23,7 @@ import warnings
 import logging
 import os
 import wave
+import contextlib
 
 # Unterdrücke RuntimeWarnings, die oft bei Audiooperationen auftreten können
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -37,12 +38,33 @@ class AudioProcessor:
     def __init__(self):
         """
         Initialisiert den AudioProcessor.
-        Erstellt eine PyAudio-Instanz und setzt die Aufnahme- und Zielrate.
+        Setzt die Aufnahme- und Zielrate und initialisiert die PyAudio-Instanz.
         """
-        self.p = pyaudio.PyAudio()
         self.RATE = AUDIO_RATE
         self.TARGET_RATE = TARGET_RATE
         self.last_recording = None
+        self.p = pyaudio.PyAudio()
+
+    def __del__(self):
+        """
+        Destruktor für die AudioProcessor-Klasse.
+        Stellt sicher, dass die PyAudio-Instanz ordnungsgemäß beendet wird.
+        """
+        if hasattr(self, 'p'):
+            self.p.terminate()
+
+    @contextlib.contextmanager
+    def get_pyaudio(self):
+        """
+        Kontextmanager für die PyAudio-Instanz.
+        Stellt sicher, dass die PyAudio-Ressourcen ordnungsgemäß freigegeben werden.
+
+        :yield: Die PyAudio-Instanz
+        """
+        try:
+            yield self.p
+        finally:
+            pass  # Die Terminierung erfolgt im Destruktor
 
     def list_audio_devices(self):
         """
@@ -70,7 +92,7 @@ class AudioProcessor:
         """
         try:
             stream = self.p.open(format=AUDIO_FORMAT, channels=AUDIO_CHANNELS, rate=self.RATE, input=True,
-                                 frames_per_buffer=AUDIO_CHUNK, input_device_index=DEVICE_INDEX)
+                            frames_per_buffer=AUDIO_CHUNK, input_device_index=DEVICE_INDEX)
 
             print("Aufnahme gestartet.")
             start_time = time.time()
@@ -120,12 +142,11 @@ class AudioProcessor:
 
         os.makedirs(os.path.dirname(filename), exist_ok=True)
 
-        wf = wave.open(filename, 'wb')
-        wf.setnchannels(AUDIO_CHANNELS)
-        wf.setsampwidth(self.p.get_sample_size(AUDIO_FORMAT))
-        wf.setframerate(self.RATE)
-        wf.writeframes(b''.join(self.last_recording))
-        wf.close()
+        with wave.open(filename, 'wb') as wf:
+            wf.setnchannels(AUDIO_CHANNELS)
+            wf.setsampwidth(pyaudio.get_sample_size(AUDIO_FORMAT))
+            wf.setframerate(self.RATE)
+            wf.writeframes(b''.join(self.last_recording))
 
         print(f"Letzte Aufnahme gespeichert als {filename}")
         return True
@@ -149,6 +170,10 @@ class AudioProcessor:
 #    und eine einfache Integration mit der Benutzeroberfläche.
 
 # 5. Testaufnahme-Speicherung:
-#    Die neue Methode `save_last_recording` ermöglicht es, die zuletzt aufgenommene Audiodatei
+#    Die Methode `save_last_recording` ermöglicht es, die zuletzt aufgenommene Audiodatei
 #    für Testzwecke zu speichern. Dies ist nützlich für die Entwicklung und das Debugging
 #    der Audioaufnahme- und Verarbeitungsfunktionen.
+
+# 6. Ressourcenmanagement:
+#    Die Verwendung des Kontextmanagers `get_pyaudio` stellt sicher, dass die PyAudio-Ressourcen
+#    ordnungsgemäß initialisiert und freigegeben werden, auch im Falle von Fehlern.

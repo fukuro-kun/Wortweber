@@ -16,23 +16,48 @@ import torch
 import numpy as np
 import whisper
 from whisper.audio import SAMPLE_RATE, N_FRAMES, HOP_LENGTH
+from typing import Union
+import logging
 
 class Transcriber:
+    """
+    Diese Klasse ist verantwortlich für die Transkription von Audiodaten
+    unter Verwendung des OpenAI Whisper-Modells.
+    """
+
     def __init__(self, model_name: str):
+        """
+        Initialisiert den Transcriber.
+
+        :param model_name: Name des zu ladenden Whisper-Modells
+        """
         self.model = None
         self.model_name = model_name
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    def load_model(self):
-        print(f"Lade Spracherkennungsmodell: {self.model_name}")
+    def load_model(self) -> None:
+        """
+        Lädt das Whisper-Modell.
+
+        :raises Exception: Wenn das Laden des Modells fehlschlägt
+        """
+        logging.info(f"Lade Spracherkennungsmodell: {self.model_name}")
         try:
             self.model = whisper.load_model(self.model_name).to(self.device)
-            print(f"Spracherkennungsmodell {self.model_name} geladen auf {self.device}.")
+            logging.info(f"Spracherkennungsmodell {self.model_name} geladen auf {self.device}.")
         except Exception as e:
-            print(f"Fehler beim Laden des Modells: {e}")
+            logging.error(f"Fehler beim Laden des Modells: {e}")
             raise
 
-    def transcribe(self, audio: np.ndarray, language: str) -> str:
+    def transcribe(self, audio: Union[np.ndarray, torch.Tensor], language: str) -> str:
+        """
+        Transkribiert die gegebenen Audiodaten.
+
+        :param audio: Audiodaten als NumPy-Array oder PyTorch-Tensor
+        :param language: Sprache der Audiodaten
+        :return: Transkribierter Text
+        :raises RuntimeError: Wenn das Modell nicht geladen ist
+        """
         if self.model is None:
             raise RuntimeError("Modell nicht geladen. Bitte warten Sie, bis das Modell vollständig geladen ist.")
 
@@ -41,28 +66,36 @@ class Transcriber:
         # Ensure audio is in the correct format
         audio = whisper.pad_or_trim(audio)
 
-        # Log the shape of the audio after padding/trimming
-        print(f"Audio shape after padding/trimming: {audio.shape}")
+        logging.debug(f"Audio shape after padding/trimming: {audio.shape}")
 
         # Create the log-mel spectrogram and move to the same device as the model
         mel = whisper.log_mel_spectrogram(audio).to(self.device)
 
-        # Log the shape of the mel spectrogram
-        print(f"Mel spectrogram shape: {mel.shape}")
+        logging.debug(f"Mel spectrogram shape: {mel.shape}")
 
         try:
             result = whisper.decode(self.model, mel, options)
             return result.text
         except Exception as e:
-            print(f"Fehler bei der Transkription: {e}")
-            import traceback
-            print(f"Detaillierter Traceback: {traceback.format_exc()}")
+            logging.error(f"Fehler bei der Transkription: {e}")
+            logging.error(f"Detaillierter Traceback: {traceback.format_exc()}")
             return f"Fehler bei der Transkription: {str(e)}"
+
+    def release_resources(self) -> None:
+        """
+        Gibt die Ressourcen des Modells frei.
+        """
+        if self.model:
+            del self.model
+            self.model = None
+            if self.device == "cuda":
+                torch.cuda.empty_cache()  # Explizit den GPU-Speicher leeren, falls CUDA verwendet wurde
+        logging.info("Modellressourcen freigegeben.")
 
 # Zusätzliche Erklärungen:
 
 # 1. Gerätekompatibilität:
-#    Die explizite Zuweisung des Mel-Spektrogramms zum Modellgerät (mel.to(self.model.device))
+#    Die explizite Zuweisung des Mel-Spektrogramms zum Modellgerät (mel.to(self.device))
 #    stellt sicher, dass alle Tensoren auf demselben Gerät sind, was kritisch für die
 #    reibungslose Ausführung des Modells ist.
 
@@ -76,5 +109,9 @@ class Transcriber:
 #    Debugging und die Identifikation von Problemen während der Transkription.
 
 # 4. Logging:
-#    Ausführliche Print-Statements geben Einblick in den Zustand des Audios und
-#    des Mel-Spektrogramms in verschiedenen Verarbeitungsstufen.
+#    Ausführliche Logging-Statements ersetzen Print-Statements und bieten bessere
+#    Möglichkeiten zur Fehlerdiagnose und Überwachung.
+
+# 5. Ressourcenfreigabe:
+#    Die release_resources Methode ermöglicht eine explizite Freigabe der Modellressourcen,
+#    was besonders wichtig ist, wenn GPU-Speicher verwendet wird.

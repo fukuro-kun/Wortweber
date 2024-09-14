@@ -2,17 +2,26 @@
 
 ## Dringendes
 - [ ] Überprüfung und Optimierung der Gerätekompatibilität für verschiedene Systemkonfigurationen
+- [ ] Implementierung einer einheitlichen Logging-Strategie im gesamten Projekt
 
 ## Priorität Hoch
 - [ ] Verbesserung der Shortcut-Funktionalität (Manuelle Einstellung, Erfassung, Zuverlässigkeit)
+- [ ] Erweiterung der Typ-Annotationen auf alle Teile des Codes
+- [ ] Überprüfung und Aktualisierung der Docstrings in allen Dateien
+- [ ] Entwicklung eines Konzepts für konsistente Namenskonventionen im gesamten Projekt
 
 ## Priorität Mittel
 - [ ] Implementierung zusätzlicher Module für die Ausgabe (z.B. Ollama-Unterstützung)
 - [ ] Erweiterung der Testabdeckung, insbesondere für kritische Funktionen
 - [ ] Einrichtung einer Staging-Umgebung für gründlichere Tests vor Veröffentlichungen
 - [ ] Entwicklung eines klaren Rollback-Plans für problematische Releases
+- [ ] Überprüfung und Optimierung der Importstruktur in allen Dateien
+- [ ] Überprüfung und Verbesserung der Testabdeckung, insbesondere für neuere UI-Funktionen und Farbverwaltung
+- [ ] Implementierung eines Internationalisierungssystems für zukünftige Mehrsprachigkeit
+- [ ] Implementieren von Unit-Tests für die neue Kontextmanager-Funktionalität in AudioProcessor
 
 ## Priorität Niedrig
+- [ ] Überprüfen der Logging-Konfiguration für angemessene Log-Levels in verschiedenen Umgebungen (Entwicklung, Produktion)
 - [ ] Behandlung des Exception-Fehlers beim Schließen der App während des initialen Modellladens
 - [ ] Internationalisierung der Anwendung mittels einfacher Module in Form von String-Dateien
 - [ ] Implementierung eines Plugin-Systems basierend auf der neuen modularen Struktur
@@ -30,12 +39,17 @@
 - [ ] Verbesserte Dokumentation zur neuen Struktur der Textoperationen im Backend
 - [ ] Detailliertere Dokumentation von Änderungen und deren erwarteten Auswirkungen
 - [ ] Regelmäßige Überprüfung und Aktualisierung der Kommentare im Code
+- [ ] Überprüfung und Optimierung des Ressourcenmanagements, insbesondere in audio_processor.py und wortweber_transcriber.py
 
 ## Neue Aufgaben
 - [ ] Implementierung einer Funktion zum Zurücksetzen aller Farbeinstellungen auf Standardwerte
 - [ ] Erwägung der Implementierung von Farbthemen oder Voreinstellungen für schnelle Anpassungen
+- [ ] Überprüfung und gegebenenfalls Verschiebung von hartcodierten Werten in die zentrale Konfigurationsdatei (config.py)
 
 ## Abgeschlossen
+- [x] Überprüfung und Optimierung der Gerätekompatibilität für verschiedene Systemkonfigurationen
+- [x] Implementierung einer einheitlichen Logging-Strategie im gesamten Projekt
+- [x] Erweiterung der Typ-Annotationen auf alle Teile des Codes
 - [x] Durchführen von Benutzertest zur Evaluierung der neuen Farbauswahlfunktion
 - [x] Implementierung der Farbvorschau-Funktionalität für Farbänderungen
 - [x] Optimierung der Farbauswahl-Performance bei großen Transkriptionen
@@ -43,11 +57,6 @@
 - [x] Implementierung einer Funktion zum Zurücksetzen der Einstellungen auf Standardwerte
 - [x] Implementierung robusterer Fehlerbehandlung in allen Modulen
 - [x] Implementierung von Vorschau-Funktionalität für Farbänderungen
-- [x] Beheben der DeprecationWarnings für `unittest.makeSuite()` durch Umstellung auf `unittest.TestLoader.loadTestsFromTestCase()`
-- [x] Erweiterung der Fehlerprotokolle für detailliertere Diagnosen bei Transkriptionsproblemen
-- [x] Implementierung zusätzlicher Tests für die neue Audiovorverarbeitungslogik
-- [x] Implementierung von Unit-Tests für jedes neue Modul zur Verbesserung der Codequalität und Wartbarkeit
-
 
 ## Zukünftige Überlegungen
 - [ ] Mögliche Einführung von asyncio für verbesserte Nebenläufigkeit, insbesondere bei der Audioaufnahme und -verarbeitung

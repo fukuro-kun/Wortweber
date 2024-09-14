@@ -22,6 +22,9 @@ import sys
 import numpy as np
 import os
 import wave
+from typing import cast
+import numpy.typing as npt
+
 
 class TestAudioProcessor(unittest.TestCase):
     """
@@ -77,8 +80,8 @@ class TestAudioProcessor(unittest.TestCase):
         self.assertEqual(len(resampled), expected_length)
 
         # Überprüfe, ob die Werte im erwarteten Bereich liegen
-        self.assertTrue(np.all(resampled >= -1.0))
-        self.assertTrue(np.all(resampled <= 1.0))
+        self.assertTrue(np.all(cast(npt.NDArray, resampled) >= -1.0))  # type: ignore
+        self.assertTrue(np.all(cast(npt.NDArray, resampled) <= 1.0))  # type: ignore
 
         # Überprüfe, ob die Frequenzcharakteristik erhalten bleibt (grob)
         original_fft = np.fft.fft(test_audio)

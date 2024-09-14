@@ -17,10 +17,16 @@ Dieses Modul verwaltet die Themes und Farbeinstellungen der Wortweber-Anwendung.
 Es bietet Funktionen zum Ändern von Themes und zur Auswahl benutzerdefinierter Farben.
 """
 
-import ttkthemes
+# Standardbibliotheken
 import tkinter as tk
 from tkinter import ttk
+
+# Drittanbieterbibliotheken
+import ttkthemes
 from tkcolorpicker import askcolor
+
+# Projektspezifische Module
+from src.config import DEFAULT_THEME
 
 class ThemeManager:
     """
@@ -39,7 +45,7 @@ class ThemeManager:
         self.settings_manager = settings_manager
         self.themes = sorted(ttkthemes.THEMES)
         self.current_theme_index = 0
-        self.current_theme = tk.StringVar(value=self.settings_manager.get_setting("theme", self.themes[0]))
+        self.current_theme = tk.StringVar(value=self.settings_manager.get_setting("theme", DEFAULT_THEME))
 
         # Farbvariablen initialisieren
         self.text_bg = tk.StringVar(value=self.settings_manager.get_setting("text_bg", "white"))
@@ -82,9 +88,10 @@ class ThemeManager:
         # Mache das Label klickbar, um das Dropdown-Menü zu fokussieren
         theme_label.bind("<Button-1>", lambda e: self.theme_dropdown.focus_set())
 
-        self.create_color_row(theme_frame, "Normaler Text", self.text_fg, self.text_bg, 1)
-        self.create_color_row(theme_frame, "Ausgewählter Text", self.select_fg, self.select_bg, 2)
-        self.create_color_row(theme_frame, "Neuer Text", self.highlight_fg, self.highlight_bg, 3)
+        color_settings = ['text_fg', 'text_bg', 'select_fg', 'select_bg', 'highlight_fg', 'highlight_bg']
+        color_labels = ["Normaler Text", "Ausgewählter Text", "Neuer Text"]
+        for i, label in enumerate(color_labels):
+            self.create_color_row(theme_frame, label, getattr(self, color_settings[i*2]), getattr(self, color_settings[i*2+1]), i+1)
 
         # Konfiguriere die Spaltengewichtung für das gesamte Frame
         theme_frame.columnconfigure(1, weight=1)
@@ -259,7 +266,8 @@ class ThemeManager:
                     self.change_theme(self.themes[0])
 
                 # Gespeicherte Farben anwenden
-                for color_setting in ['text_fg', 'text_bg', 'select_fg', 'select_bg', 'highlight_fg', 'highlight_bg']:
+                color_settings = ['text_fg', 'text_bg', 'select_fg', 'select_bg', 'highlight_fg', 'highlight_bg']
+                for color_setting in color_settings:
                     saved_color = self.settings_manager.get_setting(color_setting)
                     if saved_color:
                         getattr(self, color_setting).set(saved_color)

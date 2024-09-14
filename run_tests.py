@@ -28,6 +28,15 @@ from tests.test_sequential_transcription import SequentialTranscriptionTest
 from tests.test_parallel_transcription import ParallelTranscriptionTest
 from tests.backend.test_audio_processor import TestAudioProcessor
 from tests.backend.test_transcription import TestTranscription
+import os
+import warnings
+
+# Unterdrücke ALSA-Warnungen
+warnings.filterwarnings("ignore", category=RuntimeWarning, module="sounddevice")
+
+# Unterdrücke JACK-Warnungen
+os.environ['JACK_HIDE_WARNINGS'] = '1'
+
 
 class ColorTextTestResult(unittest.TextTestResult):
     """Angepasste TestResult-Klasse für farbige Ausgabe der Testergebnisse."""
@@ -50,14 +59,21 @@ class ColorTextTestRunner(unittest.TextTestRunner):
     """Angepasster TestRunner für die Verwendung des ColorTextTestResult."""
     resultclass = ColorTextTestResult
 
-def run_tests(parallel=False, sequential=False, run_all=False):
+def run_tests(parallel: bool = False, sequential: bool = False, run_all: bool = False) -> unittest.TestResult:
     """
     Führt die spezifizierten Tests aus.
+
+    Diese Funktion erstellt eine Test-Suite basierend auf den angegebenen Parametern
+    und führt die Tests aus. Sie unterstützt grundlegende Tests, parallele und
+    sequenzielle Transkriptionstests.
 
     :param parallel: Wenn True, werden parallele Transkriptionstests ausgeführt
     :param sequential: Wenn True, werden sequenzielle Transkriptionstests ausgeführt
     :param run_all: Wenn True, werden alle Tests ausgeführt
-    :return: TestResult-Objekt mit den Testergebnissen
+    :return: Ein unittest.TestResult-Objekt mit den Ergebnissen der Testausführung
+
+    Die Funktion gibt eine Zusammenfassung der Testergebnisse aus, einschließlich
+    der Anzahl der durchgeführten Tests, erfolgreichen Tests, Fehler und Fehlschläge.
     """
     suite = unittest.TestSuite()
 

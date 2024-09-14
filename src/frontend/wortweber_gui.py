@@ -12,14 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# src/frontend/wortweber_gui.py
+"""
+Dieses Modul enthält die Hauptklasse für die grafische Benutzeroberfläche der Wortweber-Anwendung.
+Es koordiniert die verschiedenen UI-Komponenten und die Interaktion mit dem Backend.
+"""
 
+# Standardbibliotheken
 import tkinter as tk
-from tkinter import ttk
-import ttkthemes
 import time
 import logging
 import threading
+from typing import Optional
+
+# Drittanbieterbibliotheken
+import ttkthemes
+
+# Projektspezifische Module
 from src.backend.wortweber_backend import WordweberBackend
 from src.frontend.main_window import MainWindow
 from src.frontend.transcription_panel import TranscriptionPanel
@@ -37,7 +45,7 @@ class WordweberGUI:
     Koordiniert die verschiedenen UI-Komponenten und die Interaktion mit dem Backend.
     """
 
-    def __init__(self, backend: WordweberBackend):
+    def __init__(self, backend: WordweberBackend) -> None:
         """
         Initialisiert die GUI der Wortweber-Anwendung.
 
@@ -74,22 +82,22 @@ class WordweberGUI:
         # Hinzufügen eines Event-Handlers für Größenänderungen
         self.root.bind("<Configure>", self.on_window_configure)
 
-    def setup_logging(self):
+    def setup_logging(self) -> None:
         """Konfiguriert das Logging für die Anwendung."""
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
         logging.debug("WordweberGUI initialisiert")
 
-    def load_saved_settings(self):
+    def load_saved_settings(self) -> None:
         """Lädt und wendet gespeicherte Einstellungen an."""
         self.theme_manager.apply_saved_theme()
         self.update_colors()
 
-    def load_initial_model(self):
+    def load_initial_model(self) -> None:
         """Lädt das initial konfigurierte Whisper-Modell."""
         model_name = self.settings_manager.get_setting("model")
         self.load_model_async(model_name)
 
-    def load_model_async(self, model_name: str):
+    def load_model_async(self, model_name: str) -> None:
         """
         Lädt das Whisper-Modell asynchron.
 
@@ -98,7 +106,7 @@ class WordweberGUI:
         self.status_panel.update_status("Lade Modell...", "blue")
         threading.Thread(target=self._load_model_thread, args=(model_name,), daemon=True).start()
 
-    def _load_model_thread(self, model_name: str):
+    def _load_model_thread(self, model_name: str) -> None:
         """
         Thread-Funktion zum Laden des Whisper-Modells.
 
@@ -109,14 +117,14 @@ class WordweberGUI:
         if self.backend.pending_audio:
             self.transcribe_and_update()
 
-    def run(self):
+    def run(self) -> None:
         """Startet die Hauptschleife der GUI."""
         logging.debug("Starte Anwendung")
         self.input_processor.start_listener()
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.root.mainloop()
 
-    def on_closing(self):
+    def on_closing(self) -> None:
         """Wird aufgerufen, wenn das Anwendungsfenster geschlossen wird."""
         logging.debug("Anwendung wird geschlossen")
         self.settings_manager.set_setting("window_geometry", self.root.geometry())
@@ -136,11 +144,11 @@ class WordweberGUI:
             del self.backend.transcriber.model
         self.root.destroy()
 
-    def open_options_window(self):
+    def open_options_window(self) -> None:
         """Öffnet das Fenster für erweiterte Optionen."""
         OptionsWindow.open_window(self.root, self.theme_manager, self.transcription_panel, self)
 
-    def on_window_configure(self, event):
+    def on_window_configure(self, event: tk.Event) -> None:
         """
         Wird aufgerufen, wenn sich die Fenstergröße ändert.
         Speichert die neue Fenstergröße in den Einstellungen.
@@ -151,23 +159,23 @@ class WordweberGUI:
             self.settings_manager.set_setting("window_geometry", self.root.geometry())
             self.settings_manager.save_settings()
 
-    def start_timer(self):
+    def start_timer(self) -> None:
         """Startet den Timer für die Aufnahmedauer."""
         self.start_time = time.time()
         self.update_timer()
 
-    def stop_timer(self):
+    def stop_timer(self) -> None:
         """Stoppt den Timer für die Aufnahmedauer."""
         self.status_panel.reset_timer()
 
-    def update_timer(self):
+    def update_timer(self) -> None:
         """Aktualisiert die Anzeige der Aufnahmedauer."""
         if self.backend.state.recording:
             elapsed_time = time.time() - self.start_time
             self.status_panel.update_timer(elapsed_time)
             self.root.after(100, self.update_timer)
 
-    def transcribe_and_update(self):
+    def transcribe_and_update(self) -> None:
         """Führt die Transkription durch und aktualisiert die GUI."""
         self.status_panel.update_status("Transkribiere...", "orange")
         start_time = time.time()
@@ -180,7 +188,7 @@ class WordweberGUI:
         if self.settings_manager.get_setting("save_test_recording", False):
             self.backend.audio_processor.save_last_recording()
 
-    def update_colors(self):
+    def update_colors(self) -> None:
         """
         Aktualisiert die Farben im Transkriptionsfenster und anderen relevanten UI-Elementen.
         """

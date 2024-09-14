@@ -12,12 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# src/frontend/options_window.py
+"""
+Dieses Modul definiert das Optionsfenster für die Wortweber-Anwendung.
+Es ermöglicht die Anpassung von Theme, Textoptionen und Testaufnahme-Einstellungen.
+"""
 
+# Standardbibliotheken
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
-from src.config import DEFAULT_FONT_FAMILY
+
+# Drittanbieterbibliotheken
+from tkcolorpicker import askcolor
+
+# Projektspezifische Module
+from src.config import DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE
 
 class OptionsWindow(tk.Toplevel):
     """
@@ -189,7 +198,11 @@ class OptionsWindow(tk.Toplevel):
         self.gui.settings_manager.save_settings()
 
     def get_current_settings(self):
-        """Erfasst die aktuellen Einstellungen."""
+        """
+        Erfasst die aktuellen Einstellungen.
+
+        :return: Ein Dictionary mit den aktuellen Einstellungen
+        """
         return {
             "theme": self.theme_manager.current_theme.get(),
             "font_size": self.transcription_panel.get_font_size(),
@@ -233,6 +246,42 @@ class OptionsWindow(tk.Toplevel):
         setattr(self, f"{label.lower().replace(' ', '_')}_fg_preview", fg_preview)
         setattr(self, f"{label.lower().replace(' ', '_')}_bg_preview", bg_preview)
 
+    def update_preview(self, preview_text, fg_var, bg_var):
+        """
+        Aktualisiert die Vorschau-Textfelder mit den ausgewählten Farben.
+
+        :param preview_text: Das Vorschau-Textfeld
+        :param fg_var: StringVar für die Textfarbe
+        :param bg_var: StringVar für die Hintergrundfarbe
+        """
+        try:
+            if preview_text.winfo_exists():
+                preview_text.config(fg=fg_var.get(), bg=bg_var.get())
+        except tk.TclError:
+            # Widget wurde zerstört, ignoriere den Fehler
+            pass
+
+    def choose_color(self, color_var, preview_frame):
+        """
+        Öffnet den Farbauswahldialog und aktualisiert die gewählte Farbe.
+
+        :param color_var: Die StringVar, die die Farbe speichert
+        :param preview_frame: Das Frame, das die Farbvorschau anzeigt
+        """
+        try:
+            if preview_frame.winfo_exists():
+                current_color = color_var.get()
+                color = askcolor(color=current_color, title="Wähle eine Farbe")
+                if color[1]:
+                    color_var.set(color[1])
+                    preview_frame.config(bg=color[1])
+                    setting_name = str(color_var).split('.')[-1]  # Extrahiere den Namen der Variablen
+                    self.gui.settings_manager.set_setting(setting_name, color[1])
+                    self.gui.settings_manager.save_settings()
+                    self.gui.theme_manager.update_colors()
+        except tk.TclError:
+            pass
+
     def undo_changes(self):
         """Setzt alle Änderungen auf den Stand zurück, als das Fenster geöffnet wurde."""
         self.theme_manager.change_theme(self.initial_settings["theme"])
@@ -259,11 +308,6 @@ class OptionsWindow(tk.Toplevel):
 
         # Aktualisiere die Farben in der GUI
         self.theme_manager.update_colors()
-
-    def update_color_preview(self, preview_frame, color):
-        """Aktualisiert die Farbe eines Vorschau-Frames."""
-        if preview_frame and preview_frame.winfo_exists():
-            preview_frame.config(bg=color)
 
     def load_window_geometry(self):
         """Lädt die gespeicherte Fenstergröße und -position."""
