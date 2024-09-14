@@ -203,6 +203,36 @@ class OptionsWindow(tk.Toplevel):
             "highlight_bg": self.theme_manager.highlight_bg.get()
         }
 
+    def create_color_row(self, parent, label, fg_var, bg_var, row):
+        """
+        Erstellt eine Reihe von UI-Elementen für die Farbauswahl einer Textkategorie.
+
+        :param parent: Das übergeordnete Widget
+        :param label: Beschriftung für die Textkategorie
+        :param fg_var: StringVar für die Textfarbe
+        :param bg_var: StringVar für die Hintergrundfarbe
+        :param row: Zeilennummer im Grid-Layout
+        """
+        fg_preview = tk.Frame(parent, width=30, height=30, bg=fg_var.get())
+        fg_preview.grid(row=row, column=0, padx=(5, 2), pady=5, sticky="w")
+        fg_preview.bind("<Button-1>", lambda e: self.choose_color(fg_var, fg_preview))
+
+        preview_text = tk.Text(parent, width=40, height=1, font=("TkDefaultFont", 10))
+        preview_text.grid(row=row, column=1, padx=2, pady=5, sticky="ew")
+        preview_text.insert(tk.END, f"Vorschau: {label}")
+        preview_text.config(state=tk.DISABLED, fg=fg_var.get(), bg=bg_var.get())
+
+        bg_preview = tk.Frame(parent, width=30, height=30, bg=bg_var.get())
+        bg_preview.grid(row=row, column=2, padx=(2, 5), pady=5, sticky="e")
+        bg_preview.bind("<Button-1>", lambda e: self.choose_color(bg_var, bg_preview))
+
+        fg_var.trace_add("write", lambda *args: self.update_preview(preview_text, fg_var, bg_var))
+        bg_var.trace_add("write", lambda *args: self.update_preview(preview_text, fg_var, bg_var))
+
+        # Speichern der Referenzen zu den Vorschau-Frames
+        setattr(self, f"{label.lower().replace(' ', '_')}_fg_preview", fg_preview)
+        setattr(self, f"{label.lower().replace(' ', '_')}_bg_preview", bg_preview)
+
     def undo_changes(self):
         """Setzt alle Änderungen auf den Stand zurück, als das Fenster geöffnet wurde."""
         self.theme_manager.change_theme(self.initial_settings["theme"])
@@ -214,13 +244,13 @@ class OptionsWindow(tk.Toplevel):
         self.font_var.set(self.initial_settings["font_family"])
         self.theme_manager.current_theme.set(self.initial_settings["theme"])
 
-        # Setze die Farbeinstellungen zurück
-        self.theme_manager.text_fg.set(self.initial_settings["text_fg"])
-        self.theme_manager.text_bg.set(self.initial_settings["text_bg"])
-        self.theme_manager.select_fg.set(self.initial_settings["select_fg"])
-        self.theme_manager.select_bg.set(self.initial_settings["select_bg"])
-        self.theme_manager.highlight_fg.set(self.initial_settings["highlight_fg"])
-        self.theme_manager.highlight_bg.set(self.initial_settings["highlight_bg"])
+        # Setze die Farbeinstellungen zurück und aktualisiere die Vorschau
+        color_settings = ['text_fg', 'text_bg', 'select_fg', 'select_bg', 'highlight_fg', 'highlight_bg']
+        for setting in color_settings:
+            getattr(self.theme_manager, setting).set(self.initial_settings[setting])
+            preview_attr = f"{setting.replace('_', '')}_preview"
+            if hasattr(self, preview_attr):
+                getattr(self, preview_attr).config(bg=self.initial_settings[setting])
 
         # Aktualisiere die Einstellungen im SettingsManager
         for key, value in self.initial_settings.items():
@@ -229,6 +259,11 @@ class OptionsWindow(tk.Toplevel):
 
         # Aktualisiere die Farben in der GUI
         self.theme_manager.update_colors()
+
+    def update_color_preview(self, preview_frame, color):
+        """Aktualisiert die Farbe eines Vorschau-Frames."""
+        if preview_frame and preview_frame.winfo_exists():
+            preview_frame.config(bg=color)
 
     def load_window_geometry(self):
         """Lädt die gespeicherte Fenstergröße und -position."""
@@ -248,6 +283,13 @@ class OptionsWindow(tk.Toplevel):
         """Wird aufgerufen, wenn das Fenster geschlossen wird."""
         # Speichere die aktuelle Fenstergröße und -position
         self.gui.settings_manager.set_setting("options_window_geometry", self.geometry())
+
+        # Speichere alle aktuellen Farbeinstellungen
+        color_settings = ['text_fg', 'text_bg', 'select_fg', 'select_bg', 'highlight_fg', 'highlight_bg']
+        for setting in color_settings:
+            current_color = getattr(self.theme_manager, setting).get()
+            self.gui.settings_manager.set_setting(setting, current_color)
+
         self.gui.settings_manager.save_settings()
         self.destroy()
 

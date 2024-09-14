@@ -82,6 +82,7 @@ class WordweberGUI:
     def load_saved_settings(self):
         """Lädt und wendet gespeicherte Einstellungen an."""
         self.theme_manager.apply_saved_theme()
+        self.update_colors()
 
     def load_initial_model(self):
         """Lädt das initial konfigurierte Whisper-Modell."""
@@ -122,6 +123,13 @@ class WordweberGUI:
         self.settings_manager.set_setting("input_mode", self.options_panel.input_mode_var.get())
         self.settings_manager.set_setting("delay_mode", self.options_panel.delay_mode_var.get())
         self.settings_manager.set_setting("char_delay", self.options_panel.char_delay_entry.get())
+
+        # Speichere alle aktuellen Farbeinstellungen
+        color_settings = ['text_fg', 'text_bg', 'select_fg', 'select_bg', 'highlight_fg', 'highlight_bg']
+        for setting in color_settings:
+            current_color = getattr(self.theme_manager, setting).get()
+            self.settings_manager.set_setting(setting, current_color)
+
         self.settings_manager.save_settings()
         self.input_processor.stop_listener()
         if self.backend.transcriber.model is not None:

@@ -213,7 +213,9 @@ class ThemeManager:
                 if color[1]:
                     color_var.set(color[1])
                     preview_frame.config(bg=color[1])
-                    self.settings_manager.set_setting(str(color_var), color[1])
+                    setting_name = str(color_var).split('.')[-1]  # Extrahiere den Namen der Variablen
+                    self.settings_manager.set_setting(setting_name, color[1])
+                    self.settings_manager.save_settings()
                     self.update_colors()
         except tk.TclError:
             pass
@@ -257,7 +259,7 @@ class ThemeManager:
                     self.change_theme(self.themes[0])
 
                 # Gespeicherte Farben anwenden
-                for color_setting in ['text_bg', 'text_fg', 'select_bg', 'select_fg', 'highlight_bg', 'highlight_fg']:
+                for color_setting in ['text_fg', 'text_bg', 'select_fg', 'select_bg', 'highlight_fg', 'highlight_bg']:
                     saved_color = self.settings_manager.get_setting(color_setting)
                     if saved_color:
                         getattr(self, color_setting).set(saved_color)
