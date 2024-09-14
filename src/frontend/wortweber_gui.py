@@ -130,7 +130,7 @@ class WordweberGUI:
 
     def open_options_window(self):
         """Öffnet das Fenster für erweiterte Optionen."""
-        OptionsWindow(self.root, self.theme_manager, self.transcription_panel, self)
+        OptionsWindow.open_window(self.root, self.theme_manager, self.transcription_panel, self)
 
     def on_window_configure(self, event):
         """
@@ -174,13 +174,15 @@ class WordweberGUI:
 
     def update_colors(self):
         """
-        Aktualisiert die Farben im Transkriptionsfenster basierend auf den ThemeManager-Einstellungen.
+        Aktualisiert die Farben im Transkriptionsfenster und anderen relevanten UI-Elementen.
         """
-        self.transcription_panel.text_widget.config(
-            fg=self.theme_manager.text_fg.get(),
-            bg=self.theme_manager.text_bg.get(),
-            selectforeground=self.theme_manager.select_fg.get(),
-            selectbackground=self.theme_manager.select_bg.get()
+        self.transcription_panel.update_colors(
+            text_fg=self.theme_manager.text_fg.get(),
+            text_bg=self.theme_manager.text_bg.get(),
+            select_fg=self.theme_manager.select_fg.get(),
+            select_bg=self.theme_manager.select_bg.get(),
+            highlight_fg=self.theme_manager.highlight_fg.get(),
+            highlight_bg=self.theme_manager.highlight_bg.get()
         )
 
 # Zusätzliche Erklärungen:

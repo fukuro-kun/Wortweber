@@ -16,7 +16,7 @@ import tkinter as tk
 from tkinter import ttk, scrolledtext
 import tkinter.font as tkFont
 import pyperclip
-from src.config import HIGHLIGHT_DURATION, DEFAULT_FONT_SIZE
+from src.config import HIGHLIGHT_DURATION, DEFAULT_FONT_SIZE, DEFAULT_FONT_FAMILY
 from src.frontend.context_menu import create_context_menu
 
 class TranscriptionPanel(ttk.Frame):
@@ -34,6 +34,7 @@ class TranscriptionPanel(ttk.Frame):
         super().__init__(parent)
         self.gui = gui
         self.font_size = self.gui.settings_manager.get_setting("font_size", DEFAULT_FONT_SIZE)
+        self.font_family = self.gui.settings_manager.get_setting("font_family", DEFAULT_FONT_FAMILY)
         self.setup_ui()
         self.load_saved_text()
 
@@ -43,16 +44,48 @@ class TranscriptionPanel(ttk.Frame):
         self.text_widget.pack(expand=True, fill=tk.BOTH, padx=5, pady=5)
         self.text_widget.bind("<Button-3>", self.show_context_menu)
         self.text_widget.tag_configure("highlight", background="yellow")
+        self.text_widget.tag_configure("select", background="lightblue")
+        self.set_font(self.font_family, self.font_size)
         self.set_font_size(self.font_size)
         self.text_widget.config(
             insertbackground="red",
-            insertwidth=2,
-            selectbackground="yellow",
-            selectforeground="black"
+            insertwidth=2
         )
 
         # Event-Handler für Textänderungen hinzufügen
         self.text_widget.bind("<<Modified>>", self.on_text_modified)
+        self.text_widget.bind("<<Selection>>", self.on_selection_change)
+
+    def set_font(self, family, size):
+        """
+        Ändert die Schriftart und -größe des Transkriptionsfelds.
+
+        :param family: Die neue Schriftartfamilie
+        :param size: Die neue Schriftgröße
+        """
+        self.font_family = family
+        self.font_size = size
+        font = tkFont.Font(family=family, size=size)
+        self.text_widget.configure(font=font)
+        self.gui.settings_manager.set_setting("font_family", family)
+        self.gui.settings_manager.set_setting("font_size", size)
+        self.gui.settings_manager.save_settings()
+
+    def get_font_family(self):
+        """
+        Gibt die aktuelle Schriftartfamilie zurück.
+
+        :return: Die aktuelle Schriftartfamilie
+        """
+        return self.font_family
+
+    def get_font_size(self):
+        """
+        Gibt die aktuelle Schriftgröße zurück.
+
+        :return: Die aktuelle Schriftgröße
+        """
+        return self.font_size
 
     def show_context_menu(self, event):
         """Zeigt das Kontextmenü an der Position des Mausklicks an."""
@@ -106,6 +139,12 @@ class TranscriptionPanel(ttk.Frame):
             # Zurücksetzen des modified flags
             self.text_widget.edit_modified(False)
 
+    def on_selection_change(self, event):
+        """Wird aufgerufen, wenn sich die Textauswahl ändert."""
+        if self.text_widget.tag_ranges("sel"):
+            self.text_widget.tag_remove("select", "1.0", tk.END)
+            self.text_widget.tag_add("select", "sel.first", "sel.last")
+
     def set_font_size(self, size):
         """
         Ändert die Schriftgröße des Transkriptionsfelds.
@@ -127,11 +166,32 @@ class TranscriptionPanel(ttk.Frame):
         """
         return self.font_size
 
+    def update_colors(self, text_fg, text_bg, select_fg, select_bg, highlight_fg, highlight_bg):
+        """
+        Aktualisiert die Farben des Textwidgets.
+
+        :param text_fg: Vordergrundfarbe für normalen Text
+        :param text_bg: Hintergrundfarbe für normalen Text
+        :param select_fg: Vordergrundfarbe für ausgewählten Text
+        :param select_bg: Hintergrundfarbe für ausgewählten Text
+        :param highlight_fg: Vordergrundfarbe für hervorgehobenen Text
+        :param highlight_bg: Hintergrundfarbe für hervorgehobenen Text
+        """
+        self.text_widget.config(
+            fg=text_fg,
+            bg=text_bg,
+            selectforeground=select_fg,
+            selectbackground=select_bg
+        )
+        self.text_widget.tag_configure("highlight", foreground=highlight_fg, background=highlight_bg)
+        self.text_widget.tag_configure("select", foreground=select_fg, background=select_bg)
+
 # Zusätzliche Erklärungen:
 
-# 1. Das TranscriptionPanel verwaltet das Haupttextfeld für die Transkriptionen.
-# 2. Es bietet Funktionen zum Einfügen, Löschen und Kopieren von Text.
+# 1. Die Klasse TranscriptionPanel verwaltet das Haupttextfeld für die Transkriptionen.
+# 2. Sie bietet Funktionen zum Einfügen, Löschen und Kopieren von Text.
 # 3. Die Schriftgröße kann dynamisch angepasst werden.
 # 4. Änderungen am Text werden automatisch gespeichert.
 # 5. Ein Kontextmenü ermöglicht zusätzliche Textbearbeitungsfunktionen.
 # 6. Die Klasse interagiert eng mit dem SettingsManager, um Benutzereinstellungen zu persistieren.
+# 7. Neue Methoden wie update_colors und on_selection_change wurden hinzugefügt, um die erweiterten Farbfunktionen zu unterstützen.
