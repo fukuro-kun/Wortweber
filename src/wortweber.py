@@ -17,11 +17,14 @@ import sys
 import os
 import warnings
 import ctypes
-from src.utils.error_handling import handle_exceptions, logger
+
 
 # Füge den Projektordner zum Python-Pfad hinzu
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, project_root)
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+from src.utils.error_handling import handle_exceptions, logger
 
 # Unterdrücke ALSA-Warnungen
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="sounddevice")

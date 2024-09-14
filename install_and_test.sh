@@ -52,12 +52,21 @@ fi
 python -c "import pyaudio, numpy, whisper, pynput, scipy, tqdm, tiktoken, numba; print('Alle Module erfolgreich importiert')"
 check_error "Nicht alle Module konnten importiert werden"
 
+# Erstellen des wortweber.sh Skripts
+echo '#!/bin/bash
+eval "$(conda shell.bash hook)"
+conda activate wortweber
+python -m src.wortweber
+conda deactivate' > wortweber.sh
+chmod +x wortweber.sh
+check_error "wortweber.sh konnte nicht erstellt werden"
+
 # Ausführen des Hauptskripts
-python src/wortweber.py
+python -m src.wortweber
 check_error "Hauptskript konnte nicht ausgeführt werden"
 
 echo "Installation und Test erfolgreich abgeschlossen!"
-echo "Sie können die Wortweber-Umgebung nun mit 'conda activate wortweber' aktivieren."
+echo "Sie können die Wortweber-Anwendung nun mit './wortweber.sh' starten."
 
 # Deaktivieren der Umgebung am Ende des Skripts
 conda deactivate

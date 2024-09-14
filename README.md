@@ -37,14 +37,19 @@ Wortweber ist eine leistungsstarke und benutzerfreundliche Anwendung zur Echtzei
 
 ### Verwendung
 
-1. Aktivieren Sie die Conda-Umgebung:
+Nach der Installation können Sie Wortweber auf zwei Arten starten:
+
+1. Verwenden Sie das bereitgestellte Shell-Skript:
    ```
-   conda activate wortweber
+   ./wortweber.sh
    ```
 
-2. Starten Sie die Anwendung:
+   Dieses Skript aktiviert automatisch die richtige Conda-Umgebung und startet die Anwendung.
+
+2. Alternativ können Sie die Anwendung manuell starten:
    ```
-   python src/wortweber.py
+   conda activate wortweber
+   python -m src.wortweber
    ```
 
 3. Drücken und halten Sie die F12-Taste, um zu sprechen. Lassen Sie die Taste los, um die Aufnahme zu beenden und die Transkription zu starten.

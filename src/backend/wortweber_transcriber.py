@@ -15,6 +15,7 @@
 import torch
 import numpy as np
 import whisper
+import traceback
 from whisper.audio import SAMPLE_RATE, N_FRAMES, HOP_LENGTH
 from typing import Union
 from src.utils.error_handling import handle_exceptions, logger
@@ -76,7 +77,7 @@ class Transcriber:
         try:
             result = whisper.decode(self.model, mel, options)
             logger.info(f"Transkription erfolgreich durchgeführt für Sprache: {language}")
-            return result.text
+            return result.text  # Hier wurde die Änderung vorgenommen
         except Exception as e:
             logger.error(f"Fehler bei der Transkription: {e}")
             logger.error(f"Detaillierter Traceback: {traceback.format_exc()}")
