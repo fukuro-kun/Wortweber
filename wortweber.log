@@ -18,3 +18,1343 @@
 2024-09-11 19:59:57,298 - root - INFO - Versuche Modell zu laden: small (Versuch 1)
 2024-09-11 20:00:03,596 - root - INFO - Modell erfolgreich geladen: small
 2024-09-11 20:00:03,611 - root - INFO - Modell erfolgreich geladen: small
+2024-09-14 21:54:08,939 - root - INFO - Aufnahme gespeichert. Warte auf Modell-Bereitschaft.
+2024-09-14 21:54:08,955 - root - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 21:54:13,091 - root - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 21:54:14,794 - root - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 21:54:18,645 - root - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 21:54:18,841 - root - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 21:54:18,843 - root - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 21:54:18,844 - root - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 21:54:18,845 - root - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 21:54:19,637 - root - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 21:54:20,288 - root - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 21:54:22,896 - root - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 21:54:30,918 - root - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 21:54:31,260 - root - INFO - Starte Test für Modell tiny in Sprache de
+2024-09-14 21:54:31,260 - root - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 21:54:31,911 - root - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 21:54:31,972 - root - INFO - Transkribierter Text (tiny, de): Das ist ein Test.
+2024-09-14 21:54:31,972 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 21:54:31,972 - root - INFO - Starte Test für Modell base in Sprache de
+2024-09-14 21:54:31,972 - root - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 21:54:33,185 - root - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 21:54:33,268 - root - INFO - Transkribierter Text (base, de): Das ist ein Test.
+2024-09-14 21:54:33,269 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 21:54:33,269 - root - INFO - Starte Test für Modell small in Sprache de
+2024-09-14 21:54:33,269 - root - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 21:54:37,131 - root - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 21:54:37,287 - root - INFO - Transkribierter Text (small, de): Das ist ein Test.
+2024-09-14 21:54:37,287 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 21:54:37,287 - root - INFO - Starte Test für Modell medium in Sprache de
+2024-09-14 21:54:37,288 - root - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 21:54:49,269 - root - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 21:54:49,614 - root - INFO - Transkribierter Text (medium, de): Das ist ein Test.
+2024-09-14 21:54:49,614 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:01:02,944 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:01:02,945 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:01:02,971 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:01:02,972 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 22:01:02,972 - Wortweber - INFO - Input Device id 0 - Test Device 1
+2024-09-14 22:01:02,972 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 22:01:02,973 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:01:02,990 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:01:02,990 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:01:02,990 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:01:04,952 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:01:04,988 - root - INFO - Aufnahme gespeichert. Warte auf Modell-Bereitschaft.
+2024-09-14 22:01:04,988 - root - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:01:09,086 - root - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:01:10,287 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:01:10,813 - root - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:01:14,805 - root - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:01:14,966 - root - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:01:14,967 - root - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:01:14,967 - root - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:01:14,967 - root - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:01:15,795 - root - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:01:16,398 - root - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:01:19,128 - root - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:01:27,335 - root - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:01:27,681 - root - INFO - Starte Test für Modell tiny in Sprache de
+2024-09-14 22:01:27,681 - root - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:01:28,350 - root - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:01:28,412 - root - INFO - Transkribierter Text (tiny, de): Das ist ein Test.
+2024-09-14 22:01:28,412 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:01:28,412 - root - INFO - Starte Test für Modell base in Sprache de
+2024-09-14 22:01:28,413 - root - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:01:29,623 - root - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:01:29,704 - root - INFO - Transkribierter Text (base, de): Das ist ein Test.
+2024-09-14 22:01:29,704 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:01:29,704 - root - INFO - Starte Test für Modell small in Sprache de
+2024-09-14 22:01:29,705 - root - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:01:33,586 - root - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:01:33,754 - root - INFO - Transkribierter Text (small, de): Das ist ein Test.
+2024-09-14 22:01:33,754 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:01:33,754 - root - INFO - Starte Test für Modell medium in Sprache de
+2024-09-14 22:01:33,755 - root - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:01:45,922 - root - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:01:46,273 - root - INFO - Transkribierter Text (medium, de): Das ist ein Test.
+2024-09-14 22:01:46,274 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:01:46,338 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:10:50,251 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:10:50,252 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:10:50,280 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:10:50,280 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 22:10:50,280 - Wortweber - INFO - Input Device id 0 - Test Device 1
+2024-09-14 22:10:50,280 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 22:10:50,281 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:10:50,297 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:10:50,297 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:10:50,298 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:10:52,260 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:10:52,296 - root - INFO - Aufnahme gespeichert. Warte auf Modell-Bereitschaft.
+2024-09-14 22:10:52,296 - root - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:10:56,419 - root - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:10:57,585 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:10:58,080 - root - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:11:01,985 - root - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:11:02,145 - root - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:11:02,145 - root - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:11:02,146 - root - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:11:02,146 - root - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:11:03,016 - root - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:11:03,633 - root - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:11:06,172 - root - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:11:14,567 - root - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:11:14,931 - root - INFO - Starte Test für Modell tiny in Sprache de
+2024-09-14 22:11:14,931 - root - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:11:15,620 - root - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:11:15,681 - root - INFO - Transkribierter Text (tiny, de): Das ist ein Test.
+2024-09-14 22:11:15,681 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:11:15,682 - root - INFO - Starte Test für Modell base in Sprache de
+2024-09-14 22:11:15,682 - root - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:11:16,910 - root - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:11:16,998 - root - INFO - Transkribierter Text (base, de): Das ist ein Test.
+2024-09-14 22:11:16,998 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:11:16,998 - root - INFO - Starte Test für Modell small in Sprache de
+2024-09-14 22:11:16,998 - root - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:11:20,952 - root - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:11:21,113 - root - INFO - Transkribierter Text (small, de): Das ist ein Test.
+2024-09-14 22:11:21,114 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:11:21,114 - root - INFO - Starte Test für Modell medium in Sprache de
+2024-09-14 22:11:21,114 - root - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:11:33,343 - root - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:11:33,686 - root - INFO - Transkribierter Text (medium, de): Das ist ein Test.
+2024-09-14 22:11:33,686 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:11:33,745 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:14:09,248 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:14:09,249 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:14:09,276 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:14:09,277 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 22:14:09,277 - Wortweber - INFO - Input Device id 0 - Test Device 1
+2024-09-14 22:14:09,277 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 22:14:09,278 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:14:09,278 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:14:09,294 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:14:09,294 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:14:09,295 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:14:11,255 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:14:11,291 - root - INFO - Aufnahme gespeichert. Warte auf Modell-Bereitschaft.
+2024-09-14 22:14:11,292 - root - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:14:15,362 - root - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:14:16,573 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:14:17,080 - root - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:14:21,005 - root - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:14:21,167 - root - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:14:21,167 - root - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:14:21,167 - root - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:14:21,168 - root - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:14:21,932 - root - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:14:22,553 - root - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:14:25,165 - root - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:14:33,268 - root - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:14:33,623 - root - INFO - Starte Test für Modell tiny in Sprache de
+2024-09-14 22:14:33,623 - root - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:14:34,320 - root - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:14:34,384 - root - INFO - Transkribierter Text (tiny, de): Das ist ein Test.
+2024-09-14 22:14:34,384 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:14:34,384 - root - INFO - Starte Test für Modell base in Sprache de
+2024-09-14 22:14:34,384 - root - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:14:35,600 - root - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:14:35,691 - root - INFO - Transkribierter Text (base, de): Das ist ein Test.
+2024-09-14 22:14:35,691 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:14:35,691 - root - INFO - Starte Test für Modell small in Sprache de
+2024-09-14 22:14:35,691 - root - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:14:39,602 - root - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:14:39,773 - root - INFO - Transkribierter Text (small, de): Das ist ein Test.
+2024-09-14 22:14:39,773 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:14:39,773 - root - INFO - Starte Test für Modell medium in Sprache de
+2024-09-14 22:14:39,774 - root - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:14:51,800 - root - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:14:52,146 - root - INFO - Transkribierter Text (medium, de): Das ist ein Test.
+2024-09-14 22:14:52,146 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:22:12,378 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:22:12,379 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:22:12,404 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:22:12,405 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 22:22:12,405 - Wortweber - INFO - Input Device id 0 - Test Device 1
+2024-09-14 22:22:12,405 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 22:22:12,406 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:22:12,406 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:22:12,422 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:22:12,422 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:22:12,423 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:22:14,384 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:22:14,405 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:22:14,406 - root - INFO - Aufnahme gespeichert. Warte auf Modell-Bereitschaft.
+2024-09-14 22:22:14,406 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:22:18,518 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:22:19,319 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:22:19,668 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:22:19,669 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:22:20,158 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:22:20,158 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:22:24,010 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:22:24,168 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:22:24,171 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 22:22:24,171 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:22:24,171 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 22:22:24,171 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:22:24,171 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:22:24,171 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:22:24,172 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 22:22:24,172 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:22:25,005 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:22:25,083 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:22:25,628 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:22:25,940 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:22:28,224 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:22:28,397 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:22:36,299 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:22:36,640 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:22:36,643 - root - INFO - Starte Test für Modell tiny in Sprache de
+2024-09-14 22:22:36,643 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 22:22:36,643 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:22:37,293 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:22:37,357 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:22:37,357 - root - INFO - Transkribierter Text (tiny, de): Das ist ein Test.
+2024-09-14 22:22:37,357 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:22:37,357 - root - INFO - Starte Test für Modell base in Sprache de
+2024-09-14 22:22:37,357 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 22:22:37,357 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:22:38,638 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:22:38,723 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:22:38,723 - root - INFO - Transkribierter Text (base, de): Das ist ein Test.
+2024-09-14 22:22:38,723 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:22:38,723 - root - INFO - Starte Test für Modell small in Sprache de
+2024-09-14 22:22:38,723 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:22:38,723 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:22:42,759 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:22:42,919 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:22:42,920 - root - INFO - Transkribierter Text (small, de): Das ist ein Test.
+2024-09-14 22:22:42,920 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:22:42,920 - root - INFO - Starte Test für Modell medium in Sprache de
+2024-09-14 22:22:42,920 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 22:22:42,921 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:22:55,504 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:22:55,846 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:22:55,846 - root - INFO - Transkribierter Text (medium, de): Das ist ein Test.
+2024-09-14 22:22:55,846 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:25:10,850 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:25:10,851 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:25:10,879 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:25:10,880 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 22:25:10,880 - Wortweber - INFO - Input Device id 0 - Test Device 1
+2024-09-14 22:25:10,880 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 22:25:10,881 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:25:10,881 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:25:10,897 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:25:10,897 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:25:10,897 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:25:12,860 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:25:12,894 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:25:12,894 - Wortweber - INFO - WordweberBackend initialisiert
+2024-09-14 22:25:12,896 - Wortweber - INFO - Aufnahme gespeichert. Warte auf Modell-Bereitschaft.
+2024-09-14 22:25:12,896 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:25:16,968 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:25:17,804 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:25:18,169 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:25:18,169 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 106
+2024-09-14 22:25:18,169 - Wortweber - INFO - Transkriptionsmodell 'small' erfolgreich geladen
+2024-09-14 22:25:18,169 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:25:18,686 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:25:18,686 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:25:22,848 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:25:23,013 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:25:23,015 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 22:25:23,015 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:25:23,015 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 22:25:23,016 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:25:23,016 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:25:23,016 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:25:23,016 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 22:25:23,017 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:25:23,980 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:25:24,087 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:25:24,662 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:25:24,865 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:25:27,147 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:25:27,337 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:25:35,459 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:25:35,837 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:25:35,840 - root - INFO - Starte Test für Modell tiny in Sprache de
+2024-09-14 22:25:35,840 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 22:25:35,840 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:25:36,520 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:25:36,582 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:25:36,582 - root - INFO - Transkribierter Text (tiny, de): Das ist ein Test.
+2024-09-14 22:25:36,582 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:25:36,582 - root - INFO - Starte Test für Modell base in Sprache de
+2024-09-14 22:25:36,582 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 22:25:36,583 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:25:37,831 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:25:37,918 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:25:37,918 - root - INFO - Transkribierter Text (base, de): Das ist ein Test.
+2024-09-14 22:25:37,918 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:25:37,918 - root - INFO - Starte Test für Modell small in Sprache de
+2024-09-14 22:25:37,918 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:25:37,919 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:25:41,947 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:25:42,108 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:25:42,109 - root - INFO - Transkribierter Text (small, de): Das ist ein Test.
+2024-09-14 22:25:42,109 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:25:42,109 - root - INFO - Starte Test für Modell medium in Sprache de
+2024-09-14 22:25:42,109 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 22:25:42,110 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:25:54,815 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:25:55,163 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:25:55,163 - root - INFO - Transkribierter Text (medium, de): Das ist ein Test.
+2024-09-14 22:25:55,163 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:27:41,775 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:27:41,777 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:27:41,812 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:27:41,813 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 22:27:41,813 - Wortweber - INFO - Input Device id 0 - Test Device 1
+2024-09-14 22:27:41,813 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 22:27:41,813 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:27:41,813 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:27:41,830 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:27:41,830 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:27:41,830 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:27:43,792 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:27:43,806 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:27:43,806 - Wortweber - INFO - WordweberBackend initialisiert
+2024-09-14 22:27:43,807 - Wortweber - INFO - Aufnahme gespeichert. Warte auf Modell-Bereitschaft.
+2024-09-14 22:27:43,807 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:27:47,893 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:27:48,507 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:27:48,858 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:27:48,858 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 69
+2024-09-14 22:27:48,858 - Wortweber - INFO - Transkriptionsmodell 'small' erfolgreich geladen
+2024-09-14 22:27:48,858 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:27:49,347 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:27:49,347 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:27:53,178 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:27:53,336 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:27:53,339 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 22:27:53,339 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:27:53,339 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 22:27:53,339 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:27:53,339 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:27:53,339 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:27:53,340 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 22:27:53,340 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:27:54,165 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:27:54,254 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:27:54,735 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:27:54,983 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:27:57,343 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:27:57,512 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:28:05,362 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:28:05,697 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:28:05,701 - root - INFO - Starte Test für Modell tiny in Sprache de
+2024-09-14 22:28:05,701 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 22:28:05,701 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:28:06,341 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:28:06,402 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:28:06,403 - root - INFO - Transkribierter Text (tiny, de): Das ist ein Test.
+2024-09-14 22:28:06,403 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:28:06,403 - root - INFO - Starte Test für Modell base in Sprache de
+2024-09-14 22:28:06,403 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 22:28:06,403 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:28:07,599 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:28:07,682 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:28:07,682 - root - INFO - Transkribierter Text (base, de): Das ist ein Test.
+2024-09-14 22:28:07,682 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:28:07,682 - root - INFO - Starte Test für Modell small in Sprache de
+2024-09-14 22:28:07,682 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:28:07,682 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:28:11,525 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:28:11,684 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:28:11,684 - root - INFO - Transkribierter Text (small, de): Das ist ein Test.
+2024-09-14 22:28:11,684 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:28:11,684 - root - INFO - Starte Test für Modell medium in Sprache de
+2024-09-14 22:28:11,684 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 22:28:11,685 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:28:23,573 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:28:23,940 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:28:23,940 - root - INFO - Transkribierter Text (medium, de): Das ist ein Test.
+2024-09-14 22:28:23,940 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:28:32,826 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:28:32,842 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:28:32,842 - Wortweber - INFO - WordweberBackend initialisiert
+2024-09-14 22:28:32,842 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 22:28:32,842 - Wortweber - INFO - Input Device id 0 - HDA Intel PCH: ALC892 Analog (hw:0,0)
+2024-09-14 22:28:32,843 - Wortweber - INFO - Input Device id 1 - HDA Intel PCH: ALC892 Alt Analog (hw:0,2)
+2024-09-14 22:28:32,843 - Wortweber - INFO - Input Device id 6 - USB Audio Device: - (hw:2,0)
+2024-09-14 22:28:32,843 - Wortweber - INFO - Input Device id 7 - sysdefault
+2024-09-14 22:28:32,843 - Wortweber - INFO - Input Device id 10 - pipewire
+2024-09-14 22:28:32,843 - Wortweber - INFO - Input Device id 11 - usb
+2024-09-14 22:28:32,843 - Wortweber - INFO - Input Device id 13 - default
+2024-09-14 22:28:32,843 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 22:28:33,394 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:28:35,433 - Wortweber - INFO - Audiogerät erfolgreich überprüft
+2024-09-14 22:28:35,433 - Wortweber - INFO - Audioaufnahme gestartet
+2024-09-14 22:28:35,433 - Wortweber - INFO - Audioaufnahme gestartet
+2024-09-14 22:28:37,493 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:28:37,494 - Wortweber - INFO - Transkriptionsmodell 'medium' erfolgreich geladen
+2024-09-14 22:28:38,777 - Wortweber - INFO - Audioaufnahme beendet. Dauer: 3.34 Sekunden
+2024-09-14 22:28:39,394 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:28:39,394 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 17
+2024-09-14 22:28:39,558 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:28:39,558 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 17
+2024-09-14 22:32:43,987 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:32:43,988 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:32:44,014 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:32:44,015 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 22:32:44,015 - Wortweber - INFO - Input Device id 0 - Test Device 1
+2024-09-14 22:32:44,015 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 22:32:44,015 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:32:44,015 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:32:44,032 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:32:44,032 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:32:44,032 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:32:45,994 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:32:46,029 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:32:46,029 - Wortweber - INFO - WordweberBackend initialisiert
+2024-09-14 22:32:46,031 - Wortweber - INFO - Aufnahme gespeichert. Warte auf Modell-Bereitschaft.
+2024-09-14 22:32:46,031 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:32:50,170 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:32:50,835 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:32:51,205 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:32:51,205 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 72
+2024-09-14 22:32:51,205 - Wortweber - INFO - Transkriptionsmodell 'small' erfolgreich geladen
+2024-09-14 22:32:51,205 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:32:51,734 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:32:51,734 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:32:55,757 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:32:55,928 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:32:55,931 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 22:32:55,931 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:32:55,931 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 22:32:55,931 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:32:55,931 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:32:55,931 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:32:55,932 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 22:32:55,932 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:32:56,855 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:32:56,948 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:32:57,646 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:32:57,861 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:33:00,123 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:33:00,303 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:33:08,410 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:33:08,753 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:33:08,767 - root - INFO - Starte Test für Modell tiny in Sprache de
+2024-09-14 22:33:08,767 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 22:33:08,767 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:33:09,425 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:33:09,488 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:33:09,488 - root - INFO - Transkribierter Text (tiny, de): Das ist ein Test.
+2024-09-14 22:33:09,488 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:33:09,488 - root - INFO - Starte Test für Modell base in Sprache de
+2024-09-14 22:33:09,488 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 22:33:09,488 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:33:10,782 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:33:10,873 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:33:10,873 - root - INFO - Transkribierter Text (base, de): Das ist ein Test.
+2024-09-14 22:33:10,873 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:33:10,873 - root - INFO - Starte Test für Modell small in Sprache de
+2024-09-14 22:33:10,873 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:33:10,873 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:33:14,818 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:33:14,987 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:33:14,987 - root - INFO - Transkribierter Text (small, de): Das ist ein Test.
+2024-09-14 22:33:14,987 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:33:14,987 - root - INFO - Starte Test für Modell medium in Sprache de
+2024-09-14 22:33:14,987 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 22:33:14,988 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:33:27,189 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:33:27,523 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:33:27,524 - root - INFO - Transkribierter Text (medium, de): Das ist ein Test.
+2024-09-14 22:33:27,524 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:36:11,664 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:36:11,665 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:36:11,691 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:36:11,691 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 22:36:11,691 - Wortweber - INFO - Input Device id 0 - Test Device 1
+2024-09-14 22:36:11,692 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 22:36:11,692 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:36:11,692 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:36:11,708 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:36:11,708 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:36:11,709 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:36:13,671 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:36:13,705 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:36:13,706 - Wortweber - INFO - WordweberBackend initialisiert
+2024-09-14 22:36:13,708 - Wortweber - INFO - Aufnahme gespeichert. Warte auf Modell-Bereitschaft.
+2024-09-14 22:36:13,708 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:36:17,761 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:36:18,595 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:36:19,002 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:36:19,002 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 106
+2024-09-14 22:36:19,002 - Wortweber - INFO - Transkriptionsmodell 'small' erfolgreich geladen
+2024-09-14 22:36:19,002 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:36:19,519 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:36:19,519 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:36:23,436 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:36:23,594 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:36:23,597 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 22:36:23,597 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:36:23,597 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 22:36:23,598 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:36:23,598 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:36:23,598 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:36:23,598 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 22:36:23,600 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:36:24,502 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:36:24,590 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:36:25,302 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:36:25,474 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:36:27,701 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:36:27,881 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:36:35,949 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:36:36,300 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:36:36,314 - root - INFO - Starte Test für Modell tiny in Sprache de
+2024-09-14 22:36:36,314 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 22:36:36,314 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:36:36,990 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:36:37,051 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:36:37,052 - root - INFO - Transkribierter Text (tiny, de): Das ist ein Test.
+2024-09-14 22:36:37,052 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:36:37,052 - root - INFO - Starte Test für Modell base in Sprache de
+2024-09-14 22:36:37,052 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 22:36:37,052 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:36:38,266 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:36:38,353 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:36:38,353 - root - INFO - Transkribierter Text (base, de): Das ist ein Test.
+2024-09-14 22:36:38,354 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:36:38,354 - root - INFO - Starte Test für Modell small in Sprache de
+2024-09-14 22:36:38,354 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:36:38,354 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:36:42,255 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:36:42,415 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:36:42,416 - root - INFO - Transkribierter Text (small, de): Das ist ein Test.
+2024-09-14 22:36:42,416 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:36:42,416 - root - INFO - Starte Test für Modell medium in Sprache de
+2024-09-14 22:36:42,416 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 22:36:42,417 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:36:54,450 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:36:54,789 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:36:54,789 - root - INFO - Transkribierter Text (medium, de): Das ist ein Test.
+2024-09-14 22:36:54,789 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:42:22,849 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:42:22,849 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:42:22,877 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:42:22,878 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 22:42:22,878 - Wortweber - INFO - Input Device id 0 - Test Device 1
+2024-09-14 22:42:22,878 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 22:42:22,879 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:42:22,879 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:42:22,895 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:42:22,895 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:42:22,895 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:42:24,857 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:42:24,885 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:42:24,886 - Wortweber - INFO - WordweberBackend initialisiert
+2024-09-14 22:42:24,887 - Wortweber - INFO - Aufnahme gespeichert. Warte auf Modell-Bereitschaft.
+2024-09-14 22:42:24,888 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:42:29,019 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:42:29,833 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:42:30,192 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:42:30,192 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 106
+2024-09-14 22:42:30,192 - Wortweber - INFO - Transkriptionsmodell 'small' erfolgreich geladen
+2024-09-14 22:42:30,192 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:42:30,690 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:42:30,690 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:42:34,622 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:42:34,781 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:42:34,783 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 22:42:34,783 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:42:34,784 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 22:42:34,784 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:42:34,784 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:42:34,784 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:42:34,789 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 22:42:34,789 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:42:35,552 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:42:35,642 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:42:36,201 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:42:36,361 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:42:38,859 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:42:39,037 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:42:47,131 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:42:47,489 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:42:47,492 - root - INFO - Starte Test für Modell tiny in Sprache de
+2024-09-14 22:42:47,492 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 22:42:47,492 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:42:48,160 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:42:48,223 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:42:48,223 - root - INFO - Transkribierter Text (tiny, de): Das ist ein Test.
+2024-09-14 22:42:48,223 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:42:48,223 - root - INFO - Starte Test für Modell base in Sprache de
+2024-09-14 22:42:48,223 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 22:42:48,224 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:42:49,432 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:42:49,525 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:42:49,525 - root - INFO - Transkribierter Text (base, de): Das ist ein Test.
+2024-09-14 22:42:49,525 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:42:49,525 - root - INFO - Starte Test für Modell small in Sprache de
+2024-09-14 22:42:49,525 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:42:49,526 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:42:53,404 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:42:53,560 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:42:53,560 - root - INFO - Transkribierter Text (small, de): Das ist ein Test.
+2024-09-14 22:42:53,560 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:42:53,560 - root - INFO - Starte Test für Modell medium in Sprache de
+2024-09-14 22:42:53,561 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 22:42:53,561 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:43:05,546 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:43:05,884 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:43:05,884 - root - INFO - Transkribierter Text (medium, de): Das ist ein Test.
+2024-09-14 22:43:05,885 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:47:38,556 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:47:38,556 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:47:38,582 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:47:38,583 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 22:47:38,583 - Wortweber - INFO - Input Device id 0 - Test Device 1
+2024-09-14 22:47:38,583 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 22:47:38,583 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:47:38,584 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:47:38,600 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:47:38,600 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:47:38,600 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:47:40,563 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:47:40,598 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:47:40,598 - Wortweber - INFO - WordweberBackend initialisiert
+2024-09-14 22:47:40,600 - Wortweber - INFO - Aufnahme gespeichert. Warte auf Modell-Bereitschaft.
+2024-09-14 22:47:40,600 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:47:44,761 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:47:45,578 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:47:45,942 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:47:45,942 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 105
+2024-09-14 22:47:45,942 - Wortweber - INFO - Transkriptionsmodell 'small' erfolgreich geladen
+2024-09-14 22:47:45,942 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:47:46,445 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:47:46,445 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:47:50,305 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:47:50,462 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:47:50,464 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 22:47:50,464 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:47:50,465 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 22:47:50,465 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:47:50,465 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:47:50,465 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 22:47:50,465 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:47:50,466 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:47:51,298 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:47:51,380 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:47:51,883 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:47:51,982 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:47:54,559 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:47:54,735 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:48:02,745 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:48:03,106 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:48:03,113 - root - INFO - Starte Test für Modell tiny in Sprache de
+2024-09-14 22:48:03,113 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 22:48:03,113 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:48:03,801 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:48:03,862 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:48:03,863 - root - INFO - Transkribierter Text (tiny, de): Das ist ein Test.
+2024-09-14 22:48:03,863 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:48:03,863 - root - INFO - Starte Test für Modell base in Sprache de
+2024-09-14 22:48:03,863 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 22:48:03,863 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:48:05,069 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:48:05,153 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:48:05,154 - root - INFO - Transkribierter Text (base, de): Das ist ein Test.
+2024-09-14 22:48:05,154 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:48:05,154 - root - INFO - Starte Test für Modell small in Sprache de
+2024-09-14 22:48:05,154 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:48:05,154 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:48:09,035 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:48:09,198 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:48:09,198 - root - INFO - Transkribierter Text (small, de): Das ist ein Test.
+2024-09-14 22:48:09,198 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:48:09,198 - root - INFO - Starte Test für Modell medium in Sprache de
+2024-09-14 22:48:09,198 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 22:48:09,199 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:48:21,027 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:48:21,358 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:48:21,358 - root - INFO - Transkribierter Text (medium, de): Das ist ein Test.
+2024-09-14 22:48:21,359 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:51:24,239 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:51:24,240 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:51:24,268 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:51:24,268 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 22:51:24,269 - Wortweber - INFO - Input Device id 0 - Test Device 1
+2024-09-14 22:51:24,269 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 22:51:24,269 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:51:24,269 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:51:24,287 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:51:24,287 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:51:24,287 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:51:26,248 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:51:26,262 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:51:26,262 - Wortweber - INFO - WordweberBackend initialisiert
+2024-09-14 22:51:26,263 - Wortweber - INFO - Aufnahme gespeichert. Warte auf Modell-Bereitschaft.
+2024-09-14 22:51:26,264 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:51:30,331 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:51:31,136 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:51:31,534 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:51:31,535 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 108
+2024-09-14 22:51:31,535 - Wortweber - INFO - Transkriptionsmodell 'small' erfolgreich geladen
+2024-09-14 22:51:31,535 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:51:32,035 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:51:32,035 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:51:35,903 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:51:36,078 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:51:36,081 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 22:51:36,081 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 22:51:36,082 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:51:36,081 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:51:36,081 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:51:36,082 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:51:36,082 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 22:51:36,085 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:51:36,965 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:51:37,049 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:51:37,524 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:51:37,620 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:51:40,235 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:51:40,417 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:51:48,508 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:51:48,859 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:51:48,862 - root - INFO - Starte Test für Modell tiny in Sprache de
+2024-09-14 22:51:48,862 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 22:51:48,862 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:51:49,521 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:51:49,584 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:51:49,584 - root - INFO - Transkribierter Text (tiny, de): Das ist ein Test.
+2024-09-14 22:51:49,584 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:51:49,584 - root - INFO - Starte Test für Modell base in Sprache de
+2024-09-14 22:51:49,584 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 22:51:49,585 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:51:50,801 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:51:50,900 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:51:50,900 - root - INFO - Transkribierter Text (base, de): Das ist ein Test.
+2024-09-14 22:51:50,900 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:51:50,901 - root - INFO - Starte Test für Modell small in Sprache de
+2024-09-14 22:51:50,901 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:51:50,901 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:51:54,802 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:51:54,960 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:51:54,960 - root - INFO - Transkribierter Text (small, de): Das ist ein Test.
+2024-09-14 22:51:54,960 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:51:54,960 - root - INFO - Starte Test für Modell medium in Sprache de
+2024-09-14 22:51:54,960 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 22:51:54,961 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:52:07,440 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:52:07,788 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:52:07,788 - root - INFO - Transkribierter Text (medium, de): Das ist ein Test.
+2024-09-14 22:52:07,788 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:56:27,720 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:56:27,721 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:56:27,749 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:56:27,749 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 22:56:27,750 - Wortweber - INFO - Input Device id 0 - Test Device 1
+2024-09-14 22:56:27,750 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 22:56:27,750 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:56:27,750 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:56:27,767 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:56:27,768 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:56:27,768 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:56:29,730 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:56:29,765 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:56:29,765 - Wortweber - INFO - WordweberBackend initialisiert
+2024-09-14 22:56:29,767 - Wortweber - INFO - Aufnahme gespeichert. Warte auf Modell-Bereitschaft.
+2024-09-14 22:56:29,767 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:56:33,958 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:56:34,790 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:56:35,150 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:56:35,150 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 106
+2024-09-14 22:56:35,150 - Wortweber - INFO - Transkriptionsmodell 'small' erfolgreich geladen
+2024-09-14 22:56:35,151 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:56:35,650 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:56:35,650 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:56:39,661 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:56:39,826 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:56:39,829 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 22:56:39,829 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:56:39,829 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 22:56:39,830 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:56:39,830 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:56:39,830 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:56:39,830 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 22:56:39,830 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:56:40,717 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:56:40,840 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:56:41,289 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:56:41,392 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:56:44,025 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:56:44,203 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:56:52,059 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:56:52,412 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:56:52,418 - root - INFO - Starte Test für Modell tiny in Sprache de
+2024-09-14 22:56:52,418 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 22:56:52,418 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:56:53,099 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:56:53,160 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:56:53,160 - root - INFO - Transkribierter Text (tiny, de): Das ist ein Test.
+2024-09-14 22:56:53,160 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:56:53,161 - root - INFO - Starte Test für Modell base in Sprache de
+2024-09-14 22:56:53,161 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 22:56:53,161 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:56:54,459 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:56:54,553 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:56:54,554 - root - INFO - Transkribierter Text (base, de): Das ist ein Test.
+2024-09-14 22:56:54,554 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:56:54,554 - root - INFO - Starte Test für Modell small in Sprache de
+2024-09-14 22:56:54,554 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:56:54,554 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:56:58,401 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:56:58,571 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:56:58,571 - root - INFO - Transkribierter Text (small, de): Das ist ein Test.
+2024-09-14 22:56:58,571 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:56:58,571 - root - INFO - Starte Test für Modell medium in Sprache de
+2024-09-14 22:56:58,571 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 22:56:58,572 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:57:06,097 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:57:06,111 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:57:06,111 - Wortweber - INFO - WordweberBackend initialisiert
+2024-09-14 22:57:06,111 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 22:57:06,111 - Wortweber - INFO - Input Device id 0 - HDA Intel PCH: ALC892 Analog (hw:0,0)
+2024-09-14 22:57:06,111 - Wortweber - INFO - Input Device id 1 - HDA Intel PCH: ALC892 Alt Analog (hw:0,2)
+2024-09-14 22:57:06,111 - Wortweber - INFO - Input Device id 6 - USB Audio Device: - (hw:2,0)
+2024-09-14 22:57:06,112 - Wortweber - INFO - Input Device id 7 - sysdefault
+2024-09-14 22:57:06,112 - Wortweber - INFO - Input Device id 10 - pipewire
+2024-09-14 22:57:06,112 - Wortweber - INFO - Input Device id 11 - usb
+2024-09-14 22:57:06,112 - Wortweber - INFO - Input Device id 13 - default
+2024-09-14 22:57:06,112 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 22:57:06,468 - Wortweber - INFO - Schriftart auf nimbus mono l, Größe 14 geändert
+2024-09-14 22:57:06,468 - Wortweber - INFO - Gespeicherter Text geladen
+2024-09-14 22:57:06,468 - Wortweber - INFO - TranscriptionPanel initialisiert
+2024-09-14 22:57:06,486 - Wortweber - INFO - UI-Setup abgeschlossen
+2024-09-14 22:57:06,486 - Wortweber - INFO - MainWindow initialisiert
+2024-09-14 22:57:06,487 - Wortweber - INFO - Textfarben aktualisiert
+2024-09-14 22:57:06,663 - Wortweber - INFO - Textfarben aktualisiert
+2024-09-14 22:57:06,666 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:57:07,381 - Wortweber - INFO - Audiogerät erfolgreich überprüft
+2024-09-14 22:57:07,381 - Wortweber - INFO - Audioaufnahme gestartet
+2024-09-14 22:57:07,381 - Wortweber - INFO - Audioaufnahme gestartet
+2024-09-14 22:57:08,814 - Wortweber - INFO - Aufnahme gespeichert. Warte auf Modell-Bereitschaft.
+2024-09-14 22:57:08,878 - Wortweber - INFO - Audioaufnahme beendet. Dauer: 1.49 Sekunden
+2024-09-14 22:57:11,566 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 22:57:12,050 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:57:12,050 - root - INFO - Transkribierter Text (medium, de): Das ist ein Test.
+2024-09-14 22:57:12,050 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 22:57:12,126 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:57:12,626 - Wortweber - INFO - Audiogerät erfolgreich überprüft
+2024-09-14 22:57:12,626 - Wortweber - INFO - Audioaufnahme gestartet
+2024-09-14 22:57:12,626 - Wortweber - INFO - Audioaufnahme gestartet
+2024-09-14 22:57:12,781 - Wortweber - ERROR - Fehler bei der Transkription: The size of tensor a (12) must match the size of tensor b (4) at non-singleton dimension 3
+2024-09-14 22:57:12,781 - Wortweber - ERROR - Fehler in transcribe: name 'traceback' is not defined
+2024-09-14 22:57:12,783 - Wortweber - ERROR - Fehler in process_and_transcribe: name 'traceback' is not defined
+2024-09-14 22:57:12,784 - Wortweber - ERROR - Fehler in transcribe_and_update: name 'traceback' is not defined
+2024-09-14 22:57:12,941 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:57:13,118 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:57:13,118 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 27
+2024-09-14 22:57:13,118 - Wortweber - INFO - Transkriptionsmodell 'medium' erfolgreich geladen
+2024-09-14 22:57:16,817 - Wortweber - INFO - Audioaufnahme beendet. Dauer: 4.19 Sekunden
+2024-09-14 22:57:17,053 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:57:17,053 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 36
+2024-09-14 22:57:17,301 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:57:17,301 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 36
+2024-09-14 22:57:17,339 - Wortweber - INFO - Text eingefügt und hervorgehoben: Das ist ein Test nach dem Moduladen....
+2024-09-14 22:57:59,552 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:57:59,569 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:57:59,569 - Wortweber - INFO - WordweberBackend initialisiert
+2024-09-14 22:57:59,569 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 22:57:59,569 - Wortweber - INFO - Input Device id 0 - HDA Intel PCH: ALC892 Analog (hw:0,0)
+2024-09-14 22:57:59,570 - Wortweber - INFO - Input Device id 1 - HDA Intel PCH: ALC892 Alt Analog (hw:0,2)
+2024-09-14 22:57:59,570 - Wortweber - INFO - Input Device id 6 - USB Audio Device: - (hw:2,0)
+2024-09-14 22:57:59,570 - Wortweber - INFO - Input Device id 7 - sysdefault
+2024-09-14 22:57:59,570 - Wortweber - INFO - Input Device id 10 - pipewire
+2024-09-14 22:57:59,570 - Wortweber - INFO - Input Device id 11 - usb
+2024-09-14 22:57:59,570 - Wortweber - INFO - Input Device id 13 - default
+2024-09-14 22:57:59,570 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 22:57:59,933 - Wortweber - INFO - Schriftart auf nimbus mono l, Größe 14 geändert
+2024-09-14 22:57:59,933 - Wortweber - INFO - Gespeicherter Text geladen
+2024-09-14 22:57:59,933 - Wortweber - INFO - TranscriptionPanel initialisiert
+2024-09-14 22:57:59,970 - Wortweber - INFO - UI-Setup abgeschlossen
+2024-09-14 22:57:59,970 - Wortweber - INFO - MainWindow initialisiert
+2024-09-14 22:57:59,972 - Wortweber - INFO - Textfarben aktualisiert
+2024-09-14 22:58:00,144 - Wortweber - INFO - Textfarben aktualisiert
+2024-09-14 22:58:00,146 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:58:04,159 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:58:04,160 - Wortweber - INFO - Transkriptionsmodell 'medium' erfolgreich geladen
+2024-09-14 22:58:06,845 - Wortweber - INFO - Audiogerät erfolgreich überprüft
+2024-09-14 22:58:06,846 - Wortweber - INFO - Audioaufnahme gestartet
+2024-09-14 22:58:06,846 - Wortweber - INFO - Audioaufnahme gestartet
+2024-09-14 22:58:10,692 - Wortweber - INFO - Audioaufnahme beendet. Dauer: 3.84 Sekunden
+2024-09-14 22:58:11,406 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:58:11,406 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 48
+2024-09-14 22:58:11,699 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:58:11,699 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 48
+2024-09-14 22:58:11,744 - Wortweber - INFO - Text eingefügt und hervorgehoben: Gebt die ganze Werte bitte aus ohne Platzhalter....
+2024-09-14 22:59:39,664 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:59:39,665 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:59:39,692 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:59:39,693 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 22:59:39,693 - Wortweber - INFO - Input Device id 0 - Test Device 1
+2024-09-14 22:59:39,693 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 22:59:39,694 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:59:39,694 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:59:39,710 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:59:39,710 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:59:39,710 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:59:41,672 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 22:59:41,699 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:59:41,700 - Wortweber - INFO - WordweberBackend initialisiert
+2024-09-14 22:59:41,701 - Wortweber - INFO - Aufnahme gespeichert. Warte auf Modell-Bereitschaft.
+2024-09-14 22:59:41,701 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:59:45,741 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:59:46,545 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:59:46,926 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:59:46,926 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 106
+2024-09-14 22:59:46,926 - Wortweber - INFO - Transkriptionsmodell 'small' erfolgreich geladen
+2024-09-14 22:59:46,926 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 22:59:47,435 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:59:47,436 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:59:51,564 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:59:51,742 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:59:51,745 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 22:59:51,745 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 22:59:51,746 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 22:59:51,746 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 22:59:51,746 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 22:59:51,746 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 22:59:51,749 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 22:59:51,749 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 22:59:52,619 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 22:59:52,724 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:59:53,188 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 22:59:53,287 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 22:59:55,894 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 22:59:56,075 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:00:04,153 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 23:00:04,496 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:00:04,507 - root - INFO - Starte Test für Modell tiny in Sprache de
+2024-09-14 23:00:04,507 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 23:00:04,507 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 23:00:05,186 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 23:00:05,249 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:00:05,249 - root - INFO - Transkribierter Text (tiny, de): Das ist ein Test.
+2024-09-14 23:00:05,249 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 23:00:05,249 - root - INFO - Starte Test für Modell base in Sprache de
+2024-09-14 23:00:05,249 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 23:00:05,249 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 23:00:06,467 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 23:00:06,555 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:00:06,555 - root - INFO - Transkribierter Text (base, de): Das ist ein Test.
+2024-09-14 23:00:06,555 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 23:00:06,555 - root - INFO - Starte Test für Modell small in Sprache de
+2024-09-14 23:00:06,555 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 23:00:06,555 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 23:00:10,599 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 23:00:10,761 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:00:10,762 - root - INFO - Transkribierter Text (small, de): Das ist ein Test.
+2024-09-14 23:00:10,762 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 23:00:10,762 - root - INFO - Starte Test für Modell medium in Sprache de
+2024-09-14 23:00:10,762 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 23:00:10,763 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 23:00:23,161 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 23:00:23,507 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:00:23,507 - root - INFO - Transkribierter Text (medium, de): Das ist ein Test.
+2024-09-14 23:00:23,507 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 23:05:45,878 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:05:45,879 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:05:45,908 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:05:45,909 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 23:05:45,909 - Wortweber - INFO - Input Device id 0 - Test Device 1
+2024-09-14 23:05:45,909 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 23:05:45,909 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:05:45,909 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:05:45,925 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:05:45,925 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:05:45,926 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:05:47,887 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:05:47,900 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 23:05:47,901 - Wortweber - INFO - WordweberBackend initialisiert
+2024-09-14 23:05:47,902 - Wortweber - INFO - Aufnahme gespeichert. Warte auf Modell-Bereitschaft.
+2024-09-14 23:05:47,902 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 23:05:51,994 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 23:05:52,814 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:05:53,186 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:05:53,186 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 105
+2024-09-14 23:05:53,186 - Wortweber - INFO - Transkriptionsmodell 'small' erfolgreich geladen
+2024-09-14 23:05:53,186 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:05:53,698 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 23:05:53,698 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 23:05:57,677 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 23:05:57,838 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:05:57,840 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 23:05:57,840 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 23:05:57,841 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 23:05:57,841 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 23:05:57,841 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 23:05:57,841 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 23:05:57,842 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 23:05:57,842 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 23:05:58,835 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 23:05:58,913 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:05:59,600 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 23:05:59,732 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:06:01,908 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 23:06:02,076 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:06:10,027 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 23:06:10,373 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:06:10,376 - root - INFO - Starte Test für Modell tiny in Sprache de
+2024-09-14 23:06:10,376 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 23:06:10,376 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 23:06:11,015 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 23:06:11,080 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:06:11,080 - root - INFO - Transkribierter Text (tiny, de): Das ist ein Test.
+2024-09-14 23:06:11,080 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 23:06:11,080 - root - INFO - Starte Test für Modell base in Sprache de
+2024-09-14 23:06:11,080 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 23:06:11,081 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 23:06:12,296 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 23:06:12,382 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:06:12,382 - root - INFO - Transkribierter Text (base, de): Das ist ein Test.
+2024-09-14 23:06:12,382 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 23:06:12,383 - root - INFO - Starte Test für Modell small in Sprache de
+2024-09-14 23:06:12,383 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 23:06:12,383 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 23:06:16,442 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 23:06:16,614 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:06:16,614 - root - INFO - Transkribierter Text (small, de): Das ist ein Test.
+2024-09-14 23:06:16,614 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 23:06:16,614 - root - INFO - Starte Test für Modell medium in Sprache de
+2024-09-14 23:06:16,614 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 23:06:16,615 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 23:06:29,040 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 23:06:29,440 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:06:29,440 - root - INFO - Transkribierter Text (medium, de): Das ist ein Test.
+2024-09-14 23:06:29,441 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 23:07:52,005 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:07:52,006 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:07:52,034 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:07:52,035 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 23:07:52,035 - Wortweber - INFO - Input Device id 0 - Test Device 1
+2024-09-14 23:07:52,035 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 23:07:52,035 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:07:52,035 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:07:52,052 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:07:52,052 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:07:52,052 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:07:54,012 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:07:54,040 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 23:07:54,041 - Wortweber - INFO - WordweberBackend initialisiert
+2024-09-14 23:07:54,043 - Wortweber - INFO - Aufnahme gespeichert. Warte auf Modell-Bereitschaft.
+2024-09-14 23:07:54,043 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 23:07:56,767 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:07:56,782 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 23:07:56,782 - Wortweber - INFO - WordweberBackend initialisiert
+2024-09-14 23:07:56,782 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 23:07:56,782 - Wortweber - INFO - Input Device id 0 - HDA Intel PCH: ALC892 Analog (hw:0,0)
+2024-09-14 23:07:56,782 - Wortweber - INFO - Input Device id 1 - HDA Intel PCH: ALC892 Alt Analog (hw:0,2)
+2024-09-14 23:07:56,783 - Wortweber - INFO - Input Device id 6 - USB Audio Device: - (hw:2,0)
+2024-09-14 23:07:56,783 - Wortweber - INFO - Input Device id 7 - sysdefault
+2024-09-14 23:07:56,783 - Wortweber - INFO - Input Device id 10 - pipewire
+2024-09-14 23:07:56,783 - Wortweber - INFO - Input Device id 11 - usb
+2024-09-14 23:07:56,783 - Wortweber - INFO - Input Device id 13 - default
+2024-09-14 23:07:56,783 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 23:07:56,783 - Wortweber - INFO - Einstellungen erfolgreich geladen
+2024-09-14 23:07:56,783 - Wortweber - INFO - SettingsManager initialisiert
+2024-09-14 23:07:57,103 - Wortweber - INFO - InputProcessor initialisiert
+2024-09-14 23:07:57,153 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:07:57,153 - Wortweber - INFO - Einstellung geändert: font_family = nimbus mono l
+2024-09-14 23:07:57,214 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:07:57,214 - Wortweber - INFO - Einstellung geändert: font_size = 14
+2024-09-14 23:07:57,215 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:07:57,215 - Wortweber - INFO - Schriftart auf nimbus mono l, Größe 14 geändert
+2024-09-14 23:07:57,215 - Wortweber - INFO - Gespeicherter Text geladen
+2024-09-14 23:07:57,215 - Wortweber - INFO - TranscriptionPanel initialisiert
+2024-09-14 23:07:57,238 - Wortweber - INFO - UI-Setup abgeschlossen
+2024-09-14 23:07:57,238 - Wortweber - INFO - MainWindow initialisiert
+2024-09-14 23:07:57,239 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:07:57,239 - Wortweber - INFO - Einstellung geändert: theme = black
+2024-09-14 23:07:57,239 - Wortweber - INFO - Textfarben aktualisiert
+2024-09-14 23:07:57,244 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:07:57,244 - Wortweber - INFO - Einstellung geändert: text_content = Gebt die ganze Werte bitte aus ohne Platzhalter.
+2024-09-14 23:07:57,245 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:07:57,419 - Wortweber - INFO - Textfarben aktualisiert
+2024-09-14 23:07:57,421 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 23:07:57,421 - Wortweber - INFO - Tastatur-Listener gestartet
+2024-09-14 23:07:58,668 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 23:07:59,417 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:07:59,783 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:07:59,784 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 70
+2024-09-14 23:07:59,784 - Wortweber - INFO - Transkriptionsmodell 'small' erfolgreich geladen
+2024-09-14 23:07:59,784 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:08:00,289 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 23:08:00,289 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 23:08:02,017 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 23:08:02,017 - Wortweber - INFO - Transkriptionsmodell 'medium' erfolgreich geladen
+2024-09-14 23:08:04,337 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 23:08:04,493 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:08:04,495 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 23:08:04,495 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 23:08:04,496 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 23:08:04,496 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 23:08:04,496 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 23:08:04,496 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 23:08:04,497 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 23:08:04,497 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 23:08:05,356 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 23:08:05,435 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:08:05,451 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:08:05,452 - Wortweber - INFO - Einstellung geändert: text_content = Gebt die ganze Werte bitte aus ohne Platzhalter.Gebt die ganze Werte bitte aus ohne Platzhalter.
+2024-09-14 23:08:05,452 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:08:05,857 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 23:08:05,985 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:08:07,748 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:08:07,749 - Wortweber - INFO - Einstellung geändert: text_content = Gebt die ganze Werte bitte aus ohne Platzhalter.Gebt die ganze Werte bitte aus ohne Platzhalter.
+Gebt die ganze Werte bitte aus ohne Platzhalter.
+2024-09-14 23:08:07,749 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:08:08,447 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 23:08:08,621 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:08:09,407 - Wortweber - INFO - Audiogerät erfolgreich überprüft
+2024-09-14 23:08:09,407 - Wortweber - INFO - Audioaufnahme gestartet
+2024-09-14 23:08:09,408 - Wortweber - INFO - Audioaufnahme gestartet
+2024-09-14 23:08:09,410 - Wortweber - INFO - Audioaufnahme gestartet
+2024-09-14 23:08:12,486 - Wortweber - INFO - Audioaufnahme beendet. Dauer: 3.08 Sekunden
+2024-09-14 23:08:13,532 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:08:13,532 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 62
+2024-09-14 23:08:13,534 - Wortweber - INFO - Audioaufnahme beendet
+2024-09-14 23:08:13,943 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:08:13,943 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 50
+2024-09-14 23:08:14,007 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:08:14,007 - Wortweber - INFO - Einstellung geändert: text_content = Gebt die ganze Werte bitte aus ohne Platzhalter.Gebt die ganze Werte bitte aus ohne Platzhalter.
+Gebt die ganze Werte bitte aus ohne Platzhalter.
+Eins, zwei, drei, vier, fünf, sechs, die macht 19.
+2024-09-14 23:08:14,008 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:08:14,009 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:08:14,009 - Wortweber - INFO - Einstellung geändert: text_content = Gebt die ganze Werte bitte aus ohne Platzhalter.Gebt die ganze Werte bitte aus ohne Platzhalter.
+Gebt die ganze Werte bitte aus ohne Platzhalter.
+Eins, zwei, drei, vier, fünf, sechs, die macht 19.
+2024-09-14 23:08:14,010 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:08:14,010 - Wortweber - INFO - Text eingefügt und hervorgehoben: Eins, zwei, drei, vier, fünf, sechs, die macht 19....
+2024-09-14 23:08:16,603 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 23:08:16,938 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:08:16,941 - root - INFO - Starte Test für Modell tiny in Sprache de
+2024-09-14 23:08:16,941 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 23:08:16,941 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 23:08:17,588 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 23:08:17,647 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:08:17,648 - root - INFO - Transkribierter Text (tiny, de): Das ist ein Test.
+2024-09-14 23:08:17,648 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 23:08:17,648 - root - INFO - Starte Test für Modell base in Sprache de
+2024-09-14 23:08:17,648 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 23:08:17,648 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 23:08:18,842 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 23:08:18,924 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:08:18,924 - root - INFO - Transkribierter Text (base, de): Das ist ein Test.
+2024-09-14 23:08:18,924 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 23:08:18,925 - root - INFO - Starte Test für Modell small in Sprache de
+2024-09-14 23:08:18,925 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 23:08:18,925 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 23:08:20,394 - Wortweber - INFO - Text erfolgreich konvertiert: 
+ -> 
+
+2024-09-14 23:08:20,436 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:08:20,436 - Wortweber - INFO - Einstellung geändert: text_content = Gebt die ganze Werte bitte aus ohne Platzhalter.Gebt die ganze Werte bitte aus ohne Platzhalter.
+Gebt die ganze Werte bitte aus ohne Platzhalter.
+Eins, zwei, drei, vier, fünf, sechs, die macht 19.
+2024-09-14 23:08:20,436 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:08:22,756 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 23:08:22,912 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:08:22,912 - root - INFO - Transkribierter Text (small, de): Das ist ein Test.
+2024-09-14 23:08:22,912 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 23:08:22,912 - root - INFO - Starte Test für Modell medium in Sprache de
+2024-09-14 23:08:22,912 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 23:08:22,913 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 23:08:27,673 - Wortweber - INFO - Audiogerät erfolgreich überprüft
+2024-09-14 23:08:27,673 - Wortweber - INFO - Audioaufnahme gestartet
+2024-09-14 23:08:27,673 - Wortweber - INFO - Audioaufnahme gestartet
+2024-09-14 23:08:27,676 - Wortweber - INFO - Audioaufnahme gestartet
+2024-09-14 23:08:29,725 - Wortweber - INFO - Audioaufnahme beendet. Dauer: 2.05 Sekunden
+2024-09-14 23:08:29,749 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:08:29,749 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 2
+2024-09-14 23:08:29,750 - Wortweber - INFO - Audioaufnahme beendet
+2024-09-14 23:08:29,905 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:08:29,905 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 2
+2024-09-14 23:08:29,951 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:08:29,951 - Wortweber - INFO - Einstellung geändert: text_content = Gebt die ganze Werte bitte aus ohne Platzhalter.Gebt die ganze Werte bitte aus ohne Platzhalter.
+Gebt die ganze Werte bitte aus ohne Platzhalter.
+Eins, zwei, drei, vier, fünf, sechs, die macht 19.
+21
+2024-09-14 23:08:29,952 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:08:29,953 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:08:29,953 - Wortweber - INFO - Einstellung geändert: text_content = Gebt die ganze Werte bitte aus ohne Platzhalter.Gebt die ganze Werte bitte aus ohne Platzhalter.
+Gebt die ganze Werte bitte aus ohne Platzhalter.
+Eins, zwei, drei, vier, fünf, sechs, die macht 19.
+21
+2024-09-14 23:08:29,953 - Wortweber - INFO - Einstellungen erfolgreich gespeichert
+2024-09-14 23:08:29,953 - Wortweber - INFO - Text eingefügt und hervorgehoben: 21...
+2024-09-14 23:08:34,810 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 23:08:35,239 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:08:35,240 - root - INFO - Transkribierter Text (medium, de): Das ist ein Test.
+2024-09-14 23:08:35,240 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 23:12:22,614 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:12:22,615 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:12:22,641 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:12:22,642 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 23:12:22,642 - Wortweber - INFO - Input Device id 0 - Test Device 1
+2024-09-14 23:12:22,642 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 23:12:22,642 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:12:22,642 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:12:22,659 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:12:22,659 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:12:22,659 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:12:24,620 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:12:24,646 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 23:12:24,646 - Wortweber - INFO - WordweberBackend initialisiert
+2024-09-14 23:12:24,648 - Wortweber - INFO - Aufnahme gespeichert. Warte auf Modell-Bereitschaft.
+2024-09-14 23:12:24,648 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 23:12:28,721 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 23:12:29,528 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:12:29,888 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:12:29,888 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 106
+2024-09-14 23:12:29,888 - Wortweber - INFO - Transkriptionsmodell 'small' erfolgreich geladen
+2024-09-14 23:12:29,888 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:12:30,386 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 23:12:30,387 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 23:12:34,306 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 23:12:34,464 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:12:34,467 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 23:12:34,468 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 23:12:34,468 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 23:12:34,468 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 23:12:34,468 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 23:12:34,469 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 23:12:34,468 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 23:12:34,472 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 23:12:35,251 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 23:12:35,327 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:12:35,916 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 23:12:36,215 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:12:38,511 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 23:12:38,687 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:12:46,707 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 23:12:47,060 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:12:47,063 - root - INFO - Starte Test für Modell tiny in Sprache de
+2024-09-14 23:12:47,063 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 23:12:47,063 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 23:12:47,711 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 23:12:47,773 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:12:47,773 - root - INFO - Transkribierter Text (tiny, de): Das ist ein Test.
+2024-09-14 23:12:47,773 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 23:12:47,773 - root - INFO - Starte Test für Modell base in Sprache de
+2024-09-14 23:12:47,773 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 23:12:47,774 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 23:12:49,020 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 23:12:49,111 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:12:49,111 - root - INFO - Transkribierter Text (base, de): Das ist ein Test.
+2024-09-14 23:12:49,111 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 23:12:49,111 - root - INFO - Starte Test für Modell small in Sprache de
+2024-09-14 23:12:49,111 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 23:12:49,112 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 23:12:53,091 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 23:12:53,254 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:12:53,254 - root - INFO - Transkribierter Text (small, de): Das ist ein Test.
+2024-09-14 23:12:53,254 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 23:12:53,254 - root - INFO - Starte Test für Modell medium in Sprache de
+2024-09-14 23:12:53,254 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 23:12:53,255 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 23:13:05,576 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 23:13:05,917 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:13:05,917 - root - INFO - Transkribierter Text (medium, de): Das ist ein Test.
+2024-09-14 23:13:05,917 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 23:14:19,691 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:14:19,692 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:14:19,722 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:14:19,722 - Wortweber - INFO - Auflistung der Audiogeräte gestartet
+2024-09-14 23:14:19,723 - Wortweber - INFO - Input Device id 0 - Test Device 1
+2024-09-14 23:14:19,723 - Wortweber - INFO - Auflistung der Audiogeräte abgeschlossen
+2024-09-14 23:14:19,723 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:14:19,723 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:14:19,741 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:14:19,741 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:14:19,741 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:14:21,703 - Wortweber - INFO - AudioProcessor initialisiert
+2024-09-14 23:14:21,735 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 23:14:21,736 - Wortweber - INFO - WordweberBackend initialisiert
+2024-09-14 23:14:21,737 - Wortweber - INFO - Aufnahme gespeichert. Warte auf Modell-Bereitschaft.
+2024-09-14 23:14:21,738 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 23:14:25,796 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 23:14:26,583 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:14:26,941 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:14:26,941 - Wortweber - INFO - Transkription abgeschlossen. Länge des Textes: 106
+2024-09-14 23:14:26,941 - Wortweber - INFO - Transkriptionsmodell 'small' erfolgreich geladen
+2024-09-14 23:14:26,941 - Wortweber - INFO - AudioProcessor beendet
+2024-09-14 23:14:27,452 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 23:14:27,452 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 23:14:31,347 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 23:14:31,507 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:14:31,510 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 23:14:31,510 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 23:14:31,510 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 23:14:31,510 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 23:14:31,510 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 23:14:31,510 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 23:14:31,511 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 23:14:31,511 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 23:14:32,292 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 23:14:32,367 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:14:32,855 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 23:14:32,955 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:14:35,614 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 23:14:35,788 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:14:43,606 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 23:14:43,954 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:14:43,957 - root - INFO - Starte Test für Modell tiny in Sprache de
+2024-09-14 23:14:43,957 - Wortweber - INFO - Transcriber initialisiert mit Modell tiny auf Gerät cuda
+2024-09-14 23:14:43,957 - Wortweber - INFO - Lade Spracherkennungsmodell: tiny
+2024-09-14 23:14:44,678 - Wortweber - INFO - Spracherkennungsmodell tiny geladen auf cuda.
+2024-09-14 23:14:44,741 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:14:44,741 - root - INFO - Transkribierter Text (tiny, de): Das ist ein Test.
+2024-09-14 23:14:44,741 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 23:14:44,741 - root - INFO - Starte Test für Modell base in Sprache de
+2024-09-14 23:14:44,741 - Wortweber - INFO - Transcriber initialisiert mit Modell base auf Gerät cuda
+2024-09-14 23:14:44,742 - Wortweber - INFO - Lade Spracherkennungsmodell: base
+2024-09-14 23:14:45,952 - Wortweber - INFO - Spracherkennungsmodell base geladen auf cuda.
+2024-09-14 23:14:46,047 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:14:46,047 - root - INFO - Transkribierter Text (base, de): Das ist ein Test.
+2024-09-14 23:14:46,047 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 23:14:46,047 - root - INFO - Starte Test für Modell small in Sprache de
+2024-09-14 23:14:46,047 - Wortweber - INFO - Transcriber initialisiert mit Modell small auf Gerät cuda
+2024-09-14 23:14:46,047 - Wortweber - INFO - Lade Spracherkennungsmodell: small
+2024-09-14 23:14:49,881 - Wortweber - INFO - Spracherkennungsmodell small geladen auf cuda.
+2024-09-14 23:14:50,036 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:14:50,036 - root - INFO - Transkribierter Text (small, de): Das ist ein Test.
+2024-09-14 23:14:50,036 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']
+2024-09-14 23:14:50,036 - root - INFO - Starte Test für Modell medium in Sprache de
+2024-09-14 23:14:50,036 - Wortweber - INFO - Transcriber initialisiert mit Modell medium auf Gerät cuda
+2024-09-14 23:14:50,037 - Wortweber - INFO - Lade Spracherkennungsmodell: medium
+2024-09-14 23:15:02,269 - Wortweber - INFO - Spracherkennungsmodell medium geladen auf cuda.
+2024-09-14 23:15:02,620 - Wortweber - INFO - Transkription erfolgreich durchgeführt für Sprache: de
+2024-09-14 23:15:02,620 - root - INFO - Transkribierter Text (medium, de): Das ist ein Test.
+2024-09-14 23:15:02,620 - root - INFO - Erwartete Wörter: ['das', 'ist', 'ein', 'test']

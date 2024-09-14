@@ -17,6 +17,7 @@ import sys
 import os
 import warnings
 import ctypes
+from src.utils.error_handling import handle_exceptions, logger
 
 # Füge den Projektordner zum Python-Pfad hinzu
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -37,7 +38,7 @@ try:
     asound = ctypes.cdll.LoadLibrary('libasound.so.2')
     asound.snd_lib_error_set_handler(c_error_handler)
 except:
-    pass
+    logger.warning("Konnte ALSA-Fehlermeldungen nicht unterdrücken")
 
 # Setze Umgebungsvariable, um PulseAudio-Warnungen zu unterdrücken
 os.environ['PULSE_PROP_media.role'] = 'phone'
@@ -45,11 +46,13 @@ os.environ['PULSE_PROP_media.role'] = 'phone'
 from src.backend.wortweber_backend import WordweberBackend
 from src.frontend.wortweber_gui import WordweberGUI
 
+@handle_exceptions
 def main():
     """
     Hauptfunktion der Wortweber-Anwendung.
     Initialisiert das Backend und die GUI und startet die Anwendung.
     """
+    logger.info("Starte Wortweber-Anwendung")
     backend = WordweberBackend()
     backend.list_audio_devices()  # Zeigt verfügbare Audiogeräte an
     gui = WordweberGUI(backend)

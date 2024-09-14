@@ -14,7 +14,9 @@
 
 import tkinter as tk
 from src.backend.text_processor import words_to_digits, digits_to_words
+from src.utils.error_handling import handle_exceptions, logger
 
+@handle_exceptions
 def create_context_menu(text_widget, event):
     """
     Erstellt und zeigt ein Kontextmenü für das gegebene Text-Widget an.
@@ -33,7 +35,9 @@ def create_context_menu(text_widget, event):
     context_menu.add_command(label="Zahlwörter nach Ziffern", command=lambda: convert_text(text_widget, words_to_digits))
     context_menu.add_command(label="Ziffern nach Zahlwörtern", command=lambda: convert_text(text_widget, digits_to_words))
     context_menu.tk_popup(event.x_root, event.y_root)
+    logger.debug("Kontextmenü erstellt und angezeigt")
 
+@handle_exceptions
 def convert_text(text_widget, conversion_function):
     """
     Konvertiert den ausgewählten Text im Widget mit der angegebenen Konvertierungsfunktion.
@@ -46,9 +50,10 @@ def convert_text(text_widget, conversion_function):
         converted_text = conversion_function(selected_text)
         text_widget.delete(tk.SEL_FIRST, tk.SEL_LAST)
         text_widget.insert(tk.INSERT, converted_text)
+        logger.info(f"Text erfolgreich konvertiert: {selected_text} -> {converted_text}")
     except tk.TclError:
         # Kein Text ausgewählt, tue nichts
-        pass
+        logger.debug("Keine Textauswahl für Konvertierung")
 
 # Diese Datei implementiert das Kontextmenü für das Transkriptionsfenster.
 # Es bietet grundlegende Textbearbeitungsfunktionen sowie spezielle Optionen

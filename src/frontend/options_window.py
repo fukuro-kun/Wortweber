@@ -27,6 +27,7 @@ from tkcolorpicker import askcolor
 
 # Projektspezifische Module
 from src.config import DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE
+from src.utils.error_handling import handle_exceptions, logger
 
 class OptionsWindow(tk.Toplevel):
     """
@@ -37,6 +38,7 @@ class OptionsWindow(tk.Toplevel):
     _instance = None
 
     @classmethod
+    @handle_exceptions
     def open_window(cls, parent, theme_manager, transcription_panel, gui):
         """
         Öffnet das Optionsfenster oder bringt ein bereits geöffnetes in den Vordergrund.
@@ -51,7 +53,9 @@ class OptionsWindow(tk.Toplevel):
         else:
             cls._instance.focus_force()
             cls._instance.lift()
+        logger.info("Optionsfenster geöffnet oder in den Vordergrund gebracht")
 
+    @handle_exceptions
     def __init__(self, parent, theme_manager, transcription_panel, gui):
         """
         Initialisiert das OptionsWindow.
@@ -80,12 +84,16 @@ class OptionsWindow(tk.Toplevel):
 
         # Bind das Schließen-Event
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
+        logger.info("OptionsWindow initialisiert")
 
+    @handle_exceptions
     def setup_styles(self):
         """Richtet benutzerdefinierte Stile für die UI-Elemente ein."""
         style = ttk.Style()
         style.configure('Square.TButton', width=3, padding=0)
+        logger.debug("Benutzerdefinierte Stile für UI-Elemente eingerichtet")
 
+    @handle_exceptions
     def setup_ui(self):
         """Richtet die Benutzeroberfläche für das OptionsWindow ein."""
         notebook = ttk.Notebook(self)
@@ -118,6 +126,9 @@ class OptionsWindow(tk.Toplevel):
         close_button = ttk.Button(button_frame, text="Schließen", command=self.on_closing)
         close_button.pack(side=tk.RIGHT, padx=5)
 
+        logger.info("OptionsWindow UI eingerichtet")
+
+    @handle_exceptions
     def setup_text_options(self, parent):
         """
         Richtet die Optionen zur Anpassung der Textgröße und Schriftart ein.
@@ -157,15 +168,20 @@ class OptionsWindow(tk.Toplevel):
         self.size_var.trace_add("write", self.update_text_options)
         self.font_var.trace_add("write", self.update_text_options)
 
+        logger.debug("Textoptionen eingerichtet")
+
+    @handle_exceptions
     def update_text_options(self, *args):
         """Aktualisiert die Textgröße und Schriftart basierend auf den ausgewählten Werten."""
         try:
             new_size = int(self.size_var.get())
             new_font = self.font_var.get()
             self.transcription_panel.set_font(new_font, new_size)
+            logger.info(f"Textoptionen aktualisiert: Schriftart={new_font}, Größe={new_size}")
         except ValueError:
-            pass  # Ignoriere ungültige Eingaben
+            logger.warning("Ungültige Eingabe für Textgröße")
 
+    @handle_exceptions
     def scroll_font(self, direction):
         """
         Scrollt durch die verfügbaren Schriftarten.
@@ -177,7 +193,9 @@ class OptionsWindow(tk.Toplevel):
         new_index = (current_index + direction) % len(self.available_fonts)
         new_font = self.available_fonts[new_index]
         self.font_var.set(new_font)  # Aktualisiert die Combobox
+        logger.debug(f"Schriftart geändert zu: {new_font}")
 
+    @handle_exceptions
     def setup_test_recording_options(self, parent):
         """
         Richtet die Optionen für die Testaufnahme ein.
@@ -188,22 +206,27 @@ class OptionsWindow(tk.Toplevel):
         ttk.Checkbutton(parent, text="Letzte Aufnahme als Testdatei speichern",
                         variable=self.save_test_recording_var,
                         command=self.on_save_test_recording_change).pack(pady=10)
+        logger.debug("Testaufnahmeoptionen eingerichtet")
 
+    @handle_exceptions
     def on_save_test_recording_change(self):
         """
         Behandelt Änderungen der Testaufnahme-Einstellung.
         Speichert die neue Einstellung und aktualisiert die Konfiguration.
         """
-        self.gui.settings_manager.set_setting("save_test_recording", self.save_test_recording_var.get())
+        new_value = self.save_test_recording_var.get()
+        self.gui.settings_manager.set_setting("save_test_recording", new_value)
         self.gui.settings_manager.save_settings()
+        logger.info(f"Testaufnahme-Einstellung geändert: {new_value}")
 
+    @handle_exceptions
     def get_current_settings(self):
         """
         Erfasst die aktuellen Einstellungen.
 
         :return: Ein Dictionary mit den aktuellen Einstellungen
         """
-        return {
+        settings = {
             "theme": self.theme_manager.current_theme.get(),
             "font_size": self.transcription_panel.get_font_size(),
             "font_family": self.transcription_panel.get_font_family(),
@@ -215,7 +238,10 @@ class OptionsWindow(tk.Toplevel):
             "highlight_fg": self.theme_manager.highlight_fg.get(),
             "highlight_bg": self.theme_manager.highlight_bg.get()
         }
+        logger.debug("Aktuelle Einstellungen erfasst")
+        return settings
 
+    @handle_exceptions
     def create_color_row(self, parent, label, fg_var, bg_var, row):
         """
         Erstellt eine Reihe von UI-Elementen für die Farbauswahl einer Textkategorie.
@@ -246,6 +272,9 @@ class OptionsWindow(tk.Toplevel):
         setattr(self, f"{label.lower().replace(' ', '_')}_fg_preview", fg_preview)
         setattr(self, f"{label.lower().replace(' ', '_')}_bg_preview", bg_preview)
 
+        logger.debug(f"Farbreihe für {label} erstellt")
+
+    @handle_exceptions
     def update_preview(self, preview_text, fg_var, bg_var):
         """
         Aktualisiert die Vorschau-Textfelder mit den ausgewählten Farben.
@@ -257,10 +286,12 @@ class OptionsWindow(tk.Toplevel):
         try:
             if preview_text.winfo_exists():
                 preview_text.config(fg=fg_var.get(), bg=bg_var.get())
+                logger.debug("Vorschau-Text aktualisiert")
         except tk.TclError:
             # Widget wurde zerstört, ignoriere den Fehler
-            pass
+            logger.debug("Vorschau-Widget existiert nicht mehr")
 
+    @handle_exceptions
     def choose_color(self, color_var, preview_frame):
         """
         Öffnet den Farbauswahldialog und aktualisiert die gewählte Farbe.
@@ -279,9 +310,11 @@ class OptionsWindow(tk.Toplevel):
                     self.gui.settings_manager.set_setting(setting_name, color[1])
                     self.gui.settings_manager.save_settings()
                     self.gui.theme_manager.update_colors()
+                    logger.info(f"Farbe für {setting_name} auf {color[1]} geändert")
         except tk.TclError:
-            pass
+            logger.warning("Farbauswahl-Widget existiert nicht mehr")
 
+    @handle_exceptions
     def undo_changes(self):
         """Setzt alle Änderungen auf den Stand zurück, als das Fenster geöffnet wurde."""
         self.theme_manager.change_theme(self.initial_settings["theme"])
@@ -309,11 +342,15 @@ class OptionsWindow(tk.Toplevel):
         # Aktualisiere die Farben in der GUI
         self.theme_manager.update_colors()
 
+        logger.info("Alle Änderungen rückgängig gemacht")
+
+    @handle_exceptions
     def load_window_geometry(self):
         """Lädt die gespeicherte Fenstergröße und -position."""
         geometry = self.gui.settings_manager.get_setting("options_window_geometry")
         if geometry:
             self.geometry(geometry)
+            logger.debug(f"Gespeicherte Fenstergeometrie geladen: {geometry}")
         else:
             # Wenn keine gespeicherte Geometrie vorhanden ist, zentriere das Fenster
             self.update_idletasks()
@@ -322,7 +359,9 @@ class OptionsWindow(tk.Toplevel):
             x = (self.winfo_screenwidth() // 2) - (width // 2)
             y = (self.winfo_screenheight() // 2) - (height // 2)
             self.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+            logger.debug("Fenster zentriert (keine gespeicherte Geometrie)")
 
+    @handle_exceptions
     def on_closing(self):
         """Wird aufgerufen, wenn das Fenster geschlossen wird."""
         # Speichere die aktuelle Fenstergröße und -position
@@ -335,6 +374,7 @@ class OptionsWindow(tk.Toplevel):
             self.gui.settings_manager.set_setting(setting, current_color)
 
         self.gui.settings_manager.save_settings()
+        logger.info("Optionsfenster geschlossen, Einstellungen gespeichert")
         self.destroy()
 
 # Zusätzliche Erklärungen:
