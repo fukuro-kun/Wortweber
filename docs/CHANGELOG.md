@@ -5,6 +5,19 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.18.1] - 2024-09-14
+### Added
+- Neues `wortweber.sh` Skript für einfacheren Start der Anwendung
+- Automatische Erstellung von `wortweber.sh` im Installations- und Testskript
+
+### Changed
+- Verbesserte Installation und Einrichtung durch Aktualisierung von `install_and_test.sh`
+- Aktualisierte README mit klaren Anweisungen für beide Startmethoden
+
+### Improved
+- Optimierte Projektstruktur für konsistente Ausführung in verschiedenen Szenarien
+- Verbesserte Benutzerfreundlichkeit durch vereinfachten Startprozess
+
 ## [0.18.0] - 2024-09-14
 ### Added
 - Implementierung einer einheitlichen Fehlerbehandlungs- und Logging-Strategie im gesamten Projekt
