@@ -27,6 +27,7 @@ from tkcolorpicker import askcolor
 
 # Projektspezifische Module
 from src.config import DEFAULT_THEME
+from src.utils.error_handling import handle_exceptions
 
 class ThemeManager:
     """
@@ -34,6 +35,7 @@ class ThemeManager:
     Ermöglicht das Ändern und Speichern von Themes sowie die Erstellung einer Theme-Auswahl-GUI.
     """
 
+    @handle_exceptions
     def __init__(self, root, settings_manager):
         """
         Initialisiert den ThemeManager.
@@ -57,6 +59,7 @@ class ThemeManager:
 
         self.gui = None
 
+    @handle_exceptions
     def set_gui(self, gui):
         """
         Setzt die Referenz zur Hauptanwendung.
@@ -65,6 +68,7 @@ class ThemeManager:
         """
         self.gui = gui
 
+    @handle_exceptions
     def setup_theme_selection(self, parent):
         """
         Erstellt die GUI-Elemente für die Theme- und Farbauswahl.
@@ -96,6 +100,7 @@ class ThemeManager:
         # Konfiguriere die Spaltengewichtung für das gesamte Frame
         theme_frame.columnconfigure(1, weight=1)
 
+    @handle_exceptions
     def create_color_row(self, parent, label, fg_var, bg_var, row):
         """
         Erstellt eine Reihe von UI-Elementen für die Farbauswahl einer Textkategorie.
@@ -122,6 +127,7 @@ class ThemeManager:
         fg_var.trace_add("write", lambda *args: self.update_preview(preview_text, fg_var, bg_var))
         bg_var.trace_add("write", lambda *args: self.update_preview(preview_text, fg_var, bg_var))
 
+    @handle_exceptions
     def update_preview(self, preview_text, fg_var, bg_var):
         """
         Aktualisiert die Vorschau-Textfelder mit den ausgewählten Farben.
@@ -137,6 +143,7 @@ class ThemeManager:
             # Widget wurde zerstört, ignoriere den Fehler
             pass
 
+    @handle_exceptions
     def on_dropdown_focus(self, event):
         """Wird aufgerufen, wenn das Dropdown-Menü den Fokus erhält."""
         try:
@@ -149,6 +156,7 @@ class ThemeManager:
             pass
         return "break"
 
+    @handle_exceptions
     def handle_keypress(self, event):
         """Behandelt Tastatureingaben im Dropdown-Menü."""
         if event.keysym in ("Up", "Down"):
@@ -156,6 +164,7 @@ class ThemeManager:
             return "break"  # Verhindert das Standard-Verhalten
         return  # Erlaubt andere Tasten (z.B. für die Suche im Dropdown)
 
+    @handle_exceptions
     def handle_dropdown_click(self, event):
         """Öffnet das Dropdown-Menü bei Klick."""
         if self.theme_dropdown.identify(event.x, event.y) == "arrow":
@@ -166,6 +175,7 @@ class ThemeManager:
             self.theme_dropdown.focus_set()
         return "break"
 
+    @handle_exceptions
     def navigate_theme(self, event):
         """Ermöglicht die Navigation durch die Themes mit den Pfeiltasten."""
         try:
@@ -180,6 +190,7 @@ class ThemeManager:
         except tk.TclError:
             pass
 
+    @handle_exceptions
     def on_theme_change(self, event=None):
         """
         Wird aufgerufen, wenn ein neues Theme ausgewählt wird.
@@ -192,6 +203,7 @@ class ThemeManager:
         except tk.TclError:
             pass
 
+    @handle_exceptions
     def change_theme(self, theme_name):
         """
         Ändert das aktuelle Theme der Anwendung.
@@ -206,6 +218,7 @@ class ThemeManager:
         except tk.TclError:
             pass
 
+    @handle_exceptions
     def choose_color(self, color_var, preview_frame):
         """
         Öffnet den Farbauswahldialog und aktualisiert die gewählte Farbe.
@@ -227,6 +240,7 @@ class ThemeManager:
         except tk.TclError:
             pass
 
+    @handle_exceptions
     def update_colors(self):
         """
         Aktualisiert die Farben in der gesamten GUI.
@@ -253,6 +267,7 @@ class ThemeManager:
         else:
             print("Warnung: GUI-Referenz nicht gesetzt. Farben werden nicht aktualisiert.")
 
+    @handle_exceptions
     def apply_saved_theme(self):
         """
         Wendet das gespeicherte Theme und die gespeicherten Farben an.

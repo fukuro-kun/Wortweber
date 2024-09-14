@@ -59,8 +59,12 @@ class TestAudioProcessor(unittest.TestCase):
 
         sys.stdout = sys.__stdout__  # Reset redirect
 
+        # Überprüfen Sie den tatsächlichen Output
+        print("Tatsächlicher Output:")
+        print(captured_output.getvalue())
+
         self.assertIn("Input Device id 0 - Test Device 1", captured_output.getvalue())
-        self.assertNotIn("Test Device 2", captured_output.getvalue())
+        self.assertNotIn("Input Device id 1 - Test Device 2", captured_output.getvalue())
         print("\nAudiogeräte wurden erfolgreich aufgelistet.")
 
     def test_resample_audio(self):

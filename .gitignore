@@ -18,6 +18,7 @@ pyrightconfig.json
 
 # Temporary files
 *.tmp
+wortweber.log
 
 # OS generated files
 .DS_Store

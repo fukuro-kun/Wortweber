@@ -18,17 +18,21 @@ import json
 import os
 from src.config import (DEFAULT_LANGUAGE, DEFAULT_WHISPER_MODEL, DEFAULT_THEME,
                         DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY, DEFAULT_FONT_SIZE)
+from src.utils.error_handling import handle_exceptions, logger
 
 class SettingsManager:
     """
     Verwaltet das Laden, Speichern und Abrufen von Benutzereinstellungen für die Wortweber-Anwendung.
     """
 
+    @handle_exceptions
     def __init__(self):
         """Initialisiert den SettingsManager und lädt bestehende Einstellungen."""
         self.settings_file = "user_settings.json"
         self.settings = self.load_settings()
+        logger.info("SettingsManager initialisiert")
 
+    @handle_exceptions
     def load_settings(self):
         """
         Lädt Benutzereinstellungen aus einer JSON-Datei.
@@ -39,16 +43,21 @@ class SettingsManager:
         if os.path.exists(self.settings_file):
             try:
                 with open(self.settings_file, "r") as f:
-                    return json.load(f)
+                    settings = json.load(f)
+                logger.info("Einstellungen erfolgreich geladen")
+                return settings
             except json.JSONDecodeError:
-                print("Fehler beim Laden der Einstellungen. Verwende Standardeinstellungen.")
+                logger.error("Fehler beim Laden der Einstellungen. Verwende Standardeinstellungen.")
         return self.get_default_settings()
 
+    @handle_exceptions
     def save_settings(self):
         """Speichert die aktuellen Einstellungen in einer JSON-Datei."""
         with open(self.settings_file, "w") as f:
             json.dump(self.settings, f, indent=4)
+        logger.info("Einstellungen erfolgreich gespeichert")
 
+    @handle_exceptions
     def get_setting(self, key, default=None):
         """
         Ruft den Wert einer bestimmten Einstellung ab.
@@ -57,8 +66,11 @@ class SettingsManager:
         :param default: Ein optionaler Standardwert, falls die Einstellung nicht existiert
         :return: Der Wert der Einstellung oder der Standardwert
         """
-        return self.settings.get(key, default or self.get_default_settings().get(key))
+        value = self.settings.get(key, default or self.get_default_settings().get(key))
+        logger.debug(f"Einstellung abgerufen: {key} = {value}")
+        return value
 
+    @handle_exceptions
     def set_setting(self, key, value):
         """
         Setzt den Wert einer bestimmten Einstellung und speichert die Änderungen.
@@ -68,14 +80,16 @@ class SettingsManager:
         """
         self.settings[key] = value
         self.save_settings()
+        logger.info(f"Einstellung geändert: {key} = {value}")
 
+    @handle_exceptions
     def get_default_settings(self):
         """
         Liefert ein Dictionary mit den Standardeinstellungen der Anwendung.
 
         :return: Ein Dictionary mit Standardeinstellungen
         """
-        return {
+        default_settings = {
             "language": DEFAULT_LANGUAGE,
             "model": DEFAULT_WHISPER_MODEL,
             "theme": DEFAULT_THEME,
@@ -86,8 +100,12 @@ class SettingsManager:
             "auto_copy": True,
             "text_content": "",
             "font_size": DEFAULT_FONT_SIZE,
-            "save_test_recording": False,  # Neue Einstellung für Testaufnahmen
+            "save_test_recording": False,
         }
+        logger.debug("Standardeinstellungen abgerufen")
+        return default_settings
+
+
 
 # Zusätzliche Erklärungen:
 

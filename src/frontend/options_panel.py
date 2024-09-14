@@ -21,12 +21,14 @@ from src.config import (
     DEFAULT_LANGUAGE,
     DEFAULT_WHISPER_MODEL
 )
+from src.utils.error_handling import handle_exceptions
 
 class OptionsPanel(ttk.Frame):
     """
     Panel für Benutzeroptionen und Einstellungen in der Wortweber-Anwendung.
     """
 
+    @handle_exceptions
     def __init__(self, parent, gui):
         """
         Initialisiert das OptionsPanel.
@@ -39,6 +41,7 @@ class OptionsPanel(ttk.Frame):
         self.setup_ui()
         self.toggle_delay_options()
 
+    @handle_exceptions
     def setup_ui(self):
         """Richtet die Benutzeroberfläche für das OptionsPanel ein."""
         self.setup_language_frame()
@@ -46,6 +49,7 @@ class OptionsPanel(ttk.Frame):
         self.setup_input_mode()
         self.setup_delay_options()
 
+    @handle_exceptions
     def setup_language_frame(self):
         """Erstellt und konfiguriert den Rahmen für die Sprachauswahl."""
         language_frame = ttk.LabelFrame(self, text="Sprache")
@@ -54,6 +58,7 @@ class OptionsPanel(ttk.Frame):
         for lang_code, lang_name in SUPPORTED_LANGUAGES.items():
             ttk.Radiobutton(language_frame, text=lang_name, variable=self.language_var, value=lang_code, command=self.on_language_change).pack(side=tk.LEFT, padx=5)
 
+    @handle_exceptions
     def setup_model_frame(self):
         """Erstellt und konfiguriert den Rahmen für die Modellauswahl."""
         model_frame = ttk.Frame(self)
@@ -64,6 +69,7 @@ class OptionsPanel(ttk.Frame):
         model_dropdown.grid(column=1, row=0)
         model_dropdown.bind("<<ComboboxSelected>>", self.on_model_change)
 
+    @handle_exceptions
     def setup_delay_options(self):
         """Erstellt und konfiguriert die Optionen für Eingabeverzögerungen."""
         self.delay_frame = ttk.LabelFrame(self, text="Verzögerungsmodus")
@@ -95,6 +101,7 @@ class OptionsPanel(ttk.Frame):
         # Anfänglich unsichtbar machen
         self.toggle_delay_options()
 
+    @handle_exceptions
     def setup_input_mode(self):
         """Erstellt und konfiguriert die Optionen für den Eingabemodus."""
         input_mode_frame = ttk.LabelFrame(self, text="Eingabemodus")
@@ -103,22 +110,26 @@ class OptionsPanel(ttk.Frame):
         ttk.Radiobutton(input_mode_frame, text="Ins Textfenster", variable=self.input_mode_var, value="textfenster", command=self.on_input_mode_change).pack(side=tk.LEFT, padx=5)
         ttk.Radiobutton(input_mode_frame, text="An Systemcursor-Position", variable=self.input_mode_var, value="systemcursor", command=self.on_input_mode_change).pack(side=tk.LEFT, padx=5)
 
+    @handle_exceptions
     def on_language_change(self):
         """Behandelt Änderungen der ausgewählten Sprache."""
         self.gui.settings_manager.set_setting("language", self.language_var.get())
         self.gui.settings_manager.save_settings()
 
+    @handle_exceptions
     def on_model_change(self, event):
         """Behandelt Änderungen des ausgewählten Whisper-Modells."""
         self.gui.settings_manager.set_setting("model", self.model_var.get())
         self.gui.load_model_async(self.model_var.get())
 
+    @handle_exceptions
     def on_input_mode_change(self):
         """Behandelt Änderungen des ausgewählten Eingabemodus."""
         self.gui.settings_manager.set_setting("input_mode", self.input_mode_var.get())
         self.gui.settings_manager.save_settings()
         self.toggle_delay_options()
 
+    @handle_exceptions
     def toggle_delay_options(self, *args):
         """Schaltet die Verzögerungsoptionen basierend auf dem ausgewählten Eingabemodus ein oder aus."""
         if self.input_mode_var.get() == "textfenster":
@@ -126,11 +137,13 @@ class OptionsPanel(ttk.Frame):
         else:
             self.delay_frame.pack(fill=tk.X, pady=5)
 
+    @handle_exceptions
     def on_delay_mode_change(self):
         """Behandelt Änderungen des ausgewählten Verzögerungsmodus."""
         self.gui.settings_manager.set_setting("delay_mode", self.delay_mode_var.get())
         self.gui.settings_manager.save_settings()
 
+    @handle_exceptions
     def on_char_delay_change(self, *args):
         """Behandelt Änderungen der eingegebenen zeichenweisen Verzögerung."""
         self.gui.settings_manager.set_setting("char_delay", self.char_delay_entry.get())

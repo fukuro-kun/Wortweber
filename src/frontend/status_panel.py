@@ -14,12 +14,14 @@
 
 import tkinter as tk
 from tkinter import ttk
+from src.utils.error_handling import handle_exceptions
 
 class StatusPanel(ttk.Frame):
     """
     Panel zur Anzeige von Statusinformationen und Timern in der Wortweber-Anwendung.
     """
 
+    @handle_exceptions
     def __init__(self, parent, gui):
         """
         Initialisiert das StatusPanel.
@@ -31,6 +33,7 @@ class StatusPanel(ttk.Frame):
         self.gui = gui
         self.setup_ui()
 
+    @handle_exceptions
     def setup_ui(self):
         """Richtet die Benutzeroberfläche für das StatusPanel ein."""
         ttk.Label(self, text="Drücken und halten Sie F12, um zu sprechen").grid(column=0, row=0, pady=5)
@@ -50,6 +53,7 @@ class StatusPanel(ttk.Frame):
         self.status_label = ttk.Label(self, textvariable=self.status_var)
         self.status_label.grid(column=0, row=4, pady=5)
 
+    @handle_exceptions
     def update_status(self, message: str, color: str = "black"):
         """
         Aktualisiert die Statusanzeige mit einer Nachricht und Farbe.
@@ -61,6 +65,7 @@ class StatusPanel(ttk.Frame):
         self.status_label.config(foreground=color)
         self.gui.root.update()
 
+    @handle_exceptions
     def update_timer(self, elapsed_time: float):
         """
         Aktualisiert die Anzeige der Aufnahmezeit.
@@ -69,6 +74,7 @@ class StatusPanel(ttk.Frame):
         """
         self.timer_var.set(f"Aufnahmezeit: {elapsed_time:.1f} s")
 
+    @handle_exceptions
     def update_transcription_timer(self, transcription_time: float):
         """
         Aktualisiert die Anzeige der Transkriptionszeit.
@@ -77,6 +83,7 @@ class StatusPanel(ttk.Frame):
         """
         self.transcription_timer_var.set(f"Transkriptionszeit: {transcription_time:.2f} s")
 
+    @handle_exceptions
     def reset_timer(self):
         """Setzt die Aufnahmezeit-Anzeige zurück."""
         self.timer_var.set("Aufnahmezeit: 0.0 s")

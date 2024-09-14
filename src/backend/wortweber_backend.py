@@ -23,7 +23,7 @@ from src.config import AUDIO_RATE, AUDIO_FORMAT, AUDIO_CHANNELS, AUDIO_CHUNK, DE
 from src.backend.audio_processor import AudioProcessor
 from src.backend.wortweber_transcriber import Transcriber
 import threading
-import logging
+from src.utils.error_handling import handle_exceptions, logger
 
 class WordweberState:
     def __init__(self):
@@ -34,6 +34,7 @@ class WordweberState:
         self.language: str = "de"
 
 class WordweberBackend:
+    @handle_exceptions
     def __init__(self):
         self.state = WordweberState()
         self.audio_processor = AudioProcessor()
@@ -41,13 +42,17 @@ class WordweberBackend:
         self.model_loaded = threading.Event()
         self.on_transcription_complete: Optional[Callable[[str], None]] = None
         self.pending_audio: List[np.ndarray] = []
+        logger.info("WordweberBackend initialisiert")
 
+    @handle_exceptions
     def start_recording(self) -> None:
         """Startet die Audioaufnahme."""
         self.state.recording = True
         self.state.audio_data = []
         threading.Thread(target=self._record_audio, daemon=True).start()
+        logger.info("Audioaufnahme gestartet")
 
+    @handle_exceptions
     def stop_recording(self) -> None:
         """Stoppt die Audioaufnahme und verarbeitet die aufgenommenen Daten."""
         self.state.recording = False
@@ -57,12 +62,15 @@ class WordweberBackend:
             audio_np = np.frombuffer(b''.join(self.state.audio_data), dtype=np.int16).astype(np.float32) / 32768.0
             audio_resampled = self.audio_processor.resample_audio(audio_np)
             self.pending_audio.append(audio_resampled)
-            logging.info("Aufnahme gespeichert. Warte auf Modell-Bereitschaft.")
+            logger.info("Aufnahme gespeichert. Warte auf Modell-Bereitschaft.")
 
+    @handle_exceptions
     def _record_audio(self) -> None:
         """Interne Methode zur Audioaufnahme."""
         duration = self.audio_processor.record_audio(self.state)
+        logger.debug(f"Audioaufnahme beendet. Dauer: {duration:.2f} Sekunden")
 
+    @handle_exceptions
     def process_and_transcribe(self, language: str) -> str:
         """
         Verarbeitet und transkribiert die aufgenommenen Audiodaten.
@@ -71,6 +79,7 @@ class WordweberBackend:
         :return: Der transkribierte Text
         """
         if not self.model_loaded.is_set():
+            logger.error("Modell nicht geladen. Bitte warten Sie, bis das Modell vollständig geladen ist.")
             raise RuntimeError("Modell nicht geladen. Bitte warten Sie, bis das Modell vollständig geladen ist.")
 
         audio_to_process = self.pending_audio + [np.frombuffer(b''.join(self.state.audio_data), dtype=np.int16).astype(np.float32) / 32768.0]
@@ -84,8 +93,10 @@ class WordweberBackend:
         if self.on_transcription_complete:
             self.on_transcription_complete(transcribed_text)
 
+        logger.info(f"Transkription abgeschlossen. Länge des Textes: {len(transcribed_text)}")
         return transcribed_text
 
+    @handle_exceptions
     def load_transcriber_model(self, model_name: str) -> None:
         """
         Lädt das Transkriptionsmodell.
@@ -97,14 +108,17 @@ class WordweberBackend:
             self.model_loaded.set()
             if self.pending_audio:
                 self.process_and_transcribe(self.state.language)
+            logger.info(f"Transkriptionsmodell '{model_name}' erfolgreich geladen")
         except Exception as e:
-            logging.error(f"Fehler beim Laden des Modells: {e}")
+            logger.error(f"Fehler beim Laden des Modells: {e}")
             self.model_loaded.clear()
 
+    @handle_exceptions
     def list_audio_devices(self) -> None:
         """Listet alle verfügbaren Audiogeräte auf."""
         self.audio_processor.list_audio_devices()
 
+    @handle_exceptions
     def check_audio_device(self) -> bool:
         """
         Überprüft, ob das konfigurierte Audiogerät verfügbar ist.
@@ -115,11 +129,13 @@ class WordweberBackend:
             stream = self.audio_processor.p.open(format=AUDIO_FORMAT, channels=AUDIO_CHANNELS, rate=AUDIO_RATE, input=True,
                                                  frames_per_buffer=AUDIO_CHUNK, input_device_index=DEVICE_INDEX)
             stream.close()
+            logger.info("Audiogerät erfolgreich überprüft")
             return True
         except Exception as e:
-            logging.error(f"Fehler beim Überprüfen des Audiogeräts: {e}")
+            logger.error(f"Fehler beim Überprüfen des Audiogeräts: {e}")
             return False
 
+    @handle_exceptions
     def set_language(self, language: str) -> None:
         """
         Setzt die Sprache für die Transkription.
@@ -127,6 +143,7 @@ class WordweberBackend:
         :param language: Der Sprachcode (z.B. 'de' für Deutsch)
         """
         self.state.language = language
+        logger.info(f"Sprache für Transkription auf {language} gesetzt")
 
 # Zusätzliche Erklärungen:
 

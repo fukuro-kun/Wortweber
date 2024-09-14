@@ -9,6 +9,7 @@
 - [ ] Erweiterung der Typ-Annotationen auf alle Teile des Codes
 - [ ] Überprüfung und Aktualisierung der Docstrings in allen Dateien
 - [ ] Entwicklung eines Konzepts für konsistente Namenskonventionen im gesamten Projekt
+- [ ] Die Textumwandlungen für Ziffern und Zahlwörter müssen wieder funktionsfähig werden
 
 ## Priorität Mittel
 - [ ] Implementierung zusätzlicher Module für die Ausgabe (z.B. Ollama-Unterstützung)

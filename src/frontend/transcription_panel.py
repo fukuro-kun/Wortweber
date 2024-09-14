@@ -18,12 +18,14 @@ import tkinter.font as tkFont
 import pyperclip
 from src.config import HIGHLIGHT_DURATION, DEFAULT_FONT_SIZE, DEFAULT_FONT_FAMILY
 from src.frontend.context_menu import create_context_menu
+from src.utils.error_handling import handle_exceptions, logger
 
 class TranscriptionPanel(ttk.Frame):
     """
     Panel zur Anzeige und Bearbeitung von Transkriptionen in der Wortweber-Anwendung.
     """
 
+    @handle_exceptions
     def __init__(self, parent, gui):
         """
         Initialisiert das TranscriptionPanel.
@@ -37,7 +39,9 @@ class TranscriptionPanel(ttk.Frame):
         self.font_family = self.gui.settings_manager.get_setting("font_family", DEFAULT_FONT_FAMILY)
         self.setup_ui()
         self.load_saved_text()
+        logger.info("TranscriptionPanel initialisiert")
 
+    @handle_exceptions
     def setup_ui(self):
         """Richtet die Benutzeroberfläche für das TranscriptionPanel ein."""
         self.text_widget = scrolledtext.ScrolledText(self, wrap=tk.WORD, width=80, height=20)
@@ -54,7 +58,9 @@ class TranscriptionPanel(ttk.Frame):
         # Event-Handler für Textänderungen hinzufügen
         self.text_widget.bind("<<Modified>>", self.on_text_modified)
         self.text_widget.bind("<<Selection>>", self.on_selection_change)
+        logger.debug("TranscriptionPanel UI eingerichtet")
 
+    @handle_exceptions
     def set_font(self, family, size):
         """
         Ändert die Schriftart und -größe des Transkriptionsfelds.
@@ -69,7 +75,9 @@ class TranscriptionPanel(ttk.Frame):
         self.gui.settings_manager.set_setting("font_family", family)
         self.gui.settings_manager.set_setting("font_size", size)
         self.gui.settings_manager.save_settings()
+        logger.info(f"Schriftart auf {family}, Größe {size} geändert")
 
+    @handle_exceptions
     def get_font_family(self):
         """
         Gibt die aktuelle Schriftartfamilie zurück.
@@ -78,6 +86,7 @@ class TranscriptionPanel(ttk.Frame):
         """
         return self.font_family
 
+    @handle_exceptions
     def get_font_size(self):
         """
         Gibt die aktuelle Schriftgröße zurück.
@@ -86,10 +95,13 @@ class TranscriptionPanel(ttk.Frame):
         """
         return self.font_size
 
+    @handle_exceptions
     def show_context_menu(self, event):
         """Zeigt das Kontextmenü an der Position des Mausklicks an."""
         create_context_menu(self.text_widget, event)
+        logger.debug("Kontextmenü angezeigt")
 
+    @handle_exceptions
     def insert_text(self, text):
         """
         Fügt Text in das Transkriptionsfeld ein und hebt ihn kurzzeitig hervor.
@@ -103,30 +115,40 @@ class TranscriptionPanel(ttk.Frame):
         self.text_widget.see(end_position)
         self.gui.root.after(HIGHLIGHT_DURATION, lambda: self.text_widget.tag_remove("highlight", current_position, end_position))
         self.save_text()
+        logger.info(f"Text eingefügt und hervorgehoben: {text[:50]}...")
 
+    @handle_exceptions
     def clear_transcription(self):
         """Löscht den gesamten Text im Transkriptionsfeld."""
         self.text_widget.delete(1.0, tk.END)
         self.save_text()
+        logger.info("Transkription gelöscht")
 
+    @handle_exceptions
     def copy_all_to_clipboard(self):
         """Kopiert den gesamten Text des Transkriptionsfelds in die Zwischenablage."""
         all_text = self.text_widget.get(1.0, tk.END)
         pyperclip.copy(all_text)
         self.gui.status_panel.update_status("Gesamter Text in die Zwischenablage kopiert", "green")
+        logger.info("Gesamter Text in die Zwischenablage kopiert")
 
+    @handle_exceptions
     def save_text(self):
         """Speichert den aktuellen Inhalt des Transkriptionsfelds in den Einstellungen."""
         text_content = self.text_widget.get(1.0, tk.END).strip()
         self.gui.settings_manager.set_setting("text_content", text_content)
         self.gui.settings_manager.save_settings()
+        logger.debug("Transkriptionstext gespeichert")
 
+    @handle_exceptions
     def load_saved_text(self):
         """Lädt den gespeicherten Text aus den Einstellungen in das Transkriptionsfeld."""
         saved_text = self.gui.settings_manager.get_setting("text_content")
         if saved_text:
             self.text_widget.insert(tk.END, saved_text)
+            logger.info("Gespeicherter Text geladen")
 
+    @handle_exceptions
     def on_text_modified(self, event):
         """
         Wird aufgerufen, wenn der Text im Transkriptionsfeld geändert wurde.
@@ -137,13 +159,17 @@ class TranscriptionPanel(ttk.Frame):
             self.save_text()
             # Zurücksetzen des modified flags
             self.text_widget.edit_modified(False)
+            logger.debug("Text geändert und gespeichert")
 
+    @handle_exceptions
     def on_selection_change(self, event):
         """Wird aufgerufen, wenn sich die Textauswahl ändert."""
         if self.text_widget.tag_ranges("sel"):
             self.text_widget.tag_remove("select", "1.0", tk.END)
             self.text_widget.tag_add("select", "sel.first", "sel.last")
+            logger.debug("Textauswahl geändert")
 
+    @handle_exceptions
     def update_colors(self, text_fg, text_bg, select_fg, select_bg, highlight_fg, highlight_bg):
         """
         Aktualisiert die Farben des Textwidgets.
@@ -163,6 +189,7 @@ class TranscriptionPanel(ttk.Frame):
         )
         self.text_widget.tag_configure("highlight", foreground=highlight_fg, background=highlight_bg)
         self.text_widget.tag_configure("select", foreground=select_fg, background=select_bg)
+        logger.info("Textfarben aktualisiert")
 
 # Zusätzliche Erklärungen:
 

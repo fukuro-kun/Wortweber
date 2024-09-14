@@ -1,3 +1,5 @@
+# src/backend/audio_processor.py
+
 # Copyright 2024 fukuro-kun
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,15 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# src/backend/audio_processor.py
-
+from src.utils.error_handling import handle_exceptions, logger
 from src.config import AUDIO_FORMAT, AUDIO_CHANNELS, AUDIO_RATE, AUDIO_CHUNK, DEVICE_INDEX, TARGET_RATE
 import pyaudio
 import numpy as np
 from scipy import signal
 import time
 import warnings
-import logging
 import os
 import wave
 import contextlib
@@ -35,6 +35,7 @@ class AudioProcessor:
     und zur Verarbeitung der aufgenommenen Audiodaten.
     """
 
+    @handle_exceptions
     def __init__(self):
         """
         Initialisiert den AudioProcessor.
@@ -44,6 +45,7 @@ class AudioProcessor:
         self.TARGET_RATE = TARGET_RATE
         self.last_recording = None
         self.p = pyaudio.PyAudio()
+        logger.info("AudioProcessor initialisiert")
 
     def __del__(self):
         """
@@ -52,6 +54,7 @@ class AudioProcessor:
         """
         if hasattr(self, 'p'):
             self.p.terminate()
+        logger.info("AudioProcessor beendet")
 
     @contextlib.contextmanager
     def get_pyaudio(self):
@@ -66,11 +69,13 @@ class AudioProcessor:
         finally:
             pass  # Die Terminierung erfolgt im Destruktor
 
+    @handle_exceptions
     def list_audio_devices(self):
         """
         Listet alle verfügbaren Audioeingangsgeräte auf.
         Diese Methode ist nützlich, um die korrekten Geräte-IDs für die Aufnahme zu identifizieren.
         """
+        logger.info("Auflistung der Audiogeräte gestartet")
         info = self.p.get_host_api_info_by_index(0)
         numdevices = info.get('deviceCount')
         if numdevices is not None:
@@ -79,7 +84,10 @@ class AudioProcessor:
                 max_channels = device_info.get('maxInputChannels')
                 if max_channels is not None and int(max_channels) > 0:
                     print(f"Input Device id {i} - {device_info.get('name')}")
+                    logger.info(f"Input Device id {i} - {device_info.get('name')}")
+        logger.info("Auflistung der Audiogeräte abgeschlossen")
 
+    @handle_exceptions
     def record_audio(self, state):
         """
         Nimmt Audio auf, basierend auf dem gegebenen Zustand.
@@ -90,11 +98,11 @@ class AudioProcessor:
         Diese Methode öffnet einen Audiostream, nimmt Audiodaten auf und speichert sie im state-Objekt.
         Sie läuft, bis state.recording auf False gesetzt wird.
         """
+        logger.info("Audioaufnahme gestartet")
         try:
             stream = self.p.open(format=AUDIO_FORMAT, channels=AUDIO_CHANNELS, rate=self.RATE, input=True,
                             frames_per_buffer=AUDIO_CHUNK, input_device_index=DEVICE_INDEX)
 
-            print("Aufnahme gestartet.")
             start_time = time.time()
             state.audio_data = []
             while state.recording:
@@ -104,16 +112,17 @@ class AudioProcessor:
             stream.stop_stream()
             stream.close()
             duration = time.time() - start_time
-            print(f"Aufnahme beendet. Dauer: {duration:.2f} Sekunden")
+            logger.info(f"Audioaufnahme beendet. Dauer: {duration:.2f} Sekunden")
 
-            self.last_recording = state.audio_data  # Speichern der letzten Aufnahme
+            self.last_recording = state.audio_data
             return duration
         except Exception as e:
-            logging.error(f"Fehler bei der Audioaufnahme: {e}")
-            logging.error(f"Fehlertyp: {type(e).__name__}")
-            logging.error(f"Geräteinformationen: {self.p.get_device_info_by_index(DEVICE_INDEX)}")
-            return 0
+            logger.error(f"Fehler bei der Audioaufnahme: {e}")
+            logger.error(f"Fehlertyp: {type(e).__name__}")
+            logger.error(f"Geräteinformationen: {self.p.get_device_info_by_index(DEVICE_INDEX)}")
+            raise
 
+    @handle_exceptions
     def resample_audio(self, audio_np):
         """
         Resampled das Audioarray auf die Zielrate.
@@ -124,11 +133,14 @@ class AudioProcessor:
         Diese Methode verwendet scipy.signal.resample, um die Abtastrate des Audios anzupassen.
         """
         if len(audio_np) == 0:
+            logger.warning("Leeres Audio-Array zum Resampling übergeben")
             return audio_np
         target_length = int(len(audio_np) * self.TARGET_RATE / self.RATE)
         resampled = signal.resample(audio_np, target_length)
+        logger.debug(f"Audio resampled von {len(audio_np)} auf {len(resampled)} Samples")
         return resampled
 
+    @handle_exceptions
     def save_last_recording(self, filename="tests/test_data/speech_sample.wav"):
         """
         Speichert die letzte Aufnahme als Testdatei.
@@ -137,7 +149,7 @@ class AudioProcessor:
         :return: True, wenn die Aufnahme erfolgreich gespeichert wurde, sonst False.
         """
         if not self.last_recording:
-            print("Keine Aufnahme verfügbar.")
+            logger.warning("Keine Aufnahme verfügbar zum Speichern")
             return False
 
         os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -148,7 +160,7 @@ class AudioProcessor:
             wf.setframerate(self.RATE)
             wf.writeframes(b''.join(self.last_recording))
 
-        print(f"Letzte Aufnahme gespeichert als {filename}")
+        logger.info(f"Letzte Aufnahme gespeichert als {filename}")
         return True
 
 # Zusätzliche Erklärungen:
