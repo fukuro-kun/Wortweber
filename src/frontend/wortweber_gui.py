@@ -65,6 +65,8 @@ class WordweberGUI:
         self.options_panel = self.main_window.options_panel
         self.status_panel = self.main_window.status_panel
 
+        self.theme_manager.set_gui(self)
+
         self.setup_logging()
         self.load_saved_settings()
         self.load_initial_model()
@@ -170,34 +172,22 @@ class WordweberGUI:
         if self.settings_manager.get_setting("save_test_recording", False):
             self.backend.audio_processor.save_last_recording()
 
+    def update_colors(self):
+        """
+        Aktualisiert die Farben im Transkriptionsfenster basierend auf den ThemeManager-Einstellungen.
+        """
+        self.transcription_panel.text_widget.config(
+            fg=self.theme_manager.text_fg.get(),
+            bg=self.theme_manager.text_bg.get(),
+            selectforeground=self.theme_manager.select_fg.get(),
+            selectbackground=self.theme_manager.select_bg.get()
+        )
+
 # Zusätzliche Erklärungen:
 
-# 1. Modularität:
-#    Die GUI ist in verschiedene Komponenten aufgeteilt (MainWindow, TranscriptionPanel, OptionsPanel, etc.),
-#    was die Wartbarkeit und Erweiterbarkeit des Codes verbessert.
-
-# 2. Asynchrone Modell-Ladung:
-#    Das Whisper-Modell wird in einem separaten Thread geladen, um die GUI reaktiv zu halten.
-
-# 3. Einstellungspersistenz:
-#    Fenstergeometrie und andere Einstellungen werden beim Schließen der Anwendung gespeichert
-#    und beim nächsten Start wiederhergestellt.
-
-# 4. Event-Handling:
-#    Verschiedene Events (z.B. Fenstergrößenänderung, Schließen der Anwendung) werden behandelt,
-#    um eine konsistente Benutzererfahrung zu gewährleisten.
-
-# 5. Zeitmessung:
-#    Die Klasse implementiert Timer-Funktionen für Aufnahme- und Transkriptionszeiten,
-#    was dem Benutzer nützliches Feedback gibt.
-
-# 6. Fehlerprotokollierung:
-#    Umfangreiches Logging hilft bei der Diagnose von Problemen während der Entwicklung und im Betrieb.
-
-# 7. Ressourcenmanagement:
-#    In der on_closing Methode werden explizit Ressourcen freigegeben (z.B. Modell-Deallokation),
-#    um Speicherlecks zu vermeiden.
-
-# 8. Testaufnahme-Speicherung:
-#    Die Funktion zum Speichern der letzten Aufnahme als Testdatei wird in transcribe_and_update integriert,
-#    basierend auf der Benutzereinstellung.
+# 1. Die WordweberGUI-Klasse ist der zentrale Punkt für die Verwaltung der Benutzeroberfläche.
+# 2. Sie koordiniert die Interaktionen zwischen verschiedenen UI-Komponenten und dem Backend.
+# 3. Die Methode update_colors wurde hinzugefügt, um die Farbänderungen im Transkriptionsfenster zu aktualisieren.
+# 4. Die Initialisierung des ThemeManagers wurde angepasst, um die GUI-Referenz zu setzen.
+# 5. Verschiedene Event-Handler und Timer-Funktionen steuern das dynamische Verhalten der Anwendung.
+# 6. Die Methoden zum Laden des Modells und zur Transkription sind asynchron, um die GUI reaktiv zu halten.

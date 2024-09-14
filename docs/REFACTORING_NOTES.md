@@ -1,3 +1,26 @@
+# Refactoring der Farbverwaltung (Version 0.17.0)
+
+## Begründung für das Refactoring
+1. Implementierung benutzerdefinierter Farbauswahl für erhöhte Personalisierung
+2. Verbesserung der Benutzerfreundlichkeit durch intuitive Farbauswahl
+3. Integration des tkcolorpicker für eine konsistente Farbauswahlerfahrung
+
+## Hauptänderungen
+1. Erweiterung des ThemeManagers:
+   - Hinzufügung von Methoden zur Farbauswahl und -anwendung
+   - Integration des tkcolorpicker für die Farbauswahl
+
+2. Anpassung der WordweberGUI:
+   - Implementierung der update_colors Methode zur Aktualisierung der Farben im Transkriptionsfenster
+
+3. Überarbeitung des TranscriptionPanels:
+   - Anpassung zur Unterstützung dynamischer Farbänderungen
+
+4. Aktualisierung der Einstellungsverwaltung:
+   - Erweiterung um Speicherung und Wiederherstellung benutzerdefinierter Farben
+
+Diese Änderungen ermöglichen eine flexiblere und benutzerfreundlichere Anpassung des Erscheinungsbilds der Anwendung.
+
 # Refactoring der Testausführungslogik (Version 0.16.1)
 
 ## Begründung für das Refactoring

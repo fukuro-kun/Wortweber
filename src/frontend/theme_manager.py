@@ -12,13 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+Dieses Modul verwaltet die Themes und Farbeinstellungen der Wortweber-Anwendung.
+Es bietet Funktionen zum Ändern von Themes und zur Auswahl benutzerdefinierter Farben.
+"""
+
 import ttkthemes
 import tkinter as tk
 from tkinter import ttk
+from tkcolorpicker import askcolor
 
 class ThemeManager:
     """
-    Verwaltet die Themes der Wortweber-Anwendung.
+    Verwaltet die Themes und Farbeinstellungen der Wortweber-Anwendung.
     Ermöglicht das Ändern und Speichern von Themes sowie die Erstellung einer Theme-Auswahl-GUI.
     """
 
@@ -35,22 +41,40 @@ class ThemeManager:
         self.current_theme_index = 0
         self.current_theme = tk.StringVar(value=self.themes[self.current_theme_index])
 
+        # Farbvariablen initialisieren
+        self.text_bg = tk.StringVar(value=self.settings_manager.get_setting("text_bg", "white"))
+        self.text_fg = tk.StringVar(value=self.settings_manager.get_setting("text_fg", "black"))
+        self.select_bg = tk.StringVar(value=self.settings_manager.get_setting("select_bg", "lightblue"))
+        self.select_fg = tk.StringVar(value=self.settings_manager.get_setting("select_fg", "black"))
+
+        self.gui = None
+
+    def set_gui(self, gui):
+        """
+        Setzt die Referenz zur Hauptanwendung.
+
+        :param gui: Referenz zur Hauptanwendung (WordweberGUI-Instanz)
+        """
+        self.gui = gui
+
     def setup_theme_selection(self, parent):
         """
-        Erstellt die GUI-Elemente für die Theme-Auswahl.
+        Erstellt die GUI-Elemente für die Theme- und Farbauswahl.
 
-        :param parent: Das übergeordnete Widget, in dem die Theme-Auswahl platziert wird
+        :param parent: Das übergeordnete Widget, in dem die Auswahlelemente platziert werden
         """
-        theme_frame = tk.Frame(parent)
+        theme_frame = ttk.LabelFrame(parent, text="Themes und Farben", padding="10")
         theme_frame.pack(fill=tk.X, pady=5)
 
-        ttk.Label(theme_frame, text="Theme:").pack(side=tk.LEFT, padx=(0, 5))
+        ttk.Label(theme_frame, text="Theme:").grid(row=0, column=0, sticky="w", padx=5, pady=5)
         self.theme_dropdown = ttk.Combobox(theme_frame, textvariable=self.current_theme, values=self.themes, state="readonly", width=15)
-        self.theme_dropdown.pack(side=tk.LEFT)
+        self.theme_dropdown.grid(row=0, column=1, padx=5, pady=5)
         self.theme_dropdown.bind("<<ComboboxSelected>>", self.on_theme_change)
 
-        ttk.Button(theme_frame, text="Vorheriges Theme", command=self.previous_theme).pack(side=tk.LEFT, padx=5)
-        ttk.Button(theme_frame, text="Nächstes Theme", command=self.next_theme).pack(side=tk.LEFT)
+        ttk.Button(theme_frame, text="Textfarbe", command=lambda: self.choose_color('text_fg')).grid(row=1, column=0, padx=5, pady=5)
+        ttk.Button(theme_frame, text="Texthintergrund", command=lambda: self.choose_color('text_bg')).grid(row=1, column=1, padx=5, pady=5)
+        ttk.Button(theme_frame, text="Auswahlfarbe", command=lambda: self.choose_color('select_fg')).grid(row=2, column=0, padx=5, pady=5)
+        ttk.Button(theme_frame, text="Auswahlhintergrund", command=lambda: self.choose_color('select_bg')).grid(row=2, column=1, padx=5, pady=5)
 
     def on_theme_change(self, event=None):
         """
@@ -70,20 +94,31 @@ class ThemeManager:
         self.current_theme.set(theme_name)
         self.settings_manager.set_setting("theme", theme_name)
 
-    def next_theme(self):
-        """Wechselt zum nächsten verfügbaren Theme."""
-        self.current_theme_index = (self.current_theme_index + 1) % len(self.themes)
-        self.change_theme(self.themes[self.current_theme_index])
+    def choose_color(self, target):
+        """
+        Öffnet den Farbauswahldialog und aktualisiert die gewählte Farbe.
 
-    def previous_theme(self):
-        """Wechselt zum vorherigen verfügbaren Theme."""
-        self.current_theme_index = (self.current_theme_index - 1) % len(self.themes)
-        self.change_theme(self.themes[self.current_theme_index])
+        :param target: Der Zielbereich für die Farbänderung ('text_fg', 'text_bg', 'select_fg', oder 'select_bg')
+        """
+        current_color = getattr(self, target).get()
+        color = askcolor(color=current_color, title=f"Wähle eine Farbe für {target}")
+        if color[1]:
+            getattr(self, target).set(color[1])
+            self.settings_manager.set_setting(target, color[1])
+            self.update_colors()
+
+    def update_colors(self):
+        """
+        Aktualisiert die Farben im Transkriptionsfenster.
+        """
+        if self.gui:
+            self.gui.update_colors()
+        else:
+            print("Warnung: GUI-Referenz nicht gesetzt. Farben werden nicht aktualisiert.")
 
     def apply_saved_theme(self):
         """
-        Wendet das gespeicherte Theme an oder verwendet das erste verfügbare Theme,
-        wenn kein gültiges Theme gespeichert ist.
+        Wendet das gespeicherte Theme und die gespeicherten Farben an.
         """
         saved_theme = self.settings_manager.get_setting("theme")
         if saved_theme in self.themes:
@@ -91,28 +126,20 @@ class ThemeManager:
         else:
             self.change_theme(self.themes[0])
 
+        # Gespeicherte Farben anwenden
+        for color_setting in ['text_bg', 'text_fg', 'select_bg', 'select_fg']:
+            saved_color = self.settings_manager.get_setting(color_setting)
+            if saved_color:
+                getattr(self, color_setting).set(saved_color)
+
+        self.update_colors()
+
 # Zusätzliche Erklärungen:
 
-# 1. ttkthemes:
-#    Diese Bibliothek erweitert die Standard-Tkinter-Themes um eine Vielzahl zusätzlicher Optionen.
-#    Sie ermöglicht es, das Aussehen der Anwendung erheblich zu verbessern und anzupassen.
-
-# 2. Zyklische Theme-Navigation:
-#    Die Methoden next_theme und previous_theme implementieren eine zyklische Navigation durch die Themes.
-#    Dies ermöglicht es dem Benutzer, einfach durch alle verfügbaren Themes zu blättern.
-
-# 3. Persistenz der Theme-Auswahl:
-#    Durch die Verwendung des settings_manager wird die Theme-Auswahl des Benutzers gespeichert
-#    und bei erneutem Start der Anwendung wiederhergestellt.
-
-# 4. Fehlertoleranz:
-#    Die apply_saved_theme-Methode überprüft, ob das gespeicherte Theme gültig ist,
-#    bevor es angewendet wird. Dies verhindert Fehler, falls ein nicht mehr verfügbares Theme gespeichert wurde.
-
-# 5. Separation of Concerns:
-#    Durch die Auslagerung der Theme-Verwaltung in eine eigene Klasse wird der Code modularer
-#    und leichter zu warten. Es erleichtert auch zukünftige Erweiterungen der Theme-Funktionalität.
-
-# 6. Benutzerfreundlichkeit:
-#    Die Kombination aus Dropdown-Menü und Vor-/Zurück-Buttons bietet verschiedene intuitive Möglichkeiten
-#    zur Theme-Auswahl, was die Benutzerfreundlichkeit erhöht.
+# 1. Die Klasse ThemeManager zentralisiert alle Funktionen zur Verwaltung von Themes und Farben.
+# 2. Die Methode setup_theme_selection erstellt eine benutzerfreundliche Oberfläche zur Auswahl von Themes und Farben.
+# 3. Die choose_color Methode verwendet den tkcolorpicker für eine verbesserte Farbauswahl-Erfahrung.
+# 4. Die update_colors Methode ruft die entsprechende Methode in der Hauptanwendung auf.
+# 5. Die apply_saved_theme Methode stellt sicher, dass beim Start der Anwendung die zuvor
+#    gespeicherten Theme- und Farbeinstellungen angewendet werden.
+# 6. Alle Farbeinstellungen werden im settings_manager gespeichert, um sie zwischen Sitzungen beizubehalten.

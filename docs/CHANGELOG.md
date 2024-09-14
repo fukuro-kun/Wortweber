@@ -5,6 +5,21 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.17.0] - 2024-09-14
+### Added
+- Implementierung eines Farbauswahldialogs für benutzerdefinierte Textfarben
+- Neue Funktionen zur Anpassung von Textfarbe, Texthintergrund, Auswahlfarbe und Auswahlhintergrund
+- Integration des tkcolorpicker für erweiterte Farbauswahl
+
+### Changed
+- Überarbeitung des ThemeManagers für verbesserte Farbverwaltung
+- Anpassung der WordweberGUI für die Unterstützung benutzerdefinierter Farben
+- Erweiterung des TranscriptionPanels zur Anwendung der benutzerdefinierten Farben
+
+### Improved
+- Verbesserte Benutzerfreundlichkeit durch individuelle Farbanpassungen
+- Optimierte Speicherung und Wiederherstellung von Farbeinstellungen
+
 ## [0.16.1] - 2024-09-14
 ### Fixed
 - Korrektur der Testausführungslogik in `run_tests.py`

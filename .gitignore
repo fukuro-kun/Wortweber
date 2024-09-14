@@ -26,3 +26,7 @@ user_settings.json
 model.py
 
 tests/test_data/
+
+# Persönlische Demo-Files
+
+Demo*.py

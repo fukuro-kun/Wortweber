@@ -6,8 +6,6 @@
 ## Priorität Hoch
 - [ ] Verbesserung der Shortcut-Funktionalität (Manuelle Einstellung, Erfassung, Zuverlässigkeit)
 
-
-
 ## Priorität Mittel
 - [ ] Implementierung zusätzlicher Module für die Ausgabe (z.B. Ollama-Unterstützung)
 - [ ] Erweiterung der Testabdeckung, insbesondere für kritische Funktionen
@@ -32,6 +30,12 @@
 - [ ] Detailliertere Dokumentation von Änderungen und deren erwarteten Auswirkungen
 - [ ] Regelmäßige Überprüfung und Aktualisierung der Kommentare im Code
 
+## Neue Aufgaben
+- [ ] Durchführen von Benutzertest zur Evaluierung der neuen Farbauswahlfunktion
+- [ ] Implementierung von Vorschau-Funktionalität für Farbänderungen
+- [ ] Optimierung der Farbauswahl-Performance bei großen Transkriptionen
+- [ ] Erwägung der Implementierung von Farbthemen oder Voreinstellungen für schnelle Anpassungen
+
 ## Abgeschlossen
 - [x] Beheben der DeprecationWarnings für `unittest.makeSuite()` durch Umstellung auf `unittest.TestLoader.loadTestsFromTestCase()`
 - [x] Erweiterung der Fehlerprotokolle für detailliertere Diagnosen bei Transkriptionsproblemen
@@ -43,9 +47,6 @@
 - [x] Verbessern der Fehlerbehandlung beim Laden der Einstellungen
 - [x] Optimieren des Modellwechsels
 - [x] Aktualisieren der Benutzerdokumentation für neue Funktionen
-- [x] Refactoring hinsichtlich aller Standardeinstellungen, welche als Variablen in config.py zu hinterlegen sind
-- [x] Implementierung einer Testaufnahme-Funktion für Entwicklungs- und Debugging-Zwecke
-- [x] Das initiale Ausgrauen der Verzögerungs-Optionen, wenn Eingabemodus="Ins Textfenster" implementieren
 
 ## Zukünftige Überlegungen
 - [ ] Mögliche Einführung von asyncio für verbesserte Nebenläufigkeit, insbesondere bei der Audioaufnahme und -verarbeitung
