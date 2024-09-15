@@ -7,6 +7,7 @@
 - [ ] Erweiterung der Typ-Annotationen auf alle Teile des Codes und Entwicklung eines Konzepts für konsistente Namenskonventionen
 - [ ] Wiederherstellung und Verbesserung der Textumwandlungen für Ziffern und Zahlwörter
 - [ ] Implementierung von Unit-Tests für die neue Incognito-Modus-Funktionalität
+- [ ] Durchführung umfassender Tests für die neue Zahlwort-Konvertierungsfunktionalität
 
 ## Priorität Mittel
 - [ ] Implementierung zusätzlicher Module für die Ausgabe (z.B. Ollama-Unterstützung)

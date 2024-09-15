@@ -22,15 +22,21 @@ class StatusPanel(ttk.Frame):
     """
 
     @handle_exceptions
-    def __init__(self, parent, gui):
+    def __init__(self, master, controller):
         """
         Initialisiert das StatusPanel.
 
-        :param parent: Das übergeordnete Tkinter-Widget
-        :param gui: Referenz auf die Hauptgui-Instanz
+        :param master: Das übergeordnete Tkinter-Widget
+        :param controller: Referenz auf die Hauptcontroller-Instanz
         """
-        super().__init__(parent)
-        self.gui = gui
+        super().__init__(master)
+        self.controller = controller
+
+        # Korrekte Initialisierung mit explizitem Master
+        self.recording_var = tk.BooleanVar(master=self, value=False)
+        self.transcribing_var = tk.BooleanVar(master=self, value=False)
+        self.model_loaded_var = tk.BooleanVar(master=self, value=False)
+
         self.setup_ui()
 
     @handle_exceptions
@@ -44,7 +50,7 @@ class StatusPanel(ttk.Frame):
         self.transcription_timer_var = tk.StringVar(value="Transkriptionszeit: 0.00 s")
         ttk.Label(self, textvariable=self.transcription_timer_var).grid(column=0, row=2, pady=5)
 
-        self.auto_copy_var = tk.BooleanVar(value=self.gui.settings_manager.get_setting("auto_copy"))
+        self.auto_copy_var = tk.BooleanVar(value=self.controller.settings_manager.get_setting("auto_copy"))
         self.auto_copy_checkbox = ttk.Checkbutton(self, text="Automatisch in Zwischenablage kopieren",
                                                   variable=self.auto_copy_var)
         self.auto_copy_checkbox.grid(column=0, row=3, pady=5, sticky="w")
@@ -63,7 +69,7 @@ class StatusPanel(ttk.Frame):
         """
         self.status_var.set(message)
         self.status_label.config(foreground=color)
-        self.gui.root.update()
+        self.master.update()
 
     @handle_exceptions
     def update_timer(self, elapsed_time: float):

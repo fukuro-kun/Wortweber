@@ -15,7 +15,7 @@
 """
 Dieses Modul enthält die Hauptlogik für die Ausführung der Wortweber-Tests.
 Es bietet Optionen für verschiedene Testszenarien, einschließlich grundlegender Tests,
-paralleler und sequenzieller Transkriptionstests.
+paralleler und sequenzieller Transkriptionstests sowie GUI-Tests.
 """
 
 import unittest
@@ -28,6 +28,8 @@ from tests.test_sequential_transcription import SequentialTranscriptionTest
 from tests.test_parallel_transcription import ParallelTranscriptionTest
 from tests.backend.test_audio_processor import TestAudioProcessor
 from tests.backend.test_transcription import TestTranscription
+from tests.frontend.test_wortweber_gui import TestWordweberGUI
+from tests.frontend.test_main_window import TestMainWindow
 import os
 import warnings
 
@@ -59,17 +61,18 @@ class ColorTextTestRunner(unittest.TextTestRunner):
     """Angepasster TestRunner für die Verwendung des ColorTextTestResult."""
     resultclass = ColorTextTestResult
 
-def run_tests(parallel: bool = False, sequential: bool = False, run_all: bool = False) -> unittest.TestResult:
+def run_tests(parallel: bool = False, sequential: bool = False, run_all: bool = False, gui: bool = False) -> unittest.TestResult:
     """
     Führt die spezifizierten Tests aus.
 
     Diese Funktion erstellt eine Test-Suite basierend auf den angegebenen Parametern
     und führt die Tests aus. Sie unterstützt grundlegende Tests, parallele und
-    sequenzielle Transkriptionstests.
+    sequenzielle Transkriptionstests sowie GUI-Tests.
 
     :param parallel: Wenn True, werden parallele Transkriptionstests ausgeführt
     :param sequential: Wenn True, werden sequenzielle Transkriptionstests ausgeführt
     :param run_all: Wenn True, werden alle Tests ausgeführt
+    :param gui: Wenn True, werden GUI-Tests ausgeführt
     :return: Ein unittest.TestResult-Objekt mit den Ergebnissen der Testausführung
 
     Die Funktion gibt eine Zusammenfassung der Testergebnisse aus, einschließlich
@@ -84,10 +87,15 @@ def run_tests(parallel: bool = False, sequential: bool = False, run_all: bool = 
     if run_all:
         suite.addTest(unittest.TestLoader().loadTestsFromTestCase(SequentialTranscriptionTest))
         suite.addTest(unittest.TestLoader().loadTestsFromTestCase(ParallelTranscriptionTest))
+        suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestWordweberGUI))
+        suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestMainWindow))
     elif parallel:
         suite.addTest(unittest.TestLoader().loadTestsFromTestCase(ParallelTranscriptionTest))
     elif sequential:
         suite.addTest(unittest.TestLoader().loadTestsFromTestCase(SequentialTranscriptionTest))
+    elif gui:
+        suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestWordweberGUI))
+        suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestMainWindow))
 
     runner = ColorTextTestRunner(verbosity=2)
     result = runner.run(suite)
@@ -105,6 +113,7 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--parallel', action='store_true', help='Run transcription tests in parallel')
     parser.add_argument('-s', '--sequential', action='store_true', help='Run transcription tests sequentially')
     parser.add_argument('-a', '--all', action='store_true', help='Run all tests including both parallel and sequential transcription tests')
+    parser.add_argument('-g', '--gui', action='store_true', help='Run GUI tests')
     args = parser.parse_args()
 
     gpu_available, gpu_memory = check_gpu_resources()
@@ -118,15 +127,17 @@ if __name__ == "__main__":
         args.parallel = False
 
     if args.all:
-        print(colored("Führe alle Tests einschließlich paralleler und sequenzieller Transkriptionstests aus.", "cyan"))
+        print(colored("Führe alle Tests einschließlich paralleler und sequenzieller Transkriptionstests sowie GUI-Tests aus.", "cyan"))
     elif args.parallel:
         print(colored(f"Führe parallele Transkriptionstests mit maximal {MAX_PARALLEL_TESTS} gleichzeitigen Tests aus.", "cyan"))
     elif args.sequential:
         print(colored("Führe sequenzielle Transkriptionstests aus.", "cyan"))
+    elif args.gui:
+        print(colored("Führe GUI-Tests aus.", "cyan"))
     else:
-        print(colored("Führe grundlegende Tests ohne Transkriptionstests aus.", "cyan"))
+        print(colored("Führe grundlegende Tests ohne Transkriptions- oder GUI-Tests aus.", "cyan"))
 
-    result = run_tests(parallel=args.parallel, sequential=args.sequential, run_all=args.all)
+    result = run_tests(parallel=args.parallel, sequential=args.sequential, run_all=args.all, gui=args.gui)
 
     sys.exit(not result.wasSuccessful())
 
@@ -138,7 +149,7 @@ if __name__ == "__main__":
 
 # 2. Flexible Testausführung:
 #    Die run_tests Funktion ist so gestaltet, dass sie verschiedene Testkombinationen
-#    basierend auf den übergebenen Argumenten ausführen kann.
+#    basierend auf den übergebenen Argumenten ausführen kann, einschließlich GUI-Tests.
 
 # 3. GPU-Ressourcenüberprüfung:
 #    Vor der Ausführung der Tests wird die Verfügbarkeit von GPU-Ressourcen überprüft,
@@ -146,7 +157,7 @@ if __name__ == "__main__":
 
 # 4. Kommandozeilenargumente:
 #    Die Verwendung von argparse ermöglicht eine flexible Konfiguration der Testausführung
-#    über Kommandozeilenargumente, einschließlich Kurzformen (-p, -s, -a).
+#    über Kommandozeilenargumente, einschließlich Kurzformen (-p, -s, -a, -g).
 
 # 5. Zusammenfassung der Testergebnisse:
 #    Am Ende der Testausführung wird eine übersichtliche Zusammenfassung der Ergebnisse ausgegeben.
@@ -155,4 +166,5 @@ if __name__ == "__main__":
 # - Für alle Tests: `python run_tests.py -a` oder `python run_tests.py --all`
 # - Für parallele Transkriptionstests: `python run_tests.py -p` oder `python run_tests.py --parallel`
 # - Für sequenzielle Transkriptionstests: `python run_tests.py -s` oder `python run_tests.py --sequential`
-# - Für grundlegende Tests ohne Transkriptionstests: `python run_tests.py` (ohne Argumente)
+# - Für GUI-Tests: `python run_tests.py -g` oder `python run_tests.py --gui`
+# - Für grundlegende Tests ohne Transkriptions- oder GUI-Tests: `python run_tests.py` (ohne Argumente)

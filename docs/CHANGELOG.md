@@ -5,6 +5,19 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.20.0] - 2024-09-15
+### Added
+- Verbesserte Zahlwort-zu-Ziffer und Ziffer-zu-Zahlwort Konvertierung für Deutsch und Englisch
+- Separate Parsing-Funktionen für deutsche und englische Zahlwörter
+
+### Changed
+- Optimierte Behandlung von "ein" und "eine" in deutschen Zahlwörtern
+- Verbesserte Leerzeichenbehandlung bei Ziffer-zu-Zahlwort-Konvertierung
+
+### Improved
+- Erweiterte Wörterbücher für umfassendere Zahlwortabdeckung
+- Verfeinerte Spracherkennungsfunktion für genauere Ergebnisse
+
 ## [0.19.0] - 2024-09-15
 ### Added
 - Implementierung des Incognito-Modus für erhöhten Datenschutz

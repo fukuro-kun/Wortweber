@@ -68,9 +68,13 @@ class TranscriptionPanel(ttk.Frame):
         :param family: Die neue Schriftartfamilie
         :param size: Die neue Schriftgröße
         """
+        try:
+            size = int(size)  # Versuchen Sie, size in einen Integer umzuwandeln
+        except ValueError:
+            size = 12  # Standardgröße, falls die Umwandlung fehlschlägt
+        font = tkFont.Font(family=family, size=size)
         self.font_family = family
         self.font_size = size
-        font = tkFont.Font(family=family, size=size)
         self.text_widget.configure(font=font)
         self.gui.settings_manager.set_setting("font_family", family)
         self.gui.settings_manager.set_setting("font_size", size)
