@@ -5,18 +5,31 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.20.1] - 2024-09-15
+### Fixed
+- Verbesserte Behandlung von zusammengesetzten deutschen Zahlwörtern
+- Korrigierte Umwandlung von "eine Million" und ähnlichen Fällen
+- Optimierte Leerzeichenbehandlung bei der Umwandlung von Ziffern zu Worten
+
+### Changed
+- Erweiterte Debugausgaben für bessere Nachvollziehbarkeit der Zahlenkonvertierung
+- Markierte kritische Stellen im Code für deutsche Zahlenbehandlung
+
 ## [0.20.0] - 2024-09-15
 ### Added
 - Verbesserte Zahlwort-zu-Ziffer und Ziffer-zu-Zahlwort Konvertierung für Deutsch und Englisch
 - Separate Parsing-Funktionen für deutsche und englische Zahlwörter
+- Umfangreiche neue GUI-Tests zur Verbesserung der Testabdeckung
 
 ### Changed
 - Optimierte Behandlung von "ein" und "eine" in deutschen Zahlwörtern
 - Verbesserte Leerzeichenbehandlung bei Ziffer-zu-Zahlwort-Konvertierung
+- Erweiterte Teststruktur für GUI-Komponenten
 
 ### Improved
 - Erweiterte Wörterbücher für umfassendere Zahlwortabdeckung
 - Verfeinerte Spracherkennungsfunktion für genauere Ergebnisse
+- Erhöhte Robustheit der GUI durch verbesserte Testabdeckung
 
 ## [0.19.0] - 2024-09-15
 ### Added

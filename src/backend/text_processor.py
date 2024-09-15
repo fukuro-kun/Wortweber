@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import re
+from termcolor import colored
 
 def detect_language(text):
     """
@@ -37,7 +38,7 @@ GERMAN_NUMBER_DICT = {
     'dreizehn': 13, 'vierzehn': 14, 'fünfzehn': 15, 'sechzehn': 16, 'siebzehn': 17,
     'achtzehn': 18, 'neunzehn': 19, 'zwanzig': 20, 'dreißig': 30, 'vierzig': 40,
     'fünfzig': 50, 'sechzig': 60, 'siebzig': 70, 'achtzig': 80, 'neunzig': 90,
-    'hundert': 100, 'tausend': 1000, 'million': 1000000, 'milliarde': 1000000000
+    'hundert': 100, 'tausend': 1000, 'million': 1000000, 'millionen': 1000000, 'milliarde': 1000000000
 }
 
 ENGLISH_NUMBER_DICT = {
@@ -49,29 +50,40 @@ ENGLISH_NUMBER_DICT = {
     'hundred': 100, 'thousand': 1000, 'million': 1000000, 'billion': 1000000000
 }
 
-def parse_german_number(word_list):
+def parse_german_number(words):
     total = 0
     current = 0
-    for word in word_list:
+    for word in words:
         if word == 'und':
             continue
-        elif word in GERMAN_NUMBER_DICT:
+        if word in GERMAN_NUMBER_DICT:
             value = GERMAN_NUMBER_DICT[word]
-            if value == 1 and (current == 0 or current >= 1000000):
+            if value == 1 and current == 0:
                 current = 1
+            elif value < 100:
+                current += value
             elif value == 100:
                 current = current * 100 if current != 0 else 100
             elif value >= 1000:
-                total += current * value
+                total += (current if current != 0 else 1) * value
                 current = 0
-            else:
-                current += value
+        else:
+            # DEUTSCH: Behandlung zusammengesetzter Wörter
+            for key, val in sorted(GERMAN_NUMBER_DICT.items(), key=lambda x: len(x[0]), reverse=True):
+                if word.endswith(key):
+                    prefix = word[:-len(key)]
+                    if prefix in GERMAN_NUMBER_DICT:
+                        if val >= 1000:
+                            total += GERMAN_NUMBER_DICT[prefix] * val
+                        else:
+                            current += GERMAN_NUMBER_DICT[prefix] * val
+                    break
     return total + current
 
-def parse_english_number(word_list):
+def parse_english_number(words):
     total = 0
     current = 0
-    for word in word_list:
+    for word in words:
         if word == 'and':
             continue
         elif word in ENGLISH_NUMBER_DICT:
@@ -97,12 +109,16 @@ def words_to_digits(text):
 
     def replace_number(match):
         words = match.group(0).lower().replace('-', ' ').split()
-        if words[0] == 'eine' and len(words) > 1 and words[1] in ['million', 'milliarde']:
-            words[0] = 'ein'
+        # DEUTSCH: Behandlung von einzeln stehenden Wörtern wie "ein"
         if len(words) == 1 and words[0] in ['ein', 'eine']:
             return match.group(0)
-
-        number = parse_german_number(words) if language == 'de' else parse_english_number(words)
+        if language == 'de':
+            # DEUTSCH: Behandlung von "eine Million" und ähnlichen Fällen
+            if words[0] == 'eine' and len(words) > 1 and words[1] in ['million', 'milliarde']:
+                words[0] = 'ein'
+            number = parse_german_number(words)
+        else:
+            number = parse_english_number(words)
         return str(number) if number is not None else match.group(0)
 
     # Muster für zusammengesetzte Zahlen
@@ -129,7 +145,10 @@ def digits_to_words(text, language=None):
 
     def replace_number(match):
         number = int(match.group(0))
+        print(f"DEBUG: Verarbeite Zahl: {number}")  # Debugausgabe
+
         if number in reverse_dict:
+            # DEUTSCH: Korrekte Behandlung von "ein" vs. "eins"
             if language == 'de' and number == 1:
                 return 'ein' if not match.group(0).strip() == '1' else 'eins'
             return reverse_dict[number]
@@ -142,11 +161,20 @@ def digits_to_words(text, language=None):
                 number %= 1000000000
             if number >= 1000000:
                 millionen = number // 1000000
-                words.append(f"{digits_to_words(str(millionen), 'de')} Millionen")
+                print(f"DEBUG: Millionen: {millionen}")  # Debugausgabe
+                # DEUTSCH: Korrekte Behandlung von "Million" und "Millionen"
+                if millionen == 1:
+                    words.append("eine Million")
+                else:
+                    words.append(f"{digits_to_words(str(millionen), 'de')} Millionen")
                 number %= 1000000
             if number >= 1000:
                 tausende = number // 1000
-                words.append(f"{digits_to_words(str(tausende), 'de')}tausend")
+                # DEUTSCH: Korrekte Behandlung von "eintausend"
+                if tausende == 1:
+                    words.append("eintausend")
+                else:
+                    words.append(f"{digits_to_words(str(tausende), 'de')}tausend")
                 number %= 1000
             if number >= 100:
                 hundreds = number // 100
@@ -158,8 +186,12 @@ def digits_to_words(text, language=None):
                 else:
                     ones = number % 10
                     tens = number - ones
+                    # DEUTSCH: "ein" statt "eins" für Zahlen größer 20
                     if ones > 0:
-                        words.append(f"{reverse_dict[ones]}und{reverse_dict[tens]}")
+                        if ones == 1:
+                            words.append(f"einund{reverse_dict[tens]}")
+                        else:
+                            words.append(f"{reverse_dict[ones]}und{reverse_dict[tens]}")
                     else:
                         words.append(reverse_dict[tens])
         else:  # Englisch
@@ -190,9 +222,36 @@ def digits_to_words(text, language=None):
                     else:
                         words.append(reverse_dict[tens])
 
-        return "".join(words)
+        result = "".join(words)
+        print(f"DEBUG: Ergebnis vor Leerzeichenkorrektur: {result}")  # Debugausgabe
+        # DEUTSCH: Leerzeichen nur zwischen Millionen und dem Rest beibehalten: Nur für Millionen und Milliarden, nicht für kleinere Zahlen
+        if language == 'de':
+            if "Million" in result:
+                parts = result.split("Million")
+                result = "Million ".join(parts)
+            elif "Milliarden" in result:
+                parts = result.split("Milliarden")
+                result = "Milliarden ".join(parts)
+        print(f"DEBUG: Finales Ergebnis: {result}")  # Debugausgabe
+        return result.strip()
 
     return re.sub(r'\b\d+\b', replace_number, text)
+
+def test_conversion(original):
+    """
+    Testet die Konvertierung von Zahlwörtern zu Ziffern und zurück.
+
+    :param original: Der zu testende Originaltext
+    """
+    print(f"Original: {original}")
+    to_digits = words_to_digits(original)
+    print(f"Zahlwörter zu Ziffern: {to_digits}")
+    to_words = digits_to_words(to_digits, detect_language(original))
+    if to_words == original:
+        print(colored(f"Ziffern zu Zahlwörtern: {to_words}", "green"))
+    else:
+        print(colored(f"Ziffern zu Zahlwörtern: {to_words}", "red"))
+    print()
 
 # Testfunktion
 if __name__ == "__main__":
@@ -200,7 +259,7 @@ if __name__ == "__main__":
         "Ich habe dreiundzwanzig Äpfel und vierhundertsechsundfünfzig Birnen.",
         "I have twenty-three apples and four hundred fifty-six pears.",
         "eins, zwei, drei, vier, fünf, sechs, sieben, acht, neun, zehn. Das ist ein kleiner Test.",
-        "Das ist ein kleiner Test. 12, 23, 45, 4567",
+        "Das ist eine kleine Übung. 12, 21, 23, 45, 678, 1011, 4567",
         "Das ist ein kleiner Test. zwölf, dreiundzwanzig, fünfundvierzig, viertausendfünfhundertsiebenundsechzig",
         "zweitausend",
         "zwanzigtausend",
@@ -212,9 +271,4 @@ if __name__ == "__main__":
     ]
 
     for test_text in test_texts:
-        print("Original:", test_text)
-        digits_text = words_to_digits(test_text)
-        print("Zahlwörter zu Ziffern:", digits_text)
-        words_text = digits_to_words(digits_text)
-        print("Ziffern zu Zahlwörtern:", words_text)
-        print()
+        test_conversion(test_text)
