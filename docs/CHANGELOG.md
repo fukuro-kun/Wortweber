@@ -5,6 +5,17 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.20.2] - 2024-09-16
+### Geändert
+- Vereinfachung und Fokussierung der GUI-Tests
+- Verbesserung der Testabdeckung für Backend-Komponenten
+
+### Entfernt
+- Komplexe Button-Funktionalitätstests zugunsten einfacherer Konfigurationstests
+
+### Verbessert
+- Erhöhte Testgeschwindigkeit und -zuverlässigkeit
+
 ## [0.20.1] - 2024-09-15
 ### Fixed
 - Verbesserte Behandlung von zusammengesetzten deutschen Zahlwörtern

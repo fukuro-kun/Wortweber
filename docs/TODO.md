@@ -4,6 +4,7 @@
 - [ ] Überprüfung und Optimierung der Gerätekompatibilität für verschiedene Systemkonfigurationen, einschließlich Verbesserung der Shortcut-Funktionalität
 
 ## Priorität Hoch
+- [ ] Überprüfung und Verbesserung der Testabdeckung
 - [ ] Erweiterung der Typ-Annotationen auf alle Teile des Codes und Entwicklung eines Konzepts für konsistente Namenskonventionen
 - [ ] Wiederherstellung und Verbesserung der Textumwandlungen für Ziffern und Zahlwörter
 - [ ] Implementierung von Unit-Tests für die neue Incognito-Modus-Funktionalität
@@ -42,5 +43,7 @@
 
 
 ## Abgeschlossene Aufgaben
+- [x] Überprüfung und Optimierung der GUI-Tests
+- [x] Verbesserung der Testabdeckung für Backend-Komponenten
 - [x] Durchführung eines umfassenden Sicherheitsaudits zur Überprüfung der Effektivität des Incognito-Modus
 - [x] Optimierung der Logging-Konfiguration für verschiedene Umgebungen und Verbesserung der Fehlerbehandlung

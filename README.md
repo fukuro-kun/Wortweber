@@ -76,9 +76,21 @@ python run_tests.py
 Sie können auch spezifische Testoptionen verwenden:
 
 ```
-- Für parallele Tests: `python run_tests.py --parallel`
-- Für alle Tests einschließlich Nicht-Transkriptionstests: `python run_tests.py --all`
-- Für alle Tests mit paralleler Ausführung: `python run_tests.py --all --parallel`
+- Für grundlegende Tests ohne Transkriptions- oder GUI-Tests: python run_tests.py
+- Für parallele Transkriptionstests: python run_tests.py -p oder python run_tests.py --parallel
+- Für sequenzielle Transkriptionstests: python run_tests.py -s oder python run_tests.py --sequential
+- Für alle Tests einschließlich paralleler und sequenzieller Transkriptionstests sowie GUI-Tests: python run_tests.py -a oder python run_tests.py --all
+- Für GUI-Tests: python run_tests.py -g oder python run_tests.py --gui
+```
+
+Beachten Sie:
+- Die Verfügbarkeit von GPU-Ressourcen wird automatisch überprüft. Bei unzureichendem GPU-Speicher werden parallele Tests deaktiviert.
+- Sie können mehrere Optionen kombinieren, z.B. `python run_tests.py -a -p` für alle Tests mit Priorisierung paralleler Ausführung, wo möglich.
+
+Für detaillierte Informationen zu den Testoptionen können Sie folgenden Befehl ausführen:
+
+```
+python run_tests.py --help
 ```
 
 ## Wichtige Hinweise
