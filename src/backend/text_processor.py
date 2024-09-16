@@ -50,6 +50,7 @@ ENGLISH_NUMBER_DICT = {
     'hundred': 100, 'thousand': 1000, 'million': 1000000, 'billion': 1000000000
 }
 
+# DEUTSCH: Verbesserte Funktion zur Verarbeitung deutscher Zahlwörter
 def parse_german_number(words):
     total = 0
     current = 0
@@ -65,7 +66,9 @@ def parse_german_number(words):
             elif value == 100:
                 current = current * 100 if current != 0 else 100
             elif value >= 1000:
-                total += (current if current != 0 else 1) * value
+                if current == 0:
+                    current = 1
+                total += current * value
                 current = 0
         else:
             # DEUTSCH: Behandlung zusammengesetzter Wörter
@@ -80,6 +83,7 @@ def parse_german_number(words):
                     break
     return total + current
 
+# ENGLISH: Separate function for processing English number words
 def parse_english_number(words):
     total = 0
     current = 0
@@ -97,21 +101,17 @@ def parse_english_number(words):
                 current += value
     return total + current
 
+# DEUTSCH: Verbesserte Funktion zur Umwandlung von Zahlwörtern in Ziffern
 def words_to_digits(text):
-    """
-    Wandelt Zahlwörter in einem Text in Ziffern um.
-
-    :param text: Der zu verarbeitende Text
-    :return: Der Text mit umgewandelten Zahlwörtern
-    """
     language = detect_language(text)
     number_dict = GERMAN_NUMBER_DICT if language == 'de' else ENGLISH_NUMBER_DICT
 
     def replace_number(match):
-        words = match.group(0).lower().replace('-', ' ').split()
+        original = match.group(0)
+        words = original.lower().replace('-', ' ').split()
         # DEUTSCH: Behandlung von einzeln stehenden Wörtern wie "ein"
         if len(words) == 1 and words[0] in ['ein', 'eine']:
-            return match.group(0)
+            return original
         if language == 'de':
             # DEUTSCH: Behandlung von "eine Million" und ähnlichen Fällen
             if words[0] == 'eine' and len(words) > 1 and words[1] in ['million', 'milliarde']:
@@ -119,7 +119,8 @@ def words_to_digits(text):
             number = parse_german_number(words)
         else:
             number = parse_english_number(words)
-        return str(number) if number is not None else match.group(0)
+        result = str(number) if number is not None else original
+        return result if original[0].islower() else result.capitalize()
 
     # Muster für zusammengesetzte Zahlen
     pattern = r'\b(?:(?:' + '|'.join(re.escape(k) for k in number_dict.keys()) + r')[-\s]?)+\b'
@@ -129,6 +130,37 @@ def words_to_digits(text):
     text = re.sub(r'(\d+)([a-zA-Z])', r'\1 \2', text)
 
     return text
+
+# ENGLISH: Separate function for converting digits to English words
+def digits_to_english_words(number, reverse_dict):
+    words = []
+    if number >= 1000000000:
+        billions = number // 1000000000
+        words.append(f"{digits_to_english_words(billions, reverse_dict)} Billion")
+        number %= 1000000000
+    if number >= 1000000:
+        millions = number // 1000000
+        words.append(f"{digits_to_english_words(millions, reverse_dict)} Million")
+        number %= 1000000
+    if number >= 1000:
+        thousands = number // 1000
+        words.append(f"{digits_to_english_words(thousands, reverse_dict)} Thousand")
+        number %= 1000
+    if number >= 100:
+        hundreds = number // 100
+        words.append(f"{reverse_dict[hundreds]} hundred")  # "hundred" ist jetzt kleingeschrieben
+        number %= 100
+    if number > 0:
+        if number <= 20:
+            words.append(reverse_dict[number])
+        else:
+            tens = number // 10 * 10
+            ones = number % 10
+            if ones > 0:
+                words.append(f"{reverse_dict[tens]}-{reverse_dict[ones]}")
+            else:
+                words.append(reverse_dict[tens])
+    return " ".join(words)
 
 def digits_to_words(text, language=None):
     """
@@ -153,8 +185,8 @@ def digits_to_words(text, language=None):
                 return 'ein' if not match.group(0).strip() == '1' else 'eins'
             return reverse_dict[number]
 
-        words = []
         if language == 'de':
+            words = []
             if number >= 1000000000:
                 milliarden = number // 1000000000
                 words.append(f"{digits_to_words(str(milliarden), 'de')} Milliarden")
@@ -194,44 +226,17 @@ def digits_to_words(text, language=None):
                             words.append(f"{reverse_dict[ones]}und{reverse_dict[tens]}")
                     else:
                         words.append(reverse_dict[tens])
+            result = "".join(words)
         else:  # Englisch
-            if number >= 1000000000:
-                billions = number // 1000000000
-                words.append(f"{digits_to_words(str(billions), 'en')} Billion")
-                number %= 1000000000
-            if number >= 1000000:
-                millions = number // 1000000
-                words.append(f"{digits_to_words(str(millions), 'en')} Million")
-                number %= 1000000
-            if number >= 1000:
-                thousands = number // 1000
-                words.append(f"{digits_to_words(str(thousands), 'en')} Thousand")
-                number %= 1000
-            if number >= 100:
-                hundreds = number // 100
-                words.append(f"{reverse_dict[hundreds]} Hundred")
-                number %= 100
-            if number > 0:
-                if number <= 20:
-                    words.append(reverse_dict[number])
-                else:
-                    tens = number // 10 * 10
-                    ones = number % 10
-                    if ones > 0:
-                        words.append(f"{reverse_dict[tens]}-{reverse_dict[ones]}")
-                    else:
-                        words.append(reverse_dict[tens])
+            result = digits_to_english_words(number, reverse_dict)
 
-        result = "".join(words)
         print(f"DEBUG: Ergebnis vor Leerzeichenkorrektur: {result}")  # Debugausgabe
-        # DEUTSCH: Leerzeichen nur zwischen Millionen und dem Rest beibehalten: Nur für Millionen und Milliarden, nicht für kleinere Zahlen
+        # DEUTSCH: Leerzeichen nur zwischen Millionen und dem Rest beibehalten
         if language == 'de':
-            if "Million" in result:
-                parts = result.split("Million")
-                result = "Million ".join(parts)
-            elif "Milliarden" in result:
-                parts = result.split("Milliarden")
-                result = "Milliarden ".join(parts)
+            result = result.replace(" ", "")
+            result = result.replace("Millionen", "Millionen ")
+            result = result.replace("Million", "Million ")
+            result = result.replace("Milliarden", "Milliarden ")
         print(f"DEBUG: Finales Ergebnis: {result}")  # Debugausgabe
         return result.strip()
 
