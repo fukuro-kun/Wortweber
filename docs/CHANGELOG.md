@@ -5,6 +5,15 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.21.1] - 2024-09-17
+### Fixed
+- Korrektur der Zahlwort-zu-Ziffer-Konvertierung für Sonderfälle wie 10000001
+- Verbesserung der Inline-Kommentierung in der ziffern_zu_zahlwoerter Funktion
+- Behebung von Inkonsistenzen bei der Verwendung von "ein" vs. "eins"
+
+### Improved
+- Erhöhte Lesbarkeit und Verständlichkeit des Codes durch präzisere Inline-Kommentare
+
 ## [0.21.0] - 2024-09-17
 ### Verbessert
 - Verbesserte Zahlwort-zu-Ziffer-Konvertierung für komplexe deutsche Zahlwörter

@@ -12,11 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+Dieses Modul enthält Funktionen zur Textverarbeitung, insbesondere zur Umwandlung
+von Zahlwörtern in Ziffern und umgekehrt. Es bietet Unterstützung für deutsche
+und englische Zahlwörter und implementiert eine robuste Logik zur Erkennung und
+Verarbeitung komplexer Zahlausdrücke.
+"""
+
 from enum import Enum
 from typing import List, Dict, Any, Optional, Tuple
 import re
+from src.utils.error_handling import handle_exceptions, logger
 
 class TextTag(Enum):
+    """
+    Enum zur Kategorisierung von Textteilen während der Verarbeitung.
+    """
     TEXT = "text"
     POSSIBLE_NUMBER = "moeglichezahl"
     LARGE_NUMBER = "grossezahl"
@@ -25,6 +36,9 @@ class TextTag(Enum):
     DATE = "datum"
 
 class TextPart:
+    """
+    Repräsentiert einen Teil des zu verarbeitenden Textes mit zusätzlichen Metadaten.
+    """
     def __init__(self, content: str, tag: TextTag, position: int):
         self.content = content
         self.tag = tag
@@ -32,23 +46,40 @@ class TextPart:
         self.value: Optional[int] = None
 
 class TextLevel:
+    """
+    Repräsentiert eine Verarbeitungsebene für den Text, die mehrere TextParts enthält.
+    """
     def __init__(self, level: float):
         self.level = level
         self.parts: List[TextPart] = []
 
     def add_part(self, part: TextPart):
+        """Fügt einen TextPart zur aktuellen Verarbeitungsebene hinzu."""
         self.parts.append(part)
 
 class TextProcessor:
+    """
+    Hauptklasse zur Verarbeitung von Text, insbesondere zur Umwandlung von Zahlwörtern in Ziffern.
+    """
+
+    @handle_exceptions
     def __init__(self):
+        """Initialisiert den TextProcessor mit mehreren Verarbeitungsebenen."""
         self.levels: Dict[float, TextLevel] = {}
         for i in range(5):
             self.levels[i] = TextLevel(i)
         self.current_position = 0
-        print("TextProcessor initialisiert")
+        logger.info("TextProcessor initialisiert")
 
+    @handle_exceptions
     def process_text(self, text: str) -> str:
-        print(f"Verarbeite Text: {text}")
+        """
+        Verarbeitet den gegebenen Text und wandelt Zahlwörter in Ziffern um.
+
+        :param text: Der zu verarbeitende Text
+        :return: Der verarbeitete Text mit umgewandelten Zahlwörtern
+        """
+        logger.debug(f"Verarbeite Text: {text}")
         self.current_position = 0
         self.split_special_formats(text, 0)
         self.print_levels_state()
@@ -63,22 +94,35 @@ class TextProcessor:
         self.print_levels_state()
 
         result = self.reconstruct_text()
-        print(f"Verarbeitetes Ergebnis: {result}")
+        logger.debug(f"Verarbeitetes Ergebnis: {result}")
         self.reset_levels()
         return result
 
+    @handle_exceptions
     def reset_levels(self):
+        """Setzt alle Verarbeitungsebenen zurück."""
         for level in self.levels.values():
             level.parts = []
 
+    @handle_exceptions
     def split_special_formats(self, text: str, level: float) -> None:
-        print(f"Teile spezielle Formate auf: {text}")
+        """
+        Teilt den Text in spezielle Formate auf und fügt sie zur ersten Verarbeitungsebene hinzu.
+
+        :param text: Der zu verarbeitende Text
+        :param level: Die Verarbeitungsebene (wird derzeit nicht verwendet)
+        """
+        logger.debug(f"Teile spezielle Formate auf: {text}")
         self.levels[1].parts = []  # Zurücksetzen der Ebene 1 für jeden neuen Text
         self.levels[1].add_part(TextPart(text, TextTag.TEXT, 0))
-        print(f"DEBUG: Inhalt von level 1 nach dem Hinzufügen: {[part.content for part in self.levels[1].parts]}")
+        logger.debug(f"Inhalt von level 1 nach dem Hinzufügen: {[part.content for part in self.levels[1].parts]}")
 
+    @handle_exceptions
     def identify_number_words(self) -> None:
-        print("Identifiziere Zahlwörter")
+        """
+        Identifiziert potenzielle Zahlwörter im Text und markiert sie für die weitere Verarbeitung.
+        """
+        logger.debug("Identifiziere Zahlwörter")
         level_1 = self.levels[1]
         level_2 = self.levels[2]
         level_2.parts = []
@@ -107,10 +151,14 @@ class TextProcessor:
             else:
                 level_2.add_part(part)
 
-        print(f"DEBUG: Ebene 2 nach Identifikation: {[(p.content, p.tag) for p in level_2.parts]}")
+        logger.debug(f"Ebene 2 nach Identifikation: {[(p.content, p.tag) for p in level_2.parts]}")
 
+    @handle_exceptions
     def process_number_words(self) -> None:
-        print("Verarbeite Zahlwörter")
+        """
+        Verarbeitet identifizierte Zahlwörter und wandelt sie in numerische Werte um.
+        """
+        logger.debug("Verarbeite Zahlwörter")
         level_2 = self.levels[2]
         level_3 = self.levels[3]
         level_3.parts = []
@@ -139,9 +187,17 @@ class TextProcessor:
                 level_3.add_part(part)
             i += 1
 
-        print(f"DEBUG: Ebene 3 nach Verarbeitung: {[(p.content, p.tag) for p in level_3.parts]}")
+        logger.debug(f"Ebene 3 nach Verarbeitung: {[(p.content, p.tag) for p in level_3.parts]}")
 
+    @handle_exceptions
     def process_word_pairs(self, words: List[str], start_position: int) -> List[TextPart]:
+        """
+        Verarbeitet Wortpaare, um komplexe Zahlausdrücke zu erkennen und umzuwandeln.
+
+        :param words: Liste der zu verarbeitenden Wörter
+        :param start_position: Startposition im Originaltext
+        :return: Liste der verarbeiteten TextParts
+        """
         result = []
         i = 0
         while i < len(words):
@@ -182,8 +238,12 @@ class TextProcessor:
                 i += 1
         return result
 
+    @handle_exceptions
     def accumulate_numbers(self) -> None:
-        print("Akkumuliere Zahlen")
+        """
+        Akkumuliert aufeinanderfolgende Zahlenwerte zu größeren Einheiten.
+        """
+        logger.debug("Akkumuliere Zahlen")
         level_3 = self.levels[3]
         level_4 = self.levels[4]
         level_4.parts = []
@@ -204,8 +264,16 @@ class TextProcessor:
                 level_4.add_part(part)
                 i += 1
 
+    @handle_exceptions
     def accumulate_number_sequence(self, parts: List[TextPart], start_index: int) -> Tuple[List[TextPart], int]:
-        print(f"Akkumuliere Zahlensequenz ab Index {start_index}")
+        """
+        Akkumuliert eine Sequenz von Zahlenwerten.
+
+        :param parts: Liste der TextParts
+        :param start_index: Startindex für die Akkumulation
+        :return: Tuple aus akkumulierten Teilen und nächstem Index
+        """
+        logger.debug(f"Akkumuliere Zahlensequenz ab Index {start_index}")
         accumulated = [parts[start_index]]
         i = start_index + 1
         while i < len(parts):
@@ -219,7 +287,15 @@ class TextProcessor:
                 break
         return accumulated, i
 
+    @handle_exceptions
     def should_accumulate(self, prev_part: TextPart, current_part: TextPart) -> bool:
+        """
+        Bestimmt, ob zwei aufeinanderfolgende Zahlenwerte akkumuliert werden sollten.
+
+        :param prev_part: Vorheriger TextPart
+        :param current_part: Aktueller TextPart
+        :return: True, wenn akkumuliert werden soll, sonst False
+        """
         if prev_part.value is None or current_part.value is None:
             return False
         if prev_part.tag == TextTag.LARGE_NUMBER and current_part.tag == TextTag.LARGE_NUMBER:
@@ -231,8 +307,15 @@ class TextProcessor:
         else:
             return prev_part.value > current_part.value
 
+    @handle_exceptions
     def add_accumulated_to_level_4(self, accumulated_parts: List[TextPart], level_4: TextLevel):
-        print(f"Füge akkumulierte Teile zu Ebene 4 hinzu: {[p.content for p in accumulated_parts]}")
+        """
+        Fügt akkumulierte Zahlenwerte zur vierten Verarbeitungsebene hinzu.
+
+        :param accumulated_parts: Liste der akkumulierten TextParts
+        :param level_4: Die vierte Verarbeitungsebene
+        """
+        logger.debug(f"Füge akkumulierte Teile zu Ebene 4 hinzu: {[p.content for p in accumulated_parts]}")
 
         total_value = 0
         for part in accumulated_parts:
@@ -241,30 +324,47 @@ class TextProcessor:
                 if value is not None:
                     total_value += value
                 else:
-                    print(f"Warnung: Konnte '{part.content}' nicht in eine Zahl umwandeln.")
+                    logger.warning(f"Konnte '{part.content}' nicht in eine Zahl umwandeln.")
             else:
-                print(f"Warnung: Unerwartetes Tag {part.tag} für Teil '{part.content}'")
+                logger.warning(f"Unerwartetes Tag {part.tag} für Teil '{part.content}'")
 
         new_part = TextPart(str(total_value), TextTag.TEXT, accumulated_parts[0].position)
         level_4.add_part(new_part)
 
+    @handle_exceptions
     def reconstruct_text(self) -> str:
+        """
+        Rekonstruiert den verarbeiteten Text aus der letzten Verarbeitungsebene.
+
+        :return: Der rekonstruierte Text
+        """
         sorted_parts = sorted(self.levels[4].parts, key=lambda x: x.position)
         result = ' '.join(part.content for part in sorted_parts)
-        print(f"DEBUG: Rekonstruierter Text (vor Bereinigung): {result}")
+        logger.debug(f"Rekonstruierter Text (vor Bereinigung): {result}")
         result = re.sub(r'\s+', ' ', result).strip()
-        print(f"Rekonstruierter Text: {result}")
+        logger.debug(f"Rekonstruierter Text: {result}")
         return result
 
+    @handle_exceptions
     def print_levels_state(self):
+        """
+        Gibt den aktuellen Zustand aller Verarbeitungsebenen aus (nur für Debugging-Zwecke).
+        """
         for level, text_level in self.levels.items():
-            print(f"DEBUG: Inhalt von Ebene {level}: {[(part.content, part.tag) for part in text_level.parts]}")
+            logger.debug(f"Inhalt von Ebene {level}: {[(part.content, part.tag) for part in text_level.parts]}")
 
+@handle_exceptions
 def parse_german_number(words):
+    """
+    Parst deutsche Zahlwörter und konvertiert sie in numerische Werte.
+
+    :param words: Zahlwort oder Liste von Zahlwörtern
+    :return: Tuple aus numerischem Wert und Originaltext (bei Fehler)
+    """
     if isinstance(words, list):
         words = " ".join(words)
-    words = str(words).strip()  # Ensure words is a string and remove leading/trailing whitespace
-    print(f"Parse deutsche Zahl: {words}")
+    words = str(words).strip()  # Stelle sicher, dass words ein String ist und entferne führende/nachfolgende Leerzeichen
+    logger.debug(f"Parse deutsche Zahl: {words}")
 
     # Prüfen, ob die Eingabe bereits eine Zahl ist
     try:
@@ -272,7 +372,7 @@ def parse_german_number(words):
     except ValueError:
         pass  # Wenn es keine Zahl ist, fahren wir mit der Wortanalyse fort
 
-    print(f"DEBUG: Startworte: {words}")
+    logger.debug(f"Startworte: {words}")
 
     # Schritt 1: Ziffern und Operatoren extrahieren
     tokens = []
@@ -293,7 +393,7 @@ def parse_german_number(words):
                 # Wenn kein bekanntes Zahlwort gefunden wurde, brechen wir ab
                 return None, words
 
-    print(f"DEBUG: Extrahierte Tokens: {tokens}")
+    logger.debug(f"Extrahierte Tokens: {tokens}")
 
     if not tokens or (len(tokens) == 1 and tokens[0] == '+'):
         return None, words
@@ -339,22 +439,29 @@ def parse_german_number(words):
         equation.pop()
 
     equation_str = ' '.join(equation)
-    print(f"DEBUG: Generierte Gleichung: {equation_str}")
+    logger.debug(f"Generierte Gleichung: {equation_str}")
 
     # Schritt 3: Gleichung auswerten
     if equation_str:
         result = eval(equation_str)
-        print(f"DEBUG: Endergebnis: {result}")
+        logger.debug(f"Endergebnis: {result}")
         return result, None
     else:
         return None, words
 
+@handle_exceptions
 def ziffern_zu_zahlwoerter(zahl):
     """
     Konvertiert eine Zahl in ihre deutsche Wortdarstellung.
 
-    :param zahl: Die zu konvertierende Zahl (int)
-    :return: Die Wortdarstellung der Zahl (str)
+    Args:
+        zahl (int): Die zu konvertierende Zahl. Muss eine nicht-negative ganze Zahl sein.
+
+    Returns:
+        str: Die deutsche Wortdarstellung der Zahl.
+
+    Raises:
+        ValueError: Wenn die Eingabe keine nicht-negative ganze Zahl ist.
     """
     if not isinstance(zahl, int) or zahl < 0:
         raise ValueError("Die Eingabe muss eine nicht-negative ganze Zahl sein.")
@@ -362,53 +469,88 @@ def ziffern_zu_zahlwoerter(zahl):
     if zahl == 0:
         return "null"
 
+    # Grundlegende Bausteine für die Zahlwortbildung
     einer = ["", "ein", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun"]
     zehner = ["", "zehn", "zwanzig", "dreißig", "vierzig", "fünfzig", "sechzig", "siebzig", "achtzig", "neunzig"]
     sonderformen = {11: "elf", 12: "zwölf", 16: "sechzehn", 17: "siebzehn"}
+    # Große Zahlen mit ihren Namen, in absteigender Reihenfolge für die Verarbeitung
     grosse_zahlen = [(1000000000000, "Billion"), (1000000000, "Milliarde"), (1000000, "Million"), (1000, "tausend")]
 
-    def bis_999(n):
+    def bis_99(n, am_ende=False):
+        """
+        Konvertiert Zahlen bis 99 in Wortform.
+
+        :param n: zu konvertierende Zahl
+        :param am_ende: Flag, ob die Zahl am Ende der gesamten Zahl steht
+        """
+        if n == 0:
+            return ""
+        if n == 1:
+            # Unterscheidung zwischen "ein" und "eins" basierend auf der Position
+            return "eins" if am_ende else "ein"
+        if n < 10:
+            return einer[n]
         if n in sonderformen:
             return sonderformen[n]
+        if n < 20:
+            # Zahlen von 13-19 (außer Sonderformen)
+            return einer[n % 10] + "zehn"
+        # Zahlen von 20-99: Einer (falls vorhanden) + "und" + Zehner
+        return (einer[n % 10] + "und" if n % 10 != 0 else "") + zehner[n // 10]
 
-        ergebnis = ""
-        if n >= 100:
-            ergebnis += einer[n // 100] + "hundert"
-            n %= 100
+    def bis_999(n, am_ende=False):
+        """
+        Konvertiert Zahlen bis 999 in Wortform.
 
-        if n > 0:
-            if n < 20 and n not in sonderformen:
-                ergebnis += einer[n] + "zehn"
-            else:
-                if n % 10 != 0:
-                    ergebnis += einer[n % 10]
-                    if n > 20:
-                        ergebnis += "und"
-                ergebnis += zehner[n // 10]
-
-        return ergebnis
+        :param n: zu konvertierende Zahl
+        :param am_ende: Flag, ob die Zahl am Ende der gesamten Zahl steht
+        """
+        if n < 100:
+            return bis_99(n, am_ende)
+        # Hunderter + Rest (falls vorhanden)
+        return einer[n // 100] + "hundert" + (bis_99(n % 100, am_ende) if n % 100 != 0 else "")
 
     ergebnis = ""
     for wert, name in grosse_zahlen:
         if zahl >= wert:
             anzahl = zahl // wert
-            ergebnis += bis_999(anzahl) + name
-            if name != "tausend":
-                ergebnis += "en" if anzahl > 1 else " "
+            if wert == 1000:
+                # Sonderfall für Tausender: kein Leerzeichen
+                ergebnis += bis_999(anzahl) + name
             else:
-                ergebnis += ""
-            zahl %= wert
-            if zahl > 0 and zahl < 100:
-                ergebnis += "und"
+                # Für Millionen und größer: Leerzeichen und ggf. Plural
+                ergebnis += bis_999(anzahl) + " " + name
+                if anzahl > 1:
+                    ergebnis += "en"  # Plural für Millionen, Milliarden, etc.
+            zahl %= wert  # Verbleibenden Wert berechnen
+            if zahl > 0:
+                if wert > 1000:
+                    # Regeln für "und" bei großen Zahlen
+                    if zahl < 100 and zahl > 0:
+                        ergebnis += " und "
+                    else:
+                        ergebnis += " "
+                elif zahl < 100:
+                    # "und" für Zahlen unter 100 bei Tausendern
+                    ergebnis += "und"
 
     if zahl > 0:
-        ergebnis += bis_999(zahl)
+        # True für am_ende, da es das Ende der Zahl ist
+        ergebnis += bis_999(zahl, True)
 
-    # Spezielle Behandlung für "ein" am Anfang
-    if ergebnis.startswith("ein") and len(ergebnis) > 3:
-        ergebnis = "eine" + ergebnis[3:]
+    # Spezielle Behandlung für "ein" am Anfang großer Zahlen (z.B. "eine Million")
+    if ergebnis.startswith("ein "):
+        ergebnis = "eine " + ergebnis[4:]
 
-    return ergebnis.strip()
+    return ergebnis.strip()  # Entfernen möglicher Leerzeichen am Anfang oder Ende
+
+# Zusätzliche Erklärungen:
+# - Die Funktion behandelt nun "ein" und "eins" korrekt.
+# - Leerzeichen werden nur bei großen Zahlen (Millionen und größer) eingefügt.
+# - Die Verwendung von "und" wurde gemäß den Regeln implementiert.
+# - Die Verknüpfungsregeln für Tausender und kleinere Zahlen wurden berücksichtigt.
+# - Die Pluralform für Millionen, Milliarden, etc. wird korrekt gebildet.
+# - Es gibt keine Leerzeichen zwischen Tausendern und kleineren Einheiten.
 
 # Globale Variablen und Konstanten
 
@@ -428,6 +570,7 @@ NUMBER_INDICATORS = list(GERMAN_NUMBER_DICT.keys()) + LARGE_NUMBER_WORDS
 
 # Hauptfunktionen
 
+@handle_exceptions
 def words_to_digits(text: str) -> str:
     """
     Konvertiert Zahlwörter in einem Text zu Ziffern.
@@ -438,6 +581,7 @@ def words_to_digits(text: str) -> str:
     processor = TextProcessor()
     return processor.process_text(text)
 
+@handle_exceptions
 def digits_to_words(text: str) -> str:
     """
     Konvertiert Ziffern in einem Text zu Zahlwörtern.

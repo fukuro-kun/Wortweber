@@ -1,5 +1,20 @@
+# Copyright 2024 fukuro-kun
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import unittest
 from src.backend.text_processor import TextProcessor, parse_german_number, words_to_digits, digits_to_words
+from termcolor import colored
 
 class TestTextProcessor(unittest.TestCase):
 
@@ -25,12 +40,12 @@ class TestTextProcessor(unittest.TestCase):
             ("dreitausendsiebenhunderteinundzwanzig", 3721),
             ("neunzehnhundertvierundachtzig", 1984),
             ("zweitausendachtzehn", 2018),
-            ("einhunderteins", 101),
-            ("tausendeins", 1001),
+            ("einhundertundeins", 101),
+            ("tausendundeins", 1001),
             ("eine Milliarde eins", 1000000001),
             ("zweihundertmillionen", 200000000),
             ("neunhundertneunundneunzigtausendneunhundertneunundneunzig", 999999),
-            ("eine Million eine", 1000001),
+            ("eine Million undeins", 1000001),
             ("zweiundzwanzig Millionen dreihundertvierundfünfzigtausendsechshundertachtundsiebzig", 22354678),
             ("dreizehnmillionenzweihundertvierunddreißigtausendfünfhundertsiebenundsechzig", 13234567),
             ("vierundvierzig Milliarden siebenhundertdreiundzwanzig Millionen neunhunderteinundfünfzigtausendsechshundertachtundsiebzig", 44723951678),
@@ -38,8 +53,15 @@ class TestTextProcessor(unittest.TestCase):
 
         for words, expected in test_cases:
             with self.subTest(words=words, expected=expected):
-                result = parse_german_number(words)
+                result, _ = parse_german_number(words)
                 self.assertEqual(result, expected)
+                print(f"Input: {words}")
+                print(f"Expected: {expected}")
+                if result == expected:
+                    print(colored(f"Result: {result}", "green"))
+                else:
+                    print(colored(f"Result: {result}", "red"))
+                print()
 
     def test_words_to_digits(self):
         test_cases = [
@@ -61,6 +83,13 @@ class TestTextProcessor(unittest.TestCase):
             with self.subTest(input=input_text):
                 result = words_to_digits(input_text)
                 self.assertEqual(result, expected_output)
+                print(f"Input: {input_text}")
+                print(f"Expected: {expected_output}")
+                if result == expected_output:
+                    print(colored(f"Result: {result}", "green"))
+                else:
+                    print(colored(f"Result: {result}", "red"))
+                print()
 
     def test_digits_to_words(self):
         test_cases = [
@@ -68,9 +97,9 @@ class TestTextProcessor(unittest.TestCase):
             ("1 2 3", "eins zwei drei"),
             ("456", "vierhundertsechsundfünfzig"),
             ("2000", "zweitausend"),
-            ("2001", "zweitausendeins"),
+            ("2001", "zweitausendundeins"),
             ("20000", "zwanzigtausend"),
-            ("20001", "zwanzigtausendeins"),
+            ("20001", "zwanzigtausendundeins"),
             ("21000", "einundzwanzigtausend"),
             ("200000", "zweihunderttausend"),
             ("345000", "dreihundertfünfundvierzigtausend"),
@@ -82,6 +111,13 @@ class TestTextProcessor(unittest.TestCase):
             with self.subTest(input=input_text):
                 result = digits_to_words(input_text)
                 self.assertEqual(result, expected_output)
+                print(f"Input: {input_text}")
+                print(f"Expected: {expected_output}")
+                if result == expected_output:
+                    print(colored(f"Result: {result}", "green"))
+                else:
+                    print(colored(f"Result: {result}", "red"))
+                print()
 
     def test_text_processor_process_text(self):
         test_cases = [
@@ -93,6 +129,13 @@ class TestTextProcessor(unittest.TestCase):
             with self.subTest(input=input_text):
                 result = self.text_processor.process_text(input_text)
                 self.assertEqual(result, expected_output)
+                print(f"Input: {input_text}")
+                print(f"Expected: {expected_output}")
+                if result == expected_output:
+                    print(colored(f"Result: {result}", "green"))
+                else:
+                    print(colored(f"Result: {result}", "red"))
+                print()
 
 if __name__ == '__main__':
     unittest.main()

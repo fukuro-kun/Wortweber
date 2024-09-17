@@ -4,7 +4,7 @@
 - [ ] Überprüfung und Optimierung der Gerätekompatibilität für verschiedene Systemkonfigurationen, einschließlich Verbesserung der Shortcut-Funktionalität
 
 ## Priorität Hoch
-- [ ] Implementierung einer Funktion zur Rückkonvertierung von Ziffern in Zahlwörter
+- [ ] Durchführung umfassender Tests für die neue Zahlwort-Konvertierungsfunktionalität
 - [ ] Implementierung von Unit-Tests für die neue Zahlwort-Konvertierungsfunktionalität
 - [ ] Überprüfung der Kompatibilität mit verschiedenen Eingabeformaten (z.B. gemischte Text- und Zahleneingaben)
 - [ ] Überprüfung und Verbesserung der Testabdeckung
@@ -13,6 +13,8 @@
 - [ ] Durchführung umfassender Tests für die neue Zahlwort-Konvertierungsfunktionalität
 
 ## Priorität Mittel
+- [ ] Implementieren umfangreicher Tests für die neue Zahlwortverarbeitungslogik
+- [ ] Optimieren der Effizienz der Zahlwortverarbeitung für sehr große Zahlen
 - [ ] Erweiterung der Dokumentation zur detaillierten Erklärung der Zahlwortverarbeitungslogik
 - [ ] Implementierung zusätzlicher Module für die Ausgabe (z.B. Ollama-Unterstützung)
 - [ ] Umfassende Erweiterung der Testabdeckung, insbesondere für kritische Funktionen, UI-Komponenten, Optionsfenster, Farbverwaltung und neue Kontextmanager-Funktionalität
@@ -23,6 +25,7 @@
 - [ ] Entwicklung eines Plans für regelmäßige manuelle UI-Tests
 
 ## Priorität Niedrig
+- [ ] Überprüfen und ggf. Verbessern der Fehlerbehandlung in der TextProcessor-Klasse
 - [ ] Implementierung eines Plugin-Systems und Untersuchung von Performance-Problemen
 - [ ] Verbesserung der Benutzerführung durch Tooltips und erweiterte Einstellungsmöglichkeiten
 - [ ] Optimierung der Testausführung, einschließlich Parallelisierung und ALSA-Warnungsunterdrückung
