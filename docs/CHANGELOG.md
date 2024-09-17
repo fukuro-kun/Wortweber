@@ -5,6 +5,16 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.21.0] - 2024-09-17
+### Verbessert
+- Verbesserte Zahlwort-zu-Ziffer-Konvertierung für komplexe deutsche Zahlwörter
+- Korrekte Beibehaltung von Nicht-Zahlwörtern im verarbeiteten Text
+- Optimierte Akkumulation von Zahlenwerten in der TextProcessor-Klasse
+
+### Geändert
+- Überarbeitung der `accumulate_numbers`-Methode für präzisere Textverarbeitung
+- Anpassung der `parse_german_number`-Funktion zur Verarbeitung von Ziffern und Zahlwörtern
+
 ## [0.20.4] - 2024-09-17
 ### Added
 - Re-Implementierung der `digits_to_words` Funktion für die Konvertierung von Ziffern zu Zahlwörtern

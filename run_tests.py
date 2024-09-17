@@ -89,6 +89,7 @@ def run_tests(parallel: bool = False, sequential: bool = False, run_all: bool = 
         suite.addTest(unittest.TestLoader().loadTestsFromTestCase(ParallelTranscriptionTest))
         suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestWordweberGUI))
         suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestMainWindow))
+        suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestTextProcessor))
     elif parallel:
         suite.addTest(unittest.TestLoader().loadTestsFromTestCase(ParallelTranscriptionTest))
     elif sequential:

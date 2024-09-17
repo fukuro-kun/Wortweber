@@ -47,7 +47,7 @@
 
 
 ## Abgeschlossene Aufgaben
+- [x] Verbessern der Zahlwort-zu-Ziffer-Konvertierung für komplexe deutsche Zahlwörter
+- [x] Sicherstellen, dass Nicht-Zahlwörter im verarbeiteten Text korrekt beibehalten werden
 - [x] Wiederherstellung und Verbesserung der Textumwandlungen für Ziffern und Zahlwörter
 - [x] Überprüfung und Optimierung der GUI-Tests
-- [x] Verbesserung der Testabdeckung für Backend-Komponenten
-- [x] Durchführung eines umfassenden Sicherheitsaudits zur Überprüfung der Effektivität des Incognito-Modus

@@ -66,3 +66,5 @@ def convert_text(text_widget, conversion_function):
 #    dem Backend-Modul importiert, um eine konsistente Textverarbeitung zu gewährleisten.
 # 3. Die try-except-Struktur in convert_text fängt den Fall ab, dass kein Text
 #    ausgewählt ist, wenn die Konvertierung versucht wird.
+# 4. Die digits_to_words Funktion nutzt nun intern die neue ziffern_zu_zahlwoerter
+#    Funktion für eine verbesserte Konvertierung von Ziffern zu Zahlwörtern.
