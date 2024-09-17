@@ -1,18 +1,26 @@
+# Implementierung der digits_to_words Funktion und Verbesserung der Testausgabe (Version 0.20.4)
+
+## Begründung für die Änderungen
+1. Vervollständigung der bidirektionalen Zahlwort-Ziffer-Konvertierung
+2. Verbesserung der Lesbarkeit von Testergebnissen
+
+## Hauptänderungen
+1. Implementierung der `digits_to_words` Funktion
+2. Integration in die bestehende TextProcessor-Struktur
+3. Implementierung von ANSI-Farbcodes für Testausgaben
+4. Anpassung der Testfälle und Vergleichslogik
+
 # Refactoring der Zahlwortverarbeitung (Version 0.20.3)
 
 ## Begründung für das Refactoring
-1. Verbesserung der Erkennung und Verarbeitung von großen Zahlwörtern
-2. Optimierung der Akkumulationslogik für Zahlwörter
-3. Erhöhung der Genauigkeit bei der Umwandlung von komplexen Zahlausdrücken
+1. Verbesserung der Verarbeitung von großen Zahlwörtern
+2. Optimierung der Akkumulationslogik
+3. Erhöhung der Genauigkeit bei komplexen Zahlausdrücken
 
 ## Hauptänderungen
-1. Anpassung der `process_word_pairs` Methode:
-   - Verbesserte Erkennung von Paaren wie "zwei Millionen" als LARGE_NUMBER
-   - Berücksichtigung der Groß-/Kleinschreibung bei der Erkennung von großen Zahlwörtern
-2. Optimierung der `add_accumulated_to_level_4` Methode:
-   - Entfernung unnötiger Multiplikationen, da diese bereits von `parse_german_number` durchgeführt werden
-3. Verfeinerung der Akkumulationslogik in `should_accumulate`:
-   - Korrekte Handhabung von LARGE_NUMBER und NUMBER Tags
+1. Verbesserung der `process_word_pairs` Methode
+2. Optimierung der `add_accumulated_to_level_4` Methode
+3. Verfeinerung der Akkumulationslogik in `should_accumulate`
 
 # Refactoring des Logging-Systems und Implementierung des Incognito-Modus (Version 0.19.0)
 

@@ -5,6 +5,14 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.20.4] - 2024-09-17
+### Added
+- Re-Implementierung der `digits_to_words` Funktion für die Konvertierung von Ziffern zu Zahlwörtern
+- Farbige Ausgabe für Testergebnisse in der `test_words_to_digits` Funktion
+### Improved
+- Vervollständigung der bidirektionalen Zahlwort-Ziffer-Konvertierung
+- Verbesserte Lesbarkeit der Testausgabe durch Farbkodierung (Grün für korrekte, Rot für inkorrekte Ergebnisse)
+
 ## [0.20.3] - 2024-09-17
 ### Fixed
 - Korrektur der Verarbeitung von großen Zahlwörtern wie "zwei Millionen"
