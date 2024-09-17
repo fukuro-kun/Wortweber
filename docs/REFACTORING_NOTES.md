@@ -1,3 +1,19 @@
+# Refactoring der Zahlwortverarbeitung (Version 0.20.3)
+
+## Begründung für das Refactoring
+1. Verbesserung der Erkennung und Verarbeitung von großen Zahlwörtern
+2. Optimierung der Akkumulationslogik für Zahlwörter
+3. Erhöhung der Genauigkeit bei der Umwandlung von komplexen Zahlausdrücken
+
+## Hauptänderungen
+1. Anpassung der `process_word_pairs` Methode:
+   - Verbesserte Erkennung von Paaren wie "zwei Millionen" als LARGE_NUMBER
+   - Berücksichtigung der Groß-/Kleinschreibung bei der Erkennung von großen Zahlwörtern
+2. Optimierung der `add_accumulated_to_level_4` Methode:
+   - Entfernung unnötiger Multiplikationen, da diese bereits von `parse_german_number` durchgeführt werden
+3. Verfeinerung der Akkumulationslogik in `should_accumulate`:
+   - Korrekte Handhabung von LARGE_NUMBER und NUMBER Tags
+
 # Refactoring des Logging-Systems und Implementierung des Incognito-Modus (Version 0.19.0)
 
 ## Begründung für das Refactoring
