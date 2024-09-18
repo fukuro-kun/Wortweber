@@ -46,6 +46,7 @@ AUDIO_RATE = 44100  # Sampling-Rate in Hz
 TARGET_RATE = 16000  # Ziel-Sampling-Rate für Whisper
 AUDIO_CHUNK = 4096  # Größe der Audio-Chunks für die Aufnahme
 DEVICE_INDEX = 6  # Index des zu verwendenden Audiogeräts
+DEFAULT_AUDIO_DEVICE_INDEX = "0" # Eintrag für den Standard-Audiogeräteindex
 
 # Aufnahme-Einstellungen
 MIN_RECORD_SECONDS = 0.5  # Mindestaufnahmedauer in Sekunden

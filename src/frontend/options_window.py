@@ -32,6 +32,7 @@ from tkcolorpicker import askcolor
 # Projektspezifische Module
 from src.config import DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE, DEFAULT_INCOGNITO_MODE
 from src.utils.error_handling import handle_exceptions, logger
+from src.frontend.audio_options_panel import AudioOptionsPanel
 
 class OptionsWindow(tk.Toplevel):
     """
@@ -102,6 +103,17 @@ class OptionsWindow(tk.Toplevel):
         """Richtet die Benutzeroberfläche für das OptionsWindow ein."""
         notebook = ttk.Notebook(self)
         notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        # Audio-Optionen
+        audio_options_frame = ttk.Frame(notebook)
+        notebook.add(audio_options_frame, text="Audiooptionen")
+        self.audio_options_panel = AudioOptionsPanel(
+            audio_options_frame,
+            self.gui.settings_manager,
+            self.gui.backend.update_audio_device,
+            self.gui.backend  # Backend wird hier übergeben
+        )
+        self.audio_options_panel.pack(fill=tk.BOTH, expand=True)
 
         # Theme-Einstellungen
         theme_frame = ttk.Frame(notebook)
@@ -343,6 +355,9 @@ class OptionsWindow(tk.Toplevel):
         self.transcription_panel.set_font(self.initial_settings["font_family"], self.initial_settings["font_size"])
         self.save_test_recording_var.set(self.initial_settings["save_test_recording"])
         self.incognito_var.set(self.initial_settings["incognito_mode"])
+
+        # Audiogeräteeinstellungen zurücksetzen
+        self.audio_options_panel.undo_changes()
 
         # Aktualisiere die UI-Elemente
         self.size_var.set(str(self.initial_settings["font_size"]))

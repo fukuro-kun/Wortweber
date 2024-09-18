@@ -52,6 +52,7 @@ os.environ['PULSE_PROP_media.role'] = 'phone'
 
 from src.backend.wortweber_backend import WordweberBackend
 from src.frontend.wortweber_gui import WordweberGUI
+from src.frontend.settings_manager import SettingsManager
 
 @handle_exceptions
 def main():
@@ -60,7 +61,8 @@ def main():
     Initialisiert das Backend und die GUI und startet die Anwendung.
     """
     logger.info("Starte Wortweber-Anwendung")
-    backend = WordweberBackend()
+    settings_manager = SettingsManager()
+    backend = WordweberBackend(settings_manager)
     backend.list_audio_devices()  # Zeigt verfügbare Audiogeräte an
     gui = WordweberGUI(backend)
     gui.run()

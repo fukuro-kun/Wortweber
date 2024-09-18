@@ -1,2 +1,5 @@
 #!/bin/bash
-python3 -m src.wortweber
+eval "$(conda shell.bash hook)"
+conda activate wortweber
+python -m src.wortweber
+conda deactivate

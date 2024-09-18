@@ -14,10 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
 from src.utils.error_handling import handle_exceptions, logger
-from src.config import AUDIO_FORMAT, AUDIO_CHANNELS, AUDIO_RATE, AUDIO_CHUNK, DEVICE_INDEX, TARGET_RATE, DEFAULT_INCOGNITO_MODE
+from src.config import AUDIO_FORMAT, AUDIO_CHANNELS, AUDIO_RATE, AUDIO_CHUNK, TARGET_RATE, DEFAULT_AUDIO_DEVICE_INDEX, DEFAULT_INCOGNITO_MODE
 import pyaudio
 import numpy as np
 from scipy import signal
@@ -38,16 +36,17 @@ class AudioProcessor:
     """
 
     @handle_exceptions
-    def __init__(self):
+    def __init__(self, settings_manager):
         """
         Initialisiert den AudioProcessor.
-        Setzt die Aufnahme- und Zielrate und initialisiert die PyAudio-Instanz.
+
+        :param settings_manager: Eine Instanz des SettingsManager zur Verwaltung von Benutzereinstellungen
         """
+        self.settings_manager = settings_manager
         self.RATE = AUDIO_RATE
         self.TARGET_RATE = TARGET_RATE
         self.last_recording = None
         self.p = pyaudio.PyAudio()
-        self.settings_manager = None  # Wird später von der GUI gesetzt
         logger.info("AudioProcessor initialisiert")
 
     def __del__(self):
@@ -58,6 +57,32 @@ class AudioProcessor:
         if hasattr(self, 'p'):
             self.p.terminate()
         logger.info("AudioProcessor beendet")
+
+
+    @handle_exceptions
+    def check_device_availability(self):
+        """Überprüft, ob das ausgewählte Audiogerät verfügbar ist."""
+        try:
+            device_index = self.get_device_index()
+            self.p.get_device_info_by_index(device_index)
+            return True
+        except Exception as e:
+            logger.error(f"Ausgewähltes Audiogerät (Index: {device_index}) ist nicht verfügbar: {e}")
+            return False
+
+    @handle_exceptions
+    def get_current_device_info(self):
+        """Gibt Informationen über das aktuell verwendete Audiogerät zurück."""
+        try:
+            device_index = self.get_device_index()
+            device_info = self.p.get_device_info_by_index(device_index)
+            return {
+                'index': device_index,
+                'name': device_info['name']
+            }
+        except Exception as e:
+            logger.error(f"Fehler beim Abrufen des aktuellen Audiogeräts: {e}")
+            return None
 
     @contextlib.contextmanager
     def get_pyaudio(self):
@@ -71,6 +96,15 @@ class AudioProcessor:
             yield self.p
         finally:
             pass  # Die Terminierung erfolgt im Destruktor
+
+    @handle_exceptions
+    def get_device_index(self):
+        """
+        Holt den Index des aktuell ausgewählten Audiogeräts aus den Einstellungen.
+
+        :return: Der Index des ausgewählten Audiogeräts als Integer
+        """
+        return int(self.settings_manager.get_setting("audio_device_index", DEFAULT_AUDIO_DEVICE_INDEX))
 
     @handle_exceptions
     def list_audio_devices(self):
@@ -91,6 +125,26 @@ class AudioProcessor:
         logger.info("Auflistung der Audiogeräte abgeschlossen")
 
     @handle_exceptions
+    def open_audio_stream(self):
+        """Öffnet einen Audiostream mit den aktuellen Einstellungen."""
+        try:
+            device_index = self.get_device_index()
+            stream = self.p.open(format=AUDIO_FORMAT, channels=AUDIO_CHANNELS, rate=self.RATE, input=True,
+                            frames_per_buffer=AUDIO_CHUNK, input_device_index=device_index)
+            return stream
+        except IOError as e:
+            if e.errno == -9996:  # Device unavailable
+                logger.error(f"Das ausgewählte Audiogerät (Index: {device_index}) ist nicht verfügbar.")
+            elif e.errno == -9997:  # Invalid sample rate
+                logger.error(f"Die Abtastrate {self.RATE} wird vom Gerät nicht unterstützt.")
+            else:
+                logger.error(f"Fehler beim Öffnen des Audiostreams: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Unerwarteter Fehler beim Öffnen des Audiostreams: {e}")
+            raise
+
+    @handle_exceptions
     def record_audio(self, state):
         """
         Nimmt Audio auf, basierend auf dem gegebenen Zustand.
@@ -103,8 +157,7 @@ class AudioProcessor:
         """
         logger.info("Audioaufnahme gestartet")
         try:
-            stream = self.p.open(format=AUDIO_FORMAT, channels=AUDIO_CHANNELS, rate=self.RATE, input=True,
-                            frames_per_buffer=AUDIO_CHUNK, input_device_index=DEVICE_INDEX)
+            stream = self.open_audio_stream()
 
             start_time = time.time()
             state.audio_data = []
@@ -122,7 +175,8 @@ class AudioProcessor:
         except Exception as e:
             logger.error(f"Fehler bei der Audioaufnahme: {e}")
             logger.error(f"Fehlertyp: {type(e).__name__}")
-            logger.error(f"Geräteinformationen: {self.p.get_device_info_by_index(DEVICE_INDEX)}")
+            device_index = self.get_device_index()
+            logger.error(f"Geräteinformationen: {self.p.get_device_info_by_index(device_index)}")
             raise
 
     @handle_exceptions
@@ -163,7 +217,7 @@ class AudioProcessor:
             wf.setframerate(self.RATE)
             wf.writeframes(b''.join(self.last_recording))
 
-        incognito_mode = self.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE) if self.settings_manager else DEFAULT_INCOGNITO_MODE
+        incognito_mode = self.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
         if not incognito_mode:
             logger.info(f"Letzte Aufnahme gespeichert als {filename}")
         else:
@@ -196,3 +250,7 @@ class AudioProcessor:
 # 6. Ressourcenmanagement:
 #    Die Verwendung des Kontextmanagers `get_pyaudio` stellt sicher, dass die PyAudio-Ressourcen
 #    ordnungsgemäß initialisiert und freigegeben werden, auch im Falle von Fehlern.
+
+# 7. Geräteauswahl:
+#    Die Methode `get_device_index` ermöglicht es, das vom Benutzer ausgewählte Audiogerät
+#    zu verwenden, was die Flexibilität und Benutzerfreundlichkeit der Anwendung erhöht.

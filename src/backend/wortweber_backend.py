@@ -39,14 +39,14 @@ class WordweberState:
 
 class WordweberBackend:
     @handle_exceptions
-    def __init__(self):
+    def __init__(self, settings_manager):
+        self.settings_manager = settings_manager
         self.state = WordweberState()
-        self.audio_processor = AudioProcessor()
+        self.audio_processor = AudioProcessor(self.settings_manager)
         self.transcriber = Transcriber(DEFAULT_WHISPER_MODEL)
         self.model_loaded = threading.Event()
         self.on_transcription_complete: Optional[Callable[[str], None]] = None
         self.pending_audio: List[np.ndarray] = []
-        self.settings_manager = None  # Wird später von der GUI gesetzt
         logger.info("WordweberBackend initialisiert")
 
     @handle_exceptions
@@ -136,14 +136,39 @@ class WordweberBackend:
         :return: True, wenn das Gerät verfügbar ist, sonst False
         """
         try:
+            device_index = self.audio_processor.get_device_index()
             stream = self.audio_processor.p.open(format=AUDIO_FORMAT, channels=AUDIO_CHANNELS, rate=AUDIO_RATE, input=True,
-                                                 frames_per_buffer=AUDIO_CHUNK, input_device_index=DEVICE_INDEX)
+                                                 frames_per_buffer=AUDIO_CHUNK, input_device_index=device_index)
             stream.close()
             logger.info("Audiogerät erfolgreich überprüft")
             return True
         except Exception as e:
             logger.error(f"Fehler beim Überprüfen des Audiogeräts: {e}")
             return False
+
+    @handle_exceptions
+    def update_audio_device(self) -> None:
+        """Aktualisiert das Audiogerät basierend auf den aktuellen Einstellungen."""
+        # Erstelle einen neuen AudioProcessor mit den aktuellen Einstellungen
+        new_audio_processor = AudioProcessor(self.settings_manager)
+
+        # Überprüfe, ob das neue Gerät tatsächlich verfügbar ist
+        if new_audio_processor.check_device_availability():
+            self.audio_processor = new_audio_processor
+            device_info = self.audio_processor.get_current_device_info()
+            logger.info(f"Audiogerät erfolgreich aktualisiert auf: {device_info['name']} (Index: {device_info['index']})")
+
+            # Wenn eine Aufnahme läuft, stoppen und neu starten
+            if self.state.recording:
+                self.stop_recording()
+                self.start_recording()
+        else:
+            logger.error("Ausgewähltes Audiogerät ist nicht verfügbar. Behalte vorheriges Gerät bei.")
+
+    @handle_exceptions
+    def get_current_audio_device(self):
+        """Gibt Informationen über das aktuell verwendete Audiogerät zurück."""
+        return self.audio_processor.get_current_device_info()
 
     @handle_exceptions
     def set_language(self, language: str) -> None:
