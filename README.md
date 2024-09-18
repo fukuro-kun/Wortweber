@@ -174,4 +174,6 @@ Dieses Projekt ist eine Einladung zum Lernen und Experimentieren. Ich freue mich
 
 ## Lizenz
 
-Dieses Projekt steht unter der Apache License 2.0. Weitere Details finden Sie in der [LICENSE](LICENSE) Datei.
+Dieses Projekt ist unter der GNU General Public License v3.0 (GPLv3) lizenziert.
+Für weitere Details siehe die [LICENSE](LICENSE)-Datei im Projektverzeichnis oder besuchen Sie
+[https://www.gnu.org/licenses/gpl-3.0.en.html](https://www.gnu.org/licenses/gpl-3.0.en.html).

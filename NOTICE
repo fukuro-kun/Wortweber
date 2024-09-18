@@ -2,6 +2,14 @@ Wortweber
 Copyright 2024 fukuro-kun
 Das Projekt Wortweber wurde von fukuro-kun (https://github.com/fukuro-kun) initiiert und wird von ihm gepflegt.
 
+Lizenzänderung - 18.09.2024
+Das Wortweber-Projekt hat seine Lizenz von der Apache License 2.0 zur GNU General Public License v3.0 (GPLv3) geändert.
+Alle Codeänderungen ab diesem Datum unterliegen den Bedingungen der GPLv3.
+
+Dieses Projekt ist unter der GNU General Public License v3.0 (GPLv3) lizenziert.
+Für den vollständigen Lizenztext siehe die LICENSE-Datei im Projekthauptverzeichnis oder besuchen Sie
+https://www.gnu.org/licenses/gpl-3.0.en.html
+
 Dieses Projekt nutzt das OpenAI Whisper-Modell für Spracherkennung.
 OpenAI Whisper: https://github.com/openai/whisper
 Copyright (c) 2022 OpenAI
@@ -22,9 +30,14 @@ Copyright (c) 2001-2024 Python Software Foundation
 
 Pynput: https://github.com/moses-palmer/pynput
 Copyright (c) 2015-2024 Moses Palmér
+Hinweis: Pynput wird unter der GNU Lesser General Public License v3.0 (LGPLv3) verwendet.
 
 PyPerclip: https://github.com/asweigart/pyperclip
 Copyright (c) 2014 Al Sweigart
 
 Diese Bibliotheken werden unter ihren jeweiligen Lizenzen verwendet.
 Für Details siehe die entsprechenden Lizenzdateien oder Projektseiten.
+
+Bitte beachten Sie, dass die Verwendung von Bibliotheken unter verschiedenen Lizenzen die Verteilung und Modifikation
+dieses Projekts beeinflussen kann. Insbesondere die Verwendung von Pynput unter LGPLv3 erfordert besondere
+Aufmerksamkeit bezüglich der dynamischen Verlinkung und möglicher Modifikationen.

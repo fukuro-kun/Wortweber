@@ -1,12 +1,12 @@
-pyaudio==0.2.14
-numpy==2.0.2
-openai-whisper==20231117
-pynput==1.7.7
-scipy==1.14.1
-tqdm==4.66.5
-tiktoken==0.7.0
-numba==0.60.0
-pyperclip
-termcolor
-ttkthemes==3.2.2
-tkcolorpicker
+pyaudio==0.2.14  # MIT License
+numpy==2.0.2  # BSD License
+openai-whisper==20231117  # MIT License
+pynput==1.7.7  # LGPL-3.0 License
+scipy==1.14.1  # BSD License
+tqdm==4.66.5  # MIT License, Mozilla Public License 2.0 (MPL 2.0) (Dual-Licensed)
+tiktoken==0.7.0  # MIT License
+numba==0.60.0  # BSD License
+pyperclip==1.8.2  # BSD License
+termcolor==2.4.0  # MIT License
+ttkthemes==3.2.2  # GNU General Public License v3.0
+tkcolorpicker==2.1.3  # MIT License

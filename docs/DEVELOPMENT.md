@@ -81,6 +81,16 @@ Wortweber/
 - pynput für Tastatureingabe-Simulation
 - ttkthemes für erweiterte GUI-Themes
 
+## Lizenzierung
+Wortweber ist unter der GNU General Public License v3.0 (GPLv3) lizenziert. Dies hat wichtige Auswirkungen auf die Entwicklung und Verteilung des Projekts:
+
+- Alle Änderungen und Erweiterungen des Codes müssen ebenfalls unter der GPLv3 oder einer kompatiblen Lizenz veröffentlicht werden.
+- Bei der Verteilung des Programms (in Quell- oder Binärform) muss der vollständige Quellcode mitgeliefert oder zugänglich gemacht werden.
+- Die Verwendung von Bibliotheken muss sorgfältig geprüft werden, um Lizenzkompatibilität sicherzustellen.
+- Besondere Aufmerksamkeit gilt der Verwendung von pynput (LGPL), das als dynamisch verlinkte Bibliothek genutzt wird.
+
+Entwickler sollten sich mit den Bedingungen der GPLv3 vertraut machen und sicherstellen, dass alle Beiträge und Änderungen konform sind.
+
 ## Entwicklungsworkflow
 1. Arbeiten auf dem `main`-Branch für kleinere Änderungen
 2. Erstellen von Feature-Branches für größere Funktionen: `git checkout -b feature/neue-funktion`
@@ -134,6 +144,8 @@ Wortweber/
 - ALSA-Warnungen können in den meisten Fällen ignoriert werden
 - Bei Audiogeräte-Problemen DEVICE_INDEX in config.py anpassen
 - Regelmäßige Überprüfung auf Sicherheitsupdates für Abhängigkeiten
+- Stellen Sie bei der Verwendung und Integration von Bibliotheken die Kompatibilität mit der GPLv3 sicher
+- Achten Sie besonders auf die korrekte Verwendung von pynput als dynamisch verlinkte Bibliothek gemäß LGPL
 
 ## Beitrag zum Projekt
 1. Fork des Repositories auf GitHub
@@ -146,6 +158,11 @@ Wortweber/
 Bei Fragen oder Problemen ein Issue auf GitHub erstellen oder sich an den Projektbetreuer wenden.
 
 ## Historie
+
+### Version 0.21.2
+- Wechsel der Projektlizenz von Apache License 2.0 zu GNU General Public License v3.0 (GPLv3)
+- Aktualisierung aller Quelldateien mit dem neuen GPLv3-Lizenztext
+- Anpassung der Projektdokumentation zur Reflexion der neuen Lizenzbestimmungen
 
 ### Version 0.18.0 (aktuell)
 - Implementierung einer einheitlichen Fehlerbehandlungs- und Logging-Strategie
