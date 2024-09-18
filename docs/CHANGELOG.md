@@ -5,6 +5,20 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.21.2] - 2024-09-18
+### Changed
+- Projektlizenz von Apache License 2.0 zu GNU General Public License v3.0 (GPLv3) geändert
+- Alle Quelldateien mit dem neuen GPLv3-Lizenztext aktualisiert
+- README.md aktualisiert, um die neue Lizenz zu reflektieren
+- NOTICE-Datei aktualisiert mit Informationen zum Lizenzwechsel
+- Entwicklerdokumentation (DEVELOPMENT.md) aktualisiert mit Hinweisen zur GPLv3-Konformität
+
+### Added
+- Zusätzlicher Hinweis zur Verwendung von pynput (LGPL) in relevanten Dateien
+
+### Updated
+- requirements.txt mit Lizenzinformationen für alle Abhängigkeiten ergänzt
+
 ## [0.21.1] - 2024-09-17
 ### Fixed
 - Korrektur der Zahlwort-zu-Ziffer-Konvertierung für Sonderfälle wie 10000001
