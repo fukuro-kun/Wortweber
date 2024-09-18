@@ -5,6 +5,21 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.21.6] - 2024-09-18
+### Verbessert
+- Implementierung der Audiogeräteauswahl überarbeitet
+- Robustere Handhabung von Audiogerätewechseln
+- Verbesserte Fehlerbehandlung bei Audiogeräteproblemen
+
+### Geändert
+- `AudioProcessor` Klasse um bessere Gerätemanagement-Funktionen erweitert
+- `WordweberBackend` an neue `AudioProcessor` Struktur angepasst
+- `AudioOptionsPanel` UI für sofortige Aktualisierung bei Gerätewechsel verbessert
+
+### Behoben
+- Problem mit nicht sofort wirksamen Audiogerätewechseln behoben
+- Fehler bei der Anzeige des aktuell verwendeten Audiogeräts korrigiert
+
 ## [0.21.5] - 2024-09-18
 ### Hinzugefügt
 - Implementierung eines Audiogeräte-Auswahlmenüs im Optionsfenster

@@ -33,6 +33,9 @@ from src.utils.error_handling import handle_exceptions, logger
 # Unterdrücke ALSA-Warnungen
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="sounddevice")
 
+# Unterdrücke JACK-Fehlermeldungen
+os.environ['JACK_NO_START_SERVER'] = '1'
+
 # Versuche, die ALSA-Fehlermeldungen zu unterdrücken
 ERROR_HANDLER_FUNC = ctypes.CFUNCTYPE(None, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p)
 

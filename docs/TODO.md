@@ -4,6 +4,7 @@
 - [ ] Überprüfung und Optimierung der Gerätekompatibilität für verschiedene Systemkonfigurationen, einschließlich Verbesserung der Shortcut-Funktionalität
 
 ## Priorität Hoch
+- [ ] Beheben von Problemen bei der sofortigen Aktualisierung des Audiogeräts
 - [ ] Durchführung umfassender Tests für die neue Zahlwort-Konvertierungsfunktionalität
 - [ ] Implementierung von Unit-Tests für die neue Zahlwort-Konvertierungsfunktionalität
 - [ ] Überprüfung der Kompatibilität mit verschiedenen Eingabeformaten (z.B. gemischte Text- und Zahleneingaben)
@@ -39,7 +40,6 @@
 
 ## Neue Aufgaben
 - [ ] Implementierung von Funktionen zum Zurücksetzen von Einstellungen, einschließlich Farbeinstellungen
-- [ ] Entwicklung von Farbthemen oder Voreinstellungen für schnelle Anpassungen
 - [ ] Überprüfung und Zentralisierung von hartcodierten Werten in der Konfigurationsdatei
 
 ## Zukünftige Überlegungen
@@ -50,7 +50,7 @@
 
 
 ## Abgeschlossene Aufgaben
+- [x] Implementierung eines Audiogeräte-Auswahlmenüs
 - [x] Verbessern der Zahlwort-zu-Ziffer-Konvertierung für komplexe deutsche Zahlwörter
 - [x] Sicherstellen, dass Nicht-Zahlwörter im verarbeiteten Text korrekt beibehalten werden
 - [x] Wiederherstellung und Verbesserung der Textumwandlungen für Ziffern und Zahlwörter
-- [x] Überprüfung und Optimierung der GUI-Tests

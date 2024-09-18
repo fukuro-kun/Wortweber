@@ -74,17 +74,13 @@ class AudioOptionsPanel(ttk.Frame):
 
     @handle_exceptions
     def on_device_change(self):
-        selected_index = self.selected_device.get()
-        self.settings_manager.set_setting("audio_device_index", selected_index)
-        self.settings_manager.save_settings()
-        logger.info(f"Audiogerät in Einstellungen geändert zu Index: {selected_index}")
+        selected_index = int(self.selected_device.get())
+        logger.debug(f"Gerätewechsel versucht zu Index: {selected_index}")
 
-        # Aktualisiere das Backend
-        if self.on_device_change_callback:
-            self.on_device_change_callback()
-
-        # Warte kurz, um sicherzustellen, dass das Backend aktualisiert wurde
-        self.after(100, self.update_current_device_label)
+        if self.backend.update_audio_device(selected_index):
+            self.update_current_device_label()
+        else:
+            self.current_device_label.config(text="Fehler beim Aktualisieren des Audiogeräts")
 
     @handle_exceptions
     def refresh_devices(self):
@@ -110,6 +106,8 @@ class AudioOptionsPanel(ttk.Frame):
             self.current_device_label.config(text=f"{current_device['name']} (Index: {current_device['index']})")
         else:
             self.current_device_label.config(text="Kein Gerät ausgewählt oder verfügbar")
+
+        logger.info(f"Aktuell verwendetes Gerät: {current_device}")
 
 
 # Zusätzliche Erklärungen:

@@ -29,89 +29,68 @@ import contextlib
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 class AudioProcessor:
-    """
-    Diese Klasse ist verantwortlich für die Verarbeitung von Audioaufnahmen.
-    Sie bietet Methoden zur Auflistung von Audiogeräten, zur Aufnahme von Audio
-    und zur Verarbeitung der aufgenommenen Audiodaten.
-    """
-
     @handle_exceptions
     def __init__(self, settings_manager):
-        """
-        Initialisiert den AudioProcessor.
-
-        :param settings_manager: Eine Instanz des SettingsManager zur Verwaltung von Benutzereinstellungen
-        """
         self.settings_manager = settings_manager
         self.RATE = AUDIO_RATE
         self.TARGET_RATE = TARGET_RATE
         self.last_recording = None
         self.p = pyaudio.PyAudio()
-        logger.info("AudioProcessor initialisiert")
+        self.current_device_index = self.get_device_index()
+        logger.info(f"AudioProcessor initialisiert mit Geräteindex: {self.current_device_index}")
 
     def __del__(self):
-        """
-        Destruktor für die AudioProcessor-Klasse.
-        Stellt sicher, dass die PyAudio-Instanz ordnungsgemäß beendet wird.
-        """
         if hasattr(self, 'p'):
             self.p.terminate()
         logger.info("AudioProcessor beendet")
 
+    @handle_exceptions
+    def close(self):
+        if hasattr(self, 'stream') and self.stream:
+            self.stream.stop_stream()
+            self.stream.close()
+        if hasattr(self, 'p'):
+            self.p.terminate()
+        logger.info("AudioProcessor geschlossen")
 
     @handle_exceptions
-    def check_device_availability(self):
-        """Überprüft, ob das ausgewählte Audiogerät verfügbar ist."""
+    def reinitialize(self):
+        self.close()
+        self.p = pyaudio.PyAudio()
+        logger.info("AudioProcessor reinitialisiert")
+
+    @handle_exceptions
+    def get_device_index(self):
         try:
-            device_index = self.get_device_index()
-            self.p.get_device_info_by_index(device_index)
-            return True
-        except Exception as e:
-            logger.error(f"Ausgewähltes Audiogerät (Index: {device_index}) ist nicht verfügbar: {e}")
-            return False
+            index = int(self.settings_manager.get_setting("audio_device_index", DEFAULT_AUDIO_DEVICE_INDEX))
+            if 0 <= index < self.p.get_device_count():
+                logger.debug(f"Verwende gespeicherten Audiogeräteindex: {index}")
+                return index
+            else:
+                logger.warning(f"Gespeicherter Audiogeräteindex {index} ist ungültig. Verwende Standardgerät.")
+        except ValueError:
+            logger.warning("Ungültiger Audiogeräteindex in den Einstellungen. Verwende Standardgerät.")
+
+        # Wenn kein gültiger Index gefunden wurde, verwenden Sie das Standardgerät
+        default_index = self.p.get_default_input_device_info()['index']
+        logger.info(f"Verwende Standardaudiogerät mit Index: {default_index}")
+        return default_index
 
     @handle_exceptions
     def get_current_device_info(self):
-        """Gibt Informationen über das aktuell verwendete Audiogerät zurück."""
         try:
-            device_index = self.get_device_index()
-            device_info = self.p.get_device_info_by_index(device_index)
+            device_info = self.p.get_device_info_by_index(self.current_device_index)
             return {
-                'index': device_index,
-                'name': device_info['name']
+                'index': self.current_device_index,
+                'name': device_info.get('name', 'Unbekanntes Gerät')
             }
         except Exception as e:
             logger.error(f"Fehler beim Abrufen des aktuellen Audiogeräts: {e}")
             return None
 
-    @contextlib.contextmanager
-    def get_pyaudio(self):
-        """
-        Kontextmanager für die PyAudio-Instanz.
-        Stellt sicher, dass die PyAudio-Ressourcen ordnungsgemäß freigegeben werden.
-
-        :yield: Die PyAudio-Instanz
-        """
-        try:
-            yield self.p
-        finally:
-            pass  # Die Terminierung erfolgt im Destruktor
-
-    @handle_exceptions
-    def get_device_index(self):
-        """
-        Holt den Index des aktuell ausgewählten Audiogeräts aus den Einstellungen.
-
-        :return: Der Index des ausgewählten Audiogeräts als Integer
-        """
-        return int(self.settings_manager.get_setting("audio_device_index", DEFAULT_AUDIO_DEVICE_INDEX))
-
     @handle_exceptions
     def list_audio_devices(self):
-        """
-        Listet alle verfügbaren Audioeingangsgeräte auf.
-        Diese Methode ist nützlich, um die korrekten Geräte-IDs für die Aufnahme zu identifizieren.
-        """
+        """Listet alle verfügbaren Audioeingangsgeräte auf."""
         logger.info("Auflistung der Audiogeräte gestartet")
         info = self.p.get_host_api_info_by_index(0)
         numdevices = info.get('deviceCount')
@@ -125,16 +104,46 @@ class AudioProcessor:
         logger.info("Auflistung der Audiogeräte abgeschlossen")
 
     @handle_exceptions
-    def open_audio_stream(self):
-        """Öffnet einen Audiostream mit den aktuellen Einstellungen."""
+    def update_device(self, new_index):
+        if 0 <= new_index < self.p.get_device_count():
+            self.current_device_index = new_index
+            self.settings_manager.set_setting("audio_device_index", new_index)
+            self.settings_manager.save_settings()
+            logger.info(f"Audiogerät aktualisiert auf Index: {new_index}")
+            return True
+        else:
+            logger.error(f"Ungültiger Audiogeräteindex: {new_index}")
+            return False
+
+    @contextlib.contextmanager
+    def get_pyaudio(self):
         try:
-            device_index = self.get_device_index()
+            yield self.p
+        finally:
+            pass
+
+    @handle_exceptions
+    def check_device_availability(self):
+        try:
+            device_info = self.p.get_device_info_by_index(self.current_device_index)
+            if device_info and device_info.get('maxInputChannels', 0) > 0:
+                return True
+            else:
+                logger.warning(f"Ausgewähltes Audiogerät (Index: {self.current_device_index}) ist nicht verfügbar oder hat keine Eingabekanäle.")
+                return False
+        except Exception as e:
+            logger.error(f"Fehler beim Überprüfen des Audiogeräts (Index: {self.current_device_index}): {e}")
+            return False
+
+    @handle_exceptions
+    def open_audio_stream(self):
+        try:
             stream = self.p.open(format=AUDIO_FORMAT, channels=AUDIO_CHANNELS, rate=self.RATE, input=True,
-                            frames_per_buffer=AUDIO_CHUNK, input_device_index=device_index)
+                            frames_per_buffer=AUDIO_CHUNK, input_device_index=self.current_device_index)
             return stream
         except IOError as e:
             if e.errno == -9996:  # Device unavailable
-                logger.error(f"Das ausgewählte Audiogerät (Index: {device_index}) ist nicht verfügbar.")
+                logger.error(f"Das ausgewählte Audiogerät (Index: {self.current_device_index}) ist nicht verfügbar.")
             elif e.errno == -9997:  # Invalid sample rate
                 logger.error(f"Die Abtastrate {self.RATE} wird vom Gerät nicht unterstützt.")
             else:
@@ -146,15 +155,6 @@ class AudioProcessor:
 
     @handle_exceptions
     def record_audio(self, state):
-        """
-        Nimmt Audio auf, basierend auf dem gegebenen Zustand.
-
-        :param state: Ein Objekt, das den aktuellen Aufnahmezustand repräsentiert.
-        :return: Die Dauer der Aufnahme in Sekunden.
-
-        Diese Methode öffnet einen Audiostream, nimmt Audiodaten auf und speichert sie im state-Objekt.
-        Sie läuft, bis state.recording auf False gesetzt wird.
-        """
         logger.info("Audioaufnahme gestartet")
         try:
             stream = self.open_audio_stream()
@@ -175,20 +175,11 @@ class AudioProcessor:
         except Exception as e:
             logger.error(f"Fehler bei der Audioaufnahme: {e}")
             logger.error(f"Fehlertyp: {type(e).__name__}")
-            device_index = self.get_device_index()
-            logger.error(f"Geräteinformationen: {self.p.get_device_info_by_index(device_index)}")
+            logger.error(f"Geräteinformationen: {self.p.get_device_info_by_index(self.current_device_index)}")
             raise
 
     @handle_exceptions
     def resample_audio(self, audio_np):
-        """
-        Resampled das Audioarray auf die Zielrate.
-
-        :param audio_np: Ein NumPy-Array mit den Audiodaten.
-        :return: Ein NumPy-Array mit den resampled Audiodaten.
-
-        Diese Methode verwendet scipy.signal.resample, um die Abtastrate des Audios anzupassen.
-        """
         if len(audio_np) == 0:
             logger.warning("Leeres Audio-Array zum Resampling übergeben")
             return audio_np
@@ -199,12 +190,6 @@ class AudioProcessor:
 
     @handle_exceptions
     def save_last_recording(self, filename="tests/test_data/speech_sample.wav"):
-        """
-        Speichert die letzte Aufnahme als Testdatei.
-
-        :param filename: Der Pfad und Name der zu speichernden Datei.
-        :return: True, wenn die Aufnahme erfolgreich gespeichert wurde, sonst False.
-        """
         if not self.last_recording:
             logger.warning("Keine Aufnahme verfügbar zum Speichern")
             return False

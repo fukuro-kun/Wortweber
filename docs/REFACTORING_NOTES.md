@@ -1,3 +1,17 @@
+# Verbesserung der Audiogeräteauswahl und Fehlerbehandlung (Version 0.21.6)
+
+## Begründung für die Änderungen
+1. Erhöhung der Zuverlässigkeit bei der Audiogeräteauswahl
+2. Verbesserung der Benutzerfreundlichkeit durch sofortige UI-Aktualisierung
+3. Robustere Fehlerbehandlung bei Audiogeräteproblemen
+
+## Hauptänderungen
+1. Überarbeitung der `AudioProcessor` Klasse für besseres Gerätemanagement
+2. Anpassung des `WordweberBackend` an die neue `AudioProcessor` Struktur
+3. Verbesserung der `AudioOptionsPanel` UI für sofortige Aktualisierung bei Gerätewechsel
+4. Implementierung zusätzlicher Fehlerprüfungen und Logging
+
+
 # Implementierung der digits_to_words Funktion und Verbesserung der Testausgabe (Version 0.20.4)
 
 ## Begründung für die Änderungen

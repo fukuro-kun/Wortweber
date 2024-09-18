@@ -52,6 +52,10 @@ class WordweberBackend:
     @handle_exceptions
     def start_recording(self) -> None:
         """Startet die Audioaufnahme."""
+        if not self.audio_processor.check_device_availability():
+            logger.error("Audiogerät nicht verfügbar. Aufnahme kann nicht gestartet werden.")
+            return
+
         self.state.recording = True
         self.state.audio_data = []
         threading.Thread(target=self._record_audio, daemon=True).start()
@@ -135,35 +139,22 @@ class WordweberBackend:
 
         :return: True, wenn das Gerät verfügbar ist, sonst False
         """
-        try:
-            device_index = self.audio_processor.get_device_index()
-            stream = self.audio_processor.p.open(format=AUDIO_FORMAT, channels=AUDIO_CHANNELS, rate=AUDIO_RATE, input=True,
-                                                 frames_per_buffer=AUDIO_CHUNK, input_device_index=device_index)
-            stream.close()
-            logger.info("Audiogerät erfolgreich überprüft")
-            return True
-        except Exception as e:
-            logger.error(f"Fehler beim Überprüfen des Audiogeräts: {e}")
-            return False
+        return self.audio_processor.check_device_availability()
 
     @handle_exceptions
-    def update_audio_device(self) -> None:
-        """Aktualisiert das Audiogerät basierend auf den aktuellen Einstellungen."""
-        # Erstelle einen neuen AudioProcessor mit den aktuellen Einstellungen
-        new_audio_processor = AudioProcessor(self.settings_manager)
-
-        # Überprüfe, ob das neue Gerät tatsächlich verfügbar ist
-        if new_audio_processor.check_device_availability():
-            self.audio_processor = new_audio_processor
+    def update_audio_device(self, new_index) -> bool:
+        """Aktualisiert das Audiogerät basierend auf dem neuen Index."""
+        if self.audio_processor.update_device(new_index):
             device_info = self.audio_processor.get_current_device_info()
-            logger.info(f"Audiogerät erfolgreich aktualisiert auf: {device_info['name']} (Index: {device_info['index']})")
-
-            # Wenn eine Aufnahme läuft, stoppen und neu starten
-            if self.state.recording:
-                self.stop_recording()
-                self.start_recording()
+            if device_info:
+                logger.info(f"Audiogerät erfolgreich aktualisiert auf: {device_info['name']} (Index: {device_info['index']})")
+                return True
+            else:
+                logger.warning("Audiogerät aktualisiert, aber keine Geräteinformationen verfügbar.")
+                return False
         else:
-            logger.error("Ausgewähltes Audiogerät ist nicht verfügbar. Behalte vorheriges Gerät bei.")
+            logger.error("Fehler beim Aktualisieren des Audiogeräts.")
+            return False
 
     @handle_exceptions
     def get_current_audio_device(self):
