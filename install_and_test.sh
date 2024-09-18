@@ -23,6 +23,15 @@ check_error() {
     fi
 }
 
+# Erstellen des wortweber.sh Skripts
+echo '#!/bin/bash
+eval "$(conda shell.bash hook)"
+conda activate wortweber
+python -m src.wortweber
+conda deactivate' > wortweber.sh
+chmod +x wortweber.sh
+check_error "wortweber.sh konnte nicht erstellt werden"
+
 # Stelle sicher, dass conda in der aktuellen Shell verfügbar ist
 eval "$(conda shell.bash hook)"
 
@@ -37,7 +46,7 @@ check_error "Conda-Umgebung konnte nicht aktiviert werden"
 # Installation der Systemabhängigkeiten
 echo "Bitte geben Sie Ihr Passwort ein, um Systemabhängigkeiten zu installieren:"
 sudo apt-get update
-sudo apt-get install -y portaudio19-dev python3-tk
+sudo apt-get install -y portaudio19-dev python3-tk xclip
 check_error "Systemabhängigkeiten konnten nicht installiert werden"
 
 # Installation der Python-Abhängigkeiten
@@ -51,17 +60,15 @@ if [ ! -f $CONDA_PREFIX/lib/libstdc++.so.6 ]; then
 fi
 
 # Test der Installation
-python -c "import pyaudio, numpy, whisper, pynput, scipy, tqdm, tiktoken, numba; print('Alle Module erfolgreich importiert')"
+python -c "import pyaudio, numpy, whisper, pynput, scipy, tqdm, tiktoken, numba, pyperclip; print('Alle Module erfolgreich importiert')"
 check_error "Nicht alle Module konnten importiert werden"
 
-# Erstellen des wortweber.sh Skripts
-echo '#!/bin/bash
-eval "$(conda shell.bash hook)"
-conda activate wortweber
-python -m src.wortweber
-conda deactivate' > wortweber.sh
-chmod +x wortweber.sh
-check_error "wortweber.sh konnte nicht erstellt werden"
+# Test der xclip-Installation
+if ! command -v xclip &> /dev/null
+then
+    echo "xclip konnte nicht gefunden werden. Bitte installieren Sie es manuell mit 'sudo apt-get install xclip'"
+    exit 1
+fi
 
 # Ausführen des Hauptskripts
 python -m src.wortweber

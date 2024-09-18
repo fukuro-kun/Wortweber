@@ -5,6 +5,20 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.21.4] - 2024-09-18
+### Added
+- Integration von xclip als Systemabhängigkeit für verbesserte Zwischenablagenfunktionalität
+- Erweiterter Installationsprozess mit automatischer xclip-Installation
+- Zusätzliche Fehlerbehebungshinweise für Pyperclip-bezogene Probleme
+
+### Changed
+- Aktualisierung der Installationsanleitung in der README mit detaillierteren Schritten
+- Verbesserung des `install_and_test.sh`-Skripts für robustere Installation
+
+### Improved
+- Verbesserte Benutzerfreundlichkeit durch klarere Installationsanweisungen
+- Erhöhte Stabilität der Zwischenablagenfunktionen unter Linux
+
 ## [0.21.3] - 2024-09-18
 ### Geändert
 - README.md überarbeitet, um den experimentellen Status des Projekts klarer darzustellen

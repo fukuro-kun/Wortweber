@@ -20,11 +20,37 @@ Wortweber befindet sich in einer frühen Entwicklungsphase und ist noch nicht f�
 ### Voraussetzungen
 
 - Python 3.11 oder höher
-- Conda (empfohlen für einfache Installation und Verwaltung der Umgebung)
+- Conda (für einfache Installation und Verwaltung der Umgebung)
+- xclip (für Zwischenablagenoperationen unter Linux)
 
 ### Installation
 
-1. Klonen Sie dieses Repository:
+#### 1. Python installieren
+
+Wenn Sie Python 3.12 installieren möchten, können Sie folgendes Kommando in Ihrem Terminal ausführen:
+
+```
+sudo apt install python3.12
+```
+
+#### 2. Conda installieren
+
+Wir empfehlen die Installation von Miniconda. Folgen Sie diesen Schritten:
+
+```bash
+mkdir -p ~/miniconda3
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+rm ~/miniconda3/miniconda.sh
+```
+
+Diese Befehle laden die neueste 64-Bit-Version des Linux-Installers herunter, benennen ihn um, installieren ihn im Hintergrund und löschen anschließend den Installer.
+
+Für detailliertere Anweisungen besuchen Sie: https://docs.anaconda.com/miniconda/#quick-command-line-install
+
+#### 3. Wortweber installieren
+
+1. Öffnen Sie ein Terminal und klonen Sie das Wortweber-Repository:
    ```
    git clone https://github.com/fukuro-kun/Wortweber.git
    cd Wortweber
@@ -37,7 +63,13 @@ Wortweber befindet sich in einer frühen Entwicklungsphase und ist noch nicht f�
 
 3. Folgen Sie den Anweisungen im Terminal. Sie werden möglicherweise nach Ihrem Passwort gefragt, um Systemabhängigkeiten zu installieren.
 
-Bitte beachten Sie: Die Installation und Einrichtung kann je nach System komplex sein und erfordert möglicherweise zusätzliche Schritte oder Fehlerbehebungen.
+### Wichtige Hinweise
+
+- Die Installation kann je nach System unterschiedlich verlaufen und zusätzliche Schritte erfordern.
+- Bei Problemen konsultieren Sie bitte den Abschnitt "Problembehebung" in dieser README oder erstellen Sie ein Issue auf GitHub.
+- Stellen Sie sicher, dass Sie nach der Installation von Miniconda Ihr Terminal neu starten oder `source ~/.bashrc` ausführen, um die Conda-Umgebung zu aktivieren.
+
+Wir arbeiten kontinuierlich daran, den Installationsprozess zu verbessern. Wenn Sie auf Schwierigkeiten stoßen, zögern Sie nicht, uns um Hilfe zu bitten.
 
 ### Verwendung
 
@@ -118,6 +150,17 @@ cp /usr/lib/x86_64-linux-gnu/libstdc++.so.6 $CONDA_PREFIX/lib/
 
 Dies kopiert die benötigte C++-Bibliothek in Ihre Conda-Umgebung. Dieser Schritt ist oft notwendig,
 da die in Conda enthaltene Version möglicherweise nicht mit den Systemanforderungen übereinstimmt.
+
+### Pyperclip-Fehler
+
+Wenn Sie eine Fehlermeldung erhalten, die besagt, dass Pyperclip keinen Copy/Paste-Mechanismus für Ihr System finden konnte, installieren Sie bitte xclip:
+
+```
+sudo apt-get install xclip
+```
+
+Dies sollte das Problem mit der Zwischenablagenfunktionalität beheben.
+
 
 ### Weitere Problemlösungen
 
