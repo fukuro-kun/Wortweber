@@ -143,7 +143,7 @@ Wenn Sie weiterhin Probleme haben, überprüfen Sie die Konsolenausgabe auf spez
 ## Systemanforderungen
 
 Diese Anwendung wurde erfolgreich getestet auf:
-- Ubuntu 22.04 LTS
+- Ubuntu 24.04 LTS
 - Python 3.11
 - Conda 23.11.0
 
