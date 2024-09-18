@@ -5,6 +5,11 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.21.3] - 2024-09-18
+### Geändert
+- README.md überarbeitet, um den experimentellen Status des Projekts klarer darzustellen
+- Projektbeschreibung auf GitHub angepasst für realistischere Darstellung
+
 ## [0.21.2] - 2024-09-18
 ### Changed
 - Projektlizenz von Apache License 2.0 zu GNU General Public License v3.0 (GPLv3) geändert

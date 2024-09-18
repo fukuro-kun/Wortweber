@@ -1,17 +1,19 @@
 # Wortweber
 
-Wortweber ist eine leistungsstarke und benutzerfreundliche Anwendung zur Echtzeit-Transkription von Sprache in Text. Mit Hilfe modernster KI-Technologie bietet Wortweber präzise Spracherkennung in Deutsch und Englisch.
+Wortweber ist ein Projekt zur Echtzeit-Transkription von Sprache in Text, das sich derzeit in der Entwicklungsphase befindet. Es nutzt KI-Technologie für die Spracherkennung in Deutsch und Englisch und ist als Lern- und Experimentierplattform konzipiert.
 
-## Hauptfunktionen
+## Aktueller Entwicklungsstand
+
+Wortweber befindet sich in einer frühen Entwicklungsphase und ist noch nicht für den produktiven Einsatz geeignet. Die aktuelle Version bietet grundlegende Funktionalität, ist aber weder vollständig optimiert noch umfassend getestet. Benutzer sollten mit gelegentlichen Fehlern und Einschränkungen rechnen.
+
+## Geplante Hauptfunktionen
 
 - Echtzeit-Audioaufnahme mit Push-to-Talk-Funktionalität (F12-Taste)
-- Transkription in Deutsch und Englisch mit verschiedenen Whisper-Modellen
-- Intuitive grafische Benutzeroberfläche mit anpassbaren Themes
-- Automatisches Kopieren der Transkription in die Zwischenablage (optional)
-- Einfache Umwandlung von Zahlwörtern in Ziffern und umgekehrt
+- Transkription in Deutsch und Englisch mit Whisper-Modellen
+- Einfache grafische Benutzeroberfläche
+- Umwandlung von Zahlwörtern in Ziffern und umgekehrt
 - Flexible Eingabemodi: Textfenster oder Systemcursor-Position
-- Speichern und Wiederherstellen von Benutzereinstellungen
-- Option zum Speichern von Testaufnahmen für Entwicklungs- und Debugging-Zwecke
+- Speichern von Benutzereinstellungen
 
 ## Installation und Nutzung
 
@@ -34,6 +36,8 @@ Wortweber ist eine leistungsstarke und benutzerfreundliche Anwendung zur Echtzei
    ```
 
 3. Folgen Sie den Anweisungen im Terminal. Sie werden möglicherweise nach Ihrem Passwort gefragt, um Systemabhängigkeiten zu installieren.
+
+Bitte beachten Sie: Die Installation und Einrichtung kann je nach System komplex sein und erfordert möglicherweise zusätzliche Schritte oder Fehlerbehebungen.
 
 ### Verwendung
 
@@ -93,10 +97,14 @@ Für detaillierte Informationen zu den Testoptionen können Sie folgenden Befehl
 python run_tests.py --help
 ```
 
+Bitte beachten Sie, dass die Tests in der aktuellen Entwicklungsphase nicht immer stabil laufen und gelegentlich fehlschlagen können.
+
 ## Wichtige Hinweise
 
 - Stellen Sie sicher, dass Sie die Wortweber-Umgebung aktiviert haben, bevor Sie die Anwendung starten.
 - Die Anwendung wurde für die Verwendung in einer isolierten Conda-Umgebung entwickelt, um Konflikte mit System-Python-Installationen zu vermeiden.
+- Diese Software befindet sich in einem experimentellen Stadium und sollte nicht für kritische oder produktive Zwecke eingesetzt werden.
+- Die Leistung und Zuverlässigkeit können stark variieren und sind von verschiedenen Faktoren abhängig.
 
 ## Problembehebung
 
