@@ -37,26 +37,29 @@ class AudioProcessor:
         self.last_recording = None
         self.p = pyaudio.PyAudio()
         self.current_device_index = self.get_device_index()
+        if not self.update_device(self.current_device_index):
+            logger.warning("Konnte das gespeicherte Audiogerät nicht setzen. Verwende Standardgerät.")
+            self.current_device_index = self.p.get_default_input_device_info()['index']
+        self.stream = None
         logger.info(f"AudioProcessor initialisiert mit Geräteindex: {self.current_device_index}")
 
     def __del__(self):
-        if hasattr(self, 'p'):
-            self.p.terminate()
-        logger.info("AudioProcessor beendet")
+        self.cleanup()
 
     @handle_exceptions
-    def close(self):
-        if hasattr(self, 'stream') and self.stream:
+    def cleanup(self):
+        if self.stream:
             self.stream.stop_stream()
             self.stream.close()
-        if hasattr(self, 'p'):
+        if self.p:
             self.p.terminate()
-        logger.info("AudioProcessor geschlossen")
+        logger.info("AudioProcessor Ressourcen bereinigt")
 
     @handle_exceptions
     def reinitialize(self):
-        self.close()
+        self.cleanup()
         self.p = pyaudio.PyAudio()
+        self.current_device_index = self.get_device_index()
         logger.info("AudioProcessor reinitialisiert")
 
     @handle_exceptions
@@ -67,13 +70,13 @@ class AudioProcessor:
                 logger.debug(f"Verwende gespeicherten Audiogeräteindex: {index}")
                 return index
             else:
-                logger.warning(f"Gespeicherter Audiogeräteindex {index} ist ungültig. Verwende Standardgerät.")
-        except ValueError:
-            logger.warning("Ungültiger Audiogeräteindex in den Einstellungen. Verwende Standardgerät.")
+                logger.warning(f"Gespeicherter Index {index} ungültig. Verwende Standardgerät.")
+        except (ValueError, TypeError):
+            logger.warning("Ungültiger Audiogeräteindex in den Einstellungen.")
 
-        # Wenn kein gültiger Index gefunden wurde, verwenden Sie das Standardgerät
         default_index = self.p.get_default_input_device_info()['index']
-        logger.info(f"Verwende Standardaudiogerät mit Index: {default_index}")
+        logger.info(f"Verwende Standardgeräteindex: {default_index}")
+        self.settings_manager.set_setting("audio_device_index", default_index)
         return default_index
 
     @handle_exceptions
@@ -89,22 +92,8 @@ class AudioProcessor:
             return None
 
     @handle_exceptions
-    def list_audio_devices(self):
-        """Listet alle verfügbaren Audioeingangsgeräte auf."""
-        logger.info("Auflistung der Audiogeräte gestartet")
-        info = self.p.get_host_api_info_by_index(0)
-        numdevices = info.get('deviceCount')
-        if numdevices is not None:
-            for i in range(int(numdevices)):
-                device_info = self.p.get_device_info_by_host_api_device_index(0, i)
-                max_channels = device_info.get('maxInputChannels')
-                if max_channels is not None and int(max_channels) > 0:
-                    print(f"Input Device id {i} - {device_info.get('name')}")
-                    logger.info(f"Input Device id {i} - {device_info.get('name')}")
-        logger.info("Auflistung der Audiogeräte abgeschlossen")
-
-    @handle_exceptions
     def update_device(self, new_index):
+        new_index = int(new_index)  # Explizite Konvertierung zu int
         if 0 <= new_index < self.p.get_device_count():
             self.current_device_index = new_index
             self.settings_manager.set_setting("audio_device_index", new_index)
@@ -138,9 +127,9 @@ class AudioProcessor:
     @handle_exceptions
     def open_audio_stream(self):
         try:
-            stream = self.p.open(format=AUDIO_FORMAT, channels=AUDIO_CHANNELS, rate=self.RATE, input=True,
+            self.stream = self.p.open(format=AUDIO_FORMAT, channels=AUDIO_CHANNELS, rate=self.RATE, input=True,
                             frames_per_buffer=AUDIO_CHUNK, input_device_index=self.current_device_index)
-            return stream
+            return self.stream
         except IOError as e:
             if e.errno == -9996:  # Device unavailable
                 logger.error(f"Das ausgewählte Audiogerät (Index: {self.current_device_index}) ist nicht verfügbar.")
@@ -154,29 +143,46 @@ class AudioProcessor:
             raise
 
     @handle_exceptions
+    def reset_stream(self):
+        if self.stream:
+            self.stream.stop_stream()
+            self.stream.close()
+        self.stream = None
+
+    @handle_exceptions
     def record_audio(self, state):
         logger.info("Audioaufnahme gestartet")
         try:
-            stream = self.open_audio_stream()
+            self.reset_stream()
+            self.stream = self.open_audio_stream()
 
             start_time = time.time()
             state.audio_data = []
             while state.recording:
-                data = stream.read(AUDIO_CHUNK, exception_on_overflow=False)
-                state.audio_data.append(data)
+                try:
+                    data = self.stream.read(AUDIO_CHUNK, exception_on_overflow=False)
+                    state.audio_data.append(data)
+                except IOError as e:
+                    logger.error(f"IOError während der Aufnahme: {e}")
+                    break
 
-            stream.stop_stream()
-            stream.close()
             duration = time.time() - start_time
             logger.info(f"Audioaufnahme beendet. Dauer: {duration:.2f} Sekunden")
 
-            self.last_recording = state.audio_data
+            if len(state.audio_data) > 0:
+                self.last_recording = state.audio_data
+            else:
+                logger.warning("Keine Audiodaten aufgenommen")
+
             return duration
         except Exception as e:
             logger.error(f"Fehler bei der Audioaufnahme: {e}")
             logger.error(f"Fehlertyp: {type(e).__name__}")
             logger.error(f"Geräteinformationen: {self.p.get_device_info_by_index(self.current_device_index)}")
             raise
+        finally:
+            if self.stream:
+                self.stream.stop_stream()
 
     @handle_exceptions
     def resample_audio(self, audio_np):
@@ -208,6 +214,21 @@ class AudioProcessor:
         else:
             logger.info("Letzte Aufnahme gespeichert (Incognito-Modus aktiv)")
         return True
+
+    @handle_exceptions
+    def list_audio_devices(self):
+        """Listet alle verfügbaren Audioeingangsgeräte auf."""
+        logger.info("Auflistung der Audiogeräte gestartet")
+        info = self.p.get_host_api_info_by_index(0)
+        numdevices = info.get('deviceCount')
+        if numdevices is not None:
+            for i in range(int(numdevices)):
+                device_info = self.p.get_device_info_by_host_api_device_index(0, i)
+                max_channels = device_info.get('maxInputChannels')
+                if max_channels is not None and int(max_channels) > 0:
+                    print(f"Input Device id {i} - {device_info.get('name')}")
+                    logger.info(f"Input Device id {i} - {device_info.get('name')}")
+        logger.info("Auflistung der Audiogeräte abgeschlossen")
 
 # Zusätzliche Erklärungen:
 

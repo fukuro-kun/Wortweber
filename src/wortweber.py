@@ -14,14 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
 # src/wortweber.py
 import sys
 import os
 import warnings
 import ctypes
-
+import atexit
 
 # Füge den Projektordner zum Python-Pfad hinzu
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -57,6 +55,26 @@ from src.backend.wortweber_backend import WordweberBackend
 from src.frontend.wortweber_gui import WordweberGUI
 from src.frontend.settings_manager import SettingsManager
 
+class Wortweber:
+    @handle_exceptions
+    def __init__(self):
+        self.settings_manager = SettingsManager()
+        self.backend = WordweberBackend(self.settings_manager)
+        self.gui = WordweberGUI(self.backend)
+
+        # Füge diese Zeile hinzu, um die aktuellen Einstellungen zu drucken
+        self.settings_manager.print_current_settings()
+
+    @handle_exceptions
+    def run(self):
+        self.backend.list_audio_devices()  # Zeigt verfügbare Audiogeräte an
+        self.gui.run()
+
+    def cleanup(self):
+        if hasattr(self, 'backend'):
+            self.backend.audio_processor.cleanup()
+        logger.info("Wortweber-Anwendung beendet und Ressourcen bereinigt")
+
 @handle_exceptions
 def main():
     """
@@ -64,11 +82,9 @@ def main():
     Initialisiert das Backend und die GUI und startet die Anwendung.
     """
     logger.info("Starte Wortweber-Anwendung")
-    settings_manager = SettingsManager()
-    backend = WordweberBackend(settings_manager)
-    backend.list_audio_devices()  # Zeigt verfügbare Audiogeräte an
-    gui = WordweberGUI(backend)
-    gui.run()
+    app = Wortweber()
+    atexit.register(app.cleanup)
+    app.run()
 
 if __name__ == "__main__":
     main()

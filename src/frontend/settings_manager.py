@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
 # src/frontend/settings_manager.py
 
 import json
@@ -36,6 +34,7 @@ class SettingsManager:
         self.settings_file = "user_settings.json"
         self.settings = self.load_settings()
         logger.info("SettingsManager initialisiert")
+        self.print_current_settings()
 
     @handle_exceptions
     def load_settings(self):
@@ -58,9 +57,12 @@ class SettingsManager:
     @handle_exceptions
     def save_settings(self):
         """Speichert die aktuellen Einstellungen in einer JSON-Datei."""
-        with open(self.settings_file, "w") as f:
-            json.dump(self.settings, f, indent=4)
-        logger.info("Einstellungen erfolgreich gespeichert")
+        try:
+            with open(self.settings_file, "w") as f:
+                json.dump(self.settings, f, indent=4)
+            logger.info("Einstellungen erfolgreich gespeichert")
+        except Exception as e:
+            logger.error(f"Fehler beim Speichern der Einstellungen: {e}")
 
     @handle_exceptions
     def get_setting(self, key, default=None):
@@ -88,6 +90,11 @@ class SettingsManager:
         if key != "text_content":  # Vermeiden des Loggens von Transkriptionen
             logger.info(f"Einstellung geändert: {key} = {value}")
 
+        # Überprüfen, ob die Einstellung tatsächlich gespeichert wurde
+        saved_value = self.get_setting(key)
+        if saved_value != value:
+            logger.error(f"Einstellung {key} konnte nicht korrekt gespeichert werden. Erwartet: {value}, Tatsächlich: {saved_value}")
+
     @handle_exceptions
     def get_default_settings(self):
         """
@@ -111,6 +118,12 @@ class SettingsManager:
         }
         logger.debug("Standardeinstellungen abgerufen")
         return default_settings
+
+    @handle_exceptions
+    def print_current_settings(self):
+        logger.info("Aktuelle Einstellungen:")
+        for key, value in self.settings.items():
+            logger.info(f"{key}: {value}")
 
 # Zusätzliche Erklärungen:
 
