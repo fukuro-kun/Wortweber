@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
 """
 Dieses Modul definiert das Optionsfenster für die Wortweber-Anwendung.
 Es ermöglicht die Anpassung von Theme, Textoptionen und Testaufnahme-Einstellungen.
@@ -378,7 +376,8 @@ class OptionsWindow(tk.Toplevel):
         self.gui.settings_manager.save_settings()
 
         # Aktualisiere die Farben in der GUI
-        self.theme_manager.update_colors()
+        self.gui.theme_manager.update_colors()
+        self.gui.main_window.update_status_bar()
 
         logger.info("Alle Änderungen rückgängig gemacht")
 
@@ -412,6 +411,7 @@ class OptionsWindow(tk.Toplevel):
             self.gui.settings_manager.set_setting(setting, current_color)
 
         self.gui.settings_manager.save_settings()
+        self.gui.main_window.update_status_bar()
         logger.info("Optionsfenster geschlossen, Einstellungen gespeichert")
         self.destroy()
 

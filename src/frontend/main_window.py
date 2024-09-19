@@ -18,7 +18,6 @@ import tkinter as tk
 from tkinter import ttk
 from src.frontend.transcription_panel import TranscriptionPanel
 from src.frontend.options_panel import OptionsPanel
-from src.frontend.status_panel import StatusPanel
 from src.frontend.options_window import OptionsWindow
 from src.utils.error_handling import handle_exceptions, logger
 
@@ -54,10 +53,8 @@ class MainWindow:
 
         self.transcription_panel = TranscriptionPanel(main_frame, self.gui)
         self.options_panel = OptionsPanel(main_frame, self.gui)
-        self.status_panel = StatusPanel(main_frame, self.gui)
 
         self.options_panel.grid(column=0, row=0, sticky="nw")
-        self.status_panel.grid(column=1, row=0, sticky="ne")
         self.transcription_panel.grid(column=0, row=1, columnspan=2, sticky="nsew")
 
         main_frame.columnconfigure(0, weight=1)
@@ -82,7 +79,8 @@ class MainWindow:
 
         # Konfigurieren der Spalten für das Grid-Layout
         self.status_bar.columnconfigure(0, weight=1)  # Linke Seite
-        self.status_bar.columnconfigure(1, weight=1)  # Rechte Seite
+        self.status_bar.columnconfigure(1, weight=2)  # Mitte (mehr Gewicht für die Hauptstatusanzeige)
+        self.status_bar.columnconfigure(2, weight=1)  # Rechte Seite
 
         # Linke Statuselemente
         left_frame = tk.Frame(self.status_bar, bg="black")
@@ -98,9 +96,13 @@ class MainWindow:
         self.output_mode_status = tk.Label(left_frame, text="", bg="black", fg="white", anchor="w")
         self.output_mode_status.pack(side=tk.LEFT)
 
+        # Mittleres Statuselement (Hauptstatusanzeige)
+        self.main_status = tk.Label(self.status_bar, text="Bereit", bg="black", fg="white", anchor="center")
+        self.main_status.grid(row=0, column=1, sticky="nsew")
+
         # Rechte Statuselemente
         right_frame = tk.Frame(self.status_bar, bg="black")
-        right_frame.grid(row=0, column=1, sticky="e")
+        right_frame.grid(row=0, column=2, sticky="e")
 
         self.record_time_label = tk.Label(right_frame, text="Aufnahmezeit: ", bg="black", fg="white", anchor="e")
         self.record_time_label.pack(side=tk.LEFT)
@@ -112,13 +114,12 @@ class MainWindow:
         self.transcription_time = tk.Label(right_frame, text="0.00 s", bg="black", fg="white", anchor="e")
         self.transcription_time.pack(side=tk.LEFT)
 
-        self.hotkey_label = tk.Label(right_frame, text="Hotkey: ", bg="black", fg="white", anchor="e")
-        self.hotkey_label.pack(side=tk.LEFT)
-        self.hotkey_status = tk.Label(right_frame, text="F12", bg="black", fg="white", anchor="e")
-        self.hotkey_status.pack(side=tk.LEFT)
+        self.auto_copy_var = tk.BooleanVar(value=self.gui.settings_manager.get_setting("auto_copy"))
+        self.auto_copy_checkbox = tk.Checkbutton(right_frame, text="Auto-Kopieren", variable=self.auto_copy_var,
+                                                 bg="black", fg="white", selectcolor="black", activebackground="black")
+        self.auto_copy_checkbox.pack(side=tk.RIGHT)
 
         logger.info("UI-Setup abgeschlossen")
-
 
     @handle_exceptions
     def open_options_window(self):
@@ -128,6 +129,16 @@ class MainWindow:
 
     @handle_exceptions
     def update_status_bar(self, model=None, output_mode=None, status=None, record_time=None, transcription_time=None, status_color=None):
+        """
+        Aktualisiert die Statusleiste mit den gegebenen Informationen.
+
+        :param model: Aktuelles Modell (optional)
+        :param output_mode: Aktueller Ausgabemodus (optional)
+        :param status: Statusnachricht (optional)
+        :param record_time: Aufnahmezeit in Sekunden (optional)
+        :param transcription_time: Transkriptionszeit in Sekunden (optional)
+        :param status_color: Farbe für die Statusnachricht (optional)
+        """
         if model:
             self.model_status.config(text=model)
             if "Geladen" in model:
@@ -140,27 +151,28 @@ class MainWindow:
         if output_mode:
             self.output_mode_status.config(text=output_mode)
 
+        if status:
+            self.main_status.config(text=status)
+            if status_color:
+                self.main_status.config(fg=status_color)
+            else:
+                self.main_status.config(fg="white")
+
         if record_time is not None:
             self.record_time.config(text=f"{record_time:.1f} s")
-            if record_time > 0:
-                self.record_time.config(fg="orange")
-            else:
-                self.record_time.config(fg="white")
 
         if transcription_time is not None:
             self.transcription_time.config(text=f"{transcription_time:.2f} s")
-            self.transcription_time.config(fg="green")
 
-        # Explizite Aktualisierung des Fensters
+        # Explizite Aktualisierung des Fensters, um sicherzustellen, dass Änderungen sofort sichtbar sind
         self.root.update_idletasks()
-
 
 logger.info("MainWindow-Modul geladen")
 
 # Zusätzliche Erklärungen:
 
 # 1. Modulare Struktur:
-#    Die Benutzeroberfläche ist in separate Panels aufgeteilt (TranscriptionPanel, OptionsPanel, StatusPanel),
+#    Die Benutzeroberfläche ist in separate Panels aufgeteilt (TranscriptionPanel, OptionsPanel),
 #    was die Wartbarkeit und Erweiterbarkeit verbessert.
 
 # 2. Tkinter Grid-Layout:
@@ -181,7 +193,14 @@ logger.info("MainWindow-Modul geladen")
 
 # 6. Statusleiste:
 #    Die Statusleiste am unteren Rand des Fensters bietet eine übersichtliche Darstellung wichtiger Informationen.
-#    Sie verwendet einen schwarzen Hintergrund mit weißem Text für bessere Lesbarkeit und farbige Hervorhebungen für wichtige Statusänderungen.
+#    Sie enthält nun Anzeigen für das Modell, den Ausgabemodus, den allgemeinen Status, die Aufnahmezeit und die Transkriptionszeit.
 
 # 7. Fehlerbehandlung:
 #    Die Verwendung des @handle_exceptions Decorators gewährleistet eine einheitliche Fehlerbehandlung in allen Methoden.
+
+# 8. Logging:
+#    Ausführliches Logging hilft bei der Diagnose von Problemen und der Nachverfolgung des Programmablaufs.
+
+# 9. Dynamische Statusaktualisierung:
+#    Die update_status_bar Methode ermöglicht es, verschiedene Teile der Statusleiste unabhängig voneinander zu aktualisieren,
+#    was eine flexible und effiziente Statusanzeige ermöglicht.

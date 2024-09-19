@@ -35,7 +35,6 @@ from src.frontend.main_window import MainWindow
 from src.frontend.transcription_panel import TranscriptionPanel
 from src.frontend.options_panel import OptionsPanel
 from src.frontend.options_window import OptionsWindow
-from src.frontend.status_panel import StatusPanel
 from src.frontend.theme_manager import ThemeManager
 from src.frontend.input_processor import InputProcessor
 from src.frontend.settings_manager import SettingsManager
@@ -78,7 +77,6 @@ class WordweberGUI:
         self.main_window = MainWindow(self.root, self)
         self.transcription_panel = self.main_window.transcription_panel
         self.options_panel = self.main_window.options_panel
-        self.status_panel = self.main_window.status_panel
 
         self.theme_manager.set_gui(self)
 
@@ -114,7 +112,7 @@ class WordweberGUI:
 
         :param model_name: Name des zu ladenden Modells
         """
-        self.main_window.update_status_bar(model=f"{model_name} - Wird geladen...", status="Lade Modell...", status_color="Yellow")
+        self.main_window.update_status_bar(model=f"{model_name} - Wird geladen...", status="Lade Modell...", status_color="yellow")
         threading.Thread(target=self._load_model_thread, args=(model_name,), daemon=True).start()
 
     @handle_exceptions
@@ -126,11 +124,11 @@ class WordweberGUI:
         """
         try:
             self.backend.load_transcriber_model(model_name)
-            self.root.after(0, lambda: self.main_window.update_status_bar(model=f"{model_name} - Geladen", status="Modell geladen", status_color="Green"))
+            self.root.after(0, lambda: self.main_window.update_status_bar(model=f"{model_name} - Geladen", status="Modell geladen", status_color="green"))
             if self.backend.pending_audio:
                 self.root.after(0, self.transcribe_and_update)
         except Exception as e:
-            self.root.after(0, lambda: self.main_window.update_status_bar(status=f"Fehler beim Laden des Modells: {str(e)}", status_color="Red"))
+            self.root.after(0, lambda: self.main_window.update_status_bar(status=f"Fehler beim Laden des Modells: {str(e)}", status_color="red"))
             logging.error(f"Fehler beim Laden des Modells: {str(e)}")
 
     @handle_exceptions
@@ -180,45 +178,22 @@ class WordweberGUI:
             self.settings_manager.save_settings()
 
     @handle_exceptions
-    def start_timer(self) -> None:
-        """Startet den Timer für die Aufnahmedauer."""
-        self.start_time = time.time()
-        self.update_timer()
-
-    @handle_exceptions
-    def stop_timer(self) -> None:
-        """Stoppt den Timer für die Aufnahmedauer."""
-        self.main_window.update_status_bar(record_time=0.0)
-
-    @handle_exceptions
-    def update_timer(self) -> None:
-        """Aktualisiert die Anzeige der Aufnahmedauer."""
-        if self.backend.state.recording:
-            elapsed_time = time.time() - self.start_time
-            self.main_window.update_status_bar(record_time=elapsed_time)
-            self.root.after(100, self.update_timer)
-
-    @handle_exceptions
     def transcribe_and_update(self) -> None:
         """Führt die Transkription durch und aktualisiert die GUI."""
         def update_gui(text, transcription_time):
-            self.main_window.update_status_bar(status="Transkription abgeschlossen", status_color="Green")
+            self.main_window.update_status_bar(status="Transkription abgeschlossen", status_color="green")
             self.input_processor.process_text(text)
             self.main_window.update_status_bar(transcription_time=transcription_time)
-
-            # Speichern der Testaufnahme, wenn aktiviert
-            if self.settings_manager.get_setting("save_test_recording", False):
-                self.backend.audio_processor.save_last_recording()
 
             output_mode = self.options_panel.output_mode_var.get()
             self.main_window.update_status_bar(output_mode=output_mode)
 
-            if self.status_panel.auto_copy_var.get():
-                self.main_window.update_status_bar(status="Text transkribiert und in Zwischenablage kopiert", status_color="Green")
+            if self.main_window.auto_copy_var.get():
+                self.main_window.update_status_bar(status="Text transkribiert und in Zwischenablage kopiert", status_color="green")
             else:
-                self.main_window.update_status_bar(status="Text transkribiert", status_color="Green")
+                self.main_window.update_status_bar(status="Text transkribiert", status_color="green")
 
-        self.main_window.update_status_bar(status="Transkribiere...", status_color="Orange")
+        self.main_window.update_status_bar(status="Transkribiere...", status_color="orange")
         start_time = time.time()
         text = self.backend.process_and_transcribe(self.options_panel.language_var.get())
         transcription_time = time.time() - start_time
@@ -240,7 +215,6 @@ class WordweberGUI:
             highlight_bg=self.theme_manager.highlight_bg.get()
         )
 
-
 # Zusätzliche Erklärungen:
 
 # 1. Die WordweberGUI-Klasse ist der zentrale Punkt für die Verwaltung der Benutzeroberfläche.
@@ -253,4 +227,4 @@ class WordweberGUI:
 # 8. Die Verwendung von self.root.after() in _load_model_thread und transcribe_and_update stellt sicher, dass GUI-Updates im Hauptthread erfolgen.
 # 9. Fehlerbehandlung wurde in _load_model_thread hinzugefügt, um Benutzer über Probleme beim Laden des Modells zu informieren.
 # 10. Die transcribe_and_update Methode wurde überarbeitet, um alle GUI-Aktualisierungen im Hauptthread durchzuführen.
-# 11. Die neue Statusleiste wird nun für alle relevanten Statusaktualisierungen verwendet, einschließlich farbiger Anzeigen.
+# 11. Die Statusleiste wird nun für alle relevanten Statusaktualisierungen verwendet, einschließlich farbiger Anzeigen.

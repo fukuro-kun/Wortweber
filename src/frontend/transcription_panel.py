@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
 import tkinter as tk
 from tkinter import ttk, scrolledtext
 import tkinter.font as tkFont
@@ -141,7 +139,7 @@ class TranscriptionPanel(ttk.Frame):
         """Kopiert den gesamten Text des Transkriptionsfelds in die Zwischenablage."""
         all_text = self.text_widget.get(1.0, tk.END)
         pyperclip.copy(all_text)
-        self.gui.status_panel.update_status("Gesamter Text in die Zwischenablage kopiert", "green")
+        self.gui.main_window.update_status_bar(status="Gesamter Text in die Zwischenablage kopiert", status_color="green")
         incognito_mode = self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
         if not incognito_mode:
             logger.info(f"Gesamter Text in die Zwischenablage kopiert. Länge: {len(all_text)} Zeichen")

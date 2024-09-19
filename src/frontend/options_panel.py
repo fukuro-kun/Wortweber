@@ -127,9 +127,11 @@ class OptionsPanel(ttk.Frame):
     @handle_exceptions
     def on_output_mode_change(self):
         """Behandelt Änderungen des ausgewählten Ausgabemodus."""
-        self.gui.settings_manager.set_setting("output_mode", self.output_mode_var.get())
+        new_output_mode = self.output_mode_var.get()
+        self.gui.settings_manager.set_setting("output_mode", new_output_mode)
         self.gui.settings_manager.save_settings()
         self.toggle_delay_options()
+        self.gui.main_window.update_status_bar(output_mode=new_output_mode)
 
     @handle_exceptions
     def toggle_delay_options(self, *args):

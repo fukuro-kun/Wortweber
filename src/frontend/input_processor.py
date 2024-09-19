@@ -17,13 +17,16 @@
 # This file uses pynput, which is licensed under LGPLv3.
 # pynput is used as a dynamically linked library in compliance with LGPLv3.
 
+"""
+Dieses Modul enthält die InputProcessor-Klasse, die für die Verarbeitung von
+Benutzereingaben und die Steuerung der Audioaufnahme und Texteingabe zuständig ist.
+"""
 
 from pynput import keyboard
 from pynput.keyboard import Key, Controller as KeyboardController
 import pyperclip
 import time
 import threading
-import logging
 from src.config import PUSH_TO_TALK_KEY, DEFAULT_INCOGNITO_MODE
 from src.utils.error_handling import handle_exceptions, logger
 
@@ -42,6 +45,7 @@ class InputProcessor:
         self.gui = gui
         self.keyboard_controller = KeyboardController()
         self.listener = None
+        self.start_time = 0
         logger.info("InputProcessor initialisiert")
 
     @handle_exceptions
@@ -68,19 +72,20 @@ class InputProcessor:
         """
         if key == getattr(keyboard.Key, PUSH_TO_TALK_KEY.lower()) and not self.gui.backend.state.recording:
             if not self.gui.backend.model_loaded.is_set():
-                self.gui.status_panel.update_status("Modell wird noch geladen. Aufnahme startet trotzdem.", "orange")
+                self.gui.main_window.update_status_bar(status="Modell wird noch geladen. Aufnahme startet trotzdem.", status_color="yellow")
                 logger.warning("Aufnahme gestartet, obwohl Modell noch nicht geladen ist")
             try:
                 if self.gui.backend.check_audio_device():
                     self.gui.backend.start_recording()
-                    self.gui.status_panel.update_status("Aufnahme läuft...", "red")
-                    self.gui.start_timer()
+                    self.gui.main_window.update_status_bar(status="Aufnahme läuft...", status_color="red")
+                    self.start_time = time.time()
+                    self.update_record_time()
                     logger.info("Audioaufnahme gestartet")
                 else:
-                    self.gui.status_panel.update_status("Audiogerät nicht verfügbar", "red")
+                    self.gui.main_window.update_status_bar(status="Audiogerät nicht verfügbar", status_color="red")
                     logger.error("Audiogerät nicht verfügbar")
             except Exception as e:
-                self.gui.status_panel.update_status(f"Fehler beim Starten der Aufnahme: {e}", "red")
+                self.gui.main_window.update_status_bar(status=f"Fehler beim Starten der Aufnahme: {e}", status_color="red")
                 logger.error(f"Fehler beim Starten der Aufnahme: {e}")
 
     @handle_exceptions
@@ -93,15 +98,24 @@ class InputProcessor:
         """
         if key == getattr(keyboard.Key, PUSH_TO_TALK_KEY.lower()) and self.gui.backend.state.recording:
             self.gui.backend.stop_recording()
-            self.gui.status_panel.update_status("Aufnahme beendet", "orange")
-            self.gui.stop_timer()
-            logger.info("Audioaufnahme beendet")
+            self.gui.main_window.update_status_bar(status="Aufnahme beendet", status_color="orange")
+            elapsed_time = time.time() - self.start_time
+            self.gui.main_window.update_status_bar(record_time=elapsed_time)
+            logger.info(f"Audioaufnahme beendet. Dauer: {elapsed_time:.2f} Sekunden")
             if self.gui.backend.model_loaded.is_set():
                 self.gui.transcribe_and_update()
             else:
-                self.gui.status_panel.update_status("Aufnahme gespeichert. Warte auf Modell-Bereitschaft.", "orange")
+                self.gui.main_window.update_status_bar(status="Aufnahme gespeichert. Warte auf Modell-Bereitschaft.", status_color="yellow")
                 logger.info("Aufnahme gespeichert. Warten auf Modell-Bereitschaft.")
                 threading.Thread(target=self.wait_and_transcribe, daemon=True).start()
+
+    @handle_exceptions
+    def update_record_time(self):
+        """Aktualisiert die angezeigte Aufnahmezeit."""
+        if self.gui.backend.state.recording:
+            elapsed_time = time.time() - self.start_time
+            self.gui.main_window.update_status_bar(record_time=elapsed_time)
+            self.gui.root.after(100, self.update_record_time)
 
     @handle_exceptions
     def wait_and_transcribe(self):
@@ -157,35 +171,38 @@ class InputProcessor:
                 if not incognito_mode:
                     logger.debug(f"Zwischenablage-Inhalt nach Wiederherstellung: {pyperclip.paste()[:50]}...")
 
-        if self.gui.status_panel.auto_copy_var.get():
+        if self.gui.main_window.auto_copy_var.get():
             original_clipboard = pyperclip.paste()
             pyperclip.copy(text)
             if not incognito_mode:
                 logger.debug(f"Text in Zwischenablage kopiert: {text[:50]}...")
-            self.gui.status_panel.update_status("Text transkribiert und in Zwischenablage kopiert", "green")
+            self.gui.main_window.update_status_bar(status="Text transkribiert und in Zwischenablage kopiert", status_color="green")
         else:
-            self.gui.status_panel.update_status("Text transkribiert", "green")
+            self.gui.main_window.update_status_bar(status="Text transkribiert", status_color="green")
 
         if not incognito_mode:
             logger.debug(f"Finaler Zwischenablage-Inhalt: {pyperclip.paste()[:50]}...")
 
 # Zusätzliche Erklärungen:
 
-# 1. Push-to-Talk-Funktionalität:
-#    Die Methoden on_press und on_release implementieren die Push-to-Talk-Funktion.
-#    Sie starten und stoppen die Audioaufnahme basierend auf dem Drücken und Loslassen der definierten Taste.
+# 1. Zeitmessung:
+#    Die Aufnahmezeit wird nun wieder gemessen. Die start_time wird beim Beginn der Aufnahme gesetzt,
+#    und die update_record_time Methode aktualisiert die angezeigte Zeit kontinuierlich.
 
-# 2. Asynchrone Verarbeitung:
-#    Die wait_and_transcribe-Methode wird in einem separaten Thread ausgeführt, um die GUI reaktiv zu halten,
-#    während auf das Laden des Modells gewartet wird.
+# 2. Statusleisten-Updates:
+#    Die Aufnahmezeit und der Status werden jetzt korrekt in der Statusleiste angezeigt,
+#    indem update_status_bar mit den entsprechenden Parametern aufgerufen wird.
 
-# 3. Flexible Texteingabe:
-#    Die process_text-Methode bietet verschiedene Möglichkeiten zur Texteingabe, einschließlich
-#    direkter Eingabe ins Textfenster, Simulation von Tastatureingaben und Verwendung der Zwischenablage.
+# 3. Transkriptionszeit:
+#    Die eigentliche Messung der Transkriptionszeit erfolgt in der transcribe_and_update Methode
+#    der GUI-Klasse. Diese InputProcessor-Klasse ist dafür verantwortlich, den Prozess zu starten.
 
-# 4. Fehlerbehandlung und Logging:
-#    Umfangreiches Logging hilft bei der Diagnose von Problemen, insbesondere bei der Zwischenablagenverarbeitung.
+# 4. Fehlerbehandlung:
+#    Alle Methoden sind weiterhin mit dem @handle_exceptions Decorator versehen, um eine
+#    einheitliche Fehlerbehandlung zu gewährleisten.
 
-# 5. Konfigurierbare Verzögerungen:
-#    Die Implementierung verschiedener Verzögerungsmodi (keine, zeichenweise, Zwischenablage) bietet Flexibilität
-#    für verschiedene Anwendungsfälle und Systemkonfigurationen.
+# 5. Logging:
+#    Das Logging wurde beibehalten und um zusätzliche Informationen zur Aufnahmedauer erweitert.
+
+# Diese Änderungen stellen die wichtige Funktionalität der Zeitmessung wieder her und
+# integrieren sie nahtlos in die bestehende Struktur der Anwendung.
