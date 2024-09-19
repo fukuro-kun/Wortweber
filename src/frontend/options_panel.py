@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
 from tkinter import ttk
 import tkinter as tk
 from src.config import (
@@ -50,7 +48,7 @@ class OptionsPanel(ttk.Frame):
         """Richtet die Benutzeroberfläche für das OptionsPanel ein."""
         self.setup_language_frame()
         self.setup_model_frame()
-        self.setup_input_mode()
+        self.setup_output_mode()
         self.setup_delay_options()
 
     @handle_exceptions
@@ -106,13 +104,13 @@ class OptionsPanel(ttk.Frame):
         self.toggle_delay_options()
 
     @handle_exceptions
-    def setup_input_mode(self):
-        """Erstellt und konfiguriert die Optionen für den Eingabemodus."""
-        input_mode_frame = ttk.LabelFrame(self, text="Eingabemodus")
-        input_mode_frame.pack(fill=tk.X, pady=5)
-        self.input_mode_var = tk.StringVar(value=self.gui.settings_manager.get_setting("input_mode"))
-        ttk.Radiobutton(input_mode_frame, text="Ins Textfenster", variable=self.input_mode_var, value="textfenster", command=self.on_input_mode_change).pack(side=tk.LEFT, padx=5)
-        ttk.Radiobutton(input_mode_frame, text="An Systemcursor-Position", variable=self.input_mode_var, value="systemcursor", command=self.on_input_mode_change).pack(side=tk.LEFT, padx=5)
+    def setup_output_mode(self):
+        """Erstellt und konfiguriert die Optionen für den Ausgabemodus."""
+        output_mode_frame = ttk.LabelFrame(self, text="Ausgabemodus")
+        output_mode_frame.pack(fill=tk.X, pady=5)
+        self.output_mode_var = tk.StringVar(value=self.gui.settings_manager.get_setting("output_mode"))
+        ttk.Radiobutton(output_mode_frame, text="Ins Textfenster", variable=self.output_mode_var, value="textfenster", command=self.on_output_mode_change).pack(side=tk.LEFT, padx=5)
+        ttk.Radiobutton(output_mode_frame, text="An Systemcursor-Position", variable=self.output_mode_var, value="systemcursor", command=self.on_output_mode_change).pack(side=tk.LEFT, padx=5)
 
     @handle_exceptions
     def on_language_change(self):
@@ -127,16 +125,16 @@ class OptionsPanel(ttk.Frame):
         self.gui.load_model_async(self.model_var.get())
 
     @handle_exceptions
-    def on_input_mode_change(self):
-        """Behandelt Änderungen des ausgewählten Eingabemodus."""
-        self.gui.settings_manager.set_setting("input_mode", self.input_mode_var.get())
+    def on_output_mode_change(self):
+        """Behandelt Änderungen des ausgewählten Ausgabemodus."""
+        self.gui.settings_manager.set_setting("output_mode", self.output_mode_var.get())
         self.gui.settings_manager.save_settings()
         self.toggle_delay_options()
 
     @handle_exceptions
     def toggle_delay_options(self, *args):
-        """Schaltet die Verzögerungsoptionen basierend auf dem ausgewählten Eingabemodus ein oder aus."""
-        if self.input_mode_var.get() == "textfenster":
+        """Schaltet die Verzögerungsoptionen basierend auf dem ausgewählten Ausgabemodus ein oder aus."""
+        if self.output_mode_var.get() == "textfenster":
             self.delay_frame.pack_forget()
         else:
             self.delay_frame.pack(fill=tk.X, pady=5)
@@ -156,7 +154,7 @@ class OptionsPanel(ttk.Frame):
 # Zusätzliche Erklärungen:
 
 # 1. Dynamische UI-Anpassung:
-#    Die toggle_delay_options-Methode passt die Benutzeroberfläche dynamisch an, basierend auf dem ausgewählten Eingabemodus.
+#    Die toggle_delay_options-Methode passt die Benutzeroberfläche dynamisch an, basierend auf dem ausgewählten Ausgabemodus.
 #    Dies verbessert die Benutzerfreundlichkeit, indem nur relevante Optionen angezeigt werden.
 
 # 2. Einstellungspersistenz:

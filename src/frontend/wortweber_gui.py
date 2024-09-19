@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
 """
 Dieses Modul enthält die Hauptklasse für die grafische Benutzeroberfläche der Wortweber-Anwendung.
 Es koordiniert die verschiedenen UI-Komponenten und die Interaktion mit dem Backend.
@@ -116,7 +114,7 @@ class WordweberGUI:
 
         :param model_name: Name des zu ladenden Modells
         """
-        self.status_panel.update_status("Lade Modell...", "blue")
+        self.main_window.update_status_bar(model=f"{model_name} - Wird geladen...", status="Lade Modell...", status_color="Yellow")
         threading.Thread(target=self._load_model_thread, args=(model_name,), daemon=True).start()
 
     @handle_exceptions
@@ -128,11 +126,11 @@ class WordweberGUI:
         """
         try:
             self.backend.load_transcriber_model(model_name)
-            self.root.after(0, lambda: self.status_panel.update_status("Modell geladen", "green"))
+            self.root.after(0, lambda: self.main_window.update_status_bar(model=f"{model_name} - Geladen", status="Modell geladen", status_color="Green"))
             if self.backend.pending_audio:
                 self.root.after(0, self.transcribe_and_update)
         except Exception as e:
-            self.root.after(0, lambda: self.status_panel.update_status(f"Fehler beim Laden des Modells: {str(e)}", "red"))
+            self.root.after(0, lambda: self.main_window.update_status_bar(status=f"Fehler beim Laden des Modells: {str(e)}", status_color="Red"))
             logging.error(f"Fehler beim Laden des Modells: {str(e)}")
 
     @handle_exceptions
@@ -148,7 +146,7 @@ class WordweberGUI:
         """Wird aufgerufen, wenn das Anwendungsfenster geschlossen wird."""
         logging.debug("Anwendung wird geschlossen")
         self.settings_manager.set_setting("window_geometry", self.root.geometry())
-        self.settings_manager.set_setting("input_mode", self.options_panel.input_mode_var.get())
+        self.settings_manager.set_setting("output_mode", self.options_panel.output_mode_var.get())
         self.settings_manager.set_setting("delay_mode", self.options_panel.delay_mode_var.get())
         self.settings_manager.set_setting("char_delay", self.options_panel.char_delay_entry.get())
 
@@ -190,34 +188,43 @@ class WordweberGUI:
     @handle_exceptions
     def stop_timer(self) -> None:
         """Stoppt den Timer für die Aufnahmedauer."""
-        self.status_panel.reset_timer()
+        self.main_window.update_status_bar(record_time=0.0)
 
     @handle_exceptions
     def update_timer(self) -> None:
         """Aktualisiert die Anzeige der Aufnahmedauer."""
         if self.backend.state.recording:
             elapsed_time = time.time() - self.start_time
-            self.status_panel.update_timer(elapsed_time)
+            self.main_window.update_status_bar(record_time=elapsed_time)
             self.root.after(100, self.update_timer)
 
     @handle_exceptions
     def transcribe_and_update(self) -> None:
         """Führt die Transkription durch und aktualisiert die GUI."""
         def update_gui(text, transcription_time):
-            self.status_panel.update_status("Transkription abgeschlossen", "green")
+            self.main_window.update_status_bar(status="Transkription abgeschlossen", status_color="Green")
             self.input_processor.process_text(text)
-            self.status_panel.update_transcription_timer(transcription_time)
+            self.main_window.update_status_bar(transcription_time=transcription_time)
 
             # Speichern der Testaufnahme, wenn aktiviert
             if self.settings_manager.get_setting("save_test_recording", False):
                 self.backend.audio_processor.save_last_recording()
 
-        self.status_panel.update_status("Transkribiere...", "orange")
+            output_mode = self.options_panel.output_mode_var.get()
+            self.main_window.update_status_bar(output_mode=output_mode)
+
+            if self.status_panel.auto_copy_var.get():
+                self.main_window.update_status_bar(status="Text transkribiert und in Zwischenablage kopiert", status_color="Green")
+            else:
+                self.main_window.update_status_bar(status="Text transkribiert", status_color="Green")
+
+        self.main_window.update_status_bar(status="Transkribiere...", status_color="Orange")
         start_time = time.time()
         text = self.backend.process_and_transcribe(self.options_panel.language_var.get())
         transcription_time = time.time() - start_time
 
         self.root.after(0, lambda: update_gui(text, transcription_time))
+
 
     @handle_exceptions
     def update_colors(self) -> None:
@@ -233,6 +240,7 @@ class WordweberGUI:
             highlight_bg=self.theme_manager.highlight_bg.get()
         )
 
+
 # Zusätzliche Erklärungen:
 
 # 1. Die WordweberGUI-Klasse ist der zentrale Punkt für die Verwaltung der Benutzeroberfläche.
@@ -245,3 +253,4 @@ class WordweberGUI:
 # 8. Die Verwendung von self.root.after() in _load_model_thread und transcribe_and_update stellt sicher, dass GUI-Updates im Hauptthread erfolgen.
 # 9. Fehlerbehandlung wurde in _load_model_thread hinzugefügt, um Benutzer über Probleme beim Laden des Modells zu informieren.
 # 10. Die transcribe_and_update Methode wurde überarbeitet, um alle GUI-Aktualisierungen im Hauptthread durchzuführen.
+# 11. Die neue Statusleiste wird nun für alle relevanten Statusaktualisierungen verwendet, einschließlich farbiger Anzeigen.

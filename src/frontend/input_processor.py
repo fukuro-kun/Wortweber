@@ -121,7 +121,7 @@ class InputProcessor:
 
         :param text: Der zu verarbeitende Text
         """
-        input_mode = self.gui.options_panel.input_mode_var.get()
+        input_mode = self.gui.options_panel.output_mode_var.get()
         delay_mode = self.gui.options_panel.delay_mode_var.get()
 
         incognito_mode = self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
