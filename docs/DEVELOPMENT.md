@@ -1,9 +1,31 @@
 # Wortweber: Entwicklungsdokumentation
 
-## Projektübersicht
+## 1. Projektübersicht
 Wortweber ist ein Python-basiertes Einzelentwickler-Projekt zur Echtzeit-Transkription von Sprache in Text. Es nutzt das OpenAI Whisper-Modell für die Spracherkennung und bietet eine benutzerfreundliche grafische Oberfläche mit Push-to-Talk-Funktionalität.
 
-## Projektstruktur
+## 2. Aktuelle Entwicklungsschwerpunkte
+- Verbesserung der Audiogeräteauswahl und -persistenz
+- Implementierung einer auswählbaren Shortcut-Taste für die Push-to-Talk-Funktion
+- Kontinuierliche Verbesserung der Codequalität und Testabdeckung
+
+## 3. Nächste geplante Features
+1. Auswählbare Shortcut-Taste: Ermöglichung der benutzerdefinierten Auswahl der Push-to-Talk-Taste für verbesserte Ergonomie und Anpassbarkeit.
+2. Erweiterte Audiogerätekompatibilität: Verbesserung der Unterstützung für verschiedene Audiogeräte und Systemkonfigurationen.
+3. Optimierung der Zahlwortverarbeitung: Verbesserung der Effizienz und Genauigkeit bei der Verarbeitung komplexer Zahlwörter.
+
+## 4. Hauptfunktionen
+1. Echtzeit-Audioaufnahme mit Push-to-Talk (F12-Taste)
+2. Transkription mit verschiedenen Whisper-Modellen (tiny, base, small, medium, large)
+3. Sprachauswahl (Deutsch/Englisch)
+4. Automatisches Kopieren der Transkription in die Zwischenablage
+5. Anzeige der Transkriptionszeit
+6. Kontextmenü für Textbearbeitung
+7. Zahlwort-zu-Ziffer und Ziffer-zu-Zahlwort Konvertierung
+8. Verschiedene Eingabemodi: Textfenster, Systemcursor-Position mit Verzögerungsoptionen
+9. Theme-Auswahl für die GUI
+10. Speichern und Laden von Benutzereinstellungen
+
+## 5. Projektstruktur
 ```
 Wortweber/
 ├── src/
@@ -60,63 +82,32 @@ Wortweber/
 └── .gitignore
 ```
 
-## Hauptfunktionen
-1. Echtzeit-Audioaufnahme mit Push-to-Talk (F12-Taste)
-2. Transkription mit verschiedenen Whisper-Modellen (tiny, base, small, medium, large)
-3. Sprachauswahl (Deutsch/Englisch)
-4. Automatisches Kopieren der Transkription in die Zwischenablage
-5. Anzeige der Transkriptionszeit
-6. Kontextmenü für Textbearbeitung
-7. Zahlwort-zu-Ziffer und Ziffer-zu-Zahlwort Konvertierung
-8. Verschiedene Eingabemodi: Textfenster, Systemcursor-Position mit Verzögerungsoptionen
-9. Theme-Auswahl für die GUI
-10. Speichern und Laden von Benutzereinstellungen
-
-## Technische Details
-- Python 3.11
-- OpenAI Whisper (Version 20231117)
-- PyAudio für Audioaufnahme
-- Tkinter für GUI
-- NumPy und SciPy für Signalverarbeitung
-- pynput für Tastatureingabe-Simulation
-- ttkthemes für erweiterte GUI-Themes
-
-## Lizenzierung
-Wortweber ist unter der GNU General Public License v3.0 (GPLv3) lizenziert. Dies hat wichtige Auswirkungen auf die Entwicklung und Verteilung des Projekts:
-
-- Alle Änderungen und Erweiterungen des Codes müssen ebenfalls unter der GPLv3 oder einer kompatiblen Lizenz veröffentlicht werden.
-- Bei der Verteilung des Programms (in Quell- oder Binärform) muss der vollständige Quellcode mitgeliefert oder zugänglich gemacht werden.
-- Die Verwendung von Bibliotheken muss sorgfältig geprüft werden, um Lizenzkompatibilität sicherzustellen.
-- Besondere Aufmerksamkeit gilt der Verwendung von pynput (LGPL), das als dynamisch verlinkte Bibliothek genutzt wird.
-
-Entwickler sollten sich mit den Bedingungen der GPLv3 vertraut machen und sicherstellen, dass alle Beiträge und Änderungen konform sind.
-
-## Entwicklungsworkflow
-1. Arbeiten auf dem `main`-Branch für kleinere Änderungen
-2. Erstellen von Feature-Branches für größere Funktionen: `git checkout -b feature/neue-funktion`
-3. Regelmäßige Commits mit aussagekräftigen Nachrichten
-4. Vor dem Merge in `main`, Rebase durchführen: `git rebase main`
-5. Merge in `main` mit `--no-ff` Flag: `git checkout main && git merge --no-ff feature/neue-funktion`
-6. Für Releases, annotierte Tags erstellen: `git tag -a v0.x.x -m "Version 0.x.x"`
-
-## Installation und Einrichtung
+## 6. Installation und Einrichtung
 1. Repository klonen: `git clone https://github.com/fukuro-kun/Wortweber.git`
 2. In das Projektverzeichnis wechseln: `cd Wortweber`
 3. Installationsskript ausführen: `bash install_and_test.sh`
 4. Anwendung starten: `python src/wortweber.py`
 
-## Fehlerbehandlung und Logging
-- Zentrale Fehlerbehandlung in `src/utils/error_handling.py`
-- Verwendung des `@handle_exceptions` Decorators für alle öffentlichen Methoden
-- Konsistente Logging-Levels: DEBUG, INFO, WARNING, ERROR, CRITICAL
-- Log-Datei: `wortweber.log` im Projekthauptverzeichnis
+## 7. Beitrag zum Projekt und Entwicklungsworkflow für Contributors
+Wir freuen uns über Beiträge zur Verbesserung von Wortweber. Hier ist der empfohlene Workflow für externe Contributors:
 
-## Testabdeckung
-- Unittest-Framework für Backend- und Integrationstests
-- Parallelisierte Tests für effiziente Ausführung
-- Testdaten im `tests/test_data/` Verzeichnis
+1. Forken Sie das Repository auf GitHub.
+2. Klonen Sie Ihr geforktes Repository: `git clone https://github.com/IHR_USERNAME/Wortweber.git`
+3. Erstellen Sie einen neuen Branch für Ihr Feature oder Ihren Bugfix:
+   `git checkout -b feature/neue-funktion` oder `git checkout -b fix/bug-beschreibung`
+4. Machen Sie Ihre Änderungen und committen Sie diese mit aussagekräftigen Commit-Nachrichten.
+5. Pushen Sie Ihren Branch zu Ihrem Fork: `git push origin feature/neue-funktion`
+6. Erstellen Sie einen Pull Request vom Branch Ihres Forks zum `main` Branch des Haupt-Repositories.
 
-## Codekonventionen und Kommentierungsrichtlinien
+Bitte beachten Sie folgende Richtlinien:
+- Halten Sie sich an die bestehenden Code-Konventionen und den Stil des Projekts.
+- Schreiben Sie Tests für neue Funktionen oder Bugfixes.
+- Aktualisieren Sie die Dokumentation, wenn Sie Änderungen an der Funktionalität vornehmen.
+- Vergewissern Sie sich, dass alle Tests bestehen, bevor Sie einen Pull Request einreichen.
+
+Wir werden Ihren Pull Request überprüfen und gegebenenfalls Feedback geben. Vielen Dank für Ihren Beitrag!
+
+## 8. Codekonventionen und Kommentierungsrichtlinien
 - PEP 8 Stilrichtlinien strikt befolgen
 - Docstrings für alle Klassen und öffentlichen Methoden:
   - Kurze Beschreibung der Funktionalität
@@ -135,36 +126,73 @@ Entwickler sollten sich mit den Bedingungen der GPLv3 vertraut machen und sicher
 - Bei Codeänderungen bestehende Kommentare erhalten und bei Bedarf aktualisieren
 - Kommentare in deutscher Sprache verfassen
 
-## Versionierung
+## 9. Fehlerbehandlung und Logging
+- Zentrale Fehlerbehandlung in `src/utils/error_handling.py`
+- Verwendung des `@handle_exceptions` Decorators für alle öffentlichen Methoden
+- Konsistente Logging-Levels: DEBUG, INFO, WARNING, ERROR, CRITICAL
+- Log-Datei: `wortweber.log` im Projekthauptverzeichnis
+
+## 10. Testabdeckung
+- Unittest-Framework für Backend- und Integrationstests
+- Parallelisierte Tests für effiziente Ausführung
+- Testdaten im `tests/test_data/` Verzeichnis
+- Führen Sie Tests mit `python run_tests.py` aus
+
+## 11. Versionierung
 - Semantische Versionierung (MAJOR.MINOR.PATCH)
 - VERSION-Datei im Hauptverzeichnis für aktuelle Versionsnummer
 - Git-Tags für jede Version: `v0.x.x`
 
-## Wichtige Hinweise
+## 12. Technische Details
+- Python 3.11
+- OpenAI Whisper (Version 20231117)
+- PyAudio für Audioaufnahme
+- Tkinter für GUI
+- NumPy und SciPy für Signalverarbeitung
+- pynput für Tastatureingabe-Simulation
+- ttkthemes für erweiterte GUI-Themes
+
+## 13. Entwicklungsworkflow für Hauptentwickler
+1. Arbeiten auf dem `main`-Branch für kleinere Änderungen
+2. Erstellen von Feature-Branches für größere Funktionen: `git checkout -b feature/neue-funktion`
+3. Regelmäßige Commits mit aussagekräftigen Nachrichten
+4. Vor dem Merge in `main`, Rebase durchführen: `git rebase main`
+5. Merge in `main` mit `--no-ff` Flag: `git checkout main && git merge --no-ff feature/neue-funktion`
+6. Für Releases, annotierte Tags erstellen: `git tag -a v0.x.x -m "Version 0.x.x"`
+
+## 14. Wichtige Hinweise
 - ALSA-Warnungen können in den meisten Fällen ignoriert werden
 - Bei Audiogeräte-Problemen DEVICE_INDEX in config.py anpassen
 - Regelmäßige Überprüfung auf Sicherheitsupdates für Abhängigkeiten
 - Stellen Sie bei der Verwendung und Integration von Bibliotheken die Kompatibilität mit der GPLv3 sicher
 - Achten Sie besonders auf die korrekte Verwendung von pynput als dynamisch verlinkte Bibliothek gemäß LGPL
 
-## Beitrag zum Projekt
-1. Fork des Repositories auf GitHub
-2. Feature-Branch erstellen: `git checkout -b feature/neue-funktion`
-3. Änderungen committen: `git commit -am 'Füge neue Funktion hinzu'`
-4. Zum Branch pushen: `git push origin feature/neue-funktion`
-5. Pull Request erstellen
+## 15. Lizenzierung
+Wortweber ist unter der GNU General Public License v3.0 (GPLv3) lizenziert. Dies hat wichtige Auswirkungen auf die Entwicklung und Verteilung des Projekts:
 
-## Kontakt
+- Alle Änderungen und Erweiterungen des Codes müssen ebenfalls unter der GPLv3 oder einer kompatiblen Lizenz veröffentlicht werden.
+- Bei der Verteilung des Programms (in Quell- oder Binärform) muss der vollständige Quellcode mitgeliefert oder zugänglich gemacht werden.
+- Die Verwendung von Bibliotheken muss sorgfältig geprüft werden, um Lizenzkompatibilität sicherzustellen.
+- Besondere Aufmerksamkeit gilt der Verwendung von pynput (LGPL), das als dynamisch verlinkte Bibliothek genutzt wird.
+
+Entwickler sollten sich mit den Bedingungen der GPLv3 vertraut machen und sicherstellen, dass alle Beiträge und Änderungen konform sind.
+
+## 16. Kontakt
 Bei Fragen oder Problemen ein Issue auf GitHub erstellen oder sich an den Projektbetreuer wenden.
 
-## Historie
+## 17. Historie
 
-### Version 0.21.2
-- Wechsel der Projektlizenz von Apache License 2.0 zu GNU General Public License v3.0 (GPLv3)
-- Aktualisierung aller Quelldateien mit dem neuen GPLv3-Lizenztext
-- Anpassung der Projektdokumentation zur Reflexion der neuen Lizenzbestimmungen
+### Version 0.21.8 (aktuell)
+- Verbesserung der Audiogeräteauswahl und -persistenz
+- Implementierung einer Rückgängig-Funktion für Audiogeräteänderungen
+- Optimierung der Fehlerbehandlung bei Audiogerätemanagement
 
-### Version 0.18.0 (aktuell)
+### Version 0.21.7
+- Implementierung der Audiogeräteauswahl überarbeitet
+- Verbesserte Fehlerbehandlung und Logging für Audiogerätewechsel
+- Einführung einer zentralen Wortweber-Klasse für besseres Ressourcenmanagement
+
+### Version 0.18.0
 - Implementierung einer einheitlichen Fehlerbehandlungs- und Logging-Strategie
 - Einführung des `@handle_exceptions` Decorators
 - Zentralisierung der Logging-Konfiguration

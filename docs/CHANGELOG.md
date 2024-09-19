@@ -5,6 +5,26 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.21.8] - 2024-09-19
+### Hinzugefügt
+- Verbesserte Persistenz der Audiogeräteauswahl
+- Aktualisierte UI für Audiogeräteoptionen im Einstellungsfenster
+- Rückgängig-Funktion für Audiogeräteänderungen
+
+### Geändert
+- Optimierte Initialisierung des AudioProcessors
+- Verbesserte Fehlerbehandlung bei der Audiogeräteverwaltung
+- Umfassende Überarbeitung und Straffung der TODO-Liste
+- Neustrukturierung der DEVELOPMENT.md für verbesserte Übersichtlichkeit
+
+### Behoben
+- Problem mit inkonsistenter Anzeige des ausgewählten Audiogeräts im Optionsfenster
+- Fehler bei der Speicherung und dem Laden der Audiogeräteeinstellungen
+
+### Verbessert
+- Klarere Struktur und Fokussierung auf Kernaufgaben in der Entwicklungsplanung
+- Optimierte Dokumentation für neue und erfahrene Entwickler
+
 ## [0.21.7] - 2024-09-18
 ### Verbessert
 - Implementierung der Audiogeräteauswahl überarbeitet

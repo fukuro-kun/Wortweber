@@ -1,3 +1,25 @@
+# Verbesserung der Audiogeräteauswahl und Fehlerbehandlung (Version 0.21.8)
+
+## Begründung für die Änderungen
+1. Erhöhung der Zuverlässigkeit bei der Audiogeräteauswahl
+2. Verbesserung der Benutzerfreundlichkeit durch sofortige UI-Aktualisierung
+3. Robustere Fehlerbehandlung bei Audiogeräteproblemen
+4. Vorbereitung für die Implementierung einer auswählbaren Shortcut-Taste
+
+## Hauptänderungen
+1. Überarbeitung der `AudioProcessor` Klasse für besseres Gerätemanagement
+2. Anpassung des `WordweberBackend` an die neue `AudioProcessor` Struktur
+3. Verbesserung der `AudioOptionsPanel` UI für sofortige Aktualisierung bei Gerätewechsel
+4. Implementierung zusätzlicher Fehlerprüfungen und Logging
+5. Vorbereitung der Codestruktur für die Integration einer auswählbaren Shortcut-Taste
+6. Umfassende Überarbeitung und Neustrukturierung der DEVELOPMENT.md und der TODO.md
+
+## Auswirkungen
+- Verbesserte Stabilität bei der Audiogeräteauswahl und -verwaltung
+- Erhöhte Benutzerfreundlichkeit durch konsistentere UI-Aktualisierungen
+- Vereinfachte Einarbeitung für neue Entwickler durch optimierte Dokumentation
+- Verbesserte Grundlage für zukünftige Erweiterungen, insbesondere die auswählbare Shortcut-Taste
+
 # Verbesserung der Audiogeräteauswahl und Fehlerbehandlung (Version 0.21.6)
 
 ## Begründung für die Änderungen

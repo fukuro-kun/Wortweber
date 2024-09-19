@@ -1,56 +1,63 @@
 # TODO Liste für Wortweber
 
-## Dringendes
-- [ ] Überprüfung und Optimierung der Gerätekompatibilität für verschiedene Systemkonfigurationen, einschließlich Verbesserung der Shortcut-Funktionalität
+## Kernfunktionen
+### Hohe Priorität
+- [ ] Implementierung einer auswählbaren Shortcut-Taste für die Push-to-Talk-Funktion
+- [ ] Überprüfung und Optimierung der Gerätekompatibilität für verschiedene Systemkonfigurationen
+- [ ] Durchführung umfassender Tests für die Zahlwort-Konvertierungsfunktionalität
 
-## Priorität Hoch
-- [ ] Beheben von Problemen bei der sofortigen Aktualisierung des Audiogeräts
-- [ ] Durchführung umfassender Tests für die neue Zahlwort-Konvertierungsfunktionalität
-- [ ] Implementierung von Unit-Tests für die neue Zahlwort-Konvertierungsfunktionalität
-- [ ] Überprüfung der Kompatibilität mit verschiedenen Eingabeformaten (z.B. gemischte Text- und Zahleneingaben)
-- [ ] Überprüfung und Verbesserung der Testabdeckung
-- [ ] Erweiterung der Typ-Annotationen auf alle Teile des Codes und Entwicklung eines Konzepts für konsistente Namenskonventionen
-- [ ] Implementierung von Unit-Tests für die neue Incognito-Modus-Funktionalität
-- [ ] Durchführung umfassender Tests für die neue Zahlwort-Konvertierungsfunktionalität
-
-## Priorität Mittel
-- [ ] Implementieren umfangreicher Tests für die neue Zahlwortverarbeitungslogik
+### Mittlere Priorität
 - [ ] Optimieren der Effizienz der Zahlwortverarbeitung für sehr große Zahlen
-- [ ] Erweiterung der Dokumentation zur detaillierten Erklärung der Zahlwortverarbeitungslogik
 - [ ] Implementierung zusätzlicher Module für die Ausgabe (z.B. Ollama-Unterstützung)
-- [ ] Umfassende Erweiterung der Testabdeckung, insbesondere für kritische Funktionen, UI-Komponenten, Optionsfenster, Farbverwaltung und neue Kontextmanager-Funktionalität
-- [ ] Einrichtung einer Staging-Umgebung und Entwicklung eines Rollback-Plans für Releases
-- [ ] Überprüfung und Optimierung der Importstruktur in allen Dateien
-- [ ] Implementierung eines Internationalisierungssystems für zukünftige Mehrsprachigkeit
-- [ ] Erstellung einer detaillierten Dokumentation für Benutzer über die Funktionsweise und Grenzen des Incognito-Modus
-- [ ] Entwicklung eines Plans für regelmäßige manuelle UI-Tests
-
-## Priorität Niedrig
 - [ ] Überprüfen und ggf. Verbessern der Fehlerbehandlung in der TextProcessor-Klasse
-- [ ] Implementierung eines Plugin-Systems und Untersuchung von Performance-Problemen
-- [ ] Verbesserung der Benutzerführung durch Tooltips und erweiterte Einstellungsmöglichkeiten
-- [ ] Optimierung der Testausführung, einschließlich Parallelisierung und ALSA-Warnungsunterdrückung
-- [ ] Implementierung von Unit-Tests für neue Komponenten wie `wortweber.sh`
 
-## Kontinuierliche Verbesserungen
-- [ ] Durchführung regelmäßiger Code-Reviews und Aktualisierung von Abhängigkeiten
-- [ ] Verbesserung der Dokumentation, insbesondere für Textoperationen und erwartete Änderungsauswirkungen
-- [ ] Regelmäßige Überprüfung und Aktualisierung von Code-Kommentaren
-- [ ] Optimierung des Ressourcenmanagements in kritischen Komponenten
-
-## Neue Aufgaben
-- [ ] Implementierung von Funktionen zum Zurücksetzen von Einstellungen, einschließlich Farbeinstellungen
-- [ ] Überprüfung und Zentralisierung von hartcodierten Werten in der Konfigurationsdatei
-
-## Zukünftige Überlegungen
-- [ ] Evaluierung von asyncio für verbesserte Nebenläufigkeit in der Audioverarbeitung
-- [ ] Anpassungen für Mehrbildschirm-Setups und Implementierung einer Mindestfenstergröße
+### Niedrige Priorität
 - [ ] Untersuchung der Unterstützung verschiedener Audiocodecs
 - [ ] Evaluierung alternativer Spracherkennungsmodelle für zukünftige Integration
+- [ ] Implementierung eines Plugin-Systems
 
+## Benutzeroberfläche und Bedienung
+### Hohe Priorität
+- [ ] Implementierung von Unit-Tests für die Incognito-Modus-Funktionalität
+- [ ] Überprüfung der Kompatibilität mit verschiedenen Eingabeformaten
+- [ ] Entwicklung eines Plans für regelmäßige manuelle UI-Tests
 
-## Abgeschlossene Aufgaben
-- [x] Implementierung eines Audiogeräte-Auswahlmenüs
-- [x] Verbessern der Zahlwort-zu-Ziffer-Konvertierung für komplexe deutsche Zahlwörter
-- [x] Sicherstellen, dass Nicht-Zahlwörter im verarbeiteten Text korrekt beibehalten werden
-- [x] Wiederherstellung und Verbesserung der Textumwandlungen für Ziffern und Zahlwörter
+### Mittlere Priorität
+- [ ] Implementierung eines Internationalisierungssystems für zukünftige Mehrsprachigkeit
+- [ ] Erstellung einer detaillierten Dokumentation für den Incognito-Modus
+- [ ] Verbesserung der Benutzerführung durch Tooltips und erweiterte Einstellungsmöglichkeiten
+
+### Niedrige Priorität
+- [ ] Anpassungen für Mehrbildschirm-Setups
+- [ ] Implementierung einer Mindestfenstergröße
+- [ ] Implementierung von Funktionen zum Zurücksetzen von Einstellungen, einschließlich Farbeinstellungen
+
+## Qualitätssicherung und Dokumentation
+### Hohe Priorität
+- [ ] Überprüfung und Verbesserung der Testabdeckung
+- [ ] Erweiterung der Typ-Annotationen auf alle Teile des Codes
+- [ ] Entwicklung eines Konzepts für konsistente Namenskonventionen
+
+### Mittlere Priorität
+- [ ] Umfassende Erweiterung der Testabdeckung für kritische Funktionen und UI-Komponenten
+- [ ] Einrichtung einer Staging-Umgebung und Entwicklung eines Rollback-Plans für Releases
+- [ ] Überprüfung und Optimierung der Importstruktur in allen Dateien
+
+### Kontinuierliche Verbesserungen
+- [ ] Durchführung regelmäßiger Code-Reviews und Aktualisierung von Abhängigkeiten
+- [ ] Verbesserung der Dokumentation, insbesondere für Textoperationen
+- [ ] Regelmäßige Überprüfung und Aktualisierung von Code-Kommentaren
+
+## Erweiterungen und Optimierungen
+### Hohe Priorität
+- [ ] Optimierung des Ressourcenmanagements in kritischen Komponenten
+- [ ] Überprüfung und Zentralisierung von hartcodierten Werten in der Konfigurationsdatei
+- [ ] Optimierung der Testausführung, einschließlich Parallelisierung
+
+### Mittlere Priorität
+- [ ] Evaluierung von asyncio für verbesserte Nebenläufigkeit in der Audioverarbeitung
+- [ ] Implementierung von Unit-Tests für neue Komponenten wie `wortweber.sh`
+- [ ] Untersuchung von Performance-Problemen im Plugin-System
+
+## Agentenbasierte Funktionen
+- [ ] Entwicklung des Single-Agent-Systems (KI-Modell mit Bash-Zugang)

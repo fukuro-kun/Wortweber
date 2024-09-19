@@ -37,9 +37,6 @@ class AudioProcessor:
         self.last_recording = None
         self.p = pyaudio.PyAudio()
         self.current_device_index = self.get_device_index()
-        if not self.update_device(self.current_device_index):
-            logger.warning("Konnte das gespeicherte Audiogerät nicht setzen. Verwende Standardgerät.")
-            self.current_device_index = self.p.get_default_input_device_info()['index']
         self.stream = None
         logger.info(f"AudioProcessor initialisiert mit Geräteindex: {self.current_device_index}")
 

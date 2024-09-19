@@ -30,8 +30,8 @@ class AudioOptionsPanel(ttk.Frame):
         self.on_device_change_callback = on_device_change_callback
         self.backend = backend
         self.audio_devices = self.get_audio_devices()
-        self.initial_device = self.settings_manager.get_setting("audio_device_index", DEFAULT_AUDIO_DEVICE_INDEX)
-        self.selected_device = tk.StringVar(value=self.initial_device)
+        self.initial_device = self.backend.audio_processor.current_device_index
+        self.selected_device = tk.StringVar(value=str(self.initial_device))
         self.setup_ui()
 
     @handle_exceptions
@@ -52,7 +52,6 @@ class AudioOptionsPanel(ttk.Frame):
         refresh_button = ttk.Button(bottom_frame, text="Geräteliste aktualisieren", command=self.refresh_devices)
         refresh_button.pack(side=tk.LEFT)
 
-        # Kontrollfenster für das aktuell verwendete Gerät
         ttk.Label(bottom_frame, text="Aktuell verwendetes Gerät:").pack(side=tk.LEFT, padx=(20, 5))
         self.current_device_label = ttk.Label(bottom_frame, text="", wraplength=300)
         self.current_device_label.pack(side=tk.LEFT)
@@ -79,6 +78,9 @@ class AudioOptionsPanel(ttk.Frame):
 
         if self.backend.update_audio_device(selected_index):
             self.update_current_device_label()
+            self.settings_manager.set_setting("audio_device_index", selected_index)
+            self.settings_manager.save_settings()
+            logger.info(f"Audiogerät und Einstellungen aktualisiert auf Index: {selected_index}")
         else:
             self.current_device_label.config(text="Fehler beim Aktualisieren des Audiogeräts")
 
@@ -94,7 +96,7 @@ class AudioOptionsPanel(ttk.Frame):
     @handle_exceptions
     def undo_changes(self):
         """Setzt die Audiogeräteauswahl auf den ursprünglichen Wert zurück."""
-        self.selected_device.set(self.initial_device)
+        self.selected_device.set(str(self.initial_device))
         self.on_device_change()
         logger.info(f"Audiogeräteauswahl zurückgesetzt auf: {self.initial_device}")
 
@@ -104,6 +106,7 @@ class AudioOptionsPanel(ttk.Frame):
         current_device = self.backend.audio_processor.get_current_device_info()
         if current_device:
             self.current_device_label.config(text=f"{current_device['name']} (Index: {current_device['index']})")
+            self.selected_device.set(str(current_device['index']))
         else:
             self.current_device_label.config(text="Kein Gerät ausgewählt oder verfügbar")
 
