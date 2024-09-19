@@ -113,19 +113,14 @@ class WordweberBackend:
             audio_resampled = self.audio_processor.resample_audio(audio_np)
             transcribed_text += self.transcriber.transcribe(audio_resampled, language)
 
-        if self.on_transcription_complete:
-            self.on_transcription_complete(transcribed_text)
-
         incognito_mode = self.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
         if not incognito_mode:
             logger.info(f"Transkription abgeschlossen. Länge des Textes: {len(transcribed_text)}")
         else:
             logger.info("Transkription abgeschlossen (Incognito-Modus aktiv)")
 
-        if self.gui:
-            self.gui.main_window.update_status_bar(status="Transkription abgeschlossen", status_color="green")
-
         return transcribed_text
+
 
     @handle_exceptions
     def load_transcriber_model(self, model_name: str) -> None:

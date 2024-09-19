@@ -181,9 +181,8 @@ class WordweberGUI:
     def transcribe_and_update(self) -> None:
         """Führt die Transkription durch und aktualisiert die GUI."""
         def update_gui(text, transcription_time):
-            self.main_window.update_status_bar(status="Transkription abgeschlossen", status_color="green")
+            self.main_window.update_status_bar(status="Transkription abgeschlossen", status_color="green", transcription_time=transcription_time)
             self.input_processor.process_text(text)
-            self.main_window.update_status_bar(transcription_time=transcription_time)
 
             output_mode = self.options_panel.output_mode_var.get()
             self.main_window.update_status_bar(output_mode=output_mode)
@@ -200,6 +199,24 @@ class WordweberGUI:
 
         self.root.after(0, lambda: update_gui(text, transcription_time))
 
+    @handle_exceptions
+    def start_timer(self):
+        """Startet den Timer für die Aufnahmedauer."""
+        self.input_processor.start_time = time.time()
+        self.update_timer()
+
+    @handle_exceptions
+    def update_timer(self):
+        """Aktualisiert die Anzeige der Aufnahmedauer."""
+        if self.backend.state.recording:
+            elapsed_time = time.time() - self.input_processor.start_time
+            self.main_window.update_status_bar(record_time=elapsed_time)
+            self.root.after(100, self.update_timer)
+
+    @handle_exceptions
+    def stop_timer(self):
+        """Stoppt den Timer für die Aufnahmedauer."""
+        self.main_window.update_status_bar(record_time=0.0)
 
     @handle_exceptions
     def update_colors(self) -> None:

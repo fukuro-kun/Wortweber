@@ -64,12 +64,6 @@ class InputProcessor:
 
     @handle_exceptions
     def on_press(self, key):
-        """
-        Wird aufgerufen, wenn eine Taste gedrückt wird.
-        Startet die Audioaufnahme, wenn die Push-to-Talk-Taste gedrückt wird.
-
-        :param key: Die gedrückte Taste
-        """
         if key == getattr(keyboard.Key, PUSH_TO_TALK_KEY.lower()) and not self.gui.backend.state.recording:
             if not self.gui.backend.model_loaded.is_set():
                 self.gui.main_window.update_status_bar(status="Modell wird noch geladen. Aufnahme startet trotzdem.", status_color="yellow")
@@ -78,8 +72,7 @@ class InputProcessor:
                 if self.gui.backend.check_audio_device():
                     self.gui.backend.start_recording()
                     self.gui.main_window.update_status_bar(status="Aufnahme läuft...", status_color="red")
-                    self.start_time = time.time()
-                    self.update_record_time()
+                    self.gui.start_timer()  # Verwenden Sie die neue Methode in WordweberGUI
                     logger.info("Audioaufnahme gestartet")
                 else:
                     self.gui.main_window.update_status_bar(status="Audiogerät nicht verfügbar", status_color="red")
@@ -90,18 +83,11 @@ class InputProcessor:
 
     @handle_exceptions
     def on_release(self, key):
-        """
-        Wird aufgerufen, wenn eine Taste losgelassen wird.
-        Beendet die Audioaufnahme und startet die Transkription, wenn die Push-to-Talk-Taste losgelassen wird.
-
-        :param key: Die losgelassene Taste
-        """
         if key == getattr(keyboard.Key, PUSH_TO_TALK_KEY.lower()) and self.gui.backend.state.recording:
             self.gui.backend.stop_recording()
             self.gui.main_window.update_status_bar(status="Aufnahme beendet", status_color="orange")
-            elapsed_time = time.time() - self.start_time
-            self.gui.main_window.update_status_bar(record_time=elapsed_time)
-            logger.info(f"Audioaufnahme beendet. Dauer: {elapsed_time:.2f} Sekunden")
+            self.gui.stop_timer()  # Verwenden Sie die neue Methode in WordweberGUI
+            logger.info("Audioaufnahme beendet")
             if self.gui.backend.model_loaded.is_set():
                 self.gui.transcribe_and_update()
             else:
