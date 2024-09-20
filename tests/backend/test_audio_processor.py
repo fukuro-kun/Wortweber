@@ -14,10 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
-# tests/backend/test_audio_processor.py
-
 import unittest
 from src.backend.audio_processor import AudioProcessor
 from unittest.mock import MagicMock
@@ -29,7 +25,6 @@ import wave
 from typing import cast
 import numpy.typing as npt
 
-
 class TestAudioProcessor(unittest.TestCase):
     """
     Testklasse für den AudioProcessor.
@@ -38,7 +33,9 @@ class TestAudioProcessor(unittest.TestCase):
 
     def setUp(self):
         """Initialisiert die Testumgebung vor jedem Testfall."""
-        self.processor = AudioProcessor()
+        self.mock_settings_manager = MagicMock()
+        self.mock_settings_manager.get_setting.return_value = 0  # Standardwert für audio_device_index
+        self.processor = AudioProcessor(self.mock_settings_manager)
 
     def test_audio_processor_initialization(self):
         """Testet die korrekte Initialisierung des AudioProcessors."""
@@ -146,6 +143,7 @@ class TestAudioProcessor(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
 
 # Zusätzliche Erklärungen:
 

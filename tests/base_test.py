@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
 """
 Dieses Modul definiert die Basisklasse für Transkriptionstests in der Wortweber-Anwendung.
 Es stellt gemeinsam genutzte Funktionen und Konfigurationen für die Transkriptionstests bereit.
@@ -25,7 +23,8 @@ import unittest
 import os
 import numpy as np
 import wave
-import librosa
+from scipy import signal
+from numpy.typing import NDArray
 from typing import List
 from src.backend.wortweber_utils import check_gpu_resources
 from tests.test_config import MIN_GPU_MEMORY, MODELS_TO_TEST, TEST_DATA_DIR, TEST_AUDIO_FILE
@@ -50,33 +49,36 @@ class BaseTranscriptionTest(unittest.TestCase):
         """Gibt den Pfad zur Testaufnahme zurück."""
         return os.path.join(TEST_DATA_DIR, TEST_AUDIO_FILE)
 
-    def load_and_prepare_audio(self, audio_path: str) -> np.ndarray:
-        """
-        Lädt und bereitet die Audiodatei für die Transkription vor.
+    def load_and_prepare_audio(self, audio_path: str) -> NDArray[np.float32]:
+            """
+            Lädt und bereitet die Audiodatei für die Transkription vor.
 
-        Args:
-            audio_path (str): Pfad zur Audiodatei
+            Args:
+                audio_path (str): Pfad zur Audiodatei
 
-        Returns:
-            np.ndarray: Vorbereitete Audiodaten als NumPy-Array
-        """
-        if not os.path.exists(audio_path):
-            raise FileNotFoundError(f"Audiodatei nicht gefunden: {audio_path}")
+            Returns:
+                NDArray[np.float32]: Vorbereitete Audiodaten als NumPy-Array
+            """
+            if not os.path.exists(audio_path):
+                raise FileNotFoundError(f"Audiodatei nicht gefunden: {audio_path}")
 
-        with wave.open(audio_path, "rb") as wf:
-            sample_rate = wf.getframerate()
-            audio_data = np.frombuffer(wf.readframes(wf.getnframes()), dtype=np.int16)
+            with wave.open(audio_path, "rb") as wf:
+                sample_rate = wf.getframerate()
+                audio_data = np.frombuffer(wf.readframes(wf.getnframes()), dtype=np.int16)
 
-        # Normalisiere die Audiodaten auf den Bereich [-1, 1]
-        audio_normalized = audio_data.astype(np.float32) / 32768.0
+            # Normalisiere die Audiodaten auf den Bereich [-1, 1]
+            audio_normalized: NDArray[np.float32] = audio_data.astype(np.float32) / 32768.0
 
-        # Resampling auf 16000 Hz (Whisper's erwartete Sampling-Rate)
-        if sample_rate != 16000:
-            audio_resampled = librosa.resample(audio_normalized, orig_sr=sample_rate, target_sr=16000)
-        else:
-            audio_resampled = audio_normalized
+            # Resampling auf 16000 Hz (Whisper's erwartete Sampling-Rate)
+            if sample_rate != 16000:
+                resampled = signal.resample(audio_normalized, int(len(audio_normalized) * 16000 / sample_rate))
+                audio_resampled: NDArray[np.float32] = np.asarray(resampled, dtype=np.float32)
+            else:
+                audio_resampled: NDArray[np.float32] = audio_normalized
 
-        return audio_resampled
+            return audio_resampled
+
+
 
     def get_expected_words(self, language: str) -> List[str]:
         """
