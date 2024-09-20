@@ -44,7 +44,7 @@ class MainWindow:
     @handle_exceptions
     def setup_ui(self):
         """
-        Richtet die Benutzeroberfläche ein, einschließlich aller Panels und Buttons.
+        Richtet die Benutzeroberfläche für das MainWindow ein.
         """
         main_frame = ttk.Frame(self.root, padding="10")
         main_frame.grid(row=0, column=0, sticky="nsew")
@@ -60,20 +60,22 @@ class MainWindow:
         main_frame.columnconfigure(0, weight=1)
         main_frame.rowconfigure(1, weight=1)
 
+
         # Buttons am unteren Rand hinzufügen
         button_frame = ttk.Frame(main_frame)
         button_frame.grid(column=0, row=2, columnspan=2, pady=10)
 
         ttk.Button(button_frame, text="Transkription löschen",
-                   command=self.transcription_panel.clear_transcription).pack(side=tk.LEFT, padx=5)
+                    command=self.transcription_panel.clear_transcription).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="Alles kopieren",
-                   command=self.transcription_panel.copy_all_to_clipboard).pack(side=tk.LEFT, padx=5)
+                    command=self.transcription_panel.copy_all_to_clipboard).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="Erweiterte Optionen",
-                   command=self.open_options_window).pack(side=tk.LEFT, padx=5)
+                    command=self.gui.open_options_window).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="Beenden",
-                   command=self.root.quit).pack(side=tk.LEFT, padx=5)
+                    command=self.root.quit).pack(side=tk.LEFT, padx=5)
 
-        # Statusleiste hinzufügen
+
+        # Statusleiste
         self.status_bar = tk.Frame(main_frame, bg="black", bd=1, relief="sunken")
         self.status_bar.grid(column=0, row=3, columnspan=2, sticky="ew", padx=1, pady=(1, 0))
 
@@ -116,16 +118,10 @@ class MainWindow:
 
         self.auto_copy_var = tk.BooleanVar(value=self.gui.settings_manager.get_setting("auto_copy"))
         self.auto_copy_checkbox = tk.Checkbutton(right_frame, text="Auto-Kopieren", variable=self.auto_copy_var,
-                                                 bg="black", fg="white", selectcolor="black", activebackground="black")
+                                                    bg="black", fg="white", selectcolor="black", activebackground="black")
         self.auto_copy_checkbox.pack(side=tk.RIGHT)
 
         logger.info("UI-Setup abgeschlossen")
-
-    @handle_exceptions
-    def open_options_window(self):
-        """Öffnet das Fenster für erweiterte Optionen."""
-        logger.info("Öffne Optionsfenster")
-        OptionsWindow(self.root, self.gui.theme_manager, self.transcription_panel, self.gui)
 
     @handle_exceptions
     def update_status_bar(self, model=None, output_mode=None, status=None, record_time=None, transcription_time=None, status_color=None):
@@ -166,6 +162,12 @@ class MainWindow:
 
         # Explizite Aktualisierung des Fensters, um sicherzustellen, dass Änderungen sofort sichtbar sind
         self.root.update_idletasks()
+
+    @handle_exceptions
+    def open_options_window(self):
+        """Öffnet das Fenster für erweiterte Optionen."""
+        self.gui.open_options_window()
+
 
 logger.info("MainWindow-Modul geladen")
 

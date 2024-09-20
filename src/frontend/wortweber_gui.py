@@ -1,3 +1,4 @@
+# /file /src/frontend/wortweber_gui.py
 # Wortweber - Echtzeit-Sprachtranskription mit KI
 # Copyright (C) 2024 fukuro-kun
 #
@@ -38,8 +39,8 @@ from src.frontend.options_window import OptionsWindow
 from src.frontend.theme_manager import ThemeManager
 from src.frontend.input_processor import InputProcessor
 from src.frontend.settings_manager import SettingsManager
-from src.config import DEFAULT_WINDOW_SIZE
-from src.utils.error_handling import handle_exceptions
+from src.config import DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY
+from src.utils.error_handling import handle_exceptions, logger
 
 class WordweberGUI:
     """
@@ -83,6 +84,7 @@ class WordweberGUI:
         self.setup_logging()
         self.load_saved_settings()
         self.load_initial_model()
+        self.initialize_delay_settings()
 
         # Hinzufügen eines Event-Handlers für Größenänderungen
         self.root.bind("<Configure>", self.on_window_configure)
@@ -145,8 +147,11 @@ class WordweberGUI:
         logging.debug("Anwendung wird geschlossen")
         self.settings_manager.set_setting("window_geometry", self.root.geometry())
         self.settings_manager.set_setting("output_mode", self.options_panel.output_mode_var.get())
-        self.settings_manager.set_setting("delay_mode", self.options_panel.delay_mode_var.get())
-        self.settings_manager.set_setting("char_delay", self.options_panel.char_delay_entry.get())
+
+        # Verzögerungseinstellungen aus dem OptionsWindow holen
+        delay_settings = self.get_delay_settings()
+        self.settings_manager.set_setting("delay_mode", delay_settings["delay_mode"])
+        self.settings_manager.set_setting("char_delay", delay_settings["char_delay"])
 
         # Speichere alle aktuellen Farbeinstellungen
         color_settings = ['text_fg', 'text_bg', 'select_fg', 'select_bg', 'highlight_fg', 'highlight_bg']
@@ -202,7 +207,7 @@ class WordweberGUI:
     @handle_exceptions
     def start_timer(self):
         """Startet den Timer für die Aufnahmedauer."""
-        self.input_processor.start_time = time.time()
+        self.input_processor.start_time = int(time.time())
         self.update_timer()
 
     @handle_exceptions
@@ -232,9 +237,26 @@ class WordweberGUI:
             highlight_bg=self.theme_manager.highlight_bg.get()
         )
 
+    @handle_exceptions
+    def initialize_delay_settings(self):
+        """Initialisiert die Verzögerungseinstellungen."""
+        delay_mode = self.settings_manager.get_setting("delay_mode", "no_delay")
+        char_delay = self.settings_manager.get_setting("char_delay", DEFAULT_CHAR_DELAY)
+        self.settings_manager.set_setting("delay_mode", delay_mode)
+        self.settings_manager.set_setting("char_delay", char_delay)
+        logger.info(f"Verzögerungseinstellungen initialisiert: Modus={delay_mode}, Verzögerung={char_delay}")
+
+    @handle_exceptions
+    def get_delay_settings(self):
+        """Holt die aktuellen Verzögerungseinstellungen."""
+        return {
+            "delay_mode": self.settings_manager.get_setting("delay_mode", "no_delay"),
+            "char_delay": self.settings_manager.get_setting("char_delay", DEFAULT_CHAR_DELAY)
+        }
+
 # Zusätzliche Erklärungen:
 
-# 1. Die WordweberGUI-Klasse ist der zentrale Punkt für die Verwaltung der Benutzeroberfläche.
+# 1. Die Klasse WordweberGUI ist der zentrale Punkt für die Verwaltung der Benutzeroberfläche.
 # 2. Sie koordiniert die Interaktionen zwischen verschiedenen UI-Komponenten und dem Backend.
 # 3. Die Methode update_colors wurde hinzugefügt, um die Farbänderungen im Transkriptionsfenster zu aktualisieren.
 # 4. Die Initialisierung des ThemeManagers wurde angepasst, um die GUI-Referenz zu setzen.
@@ -245,3 +267,4 @@ class WordweberGUI:
 # 9. Fehlerbehandlung wurde in _load_model_thread hinzugefügt, um Benutzer über Probleme beim Laden des Modells zu informieren.
 # 10. Die transcribe_and_update Methode wurde überarbeitet, um alle GUI-Aktualisierungen im Hauptthread durchzuführen.
 # 11. Die Statusleiste wird nun für alle relevanten Statusaktualisierungen verwendet, einschließlich farbiger Anzeigen.
+# 12. Die initialize_delay_settings und get_delay_settings Methoden wurden hinzugefügt, um die Verzögerungseinstellungen zu verwalten.

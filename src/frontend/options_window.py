@@ -1,3 +1,4 @@
+# /file /src/frontend/options_window.py
 # Wortweber - Echtzeit-Sprachtranskription mit KI
 # Copyright (C) 2024 fukuro-kun
 #
@@ -28,7 +29,7 @@ import tkinter.font as tkFont
 from tkcolorpicker import askcolor
 
 # Projektspezifische Module
-from src.config import DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE, DEFAULT_INCOGNITO_MODE
+from src.config import DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE, DEFAULT_INCOGNITO_MODE, DEFAULT_CHAR_DELAY
 from src.utils.error_handling import handle_exceptions, logger
 from src.frontend.audio_options_panel import AudioOptionsPanel
 
@@ -128,6 +129,11 @@ class OptionsWindow(tk.Toplevel):
         notebook.add(test_recording_frame, text="Testaufnahme")
         self.setup_test_recording_options(test_recording_frame)
 
+        # Ausgabemodus-Einstellungen (Neu hinzugefügt)
+        output_mode_frame = ttk.Frame(notebook)
+        notebook.add(output_mode_frame, text="Ausgabemodus")
+        self.setup_output_mode_options(output_mode_frame)
+
         # Button-Frame
         button_frame = ttk.Frame(self)
         button_frame.pack(pady=10, fill=tk.X)
@@ -185,6 +191,63 @@ class OptionsWindow(tk.Toplevel):
         logger.debug("Textoptionen eingerichtet")
 
     @handle_exceptions
+    def setup_test_recording_options(self, parent):
+        """
+        Richtet die Optionen für die Testaufnahme ein.
+
+        :param parent: Das übergeordnete Frame für die Testaufnahmeoptionen
+        """
+        self.save_test_recording_var = tk.BooleanVar(value=self.gui.settings_manager.get_setting("save_test_recording", False))
+        ttk.Checkbutton(parent, text="Letzte Aufnahme als Testdatei speichern",
+                        variable=self.save_test_recording_var,
+                        command=self.on_save_test_recording_change).pack(pady=10)
+
+        self.incognito_var = tk.BooleanVar(value=self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE))
+        ttk.Checkbutton(parent, text="Incognito-Modus (keine Transkriptionsprotokollierung)",
+                        variable=self.incognito_var,
+                        command=self.on_incognito_change).pack(pady=10)
+
+        logger.debug("Testaufnahmeoptionen eingerichtet")
+
+    @handle_exceptions
+    def setup_output_mode_options(self, parent):
+        """Richtet die Optionen für den Ausgabemodus ein."""
+        frame = ttk.Frame(parent)
+        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        self.delay_mode_var = tk.StringVar(value=self.gui.settings_manager.get_setting("delay_mode", "no_delay"))
+
+        ttk.Radiobutton(frame, text="Keine Verzögerung", variable=self.delay_mode_var, value="no_delay", command=self.on_delay_mode_change).pack(anchor=tk.W)
+
+        char_delay_frame = ttk.Frame(frame)
+        char_delay_frame.pack(fill=tk.X, pady=5)
+        ttk.Radiobutton(char_delay_frame, text="Zeichenweise", variable=self.delay_mode_var, value="char_delay", command=self.on_delay_mode_change).pack(side=tk.LEFT)
+        self.char_delay_entry = ttk.Entry(char_delay_frame, width=5)
+        self.char_delay_entry.pack(side=tk.LEFT, padx=(5, 0))
+        self.char_delay_entry.insert(0, str(self.gui.settings_manager.get_setting("char_delay", DEFAULT_CHAR_DELAY)))
+        self.char_delay_entry.bind("<FocusOut>", self.on_char_delay_change)
+        ttk.Label(char_delay_frame, text="ms").pack(side=tk.LEFT)
+
+        ttk.Radiobutton(frame, text="Zwischenablage", variable=self.delay_mode_var, value="clipboard", command=self.on_delay_mode_change).pack(anchor=tk.W)
+
+    @handle_exceptions
+    def on_delay_mode_change(self):
+        """Behandelt Änderungen des Verzögerungsmodus."""
+        delay_mode = self.delay_mode_var.get()
+        char_delay = self.char_delay_entry.get()
+        self.gui.settings_manager.set_setting("delay_mode", delay_mode)
+        self.gui.settings_manager.set_setting("char_delay", char_delay)
+        self.gui.settings_manager.save_settings()
+        logger.info(f"Verzögerungsmodus geändert auf: {delay_mode}, Zeichenverzögerung: {char_delay}")
+
+
+    @handle_exceptions
+    def on_char_delay_change(self, *args):
+        """Behandelt Änderungen der eingegebenen zeichenweisen Verzögerung."""
+        self.gui.options_panel.update_delay_settings(self.delay_mode_var.get(), self.char_delay_entry.get())
+        logger.info(f"Zeichenverzögerung geändert auf: {self.char_delay_entry.get()} ms")
+
+    @handle_exceptions
     def update_text_options(self, *args):
         """Aktualisiert die Textgröße und Schriftart basierend auf den ausgewählten Werten."""
         try:
@@ -208,25 +271,6 @@ class OptionsWindow(tk.Toplevel):
         new_font = self.available_fonts[new_index]
         self.font_var.set(new_font)  # Aktualisiert die Combobox
         logger.debug(f"Schriftart geändert zu: {new_font}")
-
-    @handle_exceptions
-    def setup_test_recording_options(self, parent):
-        """
-        Richtet die Optionen für die Testaufnahme ein.
-
-        :param parent: Das übergeordnete Frame für die Testaufnahmeoptionen
-        """
-        self.save_test_recording_var = tk.BooleanVar(value=self.gui.settings_manager.get_setting("save_test_recording", False))
-        ttk.Checkbutton(parent, text="Letzte Aufnahme als Testdatei speichern",
-                        variable=self.save_test_recording_var,
-                        command=self.on_save_test_recording_change).pack(pady=10)
-
-        self.incognito_var = tk.BooleanVar(value=self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE))
-        ttk.Checkbutton(parent, text="Incognito-Modus (keine Transkriptionsprotokollierung)",
-                        variable=self.incognito_var,
-                        command=self.on_incognito_change).pack(pady=10)
-
-        logger.debug("Testaufnahmeoptionen eingerichtet")
 
     @handle_exceptions
     def on_save_test_recording_change(self):
@@ -379,6 +423,13 @@ class OptionsWindow(tk.Toplevel):
         self.gui.theme_manager.update_colors()
         self.gui.main_window.update_status_bar()
 
+        # Setze die Verzögerungseinstellungen zurück
+        initial_delay_settings = self.gui.options_panel.get_delay_settings()
+        self.delay_mode_var.set(initial_delay_settings["delay_mode"])
+        self.char_delay_entry.delete(0, tk.END)
+        self.char_delay_entry.insert(0, str(initial_delay_settings["char_delay"]))
+        self.gui.options_panel.update_delay_settings(initial_delay_settings["delay_mode"], initial_delay_settings["char_delay"])
+
         logger.info("Alle Änderungen rückgängig gemacht")
 
     @handle_exceptions
@@ -417,31 +468,26 @@ class OptionsWindow(tk.Toplevel):
 
 # Zusätzliche Erklärungen:
 
-# 1. Incognito-Modus:
-#    Die neue Checkbox für den Incognito-Modus wurde in setup_test_recording_options hinzugefügt.
-#    Sie ermöglicht es dem Benutzer, die Protokollierung von Transkriptionsergebnissen zu steuern.
+# 1. Ausgabemodus-Optionen:
+#    Die neue Methode setup_output_mode_options wurde hinzugefügt, um die
+#    Verzögerungsoptionen auf einer separaten Seite im erweiterten Optionsmenü darzustellen.
 
-# 2. Einstellungspersistenz:
-#    Alle Einstellungen, einschließlich des Incognito-Modus, werden beim Schließen des Fensters gespeichert.
-#    Dies gewährleistet, dass die Benutzereinstellungen über Neustarts der Anwendung hinweg erhalten bleiben.
+# 2. Verzögerungseinstellungen:
+#    Die Logik für die Verzögerungseinstellungen wurde aus dem OptionsPanel hierher verschoben.
+#    Dies umfasst die Methoden on_delay_mode_change und on_char_delay_change.
 
-# 3. Rückgängig-Funktionalität:
-#    Die undo_changes Methode wurde aktualisiert, um auch den Incognito-Modus zurückzusetzen.
-#    Dies ermöglicht es dem Benutzer, alle Änderungen auf einmal rückgängig zu machen.
+# 3. Rückgängig-Funktion:
+#    Die undo_changes Methode wurde erweitert, um auch die Verzögerungseinstellungen
+#    auf den ursprünglichen Zustand zurückzusetzen.
 
-# 4. Fehlerbehandlung und Logging:
-#    Jede Methode ist mit dem @handle_exceptions Decorator versehen, was eine einheitliche
-#    Fehlerbehandlung in der gesamten Klasse gewährleistet. Ausführliche Logging-Aufrufe
-#    wurden implementiert, um die Nachvollziehbarkeit von Aktionen und potenziellen Problemen zu verbessern.
+# 4. Fenstergeometrie:
+#    Die Methoden load_window_geometry und on_closing sorgen dafür, dass die
+#    Größe und Position des Optionsfensters zwischen den Sitzungen beibehalten werden.
 
-# 5. Fenstergeometrie:
-#    Die Methoden load_window_geometry und on_closing stellen sicher, dass die Größe und Position
-#    des Optionsfensters zwischen den Sitzungen beibehalten werden, was die Benutzererfahrung verbessert.
+# 5. Fehlerbehandlung:
+#    Alle Methoden sind mit dem @handle_exceptions Decorator versehen, um eine
+#    einheitliche Fehlerbehandlung in der gesamten Klasse zu gewährleisten.
 
-# 6. Modulare Struktur:
-#    Die Klasse ist in klar definierte Methoden unterteilt, was die Wartbarkeit und Lesbarkeit des Codes verbessert.
-#    Jede Methode hat eine spezifische Verantwortlichkeit, was dem Prinzip der Einzelverantwortung entspricht.
-
-# Diese Implementierung bietet eine umfassende und benutzerfreundliche Oberfläche für die Verwaltung
-# verschiedener Anwendungseinstellungen, einschließlich des neuen Incognito-Modus, und gewährleistet
-# gleichzeitig die Persistenz und Wiederherstellbarkeit aller Einstellungen.
+# Diese Implementierung bietet nun eine separate Seite für die Ausgabemodus-Optionen
+# im erweiterten Optionsmenü, während die grundlegende Funktionalität und Struktur
+# des OptionsWindow beibehalten wird.

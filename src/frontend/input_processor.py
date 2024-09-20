@@ -27,7 +27,7 @@ from pynput.keyboard import Key, Controller as KeyboardController
 import pyperclip
 import time
 import threading
-from src.config import PUSH_TO_TALK_KEY, DEFAULT_INCOGNITO_MODE
+from src.config import PUSH_TO_TALK_KEY, DEFAULT_INCOGNITO_MODE, DEFAULT_CHAR_DELAY
 from src.utils.error_handling import handle_exceptions, logger
 
 class InputProcessor:
@@ -121,8 +121,9 @@ class InputProcessor:
 
         :param text: Der zu verarbeitende Text
         """
-        input_mode = self.gui.options_panel.output_mode_var.get()
-        delay_mode = self.gui.options_panel.delay_mode_var.get()
+        input_mode = self.gui.settings_manager.get_setting("output_mode", "textfenster")
+        delay_mode = self.gui.settings_manager.get_setting("delay_mode", "no_delay")
+
 
         incognito_mode = self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
         if not incognito_mode:
@@ -136,13 +137,13 @@ class InputProcessor:
             if delay_mode == "no_delay":
                 self.keyboard_controller.type(text)
             elif delay_mode == "char_delay":
-                try:
-                    delay = float(self.gui.options_panel.char_delay_entry.get()) / 1000
-                except ValueError:
-                    delay = 0.01  # Fallback auf 10ms bei ungültiger Eingabe
-                for char in text:
-                    self.keyboard_controller.type(char)
-                    time.sleep(delay)
+                    try:
+                        delay = float(self.gui.settings_manager.get_setting("char_delay", DEFAULT_CHAR_DELAY)) / 1000
+                    except ValueError:
+                        delay = 0.01  # Fallback auf 10ms bei ungültiger Eingabe
+                    for char in text:
+                        self.keyboard_controller.type(char)
+                        time.sleep(delay)
             elif delay_mode == "clipboard":
                 original_clipboard = pyperclip.paste()
                 if not incognito_mode:
