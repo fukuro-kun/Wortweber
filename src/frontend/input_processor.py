@@ -46,7 +46,9 @@ class InputProcessor:
         self.keyboard_controller = KeyboardController()
         self.listener = None
         self.start_time = 0
-        self.push_to_talk_key = self.gui.settings_manager.get_setting("push_to_talk_key", DEFAULT_PUSH_TO_TALK_KEY)
+        self.push_to_talk_key = self.parse_shortcut(self.gui.settings_manager.get_setting("push_to_talk_key", DEFAULT_PUSH_TO_TALK_KEY))
+        self.currently_pressed_keys = set()
+        self.recording_active = False
         logger.info("InputProcessor initialisiert")
 
     @handle_exceptions
@@ -65,50 +67,134 @@ class InputProcessor:
 
     @handle_exceptions
     def on_press(self, key):
-        if self.is_push_to_talk_key(key) and not self.gui.backend.state.recording:
-            if not self.gui.backend.model_loaded.is_set():
-                self.gui.main_window.update_status_bar(status="Modell wird noch geladen. Aufnahme startet trotzdem.", status_color="yellow")
-                logger.warning("Aufnahme gestartet, obwohl Modell noch nicht geladen ist")
-            try:
-                if self.gui.backend.check_audio_device():
-                    self.gui.backend.start_recording()
-                    self.gui.main_window.update_status_bar(status="Aufnahme läuft...", status_color="red")
-                    self.gui.start_timer()
-                    logger.info("Audioaufnahme gestartet")
-                else:
-                    self.gui.main_window.update_status_bar(status="Audiogerät nicht verfügbar", status_color="red")
-                    logger.error("Audiogerät nicht verfügbar")
-            except Exception as e:
-                self.gui.main_window.update_status_bar(status=f"Fehler beim Starten der Aufnahme: {e}", status_color="red")
-                logger.error(f"Fehler beim Starten der Aufnahme: {e}")
+        """
+        Wird aufgerufen, wenn eine Taste gedrückt wird.
+
+        :param key: Die gedrückte Taste
+        """
+        normalized_key = self.normalize_key(key)
+        self.currently_pressed_keys.add(normalized_key)
+        logger.debug(f"Taste gedrückt: {normalized_key}")
+        logger.debug(f"Aktuell gedrückte Tasten: {self.currently_pressed_keys}")
+
+        if self.is_push_to_talk_key(key) and not self.recording_active:
+            self.start_recording()
 
     @handle_exceptions
     def on_release(self, key):
-        if self.is_push_to_talk_key(key) and self.gui.backend.state.recording:
-            self.gui.backend.stop_recording()
-            self.gui.main_window.update_status_bar(status="Aufnahme beendet", status_color="orange")
-            self.gui.stop_timer()
-            logger.info("Audioaufnahme beendet")
-            if self.gui.backend.model_loaded.is_set():
-                self.gui.transcribe_and_update()
-            else:
-                self.gui.main_window.update_status_bar(status="Aufnahme gespeichert. Warte auf Modell-Bereitschaft.", status_color="yellow")
-                logger.info("Aufnahme gespeichert. Warten auf Modell-Bereitschaft.")
-                threading.Thread(target=self.wait_and_transcribe, daemon=True).start()
+        """
+        Wird aufgerufen, wenn eine Taste losgelassen wird.
+
+        :param key: Die losgelassene Taste
+        """
+        normalized_key = self.normalize_key(key)
+        self.currently_pressed_keys.discard(normalized_key)
+        logger.debug(f"Taste losgelassen: {normalized_key}")
+        logger.debug(f"Aktuell gedrückte Tasten nach Loslassen: {self.currently_pressed_keys}")
+
+        if self.recording_active and self.is_push_to_talk_key(key):
+            self.stop_recording()
+
 
     @handle_exceptions
     def is_push_to_talk_key(self, key):
         """
-        Überprüft, ob die gedrückte Taste der Push-to-Talk-Taste entspricht.
+        Überprüft, ob die aktuelle Tastenkombination dem Push-to-Talk-Shortcut entspricht.
 
-        :param key: Die gedrückte Taste
-        :return: True, wenn es die Push-to-Talk-Taste ist, sonst False
+        :param key: Die zu überprüfende Taste
+        :return: True, wenn es die Push-to-Talk-Tastenkombination ist, sonst False
+        """
+        required_modifiers = self.push_to_talk_key['modifiers']
+        required_key = self.push_to_talk_key['key']
+
+        logger.debug(f"Überprüfe Push-to-Talk für Taste: {key}")
+        logger.debug(f"Erforderliche Modifikatoren: {required_modifiers}")
+        logger.debug(f"Erforderliche Haupttaste: {required_key}")
+        logger.debug(f"Aktuell gedrückte Tasten: {self.currently_pressed_keys}")
+
+        if not required_modifiers:
+            # Für einzelne Tasten ohne Modifikatoren
+            return self.normalize_key(key) == required_key.lower()
+
+        # Für Tastenkombinationen
+        return all(mod.name.lower() in self.currently_pressed_keys for mod in required_modifiers) and \
+               self.normalize_key(key) == required_key.lower()
+
+    @handle_exceptions
+    def normalize_key(self, key):
+        """
+        Normalisiert den Tastenname für konsistente Vergleiche.
+
+        :param key: Die zu normalisierende Taste
+        :return: Der normalisierte Tastenwert
         """
         if isinstance(key, keyboard.Key):
-            return key == getattr(keyboard.Key, self.push_to_talk_key.lower(), None)
+            return key.name.lower()
         elif isinstance(key, keyboard.KeyCode):
-            return key.char == self.push_to_talk_key
-        return False
+            return key.char.lower() if key.char else f"key.{key.vk}"
+        return str(key).lower()
+
+    @handle_exceptions
+    def parse_shortcut(self, shortcut_str):
+        """
+        Parst den Shortcut-String in ein Dictionary mit Tasten und Modifikatoren.
+
+        :param shortcut_str: Der zu parsende Shortcut-String
+        :return: Ein Dictionary mit den geparsten Tasten und Modifikatoren
+        """
+        parts = shortcut_str.split('+')
+        modifiers = set()
+        key = None
+
+        for part in parts:
+            part = part.strip().lower()
+            if part in ['ctrl', 'control']:
+                modifiers.add(Key.ctrl)
+            elif part == 'shift':
+                modifiers.add(Key.shift)
+            elif part == 'alt':
+                modifiers.add(Key.alt)
+            else:
+                # Letzte Teil ist die Haupttaste
+                key = part.upper() if part.startswith('f') and part[1:].isdigit() else part
+
+        logger.debug(f"Geparster Shortcut: Modifikatoren={modifiers}, Haupttaste={key}")
+        return {'modifiers': modifiers, 'key': key}
+
+    @handle_exceptions
+    def start_recording(self):
+        """Startet die Audioaufnahme."""
+        if not self.gui.backend.model_loaded.is_set():
+            self.gui.main_window.update_status_bar(status="Modell wird noch geladen. Aufnahme startet trotzdem.", status_color="yellow")
+            logger.warning("Aufnahme gestartet, obwohl Modell noch nicht geladen ist")
+        try:
+            if self.gui.backend.check_audio_device():
+                self.gui.backend.start_recording()
+                self.gui.main_window.update_status_bar(status="Aufnahme läuft...", status_color="red")
+                self.gui.start_timer()
+                self.recording_active = True
+                logger.info("Audioaufnahme gestartet")
+            else:
+                self.gui.main_window.update_status_bar(status="Audiogerät nicht verfügbar", status_color="red")
+                logger.error("Audiogerät nicht verfügbar")
+        except Exception as e:
+            self.gui.main_window.update_status_bar(status=f"Fehler beim Starten der Aufnahme: {e}", status_color="red")
+            logger.error(f"Fehler beim Starten der Aufnahme: {e}")
+
+    @handle_exceptions
+    def stop_recording(self):
+        """Stoppt die Audioaufnahme und startet die Transkription."""
+        self.gui.backend.stop_recording()
+        self.gui.main_window.update_status_bar(status="Aufnahme beendet", status_color="orange")
+        self.gui.stop_timer()
+        self.recording_active = False
+        logger.info("Audioaufnahme beendet")
+        if self.gui.backend.model_loaded.is_set():
+            self.gui.transcribe_and_update()
+        else:
+            self.gui.main_window.update_status_bar(status="Aufnahme gespeichert. Warte auf Modell-Bereitschaft.", status_color="yellow")
+            logger.info("Aufnahme gespeichert. Warten auf Modell-Bereitschaft.")
+            threading.Thread(target=self.wait_and_transcribe, daemon=True).start()
 
     @handle_exceptions
     def update_record_time(self):
@@ -187,38 +273,52 @@ class InputProcessor:
     @handle_exceptions
     def update_shortcut(self, new_shortcut):
         """
-        Aktualisiert den Push-to-Talk-Shortcut.
+        Aktualisiert den Push-to-Talk-Shortcut ohne eine Transkription auszulösen.
 
         :param new_shortcut: Der neue Shortcut-Wert
         """
-        self.push_to_talk_key = new_shortcut
-        logger.info(f"Push-to-Talk-Shortcut aktualisiert auf: {new_shortcut}")
-        # Neustart des Listeners, um den neuen Shortcut zu aktivieren
+        # Temporär den Listener deaktivieren
         self.stop_listener()
+
+        # Shortcut aktualisieren
+        self.push_to_talk_key = self.parse_shortcut(new_shortcut)
+        logger.info(f"Push-to-Talk-Shortcut aktualisiert auf: {new_shortcut}")
+
+        # Sicherstellen, dass keine Aufnahme aktiv ist
+        if self.recording_active:
+            self.stop_recording()
+
+        # Tastenstatus zurücksetzen
+        self.currently_pressed_keys.clear()
+        self.recording_active = False
+
+        # Listener neu starten
         self.start_listener()
+
 
 # Zusätzliche Erklärungen:
 
-# 1. Shortcut-Aktualisierung:
-#    Die neue Methode update_shortcut ermöglicht es, den Push-to-Talk-Shortcut
-#    zur Laufzeit zu ändern. Sie aktualisiert den internen Zustand und startet
-#    den Listener neu, um die Änderung wirksam zu machen.
+# 1. Verbesserte Shortcut-Erkennung:
+#    Die is_push_to_talk_key Methode wurde überarbeitet, um sowohl einzelne Tasten
+#    als auch Kombinationen mit Modifikatoren zuverlässig zu erkennen.
 
-# 2. Flexibler Shortcut-Check:
-#    Die Methode is_push_to_talk_key wurde hinzugefügt, um flexibel verschiedene
-#    Tastentypen (normale Tasten und Funktionstasten) als Shortcut zu unterstützen.
+# 2. Robustes Tasten-Tracking:
+#    Mit self.currently_pressed_keys wird ein Set aller aktuell gedrückten Tasten
+#    präzise verwaltet. Dies ermöglicht eine genaue Erkennung von Tastenkombinationen.
 
-# 3. Verbesserte Fehlerbehandlung:
-#    Alle Methoden sind weiterhin mit dem @handle_exceptions Decorator versehen,
-#    was eine konsistente Fehlerbehandlung und Logging in der gesamten Klasse gewährleistet.
+# 3. Separate Aufnahmesteuerung:
+#    Die Methoden start_recording und stop_recording wurden eingeführt, um die
+#    Aufnahmelogik zu zentralisieren und besser zu kontrollieren.
 
-# 4. Konfigurationsintegration:
-#    Die Klasse nutzt nun die DEFAULT_PUSH_TO_TALK_KEY-Konstante aus der Konfigurationsdatei,
-#    was eine zentrale Verwaltung von Standardwerten ermöglicht.
+# 4. Verbessertes Logging:
+#    Zusätzliche Debug-Logging-Aufrufe wurden hinzugefügt, um die Nachvollziehbarkeit
+#    der Tastenerkennung und Shortcut-Verarbeitung zu erhöhen.
 
-# 5. Logging:
-#    Umfangreiches Logging wurde beibehalten und um zusätzliche Informationen zur
-#    Shortcut-Änderung erweitert.
+# 5. Flexibilität bei Shortcuts:
+#    Die parse_shortcut Methode wurde verbessert, um verschiedene Shortcut-Formate
+#    zu unterstützen und korrekt zu interpretieren.
 
-# Diese Implementierung ermöglicht eine flexible Anpassung des Push-to-Talk-Shortcuts
-# und integriert sich nahtlos in die bestehende Struktur der Wortweber-Anwendung.
+# Diese Implementierung bietet eine robuste und flexible Lösung für die Handhabung
+# von Push-to-Talk-Shortcuts, einschließlich einzelner Tasten und komplexer
+# Tastenkombinationen, und integriert sich nahtlos in die bestehende Struktur
+# der Wortweber-Anwendung.

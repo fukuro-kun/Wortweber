@@ -37,7 +37,6 @@ class MainWindow:
         """
         self.root = root
         self.gui = gui
-
         self.setup_ui()
         logger.info("MainWindow initialisiert")
 

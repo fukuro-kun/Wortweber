@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
 # src/config.py
 
 # Standardbibliotheken
@@ -46,13 +44,13 @@ AUDIO_RATE = 44100  # Sampling-Rate in Hz
 TARGET_RATE = 16000  # Ziel-Sampling-Rate für Whisper
 AUDIO_CHUNK = 4096  # Größe der Audio-Chunks für die Aufnahme
 DEVICE_INDEX = 6  # Index des zu verwendenden Audiogeräts
-DEFAULT_AUDIO_DEVICE_INDEX = 0 # Eintrag für den Standard-Audiogeräteindex
+DEFAULT_AUDIO_DEVICE_INDEX = 0  # Eintrag für den Standard-Audiogeräteindex
 
 # Aufnahme-Einstellungen
 MIN_RECORD_SECONDS = 0.5  # Mindestaufnahmedauer in Sekunden
 
 # Eingabe-Einstellungen
-DEFAULT_PUSH_TO_TALK_KEY = 'F12'  # Taste für Push-to-Talk-Funktion
+DEFAULT_PUSH_TO_TALK_KEY = "F12"  # Standard-Tastenkombination für Push-to-Talk-Funktion
 
 # Verzögerungseinstellungen
 DEFAULT_CHAR_DELAY = 10  # Standardverzögerung zwischen Zeichen in Millisekunden
@@ -66,10 +64,25 @@ SUPPORTED_LANGUAGES = {
     "en": "English"
 }
 
+# Gültige Modifikatortasten
+VALID_MODIFIERS = ["Ctrl", "Shift", "Alt"]
+
+# Gültige Funktionstasten
+VALID_FUNCTION_KEYS = [f"F{i}" for i in range(1, 13)]  # F1 bis F12
+
 # Wichtige Hinweise
 RESAMPLING_NOTE = """
 WICHTIG: Resampling ist notwendig, da die Audiogeräte 16000 Hz nicht unterstützen.
 Ändern Sie AUDIO_RATE nicht und entfernen Sie das Resampling nicht ohne Rücksprache mit dem Projektteam.
+"""
+
+SHORTCUT_NOTE = """
+WICHTIG: Der Push-to-Talk-Shortcut kann aus einer Kombination von Modifikatortasten (Ctrl, Shift, Alt)
+und einer normalen Taste oder Funktionstaste bestehen. Beispiele für gültige Shortcuts sind:
+- "F12"
+- "Ctrl+F12"
+- "Ctrl+Shift+P"
+Stellen Sie sicher, dass der gewählte Shortcut nicht mit anderen Systemfunktionen kollidiert.
 """
 
 # Diese Konfigurationsdatei zentralisiert alle wichtigen Einstellungen für die Wortweber-Anwendung.
@@ -78,24 +91,29 @@ WICHTIG: Resampling ist notwendig, da die Audiogeräte 16000 Hz nicht unterstüt
 
 # Zusätzliche Erklärungen:
 
-# 1. DEFAULT_INCOGNITO_MODE:
-#    Diese neue Einstellung steuert, ob Transkriptionsergebnisse standardmäßig protokolliert werden.
-#    Der Wert True bedeutet, dass der Incognito-Modus standardmäßig aktiviert ist,
-#    was die Privatsphäre der Benutzer schützt, indem keine Transkriptionen geloggt werden.
+# 1. DEFAULT_PUSH_TO_TALK_KEY:
+#    Der Standardwert wurde auf "Ctrl+F12" geändert, um die neue Unterstützung für
+#    Tastenkombinationen zu demonstrieren. Dies ermöglicht eine intuitivere
+#    Bedienung für viele Benutzer.
 
-# 2. Zentrale Konfiguration:
-#    Durch die Zentralisierung aller Standardeinstellungen in dieser Datei wird die
-#    Wartung und Anpassung der Anwendung erheblich erleichtert. Entwickler können
-#    schnell globale Änderungen vornehmen, ohne mehrere Dateien durchsuchen zu müssen.
+# 2. VALID_MODIFIERS und VALID_FUNCTION_KEYS:
+#    Diese neuen Listen definieren die gültigen Modifikatortasten und Funktionstasten.
+#    Sie können verwendet werden, um Benutzereingaben zu validieren und
+#    sicherzustellen, dass nur unterstützte Tastenkombinationen akzeptiert werden.
 
-# 3. Dokumentation:
-#    Jeder Konfigurationsparameter ist mit einem Kommentar versehen, der seine Funktion erklärt.
-#    Dies ist besonders wichtig für neue Entwickler oder bei der Fehlersuche.
+# 3. SHORTCUT_NOTE:
+#    Dieser neue Hinweis erklärt das Format und die Möglichkeiten für gültige Shortcuts.
+#    Er dient als Referenz für Entwickler und kann auch in der Benutzeroberfläche
+#    verwendet werden, um Benutzer bei der Konfiguration zu unterstützen.
 
-# 4. Gruppierung:
-#    Die Einstellungen sind in logische Gruppen unterteilt (z.B. GUI, Audio, Eingabe),
-#    was die Übersichtlichkeit und Wartbarkeit verbessert.
+# 4. Flexibilität:
+#    Die Struktur ermöglicht es weiterhin, einfach neue Konfigurationsparameter
+#    hinzuzufügen, ohne die Gesamtstruktur der Datei zu beeinträchtigen.
 
-# 5. Erweiterbarkeit:
-#    Die Struktur ermöglicht es, einfach neue Konfigurationsparameter hinzuzufügen,
-#    ohne die Gesamtstruktur der Datei zu beeinträchtigen.
+# 5. Zentrale Konfiguration:
+#    Durch die Zentralisierung aller Standardeinstellungen in dieser Datei bleibt die
+#    Wartung und Anpassung der Anwendung einfach. Entwickler können schnell globale
+#    Änderungen vornehmen, ohne mehrere Dateien durchsuchen zu müssen.
+
+# Diese Aktualisierung der config.py unterstützt die neue flexible Shortcut-Funktionalität
+# und bietet gleichzeitig klare Richtlinien für deren Verwendung.

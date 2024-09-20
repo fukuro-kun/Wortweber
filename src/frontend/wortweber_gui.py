@@ -1,4 +1,3 @@
-# /file /src/frontend/wortweber_gui.py
 # Wortweber - Echtzeit-Sprachtranskription mit KI
 # Copyright (C) 2024 fukuro-kun
 #
