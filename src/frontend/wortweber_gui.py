@@ -38,7 +38,7 @@ from src.frontend.options_window import OptionsWindow
 from src.frontend.theme_manager import ThemeManager
 from src.frontend.input_processor import InputProcessor
 from src.frontend.settings_manager import SettingsManager
-from src.config import DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY
+from src.config import DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY, DEFAULT_PUSH_TO_TALK_KEY
 from src.utils.error_handling import handle_exceptions, logger
 
 class WordweberGUI:
@@ -59,6 +59,8 @@ class WordweberGUI:
 
         self.root = ttkthemes.ThemedTk()
         self.root.title("Wortweber Transkription")
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1)
 
         # Laden der gespeicherten Fenstergeometrie
         saved_geometry = self.settings_manager.get_setting("window_geometry")
@@ -87,6 +89,9 @@ class WordweberGUI:
 
         # Hinzufügen eines Event-Handlers für Größenänderungen
         self.root.bind("<Configure>", self.on_window_configure)
+
+        # Initialisierung der Shortcut-Anzeige
+        self.options_panel.update_shortcut_display(self.settings_manager.get_setting("push_to_talk_key", DEFAULT_PUSH_TO_TALK_KEY))
 
     @handle_exceptions
     def setup_logging(self) -> None:
@@ -252,6 +257,12 @@ class WordweberGUI:
             "delay_mode": self.settings_manager.get_setting("delay_mode", "no_delay"),
             "char_delay": self.settings_manager.get_setting("char_delay", DEFAULT_CHAR_DELAY)
         }
+
+    @handle_exceptions
+    def update_shortcut_display(self, new_shortcut):
+        """Aktualisiert die Shortcut-Anzeige im OptionsPanel."""
+        self.options_panel.update_shortcut_display(new_shortcut)
+
 
 # Zusätzliche Erklärungen:
 

@@ -45,24 +45,24 @@ class MainWindow:
         """
         Richtet die Benutzeroberfläche für das MainWindow ein.
         """
-        main_frame = ttk.Frame(self.root, padding="10")
-        main_frame.grid(row=0, column=0, sticky="nsew")
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
 
-        self.transcription_panel = TranscriptionPanel(main_frame, self.gui)
-        self.options_panel = OptionsPanel(main_frame, self.gui)
-
-        self.options_panel.grid(column=0, row=0, sticky="nw")
-        self.transcription_panel.grid(column=0, row=1, columnspan=2, sticky="nsew")
-
+        main_frame = ttk.Frame(self.root)
+        main_frame.grid(row=0, column=0, sticky="nsew")
         main_frame.columnconfigure(0, weight=1)
         main_frame.rowconfigure(1, weight=1)
 
 
+        self.options_panel = OptionsPanel(main_frame, self.gui)
+        self.options_panel.grid(column=0, row=0, sticky="ew")
+
+        self.transcription_panel = TranscriptionPanel(main_frame, self.gui)
+        self.transcription_panel.grid(column=0, row=1, sticky="nsew")
+
         # Buttons am unteren Rand hinzufügen
         button_frame = ttk.Frame(main_frame)
-        button_frame.grid(column=0, row=2, columnspan=2, pady=10)
+        button_frame.grid(column=0, row=2, pady=10)
 
         ttk.Button(button_frame, text="Transkription löschen",
                     command=self.transcription_panel.clear_transcription).pack(side=tk.LEFT, padx=5)
@@ -73,10 +73,9 @@ class MainWindow:
         ttk.Button(button_frame, text="Beenden",
                     command=self.root.quit).pack(side=tk.LEFT, padx=5)
 
-
         # Statusleiste
         self.status_bar = tk.Frame(main_frame, bg="black", bd=1, relief="sunken")
-        self.status_bar.grid(column=0, row=3, columnspan=2, sticky="ew", padx=1, pady=(1, 0))
+        self.status_bar.grid(column=0, row=3, sticky="ew", padx=1, pady=(1, 0))
 
         # Konfigurieren der Spalten für das Grid-Layout
         self.status_bar.columnconfigure(0, weight=1)  # Linke Seite
@@ -169,6 +168,7 @@ class MainWindow:
 
 
 logger.info("MainWindow-Modul geladen")
+
 
 # Zusätzliche Erklärungen:
 
