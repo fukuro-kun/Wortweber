@@ -52,7 +52,7 @@ DEFAULT_AUDIO_DEVICE_INDEX = 0 # Eintrag für den Standard-Audiogeräteindex
 MIN_RECORD_SECONDS = 0.5  # Mindestaufnahmedauer in Sekunden
 
 # Eingabe-Einstellungen
-PUSH_TO_TALK_KEY = 'F12'  # Taste für Push-to-Talk-Funktion
+DEFAULT_PUSH_TO_TALK_KEY = 'F12'  # Taste für Push-to-Talk-Funktion
 
 # Verzögerungseinstellungen
 DEFAULT_CHAR_DELAY = 10  # Standardverzögerung zwischen Zeichen in Millisekunden

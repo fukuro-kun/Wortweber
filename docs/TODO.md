@@ -2,9 +2,10 @@
 
 ## Kernfunktionen
 ### Hohe Priorität
-- [ ] Implementierung einer auswählbaren Shortcut-Taste für die Push-to-Talk-Funktion
+- [ ] Durchführung umfassender Tests für die neue Shortcut-Funktionalität
 - [ ] Überprüfung und Optimierung der Gerätekompatibilität für verschiedene Systemkonfigurationen
 - [ ] Durchführung umfassender Tests für die Zahlwort-Konvertierungsfunktionalität
+- [x] Implementierung einer auswählbaren Shortcut-Taste für die Push-to-Talk-Funktion
 
 ### Mittlere Priorität
 - [ ] Optimieren der Effizienz der Zahlwortverarbeitung für sehr große Zahlen

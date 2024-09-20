@@ -5,6 +5,21 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.23.0] - 2024-09-20
+### Hinzugefügt
+- Implementierung einer auswählbaren Shortcut-Taste für die Push-to-Talk-Funktion
+- Neues ShortcutPanel in den erweiterten Optionen zur Anpassung des Push-to-Talk-Shortcuts
+- Dynamische Aktualisierung des Shortcuts im InputProcessor
+
+### Geändert
+- Überarbeitung des OptionsWindow zur Integration des neuen ShortcutPanels
+- Anpassung der Konfigurationsdatei zur Unterstützung des anpassbaren Shortcuts
+- Verbesserung der Flexibilität des InputProcessors für verschiedene Tastentypen
+
+### Verbessert
+- Erhöhte Benutzerfreundlichkeit durch einfache Anpassung des Push-to-Talk-Shortcuts
+- Verbesserte Fehlerbehandlung und Logging für Shortcut-bezogene Operationen
+
 ## [0.22.3] - 2024-09-20
 ### Geändert
 - AudioProcessor-Tests aktualisiert, um die Verwendung des SettingsManager zu berücksichtigen

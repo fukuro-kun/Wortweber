@@ -1,3 +1,22 @@
+# Implementierung des anpassbaren Push-to-Talk-Shortcuts (Version 0.23.0)
+
+## Begründung für das Refactoring
+1. Erhöhung der Benutzerfreundlichkeit durch anpassbare Shortcuts
+2. Verbesserung der Flexibilität des InputProcessors
+3. Integration neuer Funktionalität in bestehende GUI-Strukturen
+
+## Hauptänderungen
+1. Erstellung eines neuen ShortcutPanels in `src/frontend/shortcut_panel.py`
+2. Anpassung des OptionsWindow zur Integration des ShortcutPanels
+3. Überarbeitung des InputProcessors für dynamische Shortcut-Aktualisierung
+4. Aktualisierung der Konfigurationsdatei mit DEFAULT_PUSH_TO_TALK_KEY
+
+## Auswirkungen
+- Verbesserte Benutzerinteraktion durch anpassbare Shortcuts
+- Erhöhte Codemodularität durch Einführung des ShortcutPanels
+- Konsistentere Konfigurationsverwaltung durch zentralisierte Standardwerte
+
+
 # Optimierung des OptionsPanel-Layouts (Version 0.22.1)
 
 ## Begründung für die Änderungen

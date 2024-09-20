@@ -1,4 +1,3 @@
-# /file /src/frontend/options_window.py
 # Wortweber - Echtzeit-Sprachtranskription mit KI
 # Copyright (C) 2024 fukuro-kun
 #
@@ -15,28 +14,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Dieses Modul definiert das Optionsfenster für die Wortweber-Anwendung.
-Es ermöglicht die Anpassung von Theme, Textoptionen und Testaufnahme-Einstellungen.
-"""
-
-# Standardbibliotheken
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
-
-# Drittanbieterbibliotheken
 from tkcolorpicker import askcolor
-
-# Projektspezifische Module
-from src.config import DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE, DEFAULT_INCOGNITO_MODE, DEFAULT_CHAR_DELAY
+from src.config import DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE, DEFAULT_INCOGNITO_MODE, DEFAULT_CHAR_DELAY, DEFAULT_PUSH_TO_TALK_KEY
 from src.utils.error_handling import handle_exceptions, logger
 from src.frontend.audio_options_panel import AudioOptionsPanel
+from src.frontend.shortcut_panel import ShortcutPanel
 
 class OptionsWindow(tk.Toplevel):
     """
     Fenster für erweiterte Optionen in der Wortweber-Anwendung.
-    Ermöglicht die Anpassung von Theme, Textoptionen und Testaufnahme-Einstellungen.
+    Ermöglicht die Anpassung von Theme, Textoptionen, Testaufnahme-Einstellungen und Shortcuts.
     """
 
     _instance = None
@@ -129,10 +119,16 @@ class OptionsWindow(tk.Toplevel):
         notebook.add(test_recording_frame, text="Testaufnahme")
         self.setup_test_recording_options(test_recording_frame)
 
-        # Ausgabemodus-Einstellungen (Neu hinzugefügt)
+        # Ausgabemodus-Einstellungen
         output_mode_frame = ttk.Frame(notebook)
         notebook.add(output_mode_frame, text="Ausgabemodus")
         self.setup_output_mode_options(output_mode_frame)
+
+        # Shortcut-Einstellungen
+        shortcut_frame = ttk.Frame(notebook)
+        notebook.add(shortcut_frame, text="Shortcuts")
+        self.shortcut_panel = ShortcutPanel(shortcut_frame, self.gui.settings_manager, self.gui.input_processor)
+        self.shortcut_panel.pack(fill=tk.BOTH, expand=True)
 
         # Button-Frame
         button_frame = ttk.Frame(self)
@@ -240,7 +236,6 @@ class OptionsWindow(tk.Toplevel):
         self.gui.settings_manager.save_settings()
         logger.info(f"Verzögerungsmodus geändert auf: {delay_mode}, Zeichenverzögerung: {char_delay}")
 
-
     @handle_exceptions
     def on_char_delay_change(self, *args):
         """Behandelt Änderungen der eingegebenen zeichenweisen Verzögerung."""
@@ -312,83 +307,11 @@ class OptionsWindow(tk.Toplevel):
             "select_fg": self.theme_manager.select_fg.get(),
             "select_bg": self.theme_manager.select_bg.get(),
             "highlight_fg": self.theme_manager.highlight_fg.get(),
-            "highlight_bg": self.theme_manager.highlight_bg.get()
+            "highlight_bg": self.theme_manager.highlight_bg.get(),
+            "push_to_talk_key": self.gui.settings_manager.get_setting("push_to_talk_key", DEFAULT_PUSH_TO_TALK_KEY)
         }
         logger.debug("Aktuelle Einstellungen erfasst")
         return settings
-
-    @handle_exceptions
-    def create_color_row(self, parent, label, fg_var, bg_var, row):
-        """
-        Erstellt eine Reihe von UI-Elementen für die Farbauswahl einer Textkategorie.
-
-        :param parent: Das übergeordnete Widget
-        :param label: Beschriftung für die Textkategorie
-        :param fg_var: StringVar für die Textfarbe
-        :param bg_var: StringVar für die Hintergrundfarbe
-        :param row: Zeilennummer im Grid-Layout
-        """
-        fg_preview = tk.Frame(parent, width=30, height=30, bg=fg_var.get())
-        fg_preview.grid(row=row, column=0, padx=(5, 2), pady=5, sticky="w")
-        fg_preview.bind("<Button-1>", lambda e: self.choose_color(fg_var, fg_preview))
-
-        preview_text = tk.Text(parent, width=40, height=1, font=("TkDefaultFont", 10))
-        preview_text.grid(row=row, column=1, padx=2, pady=5, sticky="ew")
-        preview_text.insert(tk.END, f"Vorschau: {label}")
-        preview_text.config(state=tk.DISABLED, fg=fg_var.get(), bg=bg_var.get())
-
-        bg_preview = tk.Frame(parent, width=30, height=30, bg=bg_var.get())
-        bg_preview.grid(row=row, column=2, padx=(2, 5), pady=5, sticky="e")
-        bg_preview.bind("<Button-1>", lambda e: self.choose_color(bg_var, bg_preview))
-
-        fg_var.trace_add("write", lambda *args: self.update_preview(preview_text, fg_var, bg_var))
-        bg_var.trace_add("write", lambda *args: self.update_preview(preview_text, fg_var, bg_var))
-
-        # Speichern der Referenzen zu den Vorschau-Frames
-        setattr(self, f"{label.lower().replace(' ', '_')}_fg_preview", fg_preview)
-        setattr(self, f"{label.lower().replace(' ', '_')}_bg_preview", bg_preview)
-
-        logger.debug(f"Farbreihe für {label} erstellt")
-
-    @handle_exceptions
-    def update_preview(self, preview_text, fg_var, bg_var):
-        """
-        Aktualisiert die Vorschau-Textfelder mit den ausgewählten Farben.
-
-        :param preview_text: Das Vorschau-Textfeld
-        :param fg_var: StringVar für die Textfarbe
-        :param bg_var: StringVar für die Hintergrundfarbe
-        """
-        try:
-            if preview_text.winfo_exists():
-                preview_text.config(fg=fg_var.get(), bg=bg_var.get())
-                logger.debug("Vorschau-Text aktualisiert")
-        except tk.TclError:
-            # Widget wurde zerstört, ignoriere den Fehler
-            logger.debug("Vorschau-Widget existiert nicht mehr")
-
-    @handle_exceptions
-    def choose_color(self, color_var, preview_frame):
-        """
-        Öffnet den Farbauswahldialog und aktualisiert die gewählte Farbe.
-
-        :param color_var: Die StringVar, die die Farbe speichert
-        :param preview_frame: Das Frame, das die Farbvorschau anzeigt
-        """
-        try:
-            if preview_frame.winfo_exists():
-                current_color = color_var.get()
-                color = askcolor(color=current_color, title="Wähle eine Farbe")
-                if color[1]:
-                    color_var.set(color[1])
-                    preview_frame.config(bg=color[1])
-                    setting_name = str(color_var).split('.')[-1]  # Extrahiere den Namen der Variablen
-                    self.gui.settings_manager.set_setting(setting_name, color[1])
-                    self.gui.settings_manager.save_settings()
-                    self.gui.theme_manager.update_colors()
-                    logger.info(f"Farbe für {setting_name} auf {color[1]} geändert")
-        except tk.TclError:
-            logger.warning("Farbauswahl-Widget existiert nicht mehr")
 
     @handle_exceptions
     def undo_changes(self):
@@ -430,6 +353,10 @@ class OptionsWindow(tk.Toplevel):
         self.char_delay_entry.insert(0, str(initial_delay_settings["char_delay"]))
         self.gui.options_panel.update_delay_settings(initial_delay_settings["delay_mode"], initial_delay_settings["char_delay"])
 
+        # Setze den Shortcut zurück
+        self.shortcut_panel.current_shortcut.set(self.initial_settings["push_to_talk_key"])
+        self.gui.input_processor.update_shortcut(self.initial_settings["push_to_talk_key"])
+
         logger.info("Alle Änderungen rückgängig gemacht")
 
     @handle_exceptions
@@ -468,26 +395,22 @@ class OptionsWindow(tk.Toplevel):
 
 # Zusätzliche Erklärungen:
 
-# 1. Ausgabemodus-Optionen:
-#    Die neue Methode setup_output_mode_options wurde hinzugefügt, um die
-#    Verzögerungsoptionen auf einer separaten Seite im erweiterten Optionsmenü darzustellen.
+# 1. Shortcut-Panel Integration:
+#    Das neue ShortcutPanel wurde als separater Tab im Optionsfenster hinzugefügt.
+#    Es ermöglicht die Anpassung des Push-to-Talk-Shortcuts.
 
-# 2. Verzögerungseinstellungen:
-#    Die Logik für die Verzögerungseinstellungen wurde aus dem OptionsPanel hierher verschoben.
-#    Dies umfasst die Methoden on_delay_mode_change und on_char_delay_change.
+# 2. Erweiterung der Einstellungen:
+#    Die Methode get_current_settings wurde um den push_to_talk_key erweitert,
+#    um die aktuelle Shortcut-Einstellung zu erfassen.
 
 # 3. Rückgängig-Funktion:
-#    Die undo_changes Methode wurde erweitert, um auch die Verzögerungseinstellungen
-#    auf den ursprünglichen Zustand zurückzusetzen.
+#    Die undo_changes Methode wurde aktualisiert, um auch den Shortcut
+#    auf den ursprünglichen Wert zurückzusetzen.
 
-# 4. Fenstergeometrie:
-#    Die Methoden load_window_geometry und on_closing sorgen dafür, dass die
-#    Größe und Position des Optionsfensters zwischen den Sitzungen beibehalten werden.
+# 4. Fehlerbehandlung und Logging:
+#    Alle Methoden verwenden weiterhin den @handle_exceptions Decorator
+#    für konsistente Fehlerbehandlung und Logging.
 
-# 5. Fehlerbehandlung:
-#    Alle Methoden sind mit dem @handle_exceptions Decorator versehen, um eine
-#    einheitliche Fehlerbehandlung in der gesamten Klasse zu gewährleisten.
-
-# Diese Implementierung bietet nun eine separate Seite für die Ausgabemodus-Optionen
-# im erweiterten Optionsmenü, während die grundlegende Funktionalität und Struktur
-# des OptionsWindow beibehalten wird.
+# Diese Implementierung integriert die neue Shortcut-Funktionalität nahtlos
+# in das bestehende Optionsfenster und behält dabei die Struktur und
+# den Stil der vorhandenen Komponenten bei.
