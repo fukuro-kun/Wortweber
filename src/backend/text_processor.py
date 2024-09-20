@@ -14,15 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
-"""
-Dieses Modul enthält Funktionen zur Textverarbeitung, insbesondere zur Umwandlung
-von Zahlwörtern in Ziffern und umgekehrt. Es bietet Unterstützung für deutsche
-und englische Zahlwörter und implementiert eine robuste Logik zur Erkennung und
-Verarbeitung komplexer Zahlausdrücke.
-"""
-
 from enum import Enum
 from typing import List, Dict, Any, Optional, Tuple
 import re
@@ -76,11 +67,12 @@ class TextProcessor:
         logger.info("TextProcessor initialisiert")
 
     @handle_exceptions
-    def process_text(self, text: str) -> str:
+    def process_text(self, text: str, language: str) -> str:
         """
         Verarbeitet den gegebenen Text und wandelt Zahlwörter in Ziffern um.
 
         :param text: Der zu verarbeitende Text
+        :param language: Die Sprache des Textes ('de' für Deutsch, 'en' für Englisch)
         :return: Der verarbeitete Text mit umgewandelten Zahlwörtern
         """
         logger.debug(f"Verarbeite Text: {text}")
@@ -88,10 +80,10 @@ class TextProcessor:
         self.split_special_formats(text, 0)
         self.print_levels_state()
 
-        self.identify_number_words()
+        self.identify_number_words(language)
         self.print_levels_state()
 
-        self.process_number_words()
+        self.process_number_words(language)
         self.print_levels_state()
 
         self.accumulate_numbers()
@@ -122,125 +114,64 @@ class TextProcessor:
         logger.debug(f"Inhalt von level 1 nach dem Hinzufügen: {[part.content for part in self.levels[1].parts]}")
 
     @handle_exceptions
-    def identify_number_words(self) -> None:
+    def identify_number_words(self, language: str) -> None:
         """
         Identifiziert potenzielle Zahlwörter im Text und markiert sie für die weitere Verarbeitung.
+
+        :param language: Die Sprache des Textes ('de' für Deutsch, 'en' für Englisch)
         """
         logger.debug("Identifiziere Zahlwörter")
         level_1 = self.levels[1]
         level_2 = self.levels[2]
         level_2.parts = []
 
+        number_indicators = NUMBER_INDICATORS_DE if language == 'de' else NUMBER_INDICATORS_EN
+
         for part in level_1.parts:
             if part.tag == TextTag.TEXT:
                 words = part.content.split()
                 i = 0
                 while i < len(words):
-                    if any(indicator in words[i].lower() for indicator in NUMBER_INDICATORS):
+                    if any(indicator in words[i].lower() for indicator in number_indicators):
                         start = i
-                        while i < len(words) and (any(indicator in words[i].lower() for indicator in NUMBER_INDICATORS) or words[i].lower() == 'und'):
+                        while i < len(words) and (any(indicator in words[i].lower() for indicator in number_indicators) or words[i].lower() in ['und', 'and']):
                             i += 1
-                        # Text vor dem potenziellen Zahlwort
-                        if start > 0:
-                            level_2.add_part(TextPart(" ".join(words[:start]), TextTag.TEXT, self.current_position))
-                            self.current_position += len(" ".join(words[:start])) + 1
-                        # Potenzielles Zahlwort und Rest
-                        level_2.add_part(TextPart(" ".join(words[start:]), TextTag.POSSIBLE_NUMBER, self.current_position))
-                        self.current_position += len(" ".join(words[start:])) + 1
-                        break
-                    i += 1
-                if i == len(words):  # Kein Zahlwort gefunden
-                    level_2.add_part(TextPart(part.content, TextTag.TEXT, self.current_position))
-                    self.current_position += len(part.content) + 1
+                        # Potenzielles Zahlwort
+                        number_word = " ".join(words[start:i])
+                        level_2.add_part(TextPart(number_word, TextTag.POSSIBLE_NUMBER, self.current_position))
+                        self.current_position += len(number_word) + 1
+                    else:
+                        # Text, der kein Zahlwort ist
+                        level_2.add_part(TextPart(words[i], TextTag.TEXT, self.current_position))
+                        self.current_position += len(words[i]) + 1
+                        i += 1
             else:
                 level_2.add_part(part)
 
         logger.debug(f"Ebene 2 nach Identifikation: {[(p.content, p.tag) for p in level_2.parts]}")
 
     @handle_exceptions
-    def process_number_words(self) -> None:
-        """
-        Verarbeitet identifizierte Zahlwörter und wandelt sie in numerische Werte um.
-        """
+    def process_number_words(self, language: str) -> None:
         logger.debug("Verarbeite Zahlwörter")
         level_2 = self.levels[2]
         level_3 = self.levels[3]
         level_3.parts = []
 
-        i = 0
-        while i < len(level_2.parts):
-            part = level_2.parts[i]
+        parse_function = parse_german_number if language == 'de' else parse_english_number
+
+        for part in level_2.parts:
             if part.tag == TextTag.POSSIBLE_NUMBER:
-                words = part.content.split()
-                if len(words) == 1:
-                    value, _ = parse_german_number(part.content)
-                    if value is not None:
-                        new_part = TextPart(str(value), TextTag.NUMBER, part.position)
-                        new_part.value = value
-                        level_3.add_part(new_part)
-                    else:
-                        level_3.add_part(TextPart(part.content, TextTag.TEXT, part.position))
+                value, _ = parse_function(part.content)
+                if value is not None:
+                    new_part = TextPart(str(value), TextTag.NUMBER, part.position)
+                    new_part.value = value
+                    level_3.add_part(new_part)
                 else:
-                    processed_parts = self.process_word_pairs(words, part.position)
-                    level_3.parts.extend(processed_parts)
-                    # Wenn es einen Rest gibt, fügen wir ihn zurück zu level_2 hinzu
-                    if processed_parts[-1].tag == TextTag.POSSIBLE_NUMBER:
-                        level_2.parts.insert(i+1, processed_parts[-1])
-                        level_3.parts.pop()  # Entferne den Rest aus level_3
+                    level_3.add_part(TextPart(part.content, TextTag.TEXT, part.position))
             else:
                 level_3.add_part(part)
-            i += 1
 
         logger.debug(f"Ebene 3 nach Verarbeitung: {[(p.content, p.tag) for p in level_3.parts]}")
-
-    @handle_exceptions
-    def process_word_pairs(self, words: List[str], start_position: int) -> List[TextPart]:
-        """
-        Verarbeitet Wortpaare, um komplexe Zahlausdrücke zu erkennen und umzuwandeln.
-
-        :param words: Liste der zu verarbeitenden Wörter
-        :param start_position: Startposition im Originaltext
-        :return: Liste der verarbeiteten TextParts
-        """
-        result = []
-        i = 0
-        while i < len(words):
-            if i < len(words) - 1:
-                pair = words[i:i+2]
-                if pair[1].lower() in [word.lower() for word in LARGE_NUMBER_WORDS]:
-                    value, _ = parse_german_number(" ".join(pair))
-                    if value is not None:
-                        part = TextPart(str(value), TextTag.LARGE_NUMBER, start_position + i)
-                        part.value = value
-                        result.append(part)
-                        i += 2
-                    else:
-                        result.append(TextPart(pair[0], TextTag.TEXT, start_position + i))
-                        i += 1
-                elif pair[0].lower() in ['ein', 'eine'] and pair[1].lower() not in LARGE_NUMBER_WORDS:
-                    result.append(TextPart(pair[0], TextTag.TEXT, start_position + i))
-                    result.append(TextPart(pair[1], TextTag.TEXT, start_position + i + 1))
-                    i += 2
-                else:
-                    value, original = parse_german_number(pair[0])
-                    if value is not None:
-                        result.append(TextPart(str(value), TextTag.NUMBER, start_position + i))
-                        # Der Rest wird als mögliche Zahl zurück in die Verarbeitung gegeben
-                        if i + 1 < len(words):
-                            rest = " ".join(words[i+1:])
-                            result.append(TextPart(rest, TextTag.POSSIBLE_NUMBER, start_position + i + 1))
-                        return result
-                    else:
-                        result.append(TextPart(str(original), TextTag.TEXT, start_position + i))
-                    i += 1
-            else:
-                value, original = parse_german_number(words[i])
-                if value is not None:
-                    result.append(TextPart(str(value), TextTag.NUMBER, start_position + i))
-                else:
-                    result.append(TextPart(str(original), TextTag.TEXT, start_position + i))
-                i += 1
-        return result
 
     @handle_exceptions
     def accumulate_numbers(self) -> None:
@@ -255,15 +186,13 @@ class TextProcessor:
         while i < len(level_3.parts):
             part = level_3.parts[i]
             if part.tag in [TextTag.LARGE_NUMBER, TextTag.NUMBER]:
-                accumulated_parts, next_i = self.accumulate_number_sequence(level_3.parts, i)
-                self.add_accumulated_to_level_4(accumulated_parts, level_4)
-
-                # Füge alle Textteile zwischen dieser und der nächsten Zahl hinzu
-                for j in range(i+1, next_i):
-                    if level_3.parts[j].tag == TextTag.TEXT:
-                        level_4.add_part(level_3.parts[j])
-
-                i = next_i
+                if part.value >= 100:  # Nur große Zahlen akkumulieren
+                    accumulated_parts, next_i = self.accumulate_number_sequence(level_3.parts, i)
+                    self.add_accumulated_to_level_4(accumulated_parts, level_4)
+                    i = next_i
+                else:
+                    level_4.add_part(part)
+                    i += 1
             else:
                 level_4.add_part(part)
                 i += 1
@@ -309,7 +238,7 @@ class TextProcessor:
         elif prev_part.tag == TextTag.NUMBER and current_part.tag == TextTag.LARGE_NUMBER:
             return False
         else:
-            return prev_part.value > current_part.value
+            return prev_part.value > 100 and current_part.value <= prev_part.value
 
     @handle_exceptions
     def add_accumulated_to_level_4(self, accumulated_parts: List[TextPart], level_4: TextLevel):
@@ -324,7 +253,7 @@ class TextProcessor:
         total_value = 0
         for part in accumulated_parts:
             if part.tag in [TextTag.LARGE_NUMBER, TextTag.NUMBER]:
-                value, _ = parse_german_number(part.content)
+                value = part.value
                 if value is not None:
                     total_value += value
                 else:
@@ -332,7 +261,8 @@ class TextProcessor:
             else:
                 logger.warning(f"Unerwartetes Tag {part.tag} für Teil '{part.content}'")
 
-        new_part = TextPart(str(total_value), TextTag.TEXT, accumulated_parts[0].position)
+        new_part = TextPart(str(total_value), TextTag.NUMBER, accumulated_parts[0].position)
+        new_part.value = total_value
         level_4.add_part(new_part)
 
     @handle_exceptions
@@ -367,151 +297,121 @@ def parse_german_number(words):
     """
     if isinstance(words, list):
         words = " ".join(words)
-    words = str(words).strip()  # Stelle sicher, dass words ein String ist und entferne führende/nachfolgende Leerzeichen
+    words = str(words).strip().lower()
     logger.debug(f"Parse deutsche Zahl: {words}")
 
-    # Prüfen, ob die Eingabe bereits eine Zahl ist
-    try:
-        return int(words), None
-    except ValueError:
-        pass  # Wenn es keine Zahl ist, fahren wir mit der Wortanalyse fort
+    # Spezielle Fälle
+    if words in GERMAN_NUMBER_DICT:
+        return GERMAN_NUMBER_DICT[words], None
 
-    logger.debug(f"Startworte: {words}")
-
-    # Schritt 1: Ziffern und Operatoren extrahieren
-    tokens = []
-    remaining_word = words.lower()
-    while remaining_word:
-        if remaining_word.startswith('und'):
-            tokens.append('+')
-            remaining_word = remaining_word[3:]
-        else:
-            found = False
-            for key, val in sorted(GERMAN_NUMBER_DICT.items(), key=lambda x: len(x[0]), reverse=True):
-                if remaining_word.startswith(key):
-                    tokens.append(val)
-                    remaining_word = remaining_word[len(key):]
-                    found = True
-                    break
-            if not found:
-                # Wenn kein bekanntes Zahlwort gefunden wurde, brechen wir ab
-                return None, words
-
-    logger.debug(f"Extrahierte Tokens: {tokens}")
-
-    if not tokens or (len(tokens) == 1 and tokens[0] == '+'):
-        return None, words
-
-    # Schritt 2: Tokens gruppieren und Gleichung erstellen
-    equation = []
-    current_group = 0
-    i = 0
-    while i < len(tokens):
-        token = tokens[i]
-        if token == '+':
-            if i + 2 < len(tokens) and tokens[i+2] >= 1000:
-                # Behandlung von Fällen wie "zweiundvierzigtausend"
-                current_group += tokens[i+1]
-                equation.extend([str(current_group), '*', str(tokens[i+2]), '+'])
-                current_group = 0
-                i += 3
+    total = 0
+    current = 0
+    for word in words.replace('-', ' ').split():
+        if word in GERMAN_NUMBER_DICT:
+            value = GERMAN_NUMBER_DICT[word]
+            if value == 100:
+                current = current * value if current else value
+            elif value >= 1000:
+                if current:
+                    total += current * value
+                    current = 0
+                else:
+                    total = (total or 1) * value
             else:
-                if current_group:
-                    equation.append(str(current_group))
-                    current_group = 0
-                equation.append('+')
-                i += 1
-        elif token >= 1000:
-            if current_group:
-                equation.extend([str(current_group), '*', str(token), '+'])
-                current_group = 0
-            else:
-                equation.extend([str(token), '+'])
-            i += 1
-        elif token == 100:
-            current_group *= token
-            i += 1
+                current += value
+        elif word == 'und':
+            continue
         else:
-            current_group += token
-            i += 1
+            return None, words
 
-    if current_group:
-        equation.append(str(current_group))
-
-    # Entferne überschüssige Operatoren am Ende
-    while equation and equation[-1] in ['+', '*']:
-        equation.pop()
-
-    equation_str = ' '.join(equation)
-    logger.debug(f"Generierte Gleichung: {equation_str}")
-
-    # Schritt 3: Gleichung auswerten
-    if equation_str:
-        result = eval(equation_str)
-        logger.debug(f"Endergebnis: {result}")
-        return result, None
-    else:
-        return None, words
+    total += current
+    return total, None
 
 @handle_exceptions
-def ziffern_zu_zahlwoerter(zahl):
+def parse_english_number(words):
+    """
+    Parst englische Zahlwörter und konvertiert sie in numerische Werte.
+
+    :param words: Zahlwort oder Liste von Zahlwörtern
+    :return: Tuple aus numerischem Wert und Originaltext (bei Fehler)
+    """
+    if isinstance(words, list):
+        words = " ".join(words)
+    words = str(words).strip().lower()
+    logger.debug(f"Parse englische Zahl: {words}")
+
+    # Spezielle Fälle
+    if words in ENGLISH_NUMBER_DICT:
+        return ENGLISH_NUMBER_DICT[words], None
+
+    total = 0
+    current = 0
+    for word in words.replace('-', ' ').split():
+        if word in ENGLISH_NUMBER_DICT:
+            value = ENGLISH_NUMBER_DICT[word]
+            if value == 100:
+                current = current * value if current > 0 else value
+            elif value >= 1000:
+                total += (current or 1) * value
+                current = 0
+            else:
+                current += value
+        elif word == 'and':
+            continue
+        else:
+            return None, words
+    total += current
+
+    return total if total > 0 else None, words
+
+@handle_exceptions
+def ziffern_zu_zahlwoerter(zahl: int, language: str) -> str:
+    """
+    Konvertiert eine Zahl in ihre Wortdarstellung.
+
+    :param zahl: Die zu konvertierende Zahl
+    :param language: Die Zielsprache ('de' für Deutsch, 'en' für Englisch)
+    :return: Die Wortdarstellung der Zahl
+    """
+    if language == 'de':
+        return german_ziffern_zu_zahlwoerter(zahl)
+    elif language == 'en':
+        return english_ziffern_zu_zahlwoerter(zahl)
+    else:
+        raise ValueError(f"Unsupported language: {language}")
+
+@handle_exceptions
+def german_ziffern_zu_zahlwoerter(zahl: int) -> str:
     """
     Konvertiert eine Zahl in ihre deutsche Wortdarstellung.
 
-    Args:
-        zahl (int): Die zu konvertierende Zahl. Muss eine nicht-negative ganze Zahl sein.
-
-    Returns:
-        str: Die deutsche Wortdarstellung der Zahl.
-
-    Raises:
-        ValueError: Wenn die Eingabe keine nicht-negative ganze Zahl ist.
+    :param zahl: Die zu konvertierende Zahl
+    :return: Die deutsche Wortdarstellung der Zahl
     """
-    if not isinstance(zahl, int) or zahl < 0:
-        raise ValueError("Die Eingabe muss eine nicht-negative ganze Zahl sein.")
-
     if zahl == 0:
         return "null"
 
-    # Grundlegende Bausteine für die Zahlwortbildung
     einer = ["", "ein", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun"]
     zehner = ["", "zehn", "zwanzig", "dreißig", "vierzig", "fünfzig", "sechzig", "siebzig", "achtzig", "neunzig"]
     sonderformen = {11: "elf", 12: "zwölf", 16: "sechzehn", 17: "siebzehn"}
-    # Große Zahlen mit ihren Namen, in absteigender Reihenfolge für die Verarbeitung
-    grosse_zahlen = [(1000000000000, "Billion"), (1000000000, "Milliarde"), (1000000, "Million"), (1000, "tausend")]
+    grosse_zahlen = [(1000000000, "Milliarde"), (1000000, "Million"), (1000, "tausend")]
 
     def bis_99(n, am_ende=False):
-        """
-        Konvertiert Zahlen bis 99 in Wortform.
-
-        :param n: zu konvertierende Zahl
-        :param am_ende: Flag, ob die Zahl am Ende der gesamten Zahl steht
-        """
         if n == 0:
             return ""
         if n == 1:
-            # Unterscheidung zwischen "ein" und "eins" basierend auf der Position
             return "eins" if am_ende else "ein"
         if n < 10:
             return einer[n]
         if n in sonderformen:
             return sonderformen[n]
         if n < 20:
-            # Zahlen von 13-19 (außer Sonderformen)
             return einer[n % 10] + "zehn"
-        # Zahlen von 20-99: Einer (falls vorhanden) + "und" + Zehner
         return (einer[n % 10] + "und" if n % 10 != 0 else "") + zehner[n // 10]
 
     def bis_999(n, am_ende=False):
-        """
-        Konvertiert Zahlen bis 999 in Wortform.
-
-        :param n: zu konvertierende Zahl
-        :param am_ende: Flag, ob die Zahl am Ende der gesamten Zahl steht
-        """
         if n < 100:
             return bis_99(n, am_ende)
-        # Hunderter + Rest (falls vorhanden)
         return einer[n // 100] + "hundert" + (bis_99(n % 100, am_ende) if n % 100 != 0 else "")
 
     ergebnis = ""
@@ -519,42 +419,108 @@ def ziffern_zu_zahlwoerter(zahl):
         if zahl >= wert:
             anzahl = zahl // wert
             if wert == 1000:
-                # Sonderfall für Tausender: kein Leerzeichen
                 ergebnis += bis_999(anzahl) + name
             else:
-                # Für Millionen und größer: Leerzeichen und ggf. Plural
                 ergebnis += bis_999(anzahl) + " " + name
                 if anzahl > 1:
-                    ergebnis += "en"  # Plural für Millionen, Milliarden, etc.
-            zahl %= wert  # Verbleibenden Wert berechnen
+                    ergebnis += "en"
+            zahl %= wert
             if zahl > 0:
                 if wert > 1000:
-                    # Regeln für "und" bei großen Zahlen
-                    if zahl < 100 and zahl > 0:
-                        ergebnis += " und "
-                    else:
-                        ergebnis += " "
+                    ergebnis += " "
                 elif zahl < 100:
-                    # "und" für Zahlen unter 100 bei Tausendern
                     ergebnis += "und"
 
     if zahl > 0:
-        # True für am_ende, da es das Ende der Zahl ist
         ergebnis += bis_999(zahl, True)
 
-    # Spezielle Behandlung für "ein" am Anfang großer Zahlen (z.B. "eine Million")
     if ergebnis.startswith("ein "):
         ergebnis = "eine " + ergebnis[4:]
 
-    return ergebnis.strip()  # Entfernen möglicher Leerzeichen am Anfang oder Ende
+    return ergebnis.strip()
 
-# Zusätzliche Erklärungen:
-# - Die Funktion behandelt nun "ein" und "eins" korrekt.
-# - Leerzeichen werden nur bei großen Zahlen (Millionen und größer) eingefügt.
-# - Die Verwendung von "und" wurde gemäß den Regeln implementiert.
-# - Die Verknüpfungsregeln für Tausender und kleinere Zahlen wurden berücksichtigt.
-# - Die Pluralform für Millionen, Milliarden, etc. wird korrekt gebildet.
-# - Es gibt keine Leerzeichen zwischen Tausendern und kleineren Einheiten.
+@handle_exceptions
+def english_ziffern_zu_zahlwoerter(zahl: int) -> str:
+    """
+    Konvertiert eine Zahl in ihre englische Wortdarstellung.
+
+    :param zahl: Die zu konvertierende Zahl
+    :return: Die englische Wortdarstellung der Zahl
+    """
+    if zahl == 0:
+        return "zero"
+
+    ones = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+    tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
+    teens = ["ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"]
+    large_numbers = [(1000000000, "billion"), (1000000, "million"), (1000, "thousand")]
+
+    def up_to_999(n):
+        if n < 10:
+            return ones[n]
+        elif n < 20:
+            return teens[n - 10]
+        elif n < 100:
+            return tens[n // 10] + ("-" + ones[n % 10] if n % 10 != 0 else "")
+        else:
+            return ones[n // 100] + " hundred" + (" and " + up_to_999(n % 100) if n % 100 != 0 else "")
+
+    result = ""
+    for value, name in large_numbers:
+        if zahl >= value:
+            result += up_to_999(zahl // value) + " " + name
+            zahl %= value
+            if zahl > 0:
+                result += " "
+
+    if zahl > 0:
+        result += up_to_999(zahl)
+
+    return result.strip()
+
+@handle_exceptions
+def words_to_digits(text: str, language: str = 'de') -> str:
+    """
+    Konvertiert Zahlwörter in einem Text zu Ziffern.
+
+    :param text: Der zu konvertierende Text
+    :param language: Die Sprache des Textes ('de' für Deutsch, 'en' für Englisch)
+    :return: Der Text mit konvertierten Ziffern
+    """
+    processor = TextProcessor()
+    return processor.process_text(text, language)
+
+@handle_exceptions
+def digits_to_words(text: str, language: str = 'de') -> str:
+    """
+    Konvertiert Ziffern in einem Text zu Zahlwörtern.
+
+    :param text: Der zu konvertierende Text
+    :param language: Die Zielsprache ('de' für Deutsch, 'en' für Englisch)
+    :return: Der Text mit konvertierten Zahlwörtern
+    """
+    def convert_number(match):
+        number = int(match.group())
+        return ziffern_zu_zahlwoerter(number, language)
+
+    return re.sub(r'\b\d+\b', convert_number, text)
+
+def detect_language(text: str) -> str:
+    """
+    Erkennt die Sprache des gegebenen Textes.
+    Unterstützt derzeit nur Deutsch und Englisch.
+
+    :param text: Der zu analysierende Text
+    :return: 'de' für Deutsch, 'en' für Englisch
+    """
+    german_words = set(['der', 'die', 'das', 'ist', 'ein', 'eine', 'und', 'in', 'mit', 'für', 'von', 'zu'])
+    english_words = set(['the', 'is', 'a', 'an', 'and', 'in', 'with', 'for', 'of', 'to'])
+
+    words = text.lower().split()
+    german_count = sum(1 for word in words if word in german_words)
+    english_count = sum(1 for word in words if word in english_words)
+
+    return 'de' if german_count >= english_count else 'en'
 
 # Globale Variablen und Konstanten
 
@@ -568,36 +534,19 @@ GERMAN_NUMBER_DICT = {
     'milliarde': 1000000000, 'milliarden': 1000000000
 }
 
-LARGE_NUMBER_WORDS = ["million", "millionen", "milliarde", "milliarden", "billion", "billionen", "billiarde", "billiarden", "trillion", "trillionen", "trilliarde", "trilliarden"]
+ENGLISH_NUMBER_DICT = {
+    'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'seven': 7, 'eight': 8, 'nine': 9,
+    'ten': 10, 'eleven': 11, 'twelve': 12, 'thirteen': 13, 'fourteen': 14, 'fifteen': 15, 'sixteen': 16,
+    'seventeen': 17, 'eighteen': 18, 'nineteen': 19, 'twenty': 20, 'thirty': 30, 'forty': 40, 'fifty': 50,
+    'sixty': 60, 'seventy': 70, 'eighty': 80, 'ninety': 90, 'hundred': 100, 'thousand': 1000,
+    'million': 1000000, 'billion': 1000000000
+}
 
-NUMBER_INDICATORS = list(GERMAN_NUMBER_DICT.keys()) + LARGE_NUMBER_WORDS
+NUMBER_INDICATORS_DE = list(GERMAN_NUMBER_DICT.keys()) + ["million", "millionen", "milliarde", "milliarden", "billion", "billionen"]
+NUMBER_INDICATORS_EN = list(ENGLISH_NUMBER_DICT.keys()) + ["million", "billion", "trillion"]
 
-# Hauptfunktionen
 
-@handle_exceptions
-def words_to_digits(text: str) -> str:
-    """
-    Konvertiert Zahlwörter in einem Text zu Ziffern.
 
-    :param text: Der zu konvertierende Text
-    :return: Der Text mit konvertierten Ziffern
-    """
-    processor = TextProcessor()
-    return processor.process_text(text)
-
-@handle_exceptions
-def digits_to_words(text: str) -> str:
-    """
-    Konvertiert Ziffern in einem Text zu Zahlwörtern.
-
-    :param text: Der zu konvertierende Text
-    :return: Der Text mit konvertierten Zahlwörtern
-    """
-    def convert_number(match):
-        number = int(match.group())
-        return ziffern_zu_zahlwoerter(number)
-
-    return re.sub(r'\b\d+\b', convert_number, text)
 
 # Zusätzliche Erklärungen:
 

@@ -14,162 +14,147 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
-"""
-Dieses Modul enthält die Hauptlogik für die Ausführung der Wortweber-Tests.
-Es bietet Optionen für verschiedene Testszenarien, einschließlich grundlegender Tests,
-paralleler und sequenzieller Transkriptionstests sowie GUI-Tests.
-"""
-
 import unittest
 import sys
-from termcolor import colored
-import argparse
-from src.backend.wortweber_utils import check_gpu_resources
-from tests.test_config import MIN_GPU_MEMORY, MAX_PARALLEL_TESTS
-from tests.test_sequential_transcription import SequentialTranscriptionTest
-from tests.test_parallel_transcription import ParallelTranscriptionTest
-from tests.backend.test_audio_processor import TestAudioProcessor
-from tests.backend.test_transcription import TestTranscription
-from tests.frontend.test_wortweber_gui import TestWordweberGUI
-from tests.frontend.test_main_window import TestMainWindow
 import os
-import warnings
+import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from termcolor import colored
 
-# Unterdrücke ALSA-Warnungen
-warnings.filterwarnings("ignore", category=RuntimeWarning, module="sounddevice")
+# Fügen Sie den src-Ordner und den tests-Ordner zum Python-Pfad hinzu
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-# Unterdrücke JACK-Warnungen
-os.environ['JACK_HIDE_WARNINGS'] = '1'
+def import_test_class(module_path, class_name):
+    module = __import__(module_path, fromlist=[class_name])
+    return getattr(module, class_name)
 
+def run_test_case(test_case):
+    suite = unittest.TestLoader().loadTestsFromTestCase(test_case)
+    result = unittest.TextTestRunner(verbosity=2).run(suite)
+    return test_case.__name__, result
 
-class ColorTextTestResult(unittest.TextTestResult):
-    """Angepasste TestResult-Klasse für farbige Ausgabe der Testergebnisse."""
+def parallel_test_execution(test_cases):
+    with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
+        futures = [executor.submit(run_test_case, test_case) for test_case in test_cases]
+        results = []
+        for future in as_completed(futures):
+            results.append(future.result())
+    return results
 
-    def addSuccess(self, test):
-        super().addSuccess(test)
-        self.stream.writeln(colored(f"OK: {test.shortDescription() or test.id()}", "green"))
-
-    def addError(self, test, err):
-        super().addError(test, err)
-        self.stream.writeln(colored(f"ERROR: {test.shortDescription() or test.id()}", "red"))
-        self.stream.writeln(self.errors[-1][1])
-
-    def addFailure(self, test, err):
-        super().addFailure(test, err)
-        self.stream.writeln(colored(f"FAIL: {test.shortDescription() or test.id()}", "red"))
-        self.stream.writeln(self.failures[-1][1])
-
-class ColorTextTestRunner(unittest.TextTestRunner):
-    """Angepasster TestRunner für die Verwendung des ColorTextTestResult."""
-    resultclass = ColorTextTestResult
-
-def run_tests(parallel: bool = False, sequential: bool = False, run_all: bool = False, gui: bool = False) -> unittest.TestResult:
-    """
-    Führt die spezifizierten Tests aus.
-
-    Diese Funktion erstellt eine Test-Suite basierend auf den angegebenen Parametern
-    und führt die Tests aus. Sie unterstützt grundlegende Tests, parallele und
-    sequenzielle Transkriptionstests sowie GUI-Tests.
-
-    :param parallel: Wenn True, werden parallele Transkriptionstests ausgeführt
-    :param sequential: Wenn True, werden sequenzielle Transkriptionstests ausgeführt
-    :param run_all: Wenn True, werden alle Tests ausgeführt
-    :param gui: Wenn True, werden GUI-Tests ausgeführt
-    :return: Ein unittest.TestResult-Objekt mit den Ergebnissen der Testausführung
-
-    Die Funktion gibt eine Zusammenfassung der Testergebnisse aus, einschließlich
-    der Anzahl der durchgeführten Tests, erfolgreichen Tests, Fehler und Fehlschläge.
-    """
-    suite = unittest.TestSuite()
-
-    # Grundlegende Tests immer hinzufügen
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestAudioProcessor))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestTranscription))
-
-    if run_all:
-        suite.addTest(unittest.TestLoader().loadTestsFromTestCase(SequentialTranscriptionTest))
-        suite.addTest(unittest.TestLoader().loadTestsFromTestCase(ParallelTranscriptionTest))
-        suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestWordweberGUI))
-        suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestMainWindow))
-        suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestTextProcessor))
-    elif parallel:
-        suite.addTest(unittest.TestLoader().loadTestsFromTestCase(ParallelTranscriptionTest))
-    elif sequential:
-        suite.addTest(unittest.TestLoader().loadTestsFromTestCase(SequentialTranscriptionTest))
-    elif gui:
-        suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestWordweberGUI))
-        suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestMainWindow))
-
-    runner = ColorTextTestRunner(verbosity=2)
-    result = runner.run(suite)
-
-    print("\nTest Summary:")
-    print(f"Ran {result.testsRun} tests")
-    print(colored(f"Successes: {result.testsRun - len(result.failures) - len(result.errors)}", "green"))
-    print(colored(f"Failures: {len(result.failures)}", "red" if result.failures else "green"))
-    print(colored(f"Errors: {len(result.errors)}", "red" if result.errors else "green"))
-
-    return result
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Run Wortweber tests")
-    parser.add_argument('-p', '--parallel', action='store_true', help='Run transcription tests in parallel')
-    parser.add_argument('-s', '--sequential', action='store_true', help='Run transcription tests sequentially')
-    parser.add_argument('-a', '--all', action='store_true', help='Run all tests including both parallel and sequential transcription tests')
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Run Wortweber tests')
+    parser.add_argument('-a', '--all', action='store_true', help='Run all tests')
+    parser.add_argument('-b', '--backend', action='store_true', help='Run backend tests')
+    parser.add_argument('-f', '--frontend', action='store_true', help='Run frontend tests')
+    parser.add_argument('-u', '--utils', action='store_true', help='Run utility tests')
+    parser.add_argument('-p', '--parallel', action='store_true', help='Run parallel transcription tests')
+    parser.add_argument('-s', '--sequential', action='store_true', help='Run sequential transcription tests')
     parser.add_argument('-g', '--gui', action='store_true', help='Run GUI tests')
+    parser.add_argument('-e', '--error', action='store_true', help='Run error handling tests')
     args = parser.parse_args()
 
-    gpu_available, gpu_memory = check_gpu_resources()
+    test_cases = []
 
-    if not gpu_available:
-        print(colored("WARNUNG: Keine GPU verfügbar. Tests werden auf der CPU ausgeführt.", "yellow"))
-        args.parallel = False
-    elif gpu_memory < MIN_GPU_MEMORY:
-        print(colored(f"WARNUNG: Nicht genug GPU-Speicher. Verfügbar: {gpu_memory:.2f} GB, Benötigt: {MIN_GPU_MEMORY} GB", "yellow"))
-        print(colored("Parallele Transkriptionstests werden deaktiviert.", "yellow"))
-        args.parallel = False
-
-    if args.all:
-        print(colored("Führe alle Tests einschließlich paralleler und sequenzieller Transkriptionstests sowie GUI-Tests aus.", "cyan"))
-    elif args.parallel:
-        print(colored(f"Führe parallele Transkriptionstests mit maximal {MAX_PARALLEL_TESTS} gleichzeitigen Tests aus.", "cyan"))
-    elif args.sequential:
-        print(colored("Führe sequenzielle Transkriptionstests aus.", "cyan"))
-    elif args.gui:
-        print(colored("Führe GUI-Tests aus.", "cyan"))
+    if args.all or not any(vars(args).values()):
+        test_modules = [
+            ('tests.test_parallel_transcription', 'ParallelTranscriptionTest'),
+            ('tests.test_sequential_transcription', 'SequentialTranscriptionTest'),
+            ('tests.frontend.test_wortweber_gui', 'TestWordweberGUI'),
+            ('tests.frontend.test_main_window', 'TestMainWindow'),
+            ('tests.frontend.test_options_panel', 'TestOptionsPanel'),
+            ('tests.frontend.test_status_panel', 'TestStatusPanel'),
+            ('tests.frontend.test_transcription_panel', 'TestTranscriptionPanel'),
+            ('tests.backend.test_audio_processor', 'TestAudioProcessor'),
+            ('tests.backend.test_audio_recording', 'TestAudioRecording'),
+            ('tests.backend.test_transcription', 'TestTranscription'),
+            ('tests.backend.test_text_processor', 'TestTextProcessor'),
+            ('tests.utils.test_text_processing', 'TestTextProcessing'),
+            ('tests.test_error_handling', 'TestErrorHandling')
+        ]
+        for module_path, class_name in test_modules:
+            test_cases.append(import_test_class(module_path, class_name))
     else:
-        print(colored("Führe grundlegende Tests ohne Transkriptions- oder GUI-Tests aus.", "cyan"))
+        if args.backend:
+            backend_modules = [
+                ('tests.backend.test_audio_processor', 'TestAudioProcessor'),
+                ('tests.backend.test_audio_recording', 'TestAudioRecording'),
+                ('tests.backend.test_transcription', 'TestTranscription'),
+                ('tests.backend.test_text_processor', 'TestTextProcessor')
+            ]
+            for module_path, class_name in backend_modules:
+                test_cases.append(import_test_class(module_path, class_name))
+        if args.frontend:
+            frontend_modules = [
+                ('tests.frontend.test_wortweber_gui', 'TestWordweberGUI'),
+                ('tests.frontend.test_main_window', 'TestMainWindow'),
+                ('tests.frontend.test_options_panel', 'TestOptionsPanel'),
+                ('tests.frontend.test_status_panel', 'TestStatusPanel'),
+                ('tests.frontend.test_transcription_panel', 'TestTranscriptionPanel')
+            ]
+            for module_path, class_name in frontend_modules:
+                test_cases.append(import_test_class(module_path, class_name))
+        if args.utils:
+            test_cases.append(import_test_class('tests.utils.test_text_processing', 'TestTextProcessing'))
+        if args.parallel:
+            test_cases.append(import_test_class('tests.test_parallel_transcription', 'ParallelTranscriptionTest'))
+        if args.sequential:
+            test_cases.append(import_test_class('tests.test_sequential_transcription', 'SequentialTranscriptionTest'))
+        if args.gui:
+            gui_modules = [
+                ('tests.frontend.test_wortweber_gui', 'TestWordweberGUI'),
+                ('tests.frontend.test_main_window', 'TestMainWindow')
+            ]
+            for module_path, class_name in gui_modules:
+                test_cases.append(import_test_class(module_path, class_name))
+        if args.error:
+            test_cases.append(import_test_class('tests.test_error_handling', 'TestErrorHandling'))
 
-    result = run_tests(parallel=args.parallel, sequential=args.sequential, run_all=args.all, gui=args.gui)
+    results = parallel_test_execution(test_cases)
 
-    sys.exit(not result.wasSuccessful())
+    total_tests = 0
+    total_failures = 0
+    total_errors = 0
+
+    print("\nTest Ergebnisse:")
+    print("----------------")
+    for test_name, result in results:
+        tests_run = result.testsRun
+        failures = len(result.failures)
+        errors = len(result.errors)
+        total_tests += tests_run
+        total_failures += failures
+        total_errors += errors
+
+        status = "PASSED" if failures == 0 and errors == 0 else "FAILED"
+        color = "green" if status == "PASSED" else "red"
+        print(f"{test_name}: {colored(status, color)} (Tests: {tests_run}, Failures: {failures}, Errors: {errors})")
+
+    print("\nTest Summary:")
+    print(f"Ran {total_tests} tests")
+    successes = total_tests - total_failures - total_errors
+    print(f"Successes: {max(0, successes)}")  # Verwende max(), um negative Werte zu vermeiden
+    print(f"Failures: {total_failures}")
+    print(f"Errors: {total_errors}")
+
+
+    if total_failures > 0 or total_errors > 0:
+        sys.exit(1)
 
 # Zusätzliche Erklärungen:
-
-# 1. Farbige Testausgabe:
-#    Die ColorTextTestResult und ColorTextTestRunner Klassen ermöglichen eine
-#    farbige und übersichtliche Ausgabe der Testergebnisse.
-
-# 2. Flexible Testausführung:
-#    Die run_tests Funktion ist so gestaltet, dass sie verschiedene Testkombinationen
-#    basierend auf den übergebenen Argumenten ausführen kann, einschließlich GUI-Tests.
-
-# 3. GPU-Ressourcenüberprüfung:
-#    Vor der Ausführung der Tests wird die Verfügbarkeit von GPU-Ressourcen überprüft,
-#    um sicherzustellen, dass parallele Tests nur bei ausreichenden Ressourcen ausgeführt werden.
-
-# 4. Kommandozeilenargumente:
-#    Die Verwendung von argparse ermöglicht eine flexible Konfiguration der Testausführung
-#    über Kommandozeilenargumente, einschließlich Kurzformen (-p, -s, -a, -g).
-
-# 5. Zusammenfassung der Testergebnisse:
-#    Am Ende der Testausführung wird eine übersichtliche Zusammenfassung der Ergebnisse ausgegeben.
-
-# Verwendung:
-# - Für alle Tests: `python run_tests.py -a` oder `python run_tests.py --all`
-# - Für parallele Transkriptionstests: `python run_tests.py -p` oder `python run_tests.py --parallel`
-# - Für sequenzielle Transkriptionstests: `python run_tests.py -s` oder `python run_tests.py --sequential`
-# - Für GUI-Tests: `python run_tests.py -g` oder `python run_tests.py --gui`
-# - Für grundlegende Tests ohne Transkriptions- oder GUI-Tests: `python run_tests.py` (ohne Argumente)
+#
+# 1. Dynamische Importe:
+#    Statt alle Testklassen am Anfang zu importieren, werden sie nun dynamisch
+#    geladen, basierend auf den ausgewählten Testoptionen. Dies verhindert
+#    unnötige Importe und potenzielle Konflikte.
+#
+# 2. Modularität:
+#    Die Testmodule sind nun in Listen organisiert, was die Wartung und
+#    Erweiterung erleichtert.
+#
+# 3. Flexibilität:
+#    Diese Struktur ermöglicht es, nur die tatsächlich benötigten Tests zu laden
+#    und auszuführen, was die Effizienz und Fehlertoleranz erhöht.
+#
+# 4. Fehlerbehandlung:
+#    Durch die dynamischen Importe werden Fehler bei nicht vorhandenen Modulen
+#    vermieden, wenn bestimmte Testbereiche nicht ausgeführt werden sollen.

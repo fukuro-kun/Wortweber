@@ -112,10 +112,12 @@ python run_tests.py
 Sie können auch spezifische Testoptionen verwenden:
 
 ```
-- Für grundlegende Tests ohne Transkriptions- oder GUI-Tests: python run_tests.py
+- Für alle Tests: python run_tests.py -a oder python run_tests.py --all
+- Für Backend-Tests: python run_tests.py -b oder python run_tests.py --backend
+- Für Frontend-Tests: python run_tests.py -f oder python run_tests.py --frontend
+- Für Utility-Tests: python run_tests.py -u oder python run_tests.py --utils
 - Für parallele Transkriptionstests: python run_tests.py -p oder python run_tests.py --parallel
 - Für sequenzielle Transkriptionstests: python run_tests.py -s oder python run_tests.py --sequential
-- Für alle Tests einschließlich paralleler und sequenzieller Transkriptionstests sowie GUI-Tests: python run_tests.py -a oder python run_tests.py --all
 - Für GUI-Tests: python run_tests.py -g oder python run_tests.py --gui
 ```
 
@@ -130,6 +132,7 @@ python run_tests.py --help
 ```
 
 Bitte beachten Sie, dass die Tests in der aktuellen Entwicklungsphase nicht immer stabil laufen und gelegentlich fehlschlagen können.
+
 
 ## Wichtige Hinweise
 

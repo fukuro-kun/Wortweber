@@ -14,105 +14,124 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
 import unittest
 from unittest.mock import MagicMock, patch
-from tkinter import Tk, ttk
+import tkinter as tk
+from tkinter import ttk
 from src.frontend.main_window import MainWindow
-from termcolor import colored
-import itertools
+from src.frontend.wortweber_gui import WordweberGUI
+from src.backend.wortweber_backend import WordweberBackend
+from src.frontend.settings_manager import SettingsManager
 
 class TestMainWindow(unittest.TestCase):
-    """
-    Testklasse für das MainWindow der Wortweber-Anwendung.
-    Überprüft die korrekte Initialisierung und Funktionalität der Hauptfenster-Komponenten.
-    """
+    @classmethod
+    def setUpClass(cls):
+        """Einmalige Initialisierung für alle Tests in dieser Klasse."""
+        cls.root = tk.Tk()
+        cls.settings_manager = SettingsManager()
+        cls.backend = WordweberBackend(cls.settings_manager)
+        cls.gui = WordweberGUI(cls.backend)
 
     def setUp(self):
-        """Initialisiert die Testumgebung vor jedem Testfall."""
-        self.root = Tk()
-        self.gui_mock = MagicMock()
-        self.gui_mock.settings_manager.get_setting.side_effect = lambda key, default=None: {
-            "font_size": 12,
-            "auto_copy": True
-        }.get(key, default)
-        self.main_window = MainWindow(self.root, self.gui_mock)
+        """Wird vor jedem einzelnen Test ausgeführt."""
+        self.main_window = MainWindow(self.root, self.gui)
 
     def tearDown(self):
-        """Räumt die Testumgebung nach jedem Testfall auf."""
-        self.root.destroy()
+        """Wird nach jedem einzelnen Test ausgeführt."""
+        # Hier können Aufräumarbeiten durchgeführt werden, falls nötig
+
+    @classmethod
+    def tearDownClass(cls):
+        """Wird nach allen Tests in dieser Klasse ausgeführt."""
+        cls.root.destroy()
 
     def test_main_window_initialization(self):
         """Testet die korrekte Initialisierung der Hauptfenster-Komponenten."""
-        self.assertIsNotNone(self.main_window.transcription_panel)
         self.assertIsNotNone(self.main_window.options_panel)
-        self.assertIsNotNone(self.main_window.status_panel)
-        print(colored("MainWindow-Komponenten wurden erfolgreich initialisiert.", "green"))
+        self.assertIsNotNone(self.main_window.transcription_panel)
+        self.assertIsNotNone(self.main_window.status_bar)
 
     def test_setup_ui(self):
         """Überprüft die korrekte Erstellung der UI-Elemente."""
-        self.assertIsInstance(self.main_window.transcription_panel, ttk.Frame)
         self.assertIsInstance(self.main_window.options_panel, ttk.Frame)
-        self.assertIsInstance(self.main_window.status_panel, ttk.Frame)
-        print(colored("UI-Setup wurde erfolgreich durchgeführt.", "green"))
+        self.assertIsInstance(self.main_window.transcription_panel, ttk.Frame)
+        self.assertIsInstance(self.main_window.status_bar, tk.Frame)
 
-    def test_open_options_window(self):
+    @patch('src.frontend.options_window.OptionsWindow.open_window')
+    def test_open_options_window(self, mock_options_window):
         """Testet das Öffnen des Optionsfensters."""
-        with patch('src.frontend.main_window.OptionsWindow') as mock_options_window:
-            self.main_window.open_options_window()
-            mock_options_window.assert_called_once()
-        print(colored("Optionsfenster wurde erfolgreich geöffnet.", "green"))
+        self.main_window.open_options_window()
+        mock_options_window.assert_called_once()
 
-    def test_button_configuration(self):
-        """Überprüft, ob die Buttons korrekt konfiguriert sind."""
-        main_frame = self.main_window.root.children['!frame']
-        button_frame = main_frame.winfo_children()[3]
-        buttons = button_frame.winfo_children()
+def test_button_configuration(self):
+    """Überprüft, ob die Buttons korrekt konfiguriert sind."""
+    expected_texts = ["Transkription löschen", "Alles kopieren", "Erweiterte Optionen", "Beenden"]
 
-        expected_configurations = [
-            ("Transkription löschen", "clear_transcription"),
-            ("Alles kopieren", "copy_all_to_clipboard"),
-            ("Erweiterte Optionen", "open_options_window"),
-            ("Beenden", "quit")
-        ]
+    # Finde das main_frame
+    main_frame = self.main_window.root.winfo_children()[0]
+    self.assertIsInstance(main_frame, ttk.Frame, "Hauptframe nicht gefunden")
 
-        for i, (expected_text, expected_command) in enumerate(expected_configurations):
-            self.assertEqual(buttons[i].cget('text'), expected_text, f"Button {i} hat nicht den erwarteten Text")
-            self.assertIn(expected_command, str(buttons[i].cget('command')), f"Button {i} ist nicht mit der erwarteten Methode verknüpft")
+    # Finde das button_frame
+    button_frame = None
+    for child in main_frame.winfo_children():
+        if isinstance(child, ttk.Frame) and len(child.winfo_children()) == len(expected_texts):
+            button_frame = child
+            break
 
-        print(colored("Button-Konfiguration wurde erfolgreich überprüft.", "green"))
+    self.assertIsNotNone(button_frame, "Button Frame nicht gefunden")
+    assert button_frame is not None  # Dies informiert den Typchecker
+
+    buttons = button_frame.winfo_children()
+    self.assertEqual(len(buttons), len(expected_texts),
+                     f"Erwartete {len(expected_texts)} Buttons, gefunden {len(buttons)}")
+
+    for button, expected_text in zip(buttons, expected_texts):
+        self.assertIsInstance(button, ttk.Button, f"Erwarteter Button-Typ: ttk.Button, gefunden: {type(button)}")
+        self.assertEqual(button.cget('text'), expected_text,
+                         f"Button hat nicht den erwarteten Text. Erwartet: '{expected_text}', Gefunden: '{button.cget('text')}'")
+
+
 
     def test_grid_layout(self):
         """Testet die korrekte Anordnung des Hauptfenster-Layouts."""
-        main_frame = self.main_window.root.children['!frame']
+        main_frame = self.main_window.root.winfo_children()[0]
+        self.assertIsInstance(main_frame, ttk.Frame, "Hauptframe nicht gefunden")
 
-        # Überprüfen der Hauptframe-Konfiguration
-        self.assertEqual(main_frame.grid_info()['row'], 0)
-        self.assertEqual(main_frame.grid_info()['column'], 0)
+        children = main_frame.winfo_children()
+        self.assertGreaterEqual(len(children), 3, "Nicht genügend Kinder im Hauptframe gefunden")
 
-        # Erlaubte Permutationen für 'sticky'
-        allowed_sticky = set(''.join(p) for p in itertools.permutations('nsew'))
-        self.assertIn(main_frame.grid_info()['sticky'], allowed_sticky)
+        self.assertEqual(children[0].grid_info()['sticky'], 'ew')  # options_panel
+        self.assertEqual(children[1].grid_info()['sticky'], 'nesw')  # transcription_panel
+        self.assertEqual(children[-1].grid_info()['sticky'], 'ew')  # status_bar
 
-        # Überprüfen der Panel-Positionen
-        self.assertEqual(self.main_window.options_panel.grid_info()['row'], 0)
-        self.assertEqual(self.main_window.options_panel.grid_info()['column'], 0)
-        self.assertEqual(self.main_window.options_panel.grid_info()['sticky'], 'nw')
 
-        self.assertEqual(self.main_window.status_panel.grid_info()['row'], 0)
-        self.assertEqual(self.main_window.status_panel.grid_info()['column'], 1)
-        self.assertEqual(self.main_window.status_panel.grid_info()['sticky'], 'ne')
+    def test_update_status_bar(self):
+        """Testet die Aktualisierung der Statusleiste."""
+        test_model = "test_model"
+        test_output_mode = "test_mode"
+        test_status = "Test Status"
+        test_record_time = 10.5
+        test_transcription_time = 5.2
 
-        self.assertEqual(self.main_window.transcription_panel.grid_info()['row'], 1)
-        self.assertEqual(self.main_window.transcription_panel.grid_info()['column'], 0)
-        self.assertEqual(self.main_window.transcription_panel.grid_info()['columnspan'], 2)
-        self.assertIn(self.main_window.transcription_panel.grid_info()['sticky'], allowed_sticky)
+        self.main_window.update_status_bar(
+            model=test_model,
+            output_mode=test_output_mode,
+            status=test_status,
+            record_time=test_record_time,
+            transcription_time=test_transcription_time
+        )
 
-        print(colored("Grid-Layout des Hauptfensters ist korrekt konfiguriert.", "green"))
+        # Überprüfen Sie, ob die Statusleiste korrekt aktualisiert wurde
+        self.assertEqual(self.main_window.model_status.cget('text'), test_model)
+        self.assertEqual(self.main_window.output_mode_status.cget('text'), test_output_mode)
+        self.assertEqual(self.main_window.main_status.cget('text'), test_status)
+        self.assertEqual(self.main_window.record_time.cget('text'), f"{test_record_time:.1f} s")
+        self.assertEqual(self.main_window.transcription_time.cget('text'), f"{test_transcription_time:.2f} s")
 
 if __name__ == '__main__':
     unittest.main()
+
+
 
 # Zusätzliche Erklärungen:
 

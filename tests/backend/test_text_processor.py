@@ -14,7 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 import unittest
 from src.backend.text_processor import TextProcessor, parse_german_number, words_to_digits, digits_to_words
@@ -131,7 +133,7 @@ class TestTextProcessor(unittest.TestCase):
         ]
         for input_text, expected_output in test_cases:
             with self.subTest(input=input_text):
-                result = self.text_processor.process_text(input_text)
+                result = self.text_processor.process_text(input_text, 'de')
                 self.assertEqual(result, expected_output)
                 print(f"Input: {input_text}")
                 print(f"Expected: {expected_output}")

@@ -65,13 +65,14 @@ class MainWindow:
         button_frame.grid(column=0, row=2, pady=10)
 
         ttk.Button(button_frame, text="Transkription löschen",
-                    command=self.transcription_panel.clear_transcription).pack(side=tk.LEFT, padx=5)
+                   command=self.transcription_panel.clear_transcription).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="Alles kopieren",
-                    command=self.transcription_panel.copy_all_to_clipboard).pack(side=tk.LEFT, padx=5)
+                   command=self.transcription_panel.copy_all_to_clipboard).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="Erweiterte Optionen",
-                    command=self.gui.open_options_window).pack(side=tk.LEFT, padx=5)
+                   command=self.gui.open_options_window).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="Beenden",
-                    command=self.root.quit).pack(side=tk.LEFT, padx=5)
+                   command=self.root.quit).pack(side=tk.LEFT, padx=5)
+
 
         # Statusleiste
         self.status_bar = tk.Frame(main_frame, bg="black", bd=1, relief="sunken")

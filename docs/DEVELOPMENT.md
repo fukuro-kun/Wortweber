@@ -42,12 +42,13 @@ Wortweber/
 │   │   ├── main_window.py
 │   │   ├── transcription_panel.py
 │   │   ├── options_panel.py
-│   │   ├── status_panel.py
 │   │   ├── theme_manager.py
 │   │   ├── input_processor.py
 │   │   ├── settings_manager.py
 │   │   ├── context_menu.py
-│   │   └── options_window.py
+│   │   ├── options_window.py
+│   │   ├── audio_options_panel.py
+│   │   └── shortcut_panel.py
 │   ├── utils/
 │   │   └── error_handling.py
 │   ├── __init__.py

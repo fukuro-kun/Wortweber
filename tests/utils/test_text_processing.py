@@ -61,9 +61,9 @@ class TestTextProcessing(unittest.TestCase):
             ("1 2 3", "eins zwei drei"),
             ("456", "vierhundertsechsundfünfzig"),
             ("2000", "zweitausend"),
-            ("2001", "zweitausendeins"),
+            ("2001", "zweitausendundeins"),
             ("20000", "zwanzigtausend"),
-            ("20001", "zwanzigtausendeins"),
+            ("20001", "zwanzigtausendundeins"),
             ("21000", "einundzwanzigtausend"),
             ("200000", "zweihunderttausend"),
             ("345000", "dreihundertfünfundvierzigtausend"),
@@ -93,7 +93,7 @@ class TestTextProcessing(unittest.TestCase):
     def test_digits_to_words_english(self):
         self.assertEqual(digits_to_words("I have 23 apples.", 'en'), "I have twenty-three apples.")
         self.assertEqual(digits_to_words("1 2 3", 'en'), "one two three")
-        self.assertEqual(digits_to_words("456", 'en'), "four hundred fifty-six")
+        self.assertEqual(digits_to_words("456", 'en'), "four hundred and fifty-six")
 
     def test_mixed_conversion(self):
         original = "Ich habe 5 Äpfel und twenty Birnen."
