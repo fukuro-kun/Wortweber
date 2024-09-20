@@ -1,3 +1,4 @@
+# /file /src/frontend/wortweber_gui.py
 # Wortweber - Echtzeit-Sprachtranskription mit KI
 # Copyright (C) 2024 fukuro-kun
 #
@@ -13,8 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-
 
 """
 Dieses Modul enthält die Hauptklasse für die grafische Benutzeroberfläche der Wortweber-Anwendung.
@@ -37,12 +36,11 @@ from src.frontend.main_window import MainWindow
 from src.frontend.transcription_panel import TranscriptionPanel
 from src.frontend.options_panel import OptionsPanel
 from src.frontend.options_window import OptionsWindow
-from src.frontend.status_panel import StatusPanel
 from src.frontend.theme_manager import ThemeManager
 from src.frontend.input_processor import InputProcessor
 from src.frontend.settings_manager import SettingsManager
-from src.config import DEFAULT_WINDOW_SIZE
-from src.utils.error_handling import handle_exceptions
+from src.config import DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY
+from src.utils.error_handling import handle_exceptions, logger
 
 class WordweberGUI:
     """
@@ -80,13 +78,13 @@ class WordweberGUI:
         self.main_window = MainWindow(self.root, self)
         self.transcription_panel = self.main_window.transcription_panel
         self.options_panel = self.main_window.options_panel
-        self.status_panel = self.main_window.status_panel
 
         self.theme_manager.set_gui(self)
 
         self.setup_logging()
         self.load_saved_settings()
         self.load_initial_model()
+        self.initialize_delay_settings()
 
         # Hinzufügen eines Event-Handlers für Größenänderungen
         self.root.bind("<Configure>", self.on_window_configure)
@@ -116,7 +114,7 @@ class WordweberGUI:
 
         :param model_name: Name des zu ladenden Modells
         """
-        self.status_panel.update_status("Lade Modell...", "blue")
+        self.main_window.update_status_bar(model=f"{model_name} - Wird geladen...", status="Lade Modell...", status_color="yellow")
         threading.Thread(target=self._load_model_thread, args=(model_name,), daemon=True).start()
 
     @handle_exceptions
@@ -128,11 +126,11 @@ class WordweberGUI:
         """
         try:
             self.backend.load_transcriber_model(model_name)
-            self.root.after(0, lambda: self.status_panel.update_status("Modell geladen", "green"))
+            self.root.after(0, lambda: self.main_window.update_status_bar(model=f"{model_name} - Geladen", status="Modell geladen", status_color="green"))
             if self.backend.pending_audio:
                 self.root.after(0, self.transcribe_and_update)
         except Exception as e:
-            self.root.after(0, lambda: self.status_panel.update_status(f"Fehler beim Laden des Modells: {str(e)}", "red"))
+            self.root.after(0, lambda: self.main_window.update_status_bar(status=f"Fehler beim Laden des Modells: {str(e)}", status_color="red"))
             logging.error(f"Fehler beim Laden des Modells: {str(e)}")
 
     @handle_exceptions
@@ -148,9 +146,12 @@ class WordweberGUI:
         """Wird aufgerufen, wenn das Anwendungsfenster geschlossen wird."""
         logging.debug("Anwendung wird geschlossen")
         self.settings_manager.set_setting("window_geometry", self.root.geometry())
-        self.settings_manager.set_setting("input_mode", self.options_panel.input_mode_var.get())
-        self.settings_manager.set_setting("delay_mode", self.options_panel.delay_mode_var.get())
-        self.settings_manager.set_setting("char_delay", self.options_panel.char_delay_entry.get())
+        self.settings_manager.set_setting("output_mode", self.options_panel.output_mode_var.get())
+
+        # Verzögerungseinstellungen aus dem OptionsWindow holen
+        delay_settings = self.get_delay_settings()
+        self.settings_manager.set_setting("delay_mode", delay_settings["delay_mode"])
+        self.settings_manager.set_setting("char_delay", delay_settings["char_delay"])
 
         # Speichere alle aktuellen Farbeinstellungen
         color_settings = ['text_fg', 'text_bg', 'select_fg', 'select_bg', 'highlight_fg', 'highlight_bg']
@@ -182,42 +183,45 @@ class WordweberGUI:
             self.settings_manager.save_settings()
 
     @handle_exceptions
-    def start_timer(self) -> None:
-        """Startet den Timer für die Aufnahmedauer."""
-        self.start_time = time.time()
-        self.update_timer()
-
-    @handle_exceptions
-    def stop_timer(self) -> None:
-        """Stoppt den Timer für die Aufnahmedauer."""
-        self.status_panel.reset_timer()
-
-    @handle_exceptions
-    def update_timer(self) -> None:
-        """Aktualisiert die Anzeige der Aufnahmedauer."""
-        if self.backend.state.recording:
-            elapsed_time = time.time() - self.start_time
-            self.status_panel.update_timer(elapsed_time)
-            self.root.after(100, self.update_timer)
-
-    @handle_exceptions
     def transcribe_and_update(self) -> None:
         """Führt die Transkription durch und aktualisiert die GUI."""
         def update_gui(text, transcription_time):
-            self.status_panel.update_status("Transkription abgeschlossen", "green")
+            self.main_window.update_status_bar(status="Transkription abgeschlossen", status_color="green", transcription_time=transcription_time)
             self.input_processor.process_text(text)
-            self.status_panel.update_transcription_timer(transcription_time)
 
-            # Speichern der Testaufnahme, wenn aktiviert
-            if self.settings_manager.get_setting("save_test_recording", False):
-                self.backend.audio_processor.save_last_recording()
+            output_mode = self.options_panel.output_mode_var.get()
+            self.main_window.update_status_bar(output_mode=output_mode)
 
-        self.status_panel.update_status("Transkribiere...", "orange")
+            if self.main_window.auto_copy_var.get():
+                self.main_window.update_status_bar(status="Text transkribiert und in Zwischenablage kopiert", status_color="green")
+            else:
+                self.main_window.update_status_bar(status="Text transkribiert", status_color="green")
+
+        self.main_window.update_status_bar(status="Transkribiere...", status_color="orange")
         start_time = time.time()
         text = self.backend.process_and_transcribe(self.options_panel.language_var.get())
         transcription_time = time.time() - start_time
 
         self.root.after(0, lambda: update_gui(text, transcription_time))
+
+    @handle_exceptions
+    def start_timer(self):
+        """Startet den Timer für die Aufnahmedauer."""
+        self.input_processor.start_time = int(time.time())
+        self.update_timer()
+
+    @handle_exceptions
+    def update_timer(self):
+        """Aktualisiert die Anzeige der Aufnahmedauer."""
+        if self.backend.state.recording:
+            elapsed_time = time.time() - self.input_processor.start_time
+            self.main_window.update_status_bar(record_time=elapsed_time)
+            self.root.after(100, self.update_timer)
+
+    @handle_exceptions
+    def stop_timer(self):
+        """Stoppt den Timer für die Aufnahmedauer."""
+        self.main_window.update_status_bar(record_time=0.0)
 
     @handle_exceptions
     def update_colors(self) -> None:
@@ -233,9 +237,26 @@ class WordweberGUI:
             highlight_bg=self.theme_manager.highlight_bg.get()
         )
 
+    @handle_exceptions
+    def initialize_delay_settings(self):
+        """Initialisiert die Verzögerungseinstellungen."""
+        delay_mode = self.settings_manager.get_setting("delay_mode", "no_delay")
+        char_delay = self.settings_manager.get_setting("char_delay", DEFAULT_CHAR_DELAY)
+        self.settings_manager.set_setting("delay_mode", delay_mode)
+        self.settings_manager.set_setting("char_delay", char_delay)
+        logger.info(f"Verzögerungseinstellungen initialisiert: Modus={delay_mode}, Verzögerung={char_delay}")
+
+    @handle_exceptions
+    def get_delay_settings(self):
+        """Holt die aktuellen Verzögerungseinstellungen."""
+        return {
+            "delay_mode": self.settings_manager.get_setting("delay_mode", "no_delay"),
+            "char_delay": self.settings_manager.get_setting("char_delay", DEFAULT_CHAR_DELAY)
+        }
+
 # Zusätzliche Erklärungen:
 
-# 1. Die WordweberGUI-Klasse ist der zentrale Punkt für die Verwaltung der Benutzeroberfläche.
+# 1. Die Klasse WordweberGUI ist der zentrale Punkt für die Verwaltung der Benutzeroberfläche.
 # 2. Sie koordiniert die Interaktionen zwischen verschiedenen UI-Komponenten und dem Backend.
 # 3. Die Methode update_colors wurde hinzugefügt, um die Farbänderungen im Transkriptionsfenster zu aktualisieren.
 # 4. Die Initialisierung des ThemeManagers wurde angepasst, um die GUI-Referenz zu setzen.
@@ -245,3 +266,5 @@ class WordweberGUI:
 # 8. Die Verwendung von self.root.after() in _load_model_thread und transcribe_and_update stellt sicher, dass GUI-Updates im Hauptthread erfolgen.
 # 9. Fehlerbehandlung wurde in _load_model_thread hinzugefügt, um Benutzer über Probleme beim Laden des Modells zu informieren.
 # 10. Die transcribe_and_update Methode wurde überarbeitet, um alle GUI-Aktualisierungen im Hauptthread durchzuführen.
+# 11. Die Statusleiste wird nun für alle relevanten Statusaktualisierungen verwendet, einschließlich farbiger Anzeigen.
+# 12. Die initialize_delay_settings und get_delay_settings Methoden wurden hinzugefügt, um die Verzögerungseinstellungen zu verwalten.

@@ -99,6 +99,7 @@ class Transcriber:
             logger.error(f"Detaillierter Traceback: {traceback.format_exc()}")
             return f"Fehler bei der Transkription: {str(e)}"
 
+
     @handle_exceptions
     def release_resources(self) -> None:
         """

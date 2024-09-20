@@ -5,6 +5,41 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.22.2] - 2024-09-20
+### Geändert
+- Verbesserung des Layouts im OptionsPanel für eine übersichtlichere Darstellung
+- Optimierung der Verzögerungsoptionen im erweiterten Optionsmenü
+
+### Behoben
+- Korrektur von Fehlern im Zusammenhang mit den Verzögerungseinstellungen
+- Behebung des fehlenden Zwischenablage-Punktes im Optionsmenü
+
+### Verbessert
+- Erhöhte Konsistenz bei der Verwaltung von Verzögerungseinstellungen
+
+## [0.22.1] - 2024-09-20
+### Geändert
+- Optimierung des Layouts im OptionsPanel für eine kompaktere Darstellung
+- Anpassung der Standardfenstergröße auf 900x700 Pixel
+
+### Verbessert
+- Effizientere Platznutzung in der Benutzeroberfläche
+
+## [0.22.0] - 2024-09-19
+### Hinzugefügt
+- Implementierung einer detaillierten Statusleiste mit Anzeige von Modellstatus, Ausgabemodus, Aufnahme- und Transkriptionszeit
+- Zeitmessung für Aufnahme- und Transkriptionsdauer
+- Verbesserte Fehlerbehandlung und Benutzerrückmeldungen
+
+### Geändert
+- Überarbeitung der GUI-Struktur für bessere Integration der Statusleiste
+- Optimierung der Aufnahme- und Transkriptionsprozesse
+- Anpassung der Benutzeroberfläche für verbesserte Übersichtlichkeit
+
+### Verbessert
+- Erhöhte Konsistenz bei Statusaktualisierungen über alle Komponenten hinweg
+- Optimierte Ressourcenverwaltung in kritischen Komponenten
+
 ## [0.21.8] - 2024-09-19
 ### Hinzugefügt
 - Verbesserte Persistenz der Audiogeräteauswahl

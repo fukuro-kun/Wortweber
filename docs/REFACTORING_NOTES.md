@@ -1,3 +1,36 @@
+# Optimierung des OptionsPanel-Layouts (Version 0.22.1)
+
+## Begründung für die Änderungen
+1. Verbesserung der Platznutzung in der Benutzeroberfläche
+2. Erhöhung der vertikalen Fläche für das Transkriptionsfenster
+
+## Hauptänderungen
+1. Neuanordnung der GUI-Elemente im OptionsPanel in einer einzelnen Zeile
+2. Anpassung der Standardfenstergröße in der Konfigurationsdatei
+
+## Auswirkungen
+- Kompaktere Darstellung der Optionen ohne Funktionalitätsverlust
+- Potenziell mehr Platz für das Transkriptionsfenster
+
+
+# Refactoring der Statusleiste und Zeitmessung (Version 0.22.0)
+
+## Begründung für das Refactoring
+1. Verbesserung der Benutzerinformation durch detaillierte Statusanzeige
+2. Erhöhung der Codequalität durch zentralisierte Statusverwaltung
+3. Optimierung der Zeitmessung für Aufnahme und Transkription
+
+## Hauptänderungen
+1. Implementierung einer neuen Statusleiste in `main_window.py`
+2. Zentralisierung der Zeitmessung in `wortweber_gui.py`
+3. Anpassung von `input_processor.py` zur Nutzung der neuen Timer-Funktionen
+4. Überarbeitung von `wortweber_backend.py` für verbesserte Statusaktualisierungen
+
+## Auswirkungen
+- Verbesserte Benutzerfreundlichkeit durch detailliertere Statusinformationen
+- Erhöhte Codequalität und Wartbarkeit durch zentralisierte Funktionen
+- Konsistentere Fehlerbehandlung und Benutzerrückmeldungen
+
 # Verbesserung der Audiogeräteauswahl und Fehlerbehandlung (Version 0.21.8)
 
 ## Begründung für die Änderungen

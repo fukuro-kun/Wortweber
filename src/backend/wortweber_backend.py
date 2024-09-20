@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
 """
 Dieses Modul enthält die Hauptlogik für das Backend der Wortweber-Anwendung.
 Es koordiniert die Audioaufnahme, Transkription und Datenverwaltung.
@@ -47,13 +45,25 @@ class WordweberBackend:
         self.model_loaded = threading.Event()
         self.on_transcription_complete: Optional[Callable[[str], None]] = None
         self.pending_audio: List[np.ndarray] = []
+        self.gui = None  # Wird später von der GUI gesetzt
         logger.info("WordweberBackend initialisiert")
+
+    @handle_exceptions
+    def set_gui(self, gui):
+        """
+        Setzt die Referenz zur Hauptanwendung.
+
+        :param gui: Referenz zur Hauptanwendung (WordweberGUI-Instanz)
+        """
+        self.gui = gui
 
     @handle_exceptions
     def start_recording(self) -> None:
         """Startet die Audioaufnahme."""
         if not self.audio_processor.check_device_availability():
             logger.error("Audiogerät nicht verfügbar. Aufnahme kann nicht gestartet werden.")
+            if self.gui:
+                self.gui.main_window.update_status_bar(status="Audiogerät nicht verfügbar", status_color="red")
             return
 
         self.state.recording = True
@@ -72,6 +82,8 @@ class WordweberBackend:
             audio_resampled = self.audio_processor.resample_audio(audio_np)
             self.pending_audio.append(audio_resampled)
             logger.info("Aufnahme gespeichert. Warte auf Modell-Bereitschaft.")
+            if self.gui:
+                self.gui.main_window.update_status_bar(status="Aufnahme gespeichert. Warte auf Modell-Bereitschaft.", status_color="yellow")
 
     @handle_exceptions
     def _record_audio(self) -> None:
@@ -89,6 +101,8 @@ class WordweberBackend:
         """
         if not self.model_loaded.is_set():
             logger.error("Modell nicht geladen. Bitte warten Sie, bis das Modell vollständig geladen ist.")
+            if self.gui:
+                self.gui.main_window.update_status_bar(status="Modell nicht geladen", status_color="red")
             raise RuntimeError("Modell nicht geladen. Bitte warten Sie, bis das Modell vollständig geladen ist.")
 
         audio_to_process = self.pending_audio + [np.frombuffer(b''.join(self.state.audio_data), dtype=np.int16).astype(np.float32) / 32768.0]
@@ -99,16 +113,14 @@ class WordweberBackend:
             audio_resampled = self.audio_processor.resample_audio(audio_np)
             transcribed_text += self.transcriber.transcribe(audio_resampled, language)
 
-        if self.on_transcription_complete:
-            self.on_transcription_complete(transcribed_text)
-
-        incognito_mode = self.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE) if self.settings_manager else DEFAULT_INCOGNITO_MODE
+        incognito_mode = self.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
         if not incognito_mode:
             logger.info(f"Transkription abgeschlossen. Länge des Textes: {len(transcribed_text)}")
         else:
             logger.info("Transkription abgeschlossen (Incognito-Modus aktiv)")
 
         return transcribed_text
+
 
     @handle_exceptions
     def load_transcriber_model(self, model_name: str) -> None:
@@ -123,9 +135,13 @@ class WordweberBackend:
             if self.pending_audio:
                 self.process_and_transcribe(self.state.language)
             logger.info(f"Transkriptionsmodell '{model_name}' erfolgreich geladen")
+            if self.gui:
+                self.gui.main_window.update_status_bar(model=f"{model_name} - Geladen", status="Modell geladen", status_color="green")
         except Exception as e:
             logger.error(f"Fehler beim Laden des Modells: {e}")
             self.model_loaded.clear()
+            if self.gui:
+                self.gui.main_window.update_status_bar(status=f"Fehler beim Laden des Modells: {e}", status_color="red")
 
     @handle_exceptions
     def list_audio_devices(self) -> None:
@@ -143,17 +159,28 @@ class WordweberBackend:
 
     @handle_exceptions
     def update_audio_device(self, new_index) -> bool:
-        """Aktualisiert das Audiogerät basierend auf dem neuen Index."""
+        """
+        Aktualisiert das Audiogerät basierend auf dem neuen Index.
+
+        :param new_index: Der Index des neuen Audiogeräts
+        :return: True, wenn die Aktualisierung erfolgreich war, sonst False
+        """
         if self.audio_processor.update_device(new_index):
             device_info = self.audio_processor.get_current_device_info()
             if device_info:
                 logger.info(f"Audiogerät erfolgreich aktualisiert auf: {device_info['name']} (Index: {device_info['index']})")
+                if self.gui:
+                    self.gui.main_window.update_status_bar(status=f"Audiogerät geändert: {device_info['name']}", status_color="green")
                 return True
             else:
                 logger.warning("Audiogerät aktualisiert, aber keine Geräteinformationen verfügbar.")
+                if self.gui:
+                    self.gui.main_window.update_status_bar(status="Audiogerät aktualisiert, keine Infos verfügbar", status_color="yellow")
                 return False
         else:
             logger.error("Fehler beim Aktualisieren des Audiogeräts.")
+            if self.gui:
+                self.gui.main_window.update_status_bar(status="Fehler beim Aktualisieren des Audiogeräts", status_color="red")
             return False
 
     @handle_exceptions
@@ -170,6 +197,8 @@ class WordweberBackend:
         """
         self.state.language = language
         logger.info(f"Sprache für Transkription auf {language} gesetzt")
+        if self.gui:
+            self.gui.main_window.update_status_bar(status=f"Sprache geändert: {language}", status_color="green")
 
 # Zusätzliche Erklärungen:
 
@@ -193,3 +222,19 @@ class WordweberBackend:
 # 5. Flexibilität:
 #    Die Struktur erlaubt einfache Erweiterungen, wie z.B. das Hinzufügen
 #    neuer Transkriptionsmodelle oder Audioformate in der Zukunft.
+
+# 6. GUI-Integration:
+#    Die set_gui Methode ermöglicht es dem Backend, die GUI zu aktualisieren,
+#    ohne direkt von ihr abhängig zu sein. Dies verbessert die Modularität.
+
+# 7. Incognito-Modus:
+#    Die Implementierung des Incognito-Modus ermöglicht es, sensible Informationen
+#    zu schützen, indem die Protokollierung von Transkriptionsinhalten verhindert wird.
+
+# 8. Audiogeräte-Management:
+#    Funktionen zum Auflisten, Überprüfen und Aktualisieren von Audiogeräten
+#    bieten Flexibilität bei der Hardwarekonfiguration.
+
+# Diese Implementierung bietet eine robuste und erweiterbare Grundlage für die
+# Backend-Funktionalität der Wortweber-Anwendung, mit besonderem Augenmerk auf
+# Fehlertoleranz, Benutzerfreundlichkeit und Datenschutz.
