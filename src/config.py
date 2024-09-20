@@ -34,7 +34,7 @@ DEFAULT_THEME = "arc"  # Standardtheme für die GUI
 DEFAULT_INCOGNITO_MODE = True  # Standardeinstellung für den Incognito-Modus
 
 # GUI-Einstellungen
-DEFAULT_WINDOW_SIZE = "800x600"  # Standardgröße des Anwendungsfensters
+DEFAULT_WINDOW_SIZE = "900x700"  # Standardgröße des Anwendungsfensters
 HIGHLIGHT_DURATION = 2000  # Dauer der Texthighlights in Millisekunden
 DEFAULT_FONT_SIZE = 12  # Standard-Textgröße
 DEFAULT_FONT_FAMILY = "Nimbus Mono L"  # Die korrekte Schreibweise ist "Nimbus Mono L"

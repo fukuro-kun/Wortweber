@@ -1,3 +1,18 @@
+# Optimierung des OptionsPanel-Layouts (Version 0.22.1)
+
+## Begründung für die Änderungen
+1. Verbesserung der Platznutzung in der Benutzeroberfläche
+2. Erhöhung der vertikalen Fläche für das Transkriptionsfenster
+
+## Hauptänderungen
+1. Neuanordnung der GUI-Elemente im OptionsPanel in einer einzelnen Zeile
+2. Anpassung der Standardfenstergröße in der Konfigurationsdatei
+
+## Auswirkungen
+- Kompaktere Darstellung der Optionen ohne Funktionalitätsverlust
+- Potenziell mehr Platz für das Transkriptionsfenster
+
+
 # Refactoring der Statusleiste und Zeitmessung (Version 0.22.0)
 
 ## Begründung für das Refactoring
