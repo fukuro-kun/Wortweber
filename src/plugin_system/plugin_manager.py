@@ -15,9 +15,10 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
-import importlib
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional, Any
 from src.plugin_system.plugin_interface import AbstractPlugin
+from src.plugin_system.plugin_loader import PluginLoader
+from src.frontend.settings_manager import SettingsManager
 from src.utils.error_handling import handle_exceptions, logger
 
 class PluginManager:
@@ -26,28 +27,28 @@ class PluginManager:
     """
 
     @handle_exceptions
-    def __init__(self, plugin_dir: str = "plugins"):
+    def __init__(self, plugin_dir: str = "plugins", settings_manager: Optional[SettingsManager] = None):
         self.plugin_dir = plugin_dir
         self.plugins: Dict[str, AbstractPlugin] = {}
         self.active_plugins: List[str] = []
+        self.settings_manager = settings_manager or SettingsManager()
+        self.plugin_loader = PluginLoader(plugin_dir)
         logger.info("PluginManager initialisiert")
 
     @handle_exceptions
     def discover_plugins(self) -> None:
-        """Durchsucht das Plugin-Verzeichnis nach verfügbaren Plugins."""
-        for filename in os.listdir(self.plugin_dir):
-            if filename.endswith(".py") and not filename.startswith("__"):
-                plugin_name = filename[:-3]  # Entferne die .py-Erweiterung
-                try:
-                    module = importlib.import_module(f"{self.plugin_dir}.{plugin_name}")
-                    for attribute_name in dir(module):
-                        attribute = getattr(module, attribute_name)
-                        if isinstance(attribute, type) and issubclass(attribute, AbstractPlugin) and attribute is not AbstractPlugin:
-                            plugin = attribute()
-                            self.plugins[plugin.name] = plugin
-                            logger.info(f"Plugin entdeckt: {plugin.name} v{plugin.version}")
-                except Exception as e:
-                    logger.error(f"Fehler beim Laden des Plugins {plugin_name}: {str(e)}")
+        """Durchsucht das Plugin-Verzeichnis nach verfügbaren Plugins und lädt sie."""
+        plugin_settings = self.settings_manager.get_setting("plugins", {}).get("specific_settings", {})
+        loaded_plugins = self.plugin_loader.load_all_plugins(plugin_settings)
+        for plugin in loaded_plugins:
+            self.plugins[plugin.name] = plugin
+            logger.info(f"Plugin entdeckt: {plugin.name} v{plugin.version}")
+
+        # Aktiviere zuvor aktivierte Plugins
+        enabled_plugins = self.settings_manager.get_setting("plugins", {}).get("enabled_plugins", [])
+        for plugin_name in enabled_plugins:
+            if plugin_name in self.plugins:
+                self.activate_plugin(plugin_name)
 
     @handle_exceptions
     def activate_plugin(self, plugin_name: str) -> bool:
@@ -58,10 +59,13 @@ class PluginManager:
         :return: True, wenn das Plugin erfolgreich aktiviert wurde, sonst False
         """
         if plugin_name in self.plugins and plugin_name not in self.active_plugins:
+            plugin = self.plugins[plugin_name]
+            settings = self.settings_manager.get_plugin_settings(plugin_name)
             try:
-                self.plugins[plugin_name].activate()
+                plugin.activate(settings)
                 self.active_plugins.append(plugin_name)
                 logger.info(f"Plugin aktiviert: {plugin_name}")
+                self._update_enabled_plugins()
                 return True
             except Exception as e:
                 logger.error(f"Fehler beim Aktivieren des Plugins {plugin_name}: {str(e)}")
@@ -76,13 +80,38 @@ class PluginManager:
         :return: True, wenn das Plugin erfolgreich deaktiviert wurde, sonst False
         """
         if plugin_name in self.active_plugins:
+            plugin = self.plugins[plugin_name]
             try:
-                self.plugins[plugin_name].deactivate()
+                settings = plugin.deactivate()
+                if settings:
+                    self.settings_manager.set_plugin_settings(plugin_name, settings)
                 self.active_plugins.remove(plugin_name)
                 logger.info(f"Plugin deaktiviert: {plugin_name}")
+                self._update_enabled_plugins()
                 return True
             except Exception as e:
                 logger.error(f"Fehler beim Deaktivieren des Plugins {plugin_name}: {str(e)}")
+        return False
+
+    @handle_exceptions
+    def update_plugin_settings(self, plugin_name: str, settings: Dict[str, Any]) -> bool:
+        """
+        Aktualisiert die Einstellungen eines Plugins.
+
+        :param plugin_name: Name des Plugins
+        :param settings: Neue Einstellungen für das Plugin
+        :return: True, wenn die Einstellungen erfolgreich aktualisiert wurden, sonst False
+        """
+        if plugin_name in self.plugins:
+            plugin = self.plugins[plugin_name]
+            try:
+                validated_settings = self.plugin_loader.validate_plugin_settings(plugin, settings)
+                plugin.set_settings(validated_settings)
+                self.settings_manager.set_plugin_settings(plugin_name, validated_settings)
+                logger.info(f"Einstellungen für Plugin {plugin_name} aktualisiert")
+                return True
+            except Exception as e:
+                logger.error(f"Fehler beim Aktualisieren der Einstellungen für Plugin {plugin_name}: {str(e)}")
         return False
 
     @handle_exceptions
@@ -112,34 +141,38 @@ class PluginManager:
                 "name": plugin.name,
                 "version": plugin.version,
                 "description": plugin.description,
+                "author": plugin.author,
                 "active": plugin.name in self.active_plugins
             }
             for plugin in self.plugins.values()
         ]
 
+    @handle_exceptions
+    def _update_enabled_plugins(self) -> None:
+        """Aktualisiert die Liste der aktivierten Plugins in den Einstellungen."""
+        plugins_settings = self.settings_manager.get_setting("plugins", {})
+        plugins_settings["enabled_plugins"] = self.active_plugins
+        self.settings_manager.set_setting("plugins", plugins_settings)
 
 # Zusätzliche Erklärungen:
 
-# 1. discover_plugins:
-#    Diese Methode durchsucht das Plugin-Verzeichnis nach Python-Dateien,
-#    die Klassen enthalten, welche von AbstractPlugin erben.
+# 1. Integration des SettingsManager:
+#    Der SettingsManager wird nun im Konstruktor übergeben oder erstellt, um Plugin-Einstellungen zu verwalten.
 
-# 2. activate_plugin und deactivate_plugin:
-#    Diese Methoden ermöglichen das Ein- und Ausschalten von Plugins zur Laufzeit.
+# 2. discover_plugins:
+#    Diese Methode wurde erweitert, um Plugin-Einstellungen beim Laden zu berücksichtigen
+#    und zuvor aktivierte Plugins automatisch zu aktivieren.
 
-# 3. process_text_with_plugins:
-#    Verarbeitet den Text mit allen aktiven Plugins in der Reihenfolge ihrer Aktivierung.
+# 3. activate_plugin und deactivate_plugin:
+#    Diese Methoden wurden angepasst, um Einstellungen beim Aktivieren zu laden und beim Deaktivieren zu speichern.
+#    Sie aktualisieren auch die Liste der aktivierten Plugins in den Einstellungen.
 
-# 4. get_plugin_info:
-#    Gibt Informationen über alle verfügbaren Plugins zurück, was nützlich für die GUI sein wird.
+# 4. update_plugin_settings:
+#    Eine neue Methode, die es ermöglicht, die Einstellungen eines Plugins zu aktualisieren.
+#    Sie validiert die Einstellungen und speichert sie sowohl im Plugin als auch im SettingsManager.
 
-# 5. Fehlerbehandlung:
-#    Jede Methode verwendet den @handle_exceptions Decorator und implementiert
-#    spezifische Fehlerbehandlung, um die Stabilität zu gewährleisten.
+# 5. _update_enabled_plugins:
+#    Eine private Hilfsmethode, die die Liste der aktivierten Plugins in den Einstellungen aktualisiert.
 
-# 6. Logging:
-#    Ausführliches Logging hilft bei der Diagnose von Problemen mit Plugins.
-
-# Diese Implementierung bietet eine solide Grundlage für das Plugin-System,
-# ermöglicht dynamisches Laden und Verwalten von Plugins und integriert sich
-# gut in die bestehende Fehlerbehandlungs- und Logging-Struktur von Wortweber.
+# Diese Änderungen ermöglichen eine umfassende Verwaltung von Plugin-Einstellungen und -Zuständen,
+# während sie die bestehende Funktionalität des PluginManager beibehalten und erweitern.

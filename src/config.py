@@ -70,6 +70,28 @@ VALID_MODIFIERS = ["Ctrl", "Shift", "Alt"]
 # Gültige Funktionstasten
 VALID_FUNCTION_KEYS = [f"F{i}" for i in range(1, 13)]  # F1 bis F12
 
+# Plugin-Einstellungen
+DEFAULT_PLUGIN_DIR = "plugins"  # Standardverzeichnis für Plugins
+DEFAULT_ENABLED_PLUGINS = []  # Standardmäßig aktivierte Plugins
+
+# Standardeinstellungen für Plugins
+DEFAULT_PLUGIN_SETTINGS = {
+    "global": {
+        "max_text_length": 1000,  # Maximale Textlänge, die ein Plugin verarbeiten kann
+        "processing_timeout": 5.0  # Timeout für die Textverarbeitung in Sekunden
+    }
+}
+
+# Plugin-spezifische Standardeinstellungen
+# Diese können von den Plugins überschrieben werden
+PLUGIN_SPECIFIC_SETTINGS = {
+    "example_plugin": {
+        "option1": True,
+        "option2": "default_value"
+    }
+    # Weitere Plugin-spezifische Einstellungen können hier hinzugefügt werden
+}
+
 # Wichtige Hinweise
 RESAMPLING_NOTE = """
 WICHTIG: Resampling ist notwendig, da die Audiogeräte 16000 Hz nicht unterstützen.
@@ -85,35 +107,35 @@ und einer normalen Taste oder Funktionstaste bestehen. Beispiele für gültige S
 Stellen Sie sicher, dass der gewählte Shortcut nicht mit anderen Systemfunktionen kollidiert.
 """
 
+PLUGIN_NOTE = """
+WICHTIG: Plugins erweitern die Funktionalität von Wortweber. Beachten Sie beim Entwickeln oder
+Installieren von Plugins die Sicherheitsrichtlinien und stellen Sie sicher, dass sie kompatibel
+mit der aktuellen Version von Wortweber sind.
+"""
+
 # Diese Konfigurationsdatei zentralisiert alle wichtigen Einstellungen für die Wortweber-Anwendung.
 # Sie erleichtert die Anpassung und Wartung der Anwendung, indem sie einen einzigen Ort für
 # häufig zu ändernde Parameter bereitstellt.
 
 # Zusätzliche Erklärungen:
 
-# 1. DEFAULT_PUSH_TO_TALK_KEY:
-#    Der Standardwert wurde auf "Ctrl+F12" geändert, um die neue Unterstützung für
-#    Tastenkombinationen zu demonstrieren. Dies ermöglicht eine intuitivere
-#    Bedienung für viele Benutzer.
+# 1. DEFAULT_PLUGIN_DIR:
+#    Definiert das Standardverzeichnis, in dem Wortweber nach Plugins sucht.
 
-# 2. VALID_MODIFIERS und VALID_FUNCTION_KEYS:
-#    Diese neuen Listen definieren die gültigen Modifikatortasten und Funktionstasten.
-#    Sie können verwendet werden, um Benutzereingaben zu validieren und
-#    sicherzustellen, dass nur unterstützte Tastenkombinationen akzeptiert werden.
+# 2. DEFAULT_ENABLED_PLUGINS:
+#    Eine Liste von Plugins, die standardmäßig aktiviert sind. Benutzer können diese Liste anpassen.
 
-# 3. SHORTCUT_NOTE:
-#    Dieser neue Hinweis erklärt das Format und die Möglichkeiten für gültige Shortcuts.
-#    Er dient als Referenz für Entwickler und kann auch in der Benutzeroberfläche
-#    verwendet werden, um Benutzer bei der Konfiguration zu unterstützen.
+# 3. DEFAULT_PLUGIN_SETTINGS:
+#    Globale Einstellungen, die für alle Plugins gelten. Sie definieren Grenzwerte und
+#    Verhaltensweisen, die für die Sicherheit und Leistung wichtig sind.
 
-# 4. Flexibilität:
-#    Die Struktur ermöglicht es weiterhin, einfach neue Konfigurationsparameter
-#    hinzuzufügen, ohne die Gesamtstruktur der Datei zu beeinträchtigen.
+# 4. PLUGIN_SPECIFIC_SETTINGS:
+#    Hier können Standardeinstellungen für spezifische Plugins definiert werden.
+#    Dies ermöglicht eine feinere Kontrolle über das Verhalten einzelner Plugins.
 
-# 5. Zentrale Konfiguration:
-#    Durch die Zentralisierung aller Standardeinstellungen in dieser Datei bleibt die
-#    Wartung und Anpassung der Anwendung einfach. Entwickler können schnell globale
-#    Änderungen vornehmen, ohne mehrere Dateien durchsuchen zu müssen.
+# 5. PLUGIN_NOTE:
+#    Ein wichtiger Hinweis für Entwickler und Benutzer von Plugins, der auf
+#    Sicherheits- und Kompatibilitätsaspekte aufmerksam macht.
 
-# Diese Aktualisierung der config.py unterstützt die neue flexible Shortcut-Funktionalität
-# und bietet gleichzeitig klare Richtlinien für deren Verwendung.
+# Diese Ergänzungen zur config.py unterstützen die Integration des Plugin-Systems
+# und bieten gleichzeitig Flexibilität für zukünftige Erweiterungen und Anpassungen.

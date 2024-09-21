@@ -18,9 +18,10 @@ import os
 import importlib
 import importlib.util
 import sys
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from src.plugin_system.plugin_interface import AbstractPlugin
 from src.utils.error_handling import handle_exceptions, logger
+from src.config import DEFAULT_PLUGIN_SETTINGS
 
 class PluginLoader:
     """
@@ -33,11 +34,12 @@ class PluginLoader:
         logger.info(f"PluginLoader initialisiert mit Verzeichnis: {plugin_dir}")
 
     @handle_exceptions
-    def load_plugin(self, plugin_name: str) -> Optional[AbstractPlugin]:
+    def load_plugin(self, plugin_name: str, settings: Optional[Dict[str, Any]] = None) -> Optional[AbstractPlugin]:
         """
-        Lädt ein einzelnes Plugin basierend auf seinem Namen.
+        Lädt ein einzelnes Plugin basierend auf seinem Namen und initialisiert es mit den gegebenen Einstellungen.
 
         :param plugin_name: Name des zu ladenden Plugins (ohne .py Erweiterung)
+        :param settings: Optionale Einstellungen für das Plugin
         :return: Eine Instanz des Plugins oder None, wenn das Laden fehlschlägt
         """
         plugin_path = os.path.join(self.plugin_dir, f"{plugin_name}.py")
@@ -68,6 +70,11 @@ class PluginLoader:
                 return None
 
             plugin_instance = plugin_class()
+
+            # Validiere und setze die Plugin-Einstellungen
+            validated_settings = self.validate_plugin_settings(plugin_instance, settings)
+            plugin_instance.set_settings(validated_settings)
+
             logger.info(f"Plugin erfolgreich geladen: {plugin_name}")
             return plugin_instance
 
@@ -76,17 +83,19 @@ class PluginLoader:
             return None
 
     @handle_exceptions
-    def load_all_plugins(self) -> List[AbstractPlugin]:
+    def load_all_plugins(self, settings: Optional[Dict[str, Dict[str, Any]]] = None) -> List[AbstractPlugin]:
         """
-        Lädt alle Plugins aus dem Plugin-Verzeichnis.
+        Lädt alle Plugins aus dem Plugin-Verzeichnis und initialisiert sie mit den gegebenen Einstellungen.
 
+        :param settings: Ein Dictionary mit Plugin-Namen als Schlüssel und ihren Einstellungen als Werte
         :return: Eine Liste aller erfolgreich geladenen Plugin-Instanzen
         """
         loaded_plugins = []
         for filename in os.listdir(self.plugin_dir):
             if filename.endswith(".py") and not filename.startswith("__"):
                 plugin_name = filename[:-3]  # Entferne die .py-Erweiterung
-                plugin = self.load_plugin(plugin_name)
+                plugin_settings = settings.get(plugin_name) if settings else None
+                plugin = self.load_plugin(plugin_name, plugin_settings)
                 if plugin:
                     loaded_plugins.append(plugin)
 
@@ -94,11 +103,12 @@ class PluginLoader:
         return loaded_plugins
 
     @handle_exceptions
-    def reload_plugin(self, plugin_name: str) -> Optional[AbstractPlugin]:
+    def reload_plugin(self, plugin_name: str, settings: Optional[Dict[str, Any]] = None) -> Optional[AbstractPlugin]:
         """
-        Lädt ein bereits geladenes Plugin neu.
+        Lädt ein bereits geladenes Plugin neu und initialisiert es mit den gegebenen Einstellungen.
 
         :param plugin_name: Name des neu zu ladenden Plugins
+        :param settings: Optionale neue Einstellungen für das Plugin
         :return: Die neu geladene Plugin-Instanz oder None bei Fehler
         """
         # Entferne das alte Modul aus dem Cache, falls vorhanden
@@ -106,29 +116,56 @@ class PluginLoader:
         if module_name in sys.modules:
             del sys.modules[module_name]
 
-        return self.load_plugin(plugin_name)
+        return self.load_plugin(plugin_name, settings)
+
+    @handle_exceptions
+    def validate_plugin_settings(self, plugin: AbstractPlugin, settings: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Validiert die gegebenen Einstellungen für ein Plugin und ergänzt fehlende Standardeinstellungen.
+
+        :param plugin: Die Plugin-Instanz
+        :param settings: Die zu validierenden Einstellungen
+        :return: Ein Dictionary mit validierten und vervollständigten Einstellungen
+        """
+        default_settings = plugin.get_default_settings()
+        validated_settings = default_settings.copy()
+
+        if settings:
+            for key, value in settings.items():
+                if key in default_settings:
+                    # Hier könnte eine typspezifische Validierung hinzugefügt werden
+                    validated_settings[key] = value
+                else:
+                    logger.warning(f"Unbekannte Einstellung '{key}' für Plugin '{plugin.name}' ignoriert")
+
+        # Füge globale Standardeinstellungen hinzu, falls nicht vorhanden
+        for key, value in DEFAULT_PLUGIN_SETTINGS['global'].items():
+            if key not in validated_settings:
+                validated_settings[key] = value
+
+        return validated_settings
 
 # Zusätzliche Erklärungen:
 
-# 1. load_plugin:
-#    Diese Methode lädt ein einzelnes Plugin dynamisch. Sie verwendet
-#    importlib.util.spec_from_file_location und importlib.util.module_from_spec
-#    für flexibles Laden von Modulen aus beliebigen Dateipfaden.
+# 1. load_plugin(plugin_name, settings):
+#    Diese Methode wurde erweitert, um optionale Einstellungen zu akzeptieren.
+#    Nach dem Erstellen der Plugin-Instanz werden die Einstellungen validiert und gesetzt.
 
-# 2. load_all_plugins:
-#    Durchsucht das Plugin-Verzeichnis und lädt alle gültigen Plugins.
+# 2. load_all_plugins(settings):
+#    Diese Methode wurde angepasst, um ein Dictionary mit Plugin-Einstellungen zu akzeptieren.
+#    Für jedes geladene Plugin werden die entsprechenden Einstellungen übergeben.
 
-# 3. reload_plugin:
-#    Ermöglicht das Neuladen eines Plugins zur Laufzeit, was nützlich für
-#    Entwicklung und Debugging sein kann.
+# 3. reload_plugin(plugin_name, settings):
+#    Diese Methode wurde aktualisiert, um optionale neue Einstellungen beim Neuladen zu berücksichtigen.
 
-# 4. Fehlerbehandlung:
-#    Jede Methode verwendet den @handle_exceptions Decorator und implementiert
-#    spezifische Fehlerbehandlung, um robustes Laden zu gewährleisten.
+# 4. validate_plugin_settings(plugin, settings):
+#    Diese neue Methode validiert die Einstellungen für ein Plugin.
+#    Sie kombiniert die Standardeinstellungen des Plugins mit den übergebenen Einstellungen
+#    und den globalen Standardeinstellungen.
 
-# 5. Logging:
-#    Ausführliches Logging hilft bei der Diagnose von Problemen beim Laden von Plugins.
+# 5. Fehlerbehandlung und Logging:
+#    Alle Methoden verwenden den @handle_exceptions Decorator für einheitliche Fehlerbehandlung.
+#    Ausführliches Logging wurde implementiert, um den Lade- und Validierungsprozess nachvollziehbar zu machen.
 
-# Diese Implementierung bietet eine flexible und robuste Möglichkeit, Plugins
-# dynamisch zu laden und zu verwalten. Sie ergänzt den PluginManager gut und
-# ermöglicht eine saubere Trennung zwischen dem Laden und der Verwaltung von Plugins.
+# Diese Änderungen ermöglichen eine flexible und robuste Handhabung von Plugin-Einstellungen
+# während des Ladevorgangs und bieten gleichzeitig Sicherheit durch Validierung.

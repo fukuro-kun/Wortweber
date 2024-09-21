@@ -15,7 +15,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any
+from typing import Dict, Any, Optional
+from src.utils.error_handling import handle_exceptions, logger
 
 class AbstractPlugin(ABC):
     """
@@ -47,16 +48,37 @@ class AbstractPlugin(ABC):
         """Gibt den Namen des Plugin-Autors zurück."""
         pass
 
+    @handle_exceptions
+    def get_default_settings(self) -> Dict[str, Any]:
+        """
+        Gibt die Standardeinstellungen des Plugins zurück.
+        Diese Methode kann von Plugins überschrieben werden, um eigene Standardeinstellungen zu definieren.
+
+        :return: Ein Dictionary mit den Standardeinstellungen des Plugins
+        """
+        return {}
+
+    @handle_exceptions
     @abstractmethod
-    def activate(self) -> None:
-        """Wird aufgerufen, wenn das Plugin aktiviert wird."""
+    def activate(self, settings: Dict[str, Any]) -> None:
+        """
+        Wird aufgerufen, wenn das Plugin aktiviert wird.
+
+        :param settings: Ein Dictionary mit den aktuellen Einstellungen des Plugins
+        """
         pass
 
+    @handle_exceptions
     @abstractmethod
-    def deactivate(self) -> None:
-        """Wird aufgerufen, wenn das Plugin deaktiviert wird."""
+    def deactivate(self) -> Optional[Dict[str, Any]]:
+        """
+        Wird aufgerufen, wenn das Plugin deaktiviert wird.
+
+        :return: Ein optionales Dictionary mit den zu speichernden Einstellungen des Plugins
+        """
         pass
 
+    @handle_exceptions
     @abstractmethod
     def process_text(self, text: str) -> str:
         """
@@ -67,29 +89,72 @@ class AbstractPlugin(ABC):
         """
         pass
 
-    @abstractmethod
+    @handle_exceptions
     def get_settings(self) -> Dict[str, Any]:
         """
         Gibt die aktuellen Einstellungen des Plugins zurück.
+        Diese Methode kann von Plugins überschrieben werden, um zusätzliche Logik für das Abrufen von Einstellungen zu implementieren.
 
-        :return: Ein Dictionary mit den Einstellungen des Plugins
+        :return: Ein Dictionary mit den aktuellen Einstellungen des Plugins
         """
-        pass
+        return self.get_default_settings()
 
-    @abstractmethod
+    @handle_exceptions
     def set_settings(self, settings: Dict[str, Any]) -> None:
         """
         Setzt die Einstellungen des Plugins.
+        Diese Methode kann von Plugins überschrieben werden, um zusätzliche Logik für das Setzen von Einstellungen zu implementieren.
 
         :param settings: Ein Dictionary mit den neuen Einstellungen
         """
         pass
 
-    @abstractmethod
+    @handle_exceptions
     def get_ui_elements(self) -> Dict[str, Any]:
         """
         Gibt UI-Elemente zurück, die in die Hauptanwendung integriert werden sollen.
+        Diese Methode kann von Plugins überschrieben werden, um benutzerdefinierte UI-Elemente bereitzustellen.
 
         :return: Ein Dictionary mit UI-Elementen (z.B. Tkinter-Widgets)
         """
+        return {}
+
+    @handle_exceptions
+    def on_config_change(self, key: str, value: Any) -> None:
+        """
+        Wird aufgerufen, wenn sich eine Konfigurationseinstellung ändert.
+        Diese Methode kann von Plugins überschrieben werden, um auf Konfigurationsänderungen zu reagieren.
+
+        :param key: Der Schlüssel der geänderten Einstellung
+        :param value: Der neue Wert der Einstellung
+        """
         pass
+
+# Zusätzliche Erklärungen:
+
+# 1. get_default_settings():
+#    Diese neue Methode ermöglicht es Plugins, ihre eigenen Standardeinstellungen zu definieren.
+#    Sie kann von konkreten Plugin-Implementierungen überschrieben werden.
+
+# 2. activate(settings):
+#    Die activate-Methode wurde erweitert, um Einstellungen als Parameter zu akzeptieren.
+#    Dies ermöglicht es Plugins, ihre Einstellungen beim Aktivieren zu laden und zu verwenden.
+
+# 3. deactivate():
+#    Die deactivate-Methode wurde geändert, um optional ein Dictionary mit Einstellungen zurückzugeben.
+#    Dies ermöglicht es Plugins, ihre aktuellen Einstellungen beim Deaktivieren zu speichern.
+
+# 4. get_settings() und set_settings(settings):
+#    Diese Methoden bieten eine Standardimplementierung für das Abrufen und Setzen von Einstellungen.
+#    Plugins können diese Methoden überschreiben, um eine benutzerdefinierte Logik zu implementieren.
+
+# 5. on_config_change(key, value):
+#    Diese neue Methode ermöglicht es Plugins, auf Änderungen in den Konfigurationseinstellungen zu reagieren.
+#    Sie kann von Plugins überschrieben werden, um spezifisches Verhalten zu implementieren.
+
+# 6. Fehlerbehandlung:
+#    Alle Methoden sind mit dem @handle_exceptions Decorator versehen, um eine einheitliche
+#    Fehlerbehandlung und -protokollierung in der gesamten Anwendung sicherzustellen.
+
+# Diese Änderungen bieten eine flexible und erweiterbare Grundlage für die Integration
+# von Plugin-Einstellungen und -Konfigurationen in das Wortweber-Plugin-System.

@@ -18,9 +18,11 @@
 
 import json
 import os
+from typing import Dict, Any
 from src.config import (DEFAULT_LANGUAGE, DEFAULT_WHISPER_MODEL, DEFAULT_THEME,
                         DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY, DEFAULT_FONT_SIZE,
-                        DEFAULT_INCOGNITO_MODE)
+                        DEFAULT_INCOGNITO_MODE, DEFAULT_PLUGIN_DIR, DEFAULT_ENABLED_PLUGINS,
+                        DEFAULT_PLUGIN_SETTINGS, PLUGIN_SPECIFIC_SETTINGS)
 from src.utils.error_handling import handle_exceptions, logger
 
 class SettingsManager:
@@ -49,6 +51,9 @@ class SettingsManager:
                 with open(self.settings_file, "r") as f:
                     settings = json.load(f)
                 logger.info("Einstellungen erfolgreich geladen")
+                # Füge fehlende Plugin-Einstellungen hinzu
+                if "plugins" not in settings:
+                    settings["plugins"] = self.get_default_settings()["plugins"]
                 return settings
             except json.JSONDecodeError:
                 logger.error("Fehler beim Laden der Einstellungen. Verwende Standardeinstellungen.")
@@ -115,38 +120,75 @@ class SettingsManager:
             "font_size": DEFAULT_FONT_SIZE,
             "save_test_recording": False,
             "incognito_mode": DEFAULT_INCOGNITO_MODE,
+            "plugins": {
+                "enabled_plugins": DEFAULT_ENABLED_PLUGINS,
+                "plugin_dir": DEFAULT_PLUGIN_DIR,
+                "global_settings": DEFAULT_PLUGIN_SETTINGS["global"],
+                "specific_settings": PLUGIN_SPECIFIC_SETTINGS
+            }
         }
         logger.debug("Standardeinstellungen abgerufen")
         return default_settings
 
     @handle_exceptions
+    def get_plugin_settings(self, plugin_name: str) -> Dict[str, Any]:
+        """
+        Ruft die Einstellungen für ein spezifisches Plugin ab.
+
+        :param plugin_name: Name des Plugins
+        :return: Ein Dictionary mit den Plugin-Einstellungen
+        """
+        plugin_settings = self.settings.get("plugins", {}).get("specific_settings", {}).get(plugin_name, {})
+        global_settings = self.settings.get("plugins", {}).get("global_settings", {})
+        return {**global_settings, **plugin_settings}
+
+    @handle_exceptions
+    def set_plugin_settings(self, plugin_name: str, settings: Dict[str, Any]):
+        """
+        Setzt die Einstellungen für ein spezifisches Plugin.
+
+        :param plugin_name: Name des Plugins
+        :param settings: Ein Dictionary mit den neuen Plugin-Einstellungen
+        """
+        if "plugins" not in self.settings:
+            self.settings["plugins"] = self.get_default_settings()["plugins"]
+        if "specific_settings" not in self.settings["plugins"]:
+            self.settings["plugins"]["specific_settings"] = {}
+        self.settings["plugins"]["specific_settings"][plugin_name] = settings
+        self.save_settings()
+        logger.info(f"Plugin-Einstellungen für {plugin_name} aktualisiert")
+
+    @handle_exceptions
     def print_current_settings(self):
         logger.info("Aktuelle Einstellungen:")
         for key, value in self.settings.items():
-            logger.info(f"{key}: {value}")
+            if key != "plugins":
+                logger.info(f"{key}: {value}")
+            else:
+                logger.info("Plugin-Einstellungen:")
+                for plugin_key, plugin_value in value.items():
+                    logger.info(f"  {plugin_key}: {plugin_value}")
 
 # Zusätzliche Erklärungen:
 
-# 1. Neue Einstellung "incognito_mode":
-#    Diese Einstellung wurde zum Dictionary der Standardeinstellungen hinzugefügt.
-#    Sie steuert, ob Transkriptionsergebnisse protokolliert werden sollen.
+# 1. Plugin-Einstellungen in get_default_settings():
+#    Die Standardeinstellungen für Plugins wurden hinzugefügt, einschließlich
+#    aktivierter Plugins, Plugin-Verzeichnis und globaler/spezifischer Einstellungen.
 
-# 2. Verwendung von DEFAULT_INCOGNITO_MODE:
-#    Der Standardwert für den Incognito-Modus wird aus der Konfigurationsdatei importiert.
-#    Dies gewährleistet Konsistenz und erleichtert zukünftige Änderungen.
+# 2. get_plugin_settings(plugin_name):
+#    Diese neue Methode ermöglicht es, Einstellungen für ein spezifisches Plugin abzurufen.
+#    Sie kombiniert globale und plugin-spezifische Einstellungen.
 
-# 3. Fehlerbehandlung:
-#    Die Methoden sind mit dem @handle_exceptions Decorator versehen, was eine
-#    einheitliche Fehlerbehandlung und -protokollierung in der gesamten Anwendung sicherstellt.
+# 3. set_plugin_settings(plugin_name, settings):
+#    Diese neue Methode erlaubt das Setzen von Einstellungen für ein spezifisches Plugin.
+#    Sie aktualisiert die Einstellungen und speichert sie persistent.
 
-# 4. Logging:
-#    Ausführliche Logging-Aufrufe wurden implementiert, um die Nachvollziehbarkeit
-#    von Einstellungsänderungen und potenziellen Problemen zu verbessern.
+# 4. Anpassung von load_settings():
+#    Die Methode wurde erweitert, um fehlende Plugin-Einstellungen hinzuzufügen,
+#    falls sie in den geladenen Einstellungen nicht vorhanden sind.
 
-# 5. Flexibilität:
-#    Die Struktur des SettingsManager erlaubt es, leicht neue Einstellungen hinzuzufügen,
-#    ohne bestehenden Code zu ändern. Dies erleichtert zukünftige Erweiterungen.
+# 5. print_current_settings():
+#    Diese Methode wurde aktualisiert, um auch Plugin-Einstellungen übersichtlich anzuzeigen.
 
-# 6. Persistenz:
-#    Durch das Speichern der Einstellungen in einer JSON-Datei bleiben Benutzereinstellungen
-#    über Anwendungsneustarts hinweg erhalten.
+# Diese Änderungen ermöglichen eine flexible und erweiterbare Verwaltung von Plugin-Einstellungen,
+# während sie sich nahtlos in die bestehende Struktur des SettingsManager integrieren.
