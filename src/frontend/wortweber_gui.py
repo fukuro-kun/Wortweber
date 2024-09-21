@@ -40,6 +40,7 @@ from src.frontend.input_processor import InputProcessor
 from src.frontend.settings_manager import SettingsManager
 from src.config import DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY, DEFAULT_PUSH_TO_TALK_KEY
 from src.utils.error_handling import handle_exceptions, logger
+from src.plugin_system.plugin_manager import PluginManager
 
 class WordweberGUI:
     """
@@ -48,13 +49,15 @@ class WordweberGUI:
     """
 
     @handle_exceptions
-    def __init__(self, backend: WordweberBackend) -> None:
+    def __init__(self, backend: WordweberBackend, plugin_manager: PluginManager) -> None:
         """
         Initialisiert die GUI der Wortweber-Anwendung.
 
         :param backend: Eine Instanz der WordweberBackend-Klasse
+        :param plugin_manager: Eine Instanz der PluginManager-Klasse
         """
         self.backend = backend
+        self.plugin_manager = plugin_manager
         self.settings_manager = SettingsManager()
 
         self.root = ttkthemes.ThemedTk()
@@ -86,6 +89,7 @@ class WordweberGUI:
         self.load_saved_settings()
         self.load_initial_model()
         self.initialize_delay_settings()
+        self.setup_plugin_menu()  # Neue Methode zum Einrichten des Plugin-Menüs
 
         # Hinzufügen eines Event-Handlers für Größenänderungen
         self.root.bind("<Configure>", self.on_window_configure)
@@ -190,8 +194,11 @@ class WordweberGUI:
     def transcribe_and_update(self) -> None:
         """Führt die Transkription durch und aktualisiert die GUI."""
         def update_gui(text, transcription_time):
+            # Verarbeite den Text mit aktiven Plugins
+            processed_text = self.plugin_manager.process_text_with_plugins(text)
+
             self.main_window.update_status_bar(status="Transkription abgeschlossen", status_color="green", transcription_time=transcription_time)
-            self.input_processor.process_text(text)
+            self.input_processor.process_text(processed_text)  # Verwende den verarbeiteten Text
 
             output_mode = self.options_panel.output_mode_var.get()
             self.main_window.update_status_bar(output_mode=output_mode)
@@ -263,18 +270,63 @@ class WordweberGUI:
         """Aktualisiert die Shortcut-Anzeige im OptionsPanel."""
         self.options_panel.update_shortcut_display(new_shortcut)
 
+    @handle_exceptions
+    def setup_plugin_menu(self):
+        """Richtet das Menü für die Plugin-Verwaltung ein."""
+        plugin_menu = tk.Menu(self.root)
+        self.root.config(menu=plugin_menu)
+        plugins_submenu = tk.Menu(plugin_menu, tearoff=0)
+        plugin_menu.add_cascade(label="Plugins", menu=plugins_submenu)
+
+        for plugin_info in self.plugin_manager.get_plugin_info():
+            plugins_submenu.add_checkbutton(
+                label=f"{plugin_info['name']} v{plugin_info['version']}",
+                command=lambda name=plugin_info['name']: self.toggle_plugin(name),
+                variable=tk.BooleanVar(value=plugin_info['active'])
+            )
+
+    @handle_exceptions
+    def toggle_plugin(self, plugin_name: str):
+        """
+        Aktiviert oder deaktiviert ein Plugin.
+
+        :param plugin_name: Name des zu schaltenden Plugins
+        """
+        if plugin_name in self.plugin_manager.active_plugins:
+            self.plugin_manager.deactivate_plugin(plugin_name)
+        else:
+            self.plugin_manager.activate_plugin(plugin_name)
+        # Aktualisieren Sie die GUI, um den neuen Plugin-Status anzuzeigen
+        self.setup_plugin_menu()
 
 # Zusätzliche Erklärungen:
 
-# 1. Die Klasse WordweberGUI ist der zentrale Punkt für die Verwaltung der Benutzeroberfläche.
-# 2. Sie koordiniert die Interaktionen zwischen verschiedenen UI-Komponenten und dem Backend.
-# 3. Die Methode update_colors wurde hinzugefügt, um die Farbänderungen im Transkriptionsfenster zu aktualisieren.
-# 4. Die Initialisierung des ThemeManagers wurde angepasst, um die GUI-Referenz zu setzen.
-# 5. Verschiedene Event-Handler und Timer-Funktionen steuern das dynamische Verhalten der Anwendung.
-# 6. Die Methoden zum Laden des Modells und zur Transkription sind asynchron, um die GUI reaktiv zu halten.
-# 7. Der @handle_exceptions Decorator wurde für alle Methoden hinzugefügt, um eine einheitliche Fehlerbehandlung zu gewährleisten.
-# 8. Die Verwendung von self.root.after() in _load_model_thread und transcribe_and_update stellt sicher, dass GUI-Updates im Hauptthread erfolgen.
-# 9. Fehlerbehandlung wurde in _load_model_thread hinzugefügt, um Benutzer über Probleme beim Laden des Modells zu informieren.
-# 10. Die transcribe_and_update Methode wurde überarbeitet, um alle GUI-Aktualisierungen im Hauptthread durchzuführen.
-# 11. Die Statusleiste wird nun für alle relevanten Statusaktualisierungen verwendet, einschließlich farbiger Anzeigen.
-# 12. Die initialize_delay_settings und get_delay_settings Methoden wurden hinzugefügt, um die Verzögerungseinstellungen zu verwalten.
+# 1. Modulare Struktur:
+#    Die GUI ist in verschiedene Komponenten aufgeteilt (MainWindow, TranscriptionPanel, OptionsPanel),
+#    was die Wartbarkeit und Erweiterbarkeit verbessert.
+
+# 2. Event-Handling:
+#    Die Klasse verwendet verschiedene Event-Handler, um auf Benutzerinteraktionen und
+#    Systemereignisse zu reagieren, z.B. Fenstergrößenänderungen oder das Schließen der Anwendung.
+
+# 3. Asynchrone Verarbeitung:
+#    Modellladung und Transkription werden asynchron durchgeführt, um die GUI reaktiv zu halten.
+
+# 4. Einstellungsverwaltung:
+#    Die Klasse interagiert eng mit dem SettingsManager, um Benutzereinstellungen zu laden,
+#    zu speichern und anzuwenden.
+
+# 5. Theming und Farbverwaltung:
+#    Der ThemeManager wird verwendet, um das Erscheinungsbild der Anwendung anzupassen.
+
+# 6. Plugin-Integration:
+#    Das neue Plugin-System wird durch das setup_plugin_menu und toggle_plugin integriert,
+#    was die Erweiterbarkeit der Anwendung demonstriert.
+
+# 7. Fehlerbehandlung und Logging:
+#    Umfassende Fehlerbehandlung und Logging sind implementiert, um die Stabilität
+#    zu erhöhen und die Fehlerbehebung zu erleichtern.
+
+# Diese Implementierung bietet eine flexible und erweiterbare Basis für die
+# Benutzeroberfläche von Wortweber, mit Fokus auf Benutzerfreundlichkeit,
+# Anpassbarkeit und robuste Fehlerbehandlung.

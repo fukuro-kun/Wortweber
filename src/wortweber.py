@@ -27,6 +27,11 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from src.utils.error_handling import handle_exceptions, logger
+from src.backend.wortweber_backend import WordweberBackend
+from src.frontend.wortweber_gui import WordweberGUI
+from src.frontend.settings_manager import SettingsManager
+from src.plugin_system.plugin_manager import PluginManager
+from src.plugin_system.plugin_loader import PluginLoader
 
 # Unterdrücke ALSA-Warnungen
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="sounddevice")
@@ -51,37 +56,49 @@ except:
 # Setze Umgebungsvariable, um PulseAudio-Warnungen zu unterdrücken
 os.environ['PULSE_PROP_media.role'] = 'phone'
 
-from src.backend.wortweber_backend import WordweberBackend
-from src.frontend.wortweber_gui import WordweberGUI
-from src.frontend.settings_manager import SettingsManager
-
 class Wortweber:
     @handle_exceptions
     def __init__(self):
         self.settings_manager = SettingsManager()
         self.backend = WordweberBackend(self.settings_manager)
-        self.gui = WordweberGUI(self.backend)
+
+        # Initialisieren des Plugin-Systems
+        self.plugin_loader = PluginLoader()
+        self.plugin_manager = PluginManager()
+        self.load_plugins()
+
+        self.gui = WordweberGUI(self.backend, self.plugin_manager)
 
         # Füge diese Zeile hinzu, um die aktuellen Einstellungen zu drucken
         self.settings_manager.print_current_settings()
 
     @handle_exceptions
+    def load_plugins(self):
+        plugins = self.plugin_loader.load_all_plugins()
+        for plugin in plugins:
+            self.plugin_manager.plugins[plugin.name] = plugin
+        self.plugin_manager.discover_plugins()  # Dies lädt zusätzliche Plugins aus dem Verzeichnis
+
+    @handle_exceptions
     def run(self):
+        """
+        Hauptfunktion der Wortweber-Anwendung.
+        Initialisiert das Backend und die GUI und startet die Anwendung.
+        """
+        logger.info("Starte Wortweber-Anwendung")
         self.backend.list_audio_devices()  # Zeigt verfügbare Audiogeräte an
         self.gui.run()
 
     def cleanup(self):
         if hasattr(self, 'backend'):
             self.backend.audio_processor.cleanup()
+        # Deaktivieren aller aktiven Plugins
+        for plugin_name in self.plugin_manager.active_plugins:
+            self.plugin_manager.deactivate_plugin(plugin_name)
         logger.info("Wortweber-Anwendung beendet und Ressourcen bereinigt")
 
 @handle_exceptions
 def main():
-    """
-    Hauptfunktion der Wortweber-Anwendung.
-    Initialisiert das Backend und die GUI und startet die Anwendung.
-    """
-    logger.info("Starte Wortweber-Anwendung")
     app = Wortweber()
     atexit.register(app.cleanup)
     app.run()
@@ -96,37 +113,39 @@ if __name__ == "__main__":
 #    stellen sicher, dass Python die Module des Projekts finden kann, unabhängig davon,
 #    von wo aus das Skript ausgeführt wird.
 
-# 2. Modularität:
-#    Die Trennung von Backend und GUI in separate Klassen (WordweberBackend und WordweberGUI)
-#    folgt dem Prinzip der Trennung von Belangen (Separation of Concerns) und verbessert
-#    die Wartbarkeit und Erweiterbarkeit des Codes.
+# 2. Fehlerunterdrückung:
+#    Die Unterdrückung von ALSA- und JACK-Fehlermeldungen verbessert die Benutzerfreundlichkeit,
+#    indem störende, oft irrelevante Warnungen in der Konsole reduziert werden.
 
-# 3. Einstiegspunkt:
+# 3. Modularität:
+#    Die Trennung von Backend, GUI und Einstellungsverwaltung in separate Klassen
+#    (WordweberBackend, WordweberGUI, SettingsManager) folgt dem Prinzip der Trennung von Belangen
+#    und verbessert die Wartbarkeit und Erweiterbarkeit des Codes.
+
+# 4. Hauptanwendungsklasse:
+#    Die Wortweber-Klasse dient als zentraler Koordinator, der die verschiedenen
+#    Komponenten der Anwendung initialisiert und verwaltet.
+
+# 5. Ressourcenverwaltung:
+#    Die cleanup-Methode und ihre Registrierung mit atexit stellen sicher, dass
+#    Ressourcen ordnungsgemäß freigegeben werden, wenn die Anwendung beendet wird.
+
+# 6. Fehlerbehandlung und Logging:
+#    Die Verwendung des @handle_exceptions Decorators und des Loggers gewährleistet
+#    eine konsistente Fehlerbehandlung und -protokollierung in der gesamten Anwendung.
+
+# 7. Einstiegspunkt:
 #    Die main()-Funktion dient als zentraler Einstiegspunkt der Anwendung.
 #    Sie wird nur ausgeführt, wenn das Skript direkt gestartet wird (nicht wenn es importiert wird).
 
-# 4. Audiogeräte-Auflistung:
-#    Der Aufruf von backend.list_audio_devices() vor dem Start der GUI
-#    gibt dem Benutzer wichtige Informationen über verfügbare Audiogeräte,
-#    was bei der Konfiguration und Fehlerbehebung hilfreich sein kann.
+# 8. Erweiterbarkeit:
+#    Die Struktur der Anwendung, einschließlich der Integration des Plugin-Systems,
+#    ermöglicht einfache Erweiterungen und Anpassungen der Funktionalität.
 
-# 5. Flexibilität:
-#    Durch die Trennung von Backend und GUI ist es einfach, in Zukunft alternative
-#    Benutzeroberflächen (z.B. eine Kommandozeilenschnittstelle) zu implementieren,
-#    ohne das Backend ändern zu müssen.
+# 9. Konfigurationsmanagement:
+#    Die Verwendung eines SettingsManagers zentralisiert die Verwaltung von
+#    Benutzereinstellungen und erleichtert deren konsistente Anwendung in der gesamten Anwendung.
 
-# 6. Startprozess:
-#    Die Reihenfolge der Operationen in main() - zuerst Backend initialisieren,
-#    dann Audiogeräte auflisten und schließlich die GUI starten - gewährleistet,
-#    dass alle notwendigen Komponenten bereit sind, bevor der Benutzer mit der Anwendung interagiert.
-
-# 7. ALSA-Warnung Unterdrückung:
-#    Der neu hinzugefügte Code am Anfang der Datei dient dazu, ALSA-bezogene Warnungen
-#    zu unterdrücken, die oft beim Start von Python-Programmen mit Audiogeräten auftreten.
-#    Dies verbessert die Benutzerfreundlichkeit, indem es unnötige Warnmeldungen in der Konsole reduziert.
-
-# Hinweis zur Projektstruktur:
-# Diese Datei dient als Einstiegspunkt für die gesamte Anwendung.
-# Sie verbindet das Backend (die Logik der Anwendung) mit dem Frontend (der Benutzeroberfläche).
-# Diese Struktur ermöglicht eine klare Trennung der Verantwortlichkeiten und erleichtert
-# sowohl die Wartung als auch zukünftige Erweiterungen der Anwendung.
+# Diese Implementierung bietet eine robuste und erweiterbare Grundlage für die
+# Wortweber-Anwendung, mit besonderem Augenmerk auf Modularität, Fehlertoleranz,
+# Benutzerfreundlichkeit und einfache Wartbarkeit.
