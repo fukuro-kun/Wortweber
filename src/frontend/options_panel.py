@@ -127,6 +127,13 @@ class OptionsPanel(ttk.Frame):
         self.shortcut_label.config(text=f"{new_shortcut} um aufzunehmen")
         logger.info(f"Shortcut-Anzeige aktualisiert auf: {new_shortcut}")
 
+    @handle_exceptions
+    def update_delay_settings(self, delay_mode, char_delay):
+        """Aktualisiert die Verzögerungseinstellungen."""
+        self.gui.settings_manager.set_setting("delay_mode", delay_mode)
+        self.gui.settings_manager.set_setting("char_delay", char_delay)
+        self.gui.settings_manager.save_settings()
+        logger.info(f"Verzögerungseinstellungen aktualisiert: Modus={delay_mode}, Verzögerung={char_delay}")
 
 # Zusätzliche Erklärungen:
 
