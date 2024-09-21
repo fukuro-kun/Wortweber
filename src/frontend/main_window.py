@@ -53,29 +53,15 @@ class MainWindow:
         main_frame.columnconfigure(0, weight=1)
         main_frame.rowconfigure(1, weight=1)
 
-
         self.options_panel = OptionsPanel(main_frame, self.gui)
         self.options_panel.grid(column=0, row=0, sticky="ew")
 
         self.transcription_panel = TranscriptionPanel(main_frame, self.gui)
         self.transcription_panel.grid(column=0, row=1, sticky="nsew")
 
-        # Buttons am unteren Rand hinzufügen
-        button_frame = ttk.Frame(main_frame)
-        button_frame.grid(column=0, row=2, pady=10)
-
-        ttk.Button(button_frame, text="Transkription löschen",
-                    command=self.transcription_panel.clear_transcription).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Alles kopieren",
-                    command=self.transcription_panel.copy_all_to_clipboard).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Erweiterte Optionen",
-                    command=self.gui.open_options_window).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Beenden",
-                    command=self.root.quit).pack(side=tk.LEFT, padx=5)
-
         # Statusleiste
         self.status_bar = tk.Frame(main_frame, bg="black", bd=1, relief="sunken")
-        self.status_bar.grid(column=0, row=3, sticky="ew", padx=1, pady=(1, 0))
+        self.status_bar.grid(column=0, row=2, sticky="ew", padx=1, pady=(1, 0))
 
         # Konfigurieren der Spalten für das Grid-Layout
         self.status_bar.columnconfigure(0, weight=1)  # Linke Seite
@@ -161,15 +147,6 @@ class MainWindow:
         # Explizite Aktualisierung des Fensters, um sicherzustellen, dass Änderungen sofort sichtbar sind
         self.root.update_idletasks()
 
-    @handle_exceptions
-    def open_options_window(self):
-        """Öffnet das Fenster für erweiterte Optionen."""
-        self.gui.open_options_window()
-
-
-logger.info("MainWindow-Modul geladen")
-
-
 # Zusätzliche Erklärungen:
 
 # 1. Modulare Struktur:
@@ -180,28 +157,16 @@ logger.info("MainWindow-Modul geladen")
 #    Das Grid-Layout wird verwendet, um eine flexible und responsive Benutzeroberfläche zu erstellen.
 #    Die Verwendung von sticky="nsew" und weight-Parametern ermöglicht eine dynamische Größenanpassung der Elemente.
 
-# 3. Button-Funktionalität:
-#    Die Buttons am unteren Rand bieten schnellen Zugriff auf häufig verwendete Funktionen wie das Löschen der Transkription
-#    oder das Öffnen der erweiterten Optionen.
-
-# 4. Erweiterbarkeit:
-#    Die open_options_window-Methode zeigt, wie zusätzliche Funktionen einfach integriert werden können,
-#    indem neue Fenster oder Dialoge geöffnet werden.
-
-# 5. Separation of Concerns:
-#    Jedes Panel ist für einen spezifischen Bereich der Benutzeroberfläche zuständig, was die Codeorganisation verbessert
-#    und es einfacher macht, einzelne Komponenten zu aktualisieren oder zu ersetzen.
-
-# 6. Statusleiste:
+# 3. Statusleiste:
 #    Die Statusleiste am unteren Rand des Fensters bietet eine übersichtliche Darstellung wichtiger Informationen.
-#    Sie enthält nun Anzeigen für das Modell, den Ausgabemodus, den allgemeinen Status, die Aufnahmezeit und die Transkriptionszeit.
+#    Sie enthält Anzeigen für das Modell, den Ausgabemodus, den allgemeinen Status, die Aufnahmezeit und die Transkriptionszeit.
 
-# 7. Fehlerbehandlung:
+# 4. Fehlerbehandlung:
 #    Die Verwendung des @handle_exceptions Decorators gewährleistet eine einheitliche Fehlerbehandlung in allen Methoden.
 
-# 8. Logging:
+# 5. Logging:
 #    Ausführliches Logging hilft bei der Diagnose von Problemen und der Nachverfolgung des Programmablaufs.
 
-# 9. Dynamische Statusaktualisierung:
+# 6. Dynamische Statusaktualisierung:
 #    Die update_status_bar Methode ermöglicht es, verschiedene Teile der Statusleiste unabhängig voneinander zu aktualisieren,
 #    was eine flexible und effiziente Statusanzeige ermöglicht.

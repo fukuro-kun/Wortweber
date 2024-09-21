@@ -38,6 +38,7 @@ class PluginManager:
     @handle_exceptions
     def discover_plugins(self) -> None:
         """Durchsucht das Plugin-Verzeichnis nach verfügbaren Plugins und lädt sie."""
+        logger.info(f"Suche nach Plugins in: {self.plugin_dir}")
         plugin_settings = self.settings_manager.get_setting("plugins", {}).get("specific_settings", {})
         loaded_plugins = self.plugin_loader.load_all_plugins(plugin_settings)
         for plugin in loaded_plugins:
@@ -49,6 +50,10 @@ class PluginManager:
         for plugin_name in enabled_plugins:
             if plugin_name in self.plugins:
                 self.activate_plugin(plugin_name)
+            else:
+                logger.warning(f"Zuvor aktiviertes Plugin nicht gefunden: {plugin_name}")
+
+        logger.info(f"Insgesamt {len(self.plugins)} Plugins geladen")
 
     @handle_exceptions
     def activate_plugin(self, plugin_name: str) -> bool:

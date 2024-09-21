@@ -21,6 +21,7 @@ Es koordiniert die verschiedenen UI-Komponenten und die Interaktion mit dem Back
 
 # Standardbibliotheken
 import tkinter as tk
+from tkinter import ttk, messagebox
 import time
 import logging
 import threading
@@ -41,6 +42,8 @@ from src.frontend.settings_manager import SettingsManager
 from src.config import DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY, DEFAULT_PUSH_TO_TALK_KEY
 from src.utils.error_handling import handle_exceptions, logger
 from src.plugin_system.plugin_manager import PluginManager
+from src.frontend.context_menu import create_context_menu
+from src.frontend.plugin_management_window import PluginManagementWindow  # Neuer Import
 
 class WordweberGUI:
     """
@@ -89,7 +92,11 @@ class WordweberGUI:
         self.load_saved_settings()
         self.load_initial_model()
         self.initialize_delay_settings()
-        self.setup_plugin_menu()  # Neue Methode zum Einrichten des Plugin-Menüs
+        self.setup_menu()
+        self.setup_context_menu()
+
+        # Plugins entdecken
+        self.plugin_manager.discover_plugins()
 
         # Hinzufügen eines Event-Handlers für Größenänderungen
         self.root.bind("<Configure>", self.on_window_configure)
@@ -271,33 +278,45 @@ class WordweberGUI:
         self.options_panel.update_shortcut_display(new_shortcut)
 
     @handle_exceptions
-    def setup_plugin_menu(self):
-        """Richtet das Menü für die Plugin-Verwaltung ein."""
-        plugin_menu = tk.Menu(self.root)
-        self.root.config(menu=plugin_menu)
-        plugins_submenu = tk.Menu(plugin_menu, tearoff=0)
-        plugin_menu.add_cascade(label="Plugins", menu=plugins_submenu)
+    def setup_menu(self):
+        """Richtet das Hauptmenü der Anwendung ein."""
+        menubar = tk.Menu(self.root)
+        self.root.config(menu=menubar)
 
-        for plugin_info in self.plugin_manager.get_plugin_info():
-            plugins_submenu.add_checkbutton(
-                label=f"{plugin_info['name']} v{plugin_info['version']}",
-                command=lambda name=plugin_info['name']: self.toggle_plugin(name),
-                variable=tk.BooleanVar(value=plugin_info['active'])
-            )
+        # Datei-Menü
+        file_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Datei", menu=file_menu)
+        file_menu.add_command(label="Beenden", command=self.root.quit)
+
+        # Bearbeiten-Menü
+        edit_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Bearbeiten", menu=edit_menu)
+        edit_menu.add_command(label="Transkription löschen", command=self.transcription_panel.clear_transcription)
+        edit_menu.add_command(label="Alles kopieren", command=self.transcription_panel.copy_all_to_clipboard)
+
+        # Optionen-Menü
+        options_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Optionen", menu=options_menu)
+        options_menu.add_command(label="Erweiterte Einstellungen", command=self.open_options_window)
+
+        # Plugin-Menü
+        plugin_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Plugins", menu=plugin_menu)
+        plugin_menu.add_command(label="Plugin-Verwaltung", command=self.open_plugin_management_window)
 
     @handle_exceptions
-    def toggle_plugin(self, plugin_name: str):
-        """
-        Aktiviert oder deaktiviert ein Plugin.
+    def setup_context_menu(self):
+        """Richtet das Kontextmenü für das Transkriptionsfenster ein."""
+        def show_context_menu(event):
+            create_context_menu(self.transcription_panel.text_widget, event)
 
-        :param plugin_name: Name des zu schaltenden Plugins
-        """
-        if plugin_name in self.plugin_manager.active_plugins:
-            self.plugin_manager.deactivate_plugin(plugin_name)
-        else:
-            self.plugin_manager.activate_plugin(plugin_name)
-        # Aktualisieren Sie die GUI, um den neuen Plugin-Status anzuzeigen
-        self.setup_plugin_menu()
+        self.transcription_panel.text_widget.bind("<Button-3>", show_context_menu)
+
+    @handle_exceptions
+    def open_plugin_management_window(self):
+        """Öffnet das Fenster zur Plugin-Verwaltung."""
+        PluginManagementWindow.open_window(self.root, self.plugin_manager)
+
 
 # Zusätzliche Erklärungen:
 
@@ -320,12 +339,15 @@ class WordweberGUI:
 #    Der ThemeManager wird verwendet, um das Erscheinungsbild der Anwendung anzupassen.
 
 # 6. Plugin-Integration:
-#    Das neue Plugin-System wird durch das setup_plugin_menu und toggle_plugin integriert,
+#    Das Plugin-System wird durch die setup_menu und open_plugin_management_window Methoden integriert,
 #    was die Erweiterbarkeit der Anwendung demonstriert.
 
 # 7. Fehlerbehandlung und Logging:
 #    Umfassende Fehlerbehandlung und Logging sind implementiert, um die Stabilität
 #    zu erhöhen und die Fehlerbehebung zu erleichtern.
+
+# 8. Kontextmenü:
+#    Ein Kontextmenü wurde hinzugefügt, um schnellen Zugriff auf häufig verwendete Funktionen zu bieten.
 
 # Diese Implementierung bietet eine flexible und erweiterbare Basis für die
 # Benutzeroberfläche von Wortweber, mit Fokus auf Benutzerfreundlichkeit,

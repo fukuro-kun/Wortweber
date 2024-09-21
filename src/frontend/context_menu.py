@@ -29,17 +29,27 @@ def create_context_menu(text_widget, event):
     :param event: Das Ereignis, das das Kontextmenü auslöst (typischerweise ein Rechtsklick)
     """
     context_menu = tk.Menu(text_widget, tearoff=0)
+
+    # Ursprüngliche Funktionalitäten
+    context_menu.add_command(label="Rückgängig", command=text_widget.edit_undo)
+    context_menu.add_command(label="Wiederherstellen", command=text_widget.edit_redo)
+    context_menu.add_separator()
     context_menu.add_command(label="Ausschneiden", command=lambda: text_widget.event_generate("<<Cut>>"))
     context_menu.add_command(label="Kopieren", command=lambda: text_widget.event_generate("<<Copy>>"))
     context_menu.add_command(label="Einfügen", command=lambda: text_widget.event_generate("<<Paste>>"))
-    context_menu.add_command(label="Löschen", command=lambda: text_widget.event_generate("<<Clear>>"))
-    context_menu.add_separator()
     context_menu.add_command(label="Alles auswählen", command=lambda: text_widget.tag_add(tk.SEL, "1.0", tk.END))
     context_menu.add_separator()
     context_menu.add_command(label="Zahlwörter nach Ziffern", command=lambda: convert_text(text_widget, words_to_digits))
     context_menu.add_command(label="Ziffern nach Zahlwörtern", command=lambda: convert_text(text_widget, digits_to_words))
+
+    # Neue Optionen
+    context_menu.add_separator()
+    context_menu.add_command(label="Transkription löschen", command=lambda: text_widget.delete(1.0, tk.END))
+    context_menu.add_command(label="Alles kopieren", command=lambda: text_widget.event_generate("<<Copy>>"))
+
     context_menu.tk_popup(event.x_root, event.y_root)
     logger.debug("Kontextmenü erstellt und angezeigt")
+
 
 @handle_exceptions
 def convert_text(text_widget, conversion_function):

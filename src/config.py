@@ -17,13 +17,16 @@
 # src/config.py
 
 # Standardbibliotheken
-# (Keine Standardbibliotheken werden in dieser Datei importiert)
+import os
 
 # Drittanbieterbibliotheken
 import pyaudio
 
 # Projektspezifische Module
 # (Keine projektspezifischen Module werden in dieser Datei importiert)
+
+# Pfad zum Projektroot
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Allgemeine Einstellungen
 DEFAULT_LANGUAGE = "de"  # Standardsprache für die Transkription
@@ -71,7 +74,7 @@ VALID_MODIFIERS = ["Ctrl", "Shift", "Alt"]
 VALID_FUNCTION_KEYS = [f"F{i}" for i in range(1, 13)]  # F1 bis F12
 
 # Plugin-Einstellungen
-DEFAULT_PLUGIN_DIR = "plugins"  # Standardverzeichnis für Plugins
+DEFAULT_PLUGIN_DIR = os.path.join(PROJECT_ROOT, "plugins")  # Standardverzeichnis für Plugins
 DEFAULT_ENABLED_PLUGINS = []  # Standardmäßig aktivierte Plugins
 
 # Standardeinstellungen für Plugins
@@ -116,6 +119,7 @@ mit der aktuellen Version von Wortweber sind.
 # Diese Konfigurationsdatei zentralisiert alle wichtigen Einstellungen für die Wortweber-Anwendung.
 # Sie erleichtert die Anpassung und Wartung der Anwendung, indem sie einen einzigen Ort für
 # häufig zu ändernde Parameter bereitstellt.
+
 
 # Zusätzliche Erklärungen:
 

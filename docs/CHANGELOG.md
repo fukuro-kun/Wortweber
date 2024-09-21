@@ -5,6 +5,28 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.24.0] - 2024-09-21
+### Added
+- Implementierung eines umfassenden Plugin-Systems für Wortweber
+- Neue `PluginManager`-Klasse zur Verwaltung von Plugins
+- `PluginLoader` für dynamisches Laden von Plugins
+- Abstrakte `AbstractPlugin`-Schnittstelle für die Entwicklung von Plugins
+- Neues Plugin-Verwaltungsfenster (`PluginManagementWindow`) für Benutzerinteraktion
+- Funktionalität zum Aktivieren, Deaktivieren und Konfigurieren von Plugins über die GUI
+- Integration des Plugin-Systems in den Haupttextverarbeitungsprozess
+- Beispiel-Plugin "TextTransformer" zur Demonstration der Plugin-Funktionalität
+
+### Changed
+- Umfassende Überarbeitung der Kernarchitektur zur Unterstützung von Plugins
+- Erweiterung des `SettingsManager` zur Verwaltung von Plugin-spezifischen Einstellungen
+- Anpassung der Hauptanwendungslogik in `WordweberGUI` und `WordweberBackend` für Plugin-Integration
+- Erweiterung des Menüsystems um einen Plugin-Verwaltungseintrag
+
+### Improved
+- Erhebliche Steigerung der Erweiterbarkeit und Anpassbarkeit der Anwendung
+- Verbesserte Modularität durch klare Trennung von Kern- und Plugin-Funktionalitäten
+- Erweiterte Fehlerbehandlung und Logging für robustere Plugin-Interaktionen
+
 ## [0.23.2] - 2024-09-20
 ### Geändert
 - Verbesserung des Layouts im OptionsPanel für eine konsistentere Darstellung

@@ -1,53 +1,67 @@
 # Wortweber: Entwicklungsdokumentation
 
 ## 1. Projektübersicht
-Wortweber ist ein Python-basiertes Einzelentwickler-Projekt zur Echtzeit-Transkription von Sprache in Text. Es nutzt das OpenAI Whisper-Modell für die Spracherkennung und bietet eine benutzerfreundliche grafische Oberfläche mit Push-to-Talk-Funktionalität.
+Wortweber ist eine Python-basierte Anwendung zur Echtzeit-Sprachtranskription mit KI, die nun durch ein leistungsfähiges Plugin-System erweitert wurde. Das Projekt nutzt das OpenAI Whisper-Modell für die Spracherkennung und bietet eine benutzerfreundliche grafische Oberfläche mit Push-to-Talk-Funktionalität und Plugin-Unterstützung.
 
 ## 2. Aktuelle Entwicklungsschwerpunkte
-- Verbesserung der Audiogeräteauswahl und -persistenz
-- Implementierung einer auswählbaren Shortcut-Taste für die Push-to-Talk-Funktion
-- Kontinuierliche Verbesserung der Codequalität und Testabdeckung
+- Verfeinerung und Optimierung des neu implementierten Plugin-Systems
+- Erweiterung der Plugin-API und -Dokumentation
+- Entwicklung zusätzlicher Beispiel-Plugins zur Demonstration der Systemfähigkeiten
+- Verbesserung der Benutzeroberfläche für Plugin-Verwaltung und -Konfiguration
 
 ## 3. Nächste geplante Features
-1. Auswählbare Shortcut-Taste: Ermöglichung der benutzerdefinierten Auswahl der Push-to-Talk-Taste für verbesserte Ergonomie und Anpassbarkeit.
-2. Erweiterte Audiogerätekompatibilität: Verbesserung der Unterstützung für verschiedene Audiogeräte und Systemkonfigurationen.
-3. Optimierung der Zahlwortverarbeitung: Verbesserung der Effizienz und Genauigkeit bei der Verarbeitung komplexer Zahlwörter.
+1. Erweiterte Dokumentation für Drittentwickler
+2. Erweiterung der Plugin-Schnittstellen für tiefere Integration in die Kernfunktionalität
+3. Überarbeitung der GUI und Tooltips überall
 
 ## 4. Hauptfunktionen
-1. Echtzeit-Audioaufnahme mit Push-to-Talk (F12-Taste)
-2. Transkription mit verschiedenen Whisper-Modellen (tiny, base, small, medium, large)
-3. Sprachauswahl (Deutsch/Englisch)
-4. Automatisches Kopieren der Transkription in die Zwischenablage
-5. Anzeige der Transkriptionszeit
-6. Kontextmenü für Textbearbeitung
-7. Zahlwort-zu-Ziffer und Ziffer-zu-Zahlwort Konvertierung
-8. Verschiedene Eingabemodi: Textfenster, Systemcursor-Position mit Verzögerungsoptionen
-9. Theme-Auswahl für die GUI
-10. Speichern und Laden von Benutzereinstellungen
+1. Echtzeit-Audioaufnahme mit Push-to-Talk
+2. KI-basierte Transkription mit verschiedenen Whisper-Modellen
+3. Mehrsprachige Unterstützung (aktuell Deutsch/Englisch)
+4. Plugin-System für erweiterbare Funktionalität
+5. Textverarbeitungsoptionen (inkl. Zahlwort-Konvertierung)
+6. Anpassbare Benutzeroberfläche mit Theming-Unterstützung
+7. Einstellungsverwaltung inkl. Plugin-Konfigurationen
 
 ## 5. Projektstruktur
 ```
 Wortweber/
+├── docs/
+│   ├── CHANGELOG.md
+│   ├── DEVELOPMENT.md
+│   ├── README.md
+│   ├── REFACTORING_NOTES.md
+│   └── TODO.md
+├── plugins/
+│   └── text_transformer.py
 ├── src/
 │   ├── backend/
 │   │   ├── __init__.py
 │   │   ├── audio_processor.py
-│   │   ├── wortweber_transcriber.py
 │   │   ├── text_processor.py
 │   │   ├── wortweber_backend.py
+│   │   ├── wortweber_transcriber.py
 │   │   └── wortweber_utils.py
 │   ├── frontend/
 │   │   ├── __init__.py
-│   │   ├── wortweber_gui.py
+│   │   ├── audio_options_panel.py
+│   │   ├── context_menu.py
+│   │   ├── input_processor.py
 │   │   ├── main_window.py
-│   │   ├── transcription_panel.py
 │   │   ├── options_panel.py
+│   │   ├── options_window.py
+│   │   ├── plugin_management_window.py
+│   │   ├── settings_manager.py
+│   │   ├── shortcut_panel.py
 │   │   ├── status_panel.py
 │   │   ├── theme_manager.py
-│   │   ├── input_processor.py
-│   │   ├── settings_manager.py
-│   │   ├── context_menu.py
-│   │   └── options_window.py
+│   │   ├── transcription_panel.py
+│   │   └── wortweber_gui.py
+│   ├── plugin_system/
+│   │   ├── __init__.py
+│   │   ├── plugin_interface.py
+│   │   ├── plugin_loader.py
+│   │   └── plugin_manager.py
 │   ├── utils/
 │   │   └── error_handling.py
 │   ├── __init__.py
@@ -58,28 +72,30 @@ Wortweber/
 │   │   ├── __init__.py
 │   │   ├── test_audio_processor.py
 │   │   ├── test_audio_recording.py
+│   │   ├── test_text_processor.py
 │   │   └── test_transcription.py
+│   ├── frontend/
+│   │   ├── __init__.py
+│   │   ├── test_main_window.py
+│   │   └── test_wortweber_gui.py
 │   ├── test_data/
 │   │   └── speech_sample.wav
+│   ├── utils/
+│   │   └── test_text_processing.py
 │   ├── __init__.py
 │   ├── base_test.py
 │   ├── test_config.py
 │   ├── test_parallel_transcription.py
 │   └── test_sequential_transcription.py
-├── docs/
-│   ├── README.md
-│   ├── CHANGELOG.md
-│   ├── DEVELOPMENT.md
-│   ├── REFACTORING_NOTES.md
-│   └── TODO.md
+├── .gitignore
+├── install_and_test.sh
 ├── LICENSE
 ├── NOTICE
-├── THIRD_PARTY_LICENSES.md
 ├── requirements.txt
-├── install_and_test.sh
-├── VERSION
 ├── run_tests.py
-└── .gitignore
+├── THIRD_PARTY_LICENSES.md
+├── VERSION
+└── wortweber.sh
 ```
 
 ## 6. Installation und Einrichtung
@@ -87,6 +103,19 @@ Wortweber/
 2. In das Projektverzeichnis wechseln: `cd Wortweber`
 3. Installationsskript ausführen: `bash install_and_test.sh`
 4. Anwendung starten: `python src/wortweber.py`
+
+### Plugin-System
+- `src/plugin_system/plugin_manager.py`: Zentrale Verwaltung von Plugins
+- `src/plugin_system/plugin_loader.py`: Dynamisches Laden von Plugins
+- `src/plugin_system/plugin_interface.py`: Definition der Plugin-Schnittstelle
+- `plugins/`: Verzeichnis für installierte Plugins
+
+## 6.1 Plugin-Entwicklung
+- Plugins müssen von `AbstractPlugin` erben und die definierten Schnittstellen implementieren
+- Jedes Plugin sollte in einer eigenen Python-Datei im `plugins/` Verzeichnis liegen
+- Plugins können eigene Einstellungen definieren, die über die GUI konfigurierbar sind
+- Die `process_text`-Methode ist der Haupteinstiegspunkt für die Textverarbeitung durch Plugins
+
 
 ## 7. Beitrag zum Projekt und Entwicklungsworkflow für Contributors
 Wir freuen uns über Beiträge zur Verbesserung von Wortweber. Hier ist der empfohlene Workflow für externe Contributors:
@@ -104,6 +133,8 @@ Bitte beachten Sie folgende Richtlinien:
 - Schreiben Sie Tests für neue Funktionen oder Bugfixes.
 - Aktualisieren Sie die Dokumentation, wenn Sie Änderungen an der Funktionalität vornehmen.
 - Vergewissern Sie sich, dass alle Tests bestehen, bevor Sie einen Pull Request einreichen.
+- Bei der Entwicklung neuer Features berücksichtigen Sie bitte die Plugin-Architektur
+- Testen Sie Ihre Änderungen gründlich mit verschiedenen Plugin-Konfigurationen
 
 Wir werden Ihren Pull Request überprüfen und gegebenenfalls Feedback geben. Vielen Dank für Ihren Beitrag!
 
@@ -182,10 +213,23 @@ Bei Fragen oder Problemen ein Issue auf GitHub erstellen oder sich an den Projek
 
 ## 17. Historie
 
-### Version 0.21.8 (aktuell)
-- Verbesserung der Audiogeräteauswahl und -persistenz
-- Implementierung einer Rückgängig-Funktion für Audiogeräteänderungen
-- Optimierung der Fehlerbehandlung bei Audiogerätemanagement
+### Version 0.24.0 (aktuell)
+- Implementierung eines umfassenden Plugin-Systems
+- Einführung des PluginManager und PluginLoader
+- Integration der Plugin-Verwaltung in die GUI
+- Erstellung des ersten Beispiel-Plugins (TextTransformer)
+
+### Version 0.23.2
+- Verbesserung des Layouts im OptionsPanel
+- Optimierung der Positionierung des Shortcut-Fensters
+
+### Version 0.23.0
+- Implementierung einer auswählbaren Shortcut-Taste für die Push-to-Talk-Funktion
+- Einführung des ShortcutPanels in den erweiterten Optionen
+
+### Version 0.22.0
+- Implementierung einer detaillierten Statusleiste
+- Verbesserte Zeitmessung für Aufnahme- und Transkriptionsdauer
 
 ### Version 0.21.7
 - Implementierung der Audiogeräteauswahl überarbeitet
