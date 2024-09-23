@@ -5,6 +5,21 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.25.0] - 2024-09-23
+### Added
+- Implementierung eines erweiterten, kategoriebasierten Logging-Systems
+- Neue CustomLogger-Klasse mit Unterstützung für Kategorien und selektives Logging
+- Möglichkeit zur Deaktivierung spezifischer Log-Kategorien
+- Rotierendes Datei-Logging für besseres Log-Management
+
+### Changed
+- Überarbeitung der error_handling.py für verbesserte Fehlerprotokollierung
+- Aktualisierung der Dokumentation und Inline-Kommentare im Logging-System
+
+### Improved
+- Erhöhte Flexibilität und Kontrolle über Log-Ausgaben
+- Verbesserte Übersichtlichkeit und Filterungsmöglichkeiten von Logs
+
 ## [0.24.0] - 2024-09-21
 ### Added
 - Implementierung eines umfassenden Plugin-Systems für Wortweber
