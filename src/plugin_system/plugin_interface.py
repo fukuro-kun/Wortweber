@@ -110,6 +110,16 @@ class AbstractPlugin(ABC):
         pass
 
     @handle_exceptions
+    @abstractmethod
+    def update_settings(self, settings: Dict[str, Any]) -> None:
+        """
+        Aktualisiert die Einstellungen des Plugins.
+
+        :param settings: Ein Dictionary mit den neuen Einstellungen
+        """
+        pass
+
+    @handle_exceptions
     def get_ui_elements(self) -> Dict[str, Any]:
         """
         Gibt UI-Elemente zurück, die in die Hauptanwendung integriert werden sollen.

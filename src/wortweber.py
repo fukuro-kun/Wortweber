@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# src/wortweber.py
 import sys
 import os
 import warnings
@@ -57,54 +56,91 @@ except:
 os.environ['PULSE_PROP_media.role'] = 'phone'
 
 class Wortweber:
+    """
+    Hauptklasse der Wortweber-Anwendung.
+    Koordiniert die Initialisierung und das Zusammenspiel der verschiedenen Komponenten.
+    """
+
     @handle_exceptions
     def __init__(self):
+        """
+        Initialisiert die Wortweber-Anwendung.
+        Erstellt Instanzen von SettingsManager, PluginManager, WordweberBackend und WordweberGUI.
+        """
         self.settings_manager = SettingsManager()
+        self.plugin_manager = PluginManager(self.settings_manager)
         self.backend = WordweberBackend(self.settings_manager)
-
-        # Initialisieren des Plugin-Systems
-        self.plugin_loader = PluginLoader()
-        self.plugin_manager = PluginManager()
-        self.load_plugins()
-
         self.gui = WordweberGUI(self.backend, self.plugin_manager)
+        self.restore_plugin_status()
+        logger.info(f"Initiale aktive Plugins: {self.plugin_manager.active_plugins}")
 
-        # Füge diese Zeile hinzu, um die aktuellen Einstellungen zu drucken
+        # Drucke die aktuellen Einstellungen zur Überprüfung
         self.settings_manager.print_current_settings()
 
     @handle_exceptions
-    def load_plugins(self):
-        plugins = self.plugin_loader.load_all_plugins()
-        for plugin in plugins:
-            self.plugin_manager.plugins[plugin.name] = plugin
-        self.plugin_manager.discover_plugins()  # Dies lädt zusätzliche Plugins aus dem Verzeichnis
+    def restore_plugin_status(self):
+        """
+        Stellt den Status der Plugins wieder her.
+        Aktiviert die Plugins, die beim letzten Beenden der Anwendung aktiv waren.
+        """
+        last_active_plugins = self.settings_manager.get_setting("active_plugins", [])
+        for plugin_name in last_active_plugins:
+            if plugin_name in self.plugin_manager.plugins:
+                try:
+                    self.plugin_manager.activate_plugin(plugin_name)
+                    logger.info(f"Plugin {plugin_name} erfolgreich aktiviert")
+                except Exception as e:
+                    logger.error(f"Fehler beim Aktivieren von Plugin {plugin_name}: {str(e)}")
+        logger.info(f"Plugin-Status wiederhergestellt. Aktive Plugins: {self.plugin_manager.active_plugins}")
 
     @handle_exceptions
     def run(self):
         """
-        Hauptfunktion der Wortweber-Anwendung.
-        Initialisiert das Backend und die GUI und startet die Anwendung.
+        Startet die Wortweber-Anwendung.
+        Initialisiert das Backend und startet die GUI.
         """
         logger.info("Starte Wortweber-Anwendung")
         self.backend.list_audio_devices()  # Zeigt verfügbare Audiogeräte an
         self.gui.run()
 
     def cleanup(self):
+        """
+        Führt Aufräumarbeiten durch, wenn die Anwendung beendet wird.
+        Deaktiviert alle aktiven Plugins und speichert den finalen Zustand.
+        """
         if hasattr(self, 'backend'):
             self.backend.audio_processor.cleanup()
+
+        # Speichern des Aktivierungsstatus vor der Deaktivierung
+        active_plugins = self.plugin_manager.active_plugins.copy()
+        self.settings_manager.set_setting("active_plugins", active_plugins)
+
         # Deaktivieren aller aktiven Plugins
-        for plugin_name in self.plugin_manager.active_plugins:
-            self.plugin_manager.deactivate_plugin(plugin_name)
+        for plugin_name in self.plugin_manager.active_plugins.copy():
+            try:
+                self.plugin_manager.deactivate_plugin(plugin_name)
+                logger.info(f"Plugin {plugin_name} erfolgreich deaktiviert")
+            except Exception as e:
+                logger.error(f"Fehler beim Deaktivieren von Plugin {plugin_name}: {str(e)}")
+
+        # Explizites Speichern der Einstellungen
+        self.settings_manager.save_settings()
+
+        logger.info(f"Finale aktive Plugins gespeichert: {active_plugins}")
         logger.info("Wortweber-Anwendung beendet und Ressourcen bereinigt")
 
 @handle_exceptions
 def main():
+    """
+    Hauptfunktion zum Starten der Wortweber-Anwendung.
+    """
     app = Wortweber()
     atexit.register(app.cleanup)
     app.run()
 
 if __name__ == "__main__":
     main()
+
 
 # Zusätzliche Erklärungen:
 

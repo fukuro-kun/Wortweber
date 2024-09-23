@@ -19,18 +19,14 @@ Dieses Modul enthält die Hauptklasse für die grafische Benutzeroberfläche der
 Es koordiniert die verschiedenen UI-Komponenten und die Interaktion mit dem Backend.
 """
 
-# Standardbibliotheken
 import tkinter as tk
 from tkinter import ttk, messagebox
 import time
-import logging
 import threading
-from typing import Optional
+from typing import Optional, Any
 
-# Drittanbieterbibliotheken
 import ttkthemes
 
-# Projektspezifische Module
 from src.backend.wortweber_backend import WordweberBackend
 from src.frontend.main_window import MainWindow
 from src.frontend.transcription_panel import TranscriptionPanel
@@ -43,7 +39,7 @@ from src.config import DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY, DEFAULT_PUSH_TO_
 from src.utils.error_handling import handle_exceptions, logger
 from src.plugin_system.plugin_manager import PluginManager
 from src.frontend.context_menu import create_context_menu
-from src.frontend.plugin_management_window import PluginManagementWindow  # Neuer Import
+from src.frontend.plugin_management_window import PluginManagementWindow
 
 class WordweberGUI:
     """
@@ -68,16 +64,7 @@ class WordweberGUI:
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
 
-        # Laden der gespeicherten Fenstergeometrie
-        saved_geometry = self.settings_manager.get_setting("window_geometry")
-        if saved_geometry:
-            try:
-                self.root.geometry(saved_geometry)
-            except tk.TclError:
-                # Wenn die gespeicherte Geometrie ungültig ist, verwenden wir die Standardgröße
-                self.root.geometry(DEFAULT_WINDOW_SIZE)
-        else:
-            self.root.geometry(DEFAULT_WINDOW_SIZE)
+        self.apply_window_geometry()
 
         self.theme_manager = ThemeManager(self.root, self.settings_manager)
         self.input_processor = InputProcessor(self)
@@ -95,20 +82,31 @@ class WordweberGUI:
         self.setup_menu()
         self.setup_context_menu()
 
-        # Plugins entdecken
         self.plugin_manager.discover_plugins()
 
-        # Hinzufügen eines Event-Handlers für Größenänderungen
         self.root.bind("<Configure>", self.on_window_configure)
 
-        # Initialisierung der Shortcut-Anzeige
         self.options_panel.update_shortcut_display(self.settings_manager.get_setting("push_to_talk_key", DEFAULT_PUSH_TO_TALK_KEY))
+
+        self.settings_manager.add_observer(self)
+
+    @handle_exceptions
+    def apply_window_geometry(self):
+        """Wendet die gespeicherte Fenstergeometrie an oder setzt die Standardgröße."""
+        saved_geometry = self.settings_manager.get_setting("window_geometry")
+        if saved_geometry:
+            try:
+                self.root.geometry(saved_geometry)
+            except tk.TclError:
+                self.root.geometry(DEFAULT_WINDOW_SIZE)
+                logger.warning("Ungültige gespeicherte Fenstergeometrie. Verwende Standardgröße.")
+        else:
+            self.root.geometry(DEFAULT_WINDOW_SIZE)
 
     @handle_exceptions
     def setup_logging(self) -> None:
         """Konfiguriert das Logging für die Anwendung."""
-        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-        logging.debug("WordweberGUI initialisiert")
+        logger.info("WordweberGUI initialisiert")
 
     @handle_exceptions
     def load_saved_settings(self) -> None:
@@ -146,12 +144,12 @@ class WordweberGUI:
                 self.root.after(0, self.transcribe_and_update)
         except Exception as e:
             self.root.after(0, lambda: self.main_window.update_status_bar(status=f"Fehler beim Laden des Modells: {str(e)}", status_color="red"))
-            logging.error(f"Fehler beim Laden des Modells: {str(e)}")
+            logger.error(f"Fehler beim Laden des Modells: {str(e)}")
 
     @handle_exceptions
     def run(self) -> None:
         """Startet die Hauptschleife der GUI."""
-        logging.debug("Starte Anwendung")
+        logger.info("Starte Anwendung")
         self.input_processor.start_listener()
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.root.mainloop()
@@ -159,26 +157,29 @@ class WordweberGUI:
     @handle_exceptions
     def on_closing(self) -> None:
         """Wird aufgerufen, wenn das Anwendungsfenster geschlossen wird."""
-        logging.debug("Anwendung wird geschlossen")
+        logger.info("Anwendung wird geschlossen")
+        self.save_current_settings()
+        self.input_processor.stop_listener()
+        if self.backend.transcriber.model is not None:
+            del self.backend.transcriber.model
+        self.root.destroy()
+
+    @handle_exceptions
+    def save_current_settings(self):
+        """Speichert alle aktuellen Einstellungen."""
         self.settings_manager.set_setting("window_geometry", self.root.geometry())
         self.settings_manager.set_setting("output_mode", self.options_panel.output_mode_var.get())
 
-        # Verzögerungseinstellungen aus dem OptionsWindow holen
         delay_settings = self.get_delay_settings()
         self.settings_manager.set_setting("delay_mode", delay_settings["delay_mode"])
         self.settings_manager.set_setting("char_delay", delay_settings["char_delay"])
 
-        # Speichere alle aktuellen Farbeinstellungen
         color_settings = ['text_fg', 'text_bg', 'select_fg', 'select_bg', 'highlight_fg', 'highlight_bg']
         for setting in color_settings:
             current_color = getattr(self.theme_manager, setting).get()
             self.settings_manager.set_setting(setting, current_color)
 
         self.settings_manager.save_settings()
-        self.input_processor.stop_listener()
-        if self.backend.transcriber.model is not None:
-            del self.backend.transcriber.model
-        self.root.destroy()
 
     @handle_exceptions
     def open_options_window(self) -> None:
@@ -195,25 +196,18 @@ class WordweberGUI:
         """
         if event.widget == self.root:
             self.settings_manager.set_setting("window_geometry", self.root.geometry())
-            self.settings_manager.save_settings()
 
     @handle_exceptions
     def transcribe_and_update(self) -> None:
         """Führt die Transkription durch und aktualisiert die GUI."""
         def update_gui(text, transcription_time):
-            # Verarbeite den Text mit aktiven Plugins
             processed_text = self.plugin_manager.process_text_with_plugins(text)
-
             self.main_window.update_status_bar(status="Transkription abgeschlossen", status_color="green", transcription_time=transcription_time)
-            self.input_processor.process_text(processed_text)  # Verwende den verarbeiteten Text
-
+            self.input_processor.process_text(processed_text)
             output_mode = self.options_panel.output_mode_var.get()
             self.main_window.update_status_bar(output_mode=output_mode)
-
-            if self.main_window.auto_copy_var.get():
-                self.main_window.update_status_bar(status="Text transkribiert und in Zwischenablage kopiert", status_color="green")
-            else:
-                self.main_window.update_status_bar(status="Text transkribiert", status_color="green")
+            status = "Text transkribiert und in Zwischenablage kopiert" if self.main_window.auto_copy_var.get() else "Text transkribiert"
+            self.main_window.update_status_bar(status=status, status_color="green")
 
         self.main_window.update_status_bar(status="Transkribiere...", status_color="orange")
         start_time = time.time()
@@ -243,9 +237,7 @@ class WordweberGUI:
 
     @handle_exceptions
     def update_colors(self) -> None:
-        """
-        Aktualisiert die Farben im Transkriptionsfenster und anderen relevanten UI-Elementen.
-        """
+        """Aktualisiert die Farben im Transkriptionsfenster und anderen relevanten UI-Elementen."""
         self.transcription_panel.update_colors(
             text_fg=self.theme_manager.text_fg.get(),
             text_bg=self.theme_manager.text_bg.get(),
@@ -283,23 +275,19 @@ class WordweberGUI:
         menubar = tk.Menu(self.root)
         self.root.config(menu=menubar)
 
-        # Datei-Menü
         file_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Datei", menu=file_menu)
         file_menu.add_command(label="Beenden", command=self.root.quit)
 
-        # Bearbeiten-Menü
         edit_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Bearbeiten", menu=edit_menu)
         edit_menu.add_command(label="Transkription löschen", command=self.transcription_panel.clear_transcription)
         edit_menu.add_command(label="Alles kopieren", command=self.transcription_panel.copy_all_to_clipboard)
 
-        # Optionen-Menü
         options_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Optionen", menu=options_menu)
         options_menu.add_command(label="Erweiterte Einstellungen", command=self.open_options_window)
 
-        # Plugin-Menü
         plugin_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Plugins", menu=plugin_menu)
         plugin_menu.add_command(label="Plugin-Verwaltung", command=self.open_plugin_management_window)
@@ -317,37 +305,46 @@ class WordweberGUI:
         """Öffnet das Fenster zur Plugin-Verwaltung."""
         PluginManagementWindow.open_window(self.root, self.plugin_manager)
 
+    def on_settings_changed(self, key: Optional[str], value: Any):
+        """
+        Wird aufgerufen, wenn sich Einstellungen ändern.
+
+        :param key: Der Schlüssel der geänderten Einstellung
+        :param value: Der neue Wert der Einstellung
+        """
+        if key == "theme":
+            self.theme_manager.apply_saved_theme()
+        elif key in ['text_fg', 'text_bg', 'select_fg', 'select_bg', 'highlight_fg', 'highlight_bg']:
+            self.update_colors()
+        elif key == "push_to_talk_key":
+            self.update_shortcut_display(value)
+        # Weitere spezifische Aktualisierungen können hier hinzugefügt werden
 
 # Zusätzliche Erklärungen:
 
 # 1. Modulare Struktur:
-#    Die GUI ist in verschiedene Komponenten aufgeteilt (MainWindow, TranscriptionPanel, OptionsPanel),
-#    was die Wartbarkeit und Erweiterbarkeit verbessert.
+#    Die GUI ist in verschiedene Komponenten aufgeteilt, was die Wartbarkeit und Erweiterbarkeit verbessert.
 
 # 2. Event-Handling:
-#    Die Klasse verwendet verschiedene Event-Handler, um auf Benutzerinteraktionen und
-#    Systemereignisse zu reagieren, z.B. Fenstergrößenänderungen oder das Schließen der Anwendung.
+#    Verschiedene Event-Handler reagieren auf Benutzerinteraktionen und Systemereignisse.
 
 # 3. Asynchrone Verarbeitung:
 #    Modellladung und Transkription werden asynchron durchgeführt, um die GUI reaktiv zu halten.
 
 # 4. Einstellungsverwaltung:
-#    Die Klasse interagiert eng mit dem SettingsManager, um Benutzereinstellungen zu laden,
-#    zu speichern und anzuwenden.
+#    Enge Integration mit dem SettingsManager für konsistente Einstellungsverwaltung.
 
 # 5. Theming und Farbverwaltung:
-#    Der ThemeManager wird verwendet, um das Erscheinungsbild der Anwendung anzupassen.
+#    Flexibles Theming-System mit dem ThemeManager.
 
 # 6. Plugin-Integration:
-#    Das Plugin-System wird durch die setup_menu und open_plugin_management_window Methoden integriert,
-#    was die Erweiterbarkeit der Anwendung demonstriert.
+#    Unterstützung für ein Plugin-System zur Erweiterung der Funktionalität.
 
 # 7. Fehlerbehandlung und Logging:
-#    Umfassende Fehlerbehandlung und Logging sind implementiert, um die Stabilität
-#    zu erhöhen und die Fehlerbehebung zu erleichtern.
+#    Umfassende Fehlerbehandlung und Logging für verbesserte Stabilität und Debugging.
 
-# 8. Kontextmenü:
-#    Ein Kontextmenü wurde hinzugefügt, um schnellen Zugriff auf häufig verwendete Funktionen zu bieten.
+# 8. Beobachter-Muster:
+#    Implementation des Beobachter-Musters für reaktive UI-Aktualisierungen bei Einstellungsänderungen.
 
 # Diese Implementierung bietet eine flexible und erweiterbare Basis für die
 # Benutzeroberfläche von Wortweber, mit Fokus auf Benutzerfreundlichkeit,

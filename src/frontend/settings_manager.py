@@ -14,11 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# src/frontend/settings_manager.py
-
 import json
 import os
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from src.config import (DEFAULT_LANGUAGE, DEFAULT_WHISPER_MODEL, DEFAULT_THEME,
                         DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY, DEFAULT_FONT_SIZE,
                         DEFAULT_INCOGNITO_MODE, DEFAULT_PLUGIN_DIR, DEFAULT_ENABLED_PLUGINS,
@@ -35,11 +33,12 @@ class SettingsManager:
         """Initialisiert den SettingsManager und lädt bestehende Einstellungen."""
         self.settings_file = "user_settings.json"
         self.settings = self.load_settings()
+        self.observers = []
         logger.info("SettingsManager initialisiert")
         self.print_current_settings()
 
     @handle_exceptions
-    def load_settings(self):
+    def load_settings(self) -> Dict[str, Any]:
         """
         Lädt Benutzereinstellungen aus einer JSON-Datei.
         Falls die Datei nicht existiert oder beschädigt ist, werden Standardeinstellungen verwendet.
@@ -66,11 +65,12 @@ class SettingsManager:
             with open(self.settings_file, "w") as f:
                 json.dump(self.settings, f, indent=4)
             logger.info("Einstellungen erfolgreich gespeichert")
+            self.notify_observers()
         except Exception as e:
             logger.error(f"Fehler beim Speichern der Einstellungen: {e}")
 
     @handle_exceptions
-    def get_setting(self, key, default=None):
+    def get_setting(self, key: str, default: Optional[Any] = None) -> Any:
         """
         Ruft den Wert einer bestimmten Einstellung ab.
 
@@ -78,41 +78,40 @@ class SettingsManager:
         :param default: Ein optionaler Standardwert, falls die Einstellung nicht existiert
         :return: Der Wert der Einstellung oder der Standardwert
         """
-        value = self.settings.get(key, default or self.get_default_settings().get(key))
+        value = self.settings.get(key, default)
+        if value is None:
+            value = self.get_default_settings().get(key, default)
         logger.debug(f"Einstellung abgerufen: {key} = {value}")
         return value
 
     @handle_exceptions
-    def set_setting(self, key, value):
+    def set_setting(self, key: str, value: Any):
         """
         Setzt den Wert einer bestimmten Einstellung und speichert die Änderungen.
 
         :param key: Der Schlüssel der zu setzenden Einstellung
         :param value: Der neue Wert der Einstellung
         """
-        self.settings[key] = value
-        self.save_settings()
-        if key != "text_content":  # Vermeiden des Loggens von Transkriptionen
-            logger.info(f"Einstellung geändert: {key} = {value}")
-
-        # Überprüfen, ob die Einstellung tatsächlich gespeichert wurde
-        saved_value = self.get_setting(key)
-        if saved_value != value:
-            logger.error(f"Einstellung {key} konnte nicht korrekt gespeichert werden. Erwartet: {value}, Tatsächlich: {saved_value}")
+        if self.settings.get(key) != value:
+            self.settings[key] = value
+            self.save_settings()
+            if key != "text_content":  # Vermeiden des Loggens von Transkriptionen
+                logger.info(f"Einstellung geändert: {key} = {value}")
+            self.notify_observers(key, value)
 
     @handle_exceptions
-    def get_default_settings(self):
+    def get_default_settings(self) -> Dict[str, Any]:
         """
         Liefert ein Dictionary mit den Standardeinstellungen der Anwendung.
 
         :return: Ein Dictionary mit Standardeinstellungen
         """
-        default_settings = {
+        return {
             "language": DEFAULT_LANGUAGE,
             "model": DEFAULT_WHISPER_MODEL,
             "theme": DEFAULT_THEME,
             "window_geometry": DEFAULT_WINDOW_SIZE,
-            "input_mode": "textfenster",
+            "output_mode": "textfenster",
             "delay_mode": "no_delay",
             "char_delay": str(DEFAULT_CHAR_DELAY),
             "auto_copy": True,
@@ -127,8 +126,6 @@ class SettingsManager:
                 "specific_settings": PLUGIN_SPECIFIC_SETTINGS
             }
         }
-        logger.debug("Standardeinstellungen abgerufen")
-        return default_settings
 
     @handle_exceptions
     def get_plugin_settings(self, plugin_name: str) -> Dict[str, Any]:
@@ -160,35 +157,58 @@ class SettingsManager:
 
     @handle_exceptions
     def print_current_settings(self):
+        """Gibt die aktuellen Einstellungen in lesbarer Form aus."""
         logger.info("Aktuelle Einstellungen:")
         for key, value in self.settings.items():
             if key != "plugins":
-                logger.info(f"{key}: {value}")
+                logger.info(f"  {key}: {value}")
             else:
-                logger.info("Plugin-Einstellungen:")
+                logger.info("  Plugin-Einstellungen:")
                 for plugin_key, plugin_value in value.items():
-                    logger.info(f"  {plugin_key}: {plugin_value}")
+                    logger.info(f"    {plugin_key}: {plugin_value}")
+
+    def add_observer(self, observer):
+        """Fügt einen Beobachter hinzu."""
+        self.observers.append(observer)
+
+    def remove_observer(self, observer):
+        """Entfernt einen Beobachter."""
+        self.observers.remove(observer)
+
+    def notify_observers(self, key=None, value=None):
+        """Benachrichtigt alle Beobachter über Änderungen."""
+        for observer in self.observers:
+            if hasattr(observer, 'on_settings_changed'):
+                observer.on_settings_changed(key, value)
 
 # Zusätzliche Erklärungen:
 
-# 1. Plugin-Einstellungen in get_default_settings():
-#    Die Standardeinstellungen für Plugins wurden hinzugefügt, einschließlich
-#    aktivierter Plugins, Plugin-Verzeichnis und globaler/spezifischer Einstellungen.
+# 1. Robuste Fehlerbehandlung:
+#    Alle Methoden verwenden den @handle_exceptions Decorator, um eine einheitliche
+#    Fehlerbehandlung und Logging zu gewährleisten.
 
-# 2. get_plugin_settings(plugin_name):
-#    Diese neue Methode ermöglicht es, Einstellungen für ein spezifisches Plugin abzurufen.
-#    Sie kombiniert globale und plugin-spezifische Einstellungen.
+# 2. Typisierung:
+#    Die Verwendung von Typ-Annotationen verbessert die Lesbarkeit und ermöglicht
+#    eine bessere statische Codeanalyse.
 
-# 3. set_plugin_settings(plugin_name, settings):
-#    Diese neue Methode erlaubt das Setzen von Einstellungen für ein spezifisches Plugin.
-#    Sie aktualisiert die Einstellungen und speichert sie persistent.
+# 3. Standardeinstellungen:
+#    Die get_default_settings Methode zentralisiert die Definition von Standardwerten,
+#    was die Wartung und Aktualisierung erleichtert.
 
-# 4. Anpassung von load_settings():
-#    Die Methode wurde erweitert, um fehlende Plugin-Einstellungen hinzuzufügen,
-#    falls sie in den geladenen Einstellungen nicht vorhanden sind.
+# 4. Plugin-Unterstützung:
+#    Spezielle Methoden für Plugin-Einstellungen ermöglichen eine flexible Verwaltung
+#    von Plugin-spezifischen Konfigurationen.
 
-# 5. print_current_settings():
-#    Diese Methode wurde aktualisiert, um auch Plugin-Einstellungen übersichtlich anzuzeigen.
+# 5. Logging:
+#    Umfangreiches Logging hilft bei der Fehlersuche und Überwachung des Einstellungsverhaltens.
 
-# Diese Änderungen ermöglichen eine flexible und erweiterbare Verwaltung von Plugin-Einstellungen,
-# während sie sich nahtlos in die bestehende Struktur des SettingsManager integrieren.
+# 6. Beobachter-Muster:
+#    Die Implementation des Beobachter-Musters ermöglicht es anderen Teilen der Anwendung,
+#    auf Einstellungsänderungen zu reagieren.
+
+# 7. Datenpersistenz:
+#    Die Klasse kümmert sich um das Laden und Speichern von Einstellungen in einer JSON-Datei,
+#    was die Persistenz zwischen Anwendungssitzungen gewährleistet.
+
+# Diese Implementierung bietet eine robuste und erweiterbare Grundlage für die
+# Verwaltung von Einstellungen in der Wortweber-Anwendung.
