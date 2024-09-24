@@ -14,11 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Dieses Modul enthält die Hauptklasse für die grafische Benutzeroberfläche der Wortweber-Anwendung.
-Es koordiniert die verschiedenen UI-Komponenten und die Interaktion mit dem Backend.
-"""
-
 import tkinter as tk
 from tkinter import ttk, messagebox
 import time
@@ -85,6 +80,7 @@ class WordweberGUI:
         self.plugin_manager.discover_plugins()
 
         self.root.bind("<Configure>", self.on_window_configure)
+        self.last_geometry_save = 0
 
         self.options_panel.update_shortcut_display(self.settings_manager.get_setting("push_to_talk_key", DEFAULT_PUSH_TO_TALK_KEY))
 
@@ -99,20 +95,21 @@ class WordweberGUI:
                 self.root.geometry(saved_geometry)
             except tk.TclError:
                 self.root.geometry(DEFAULT_WINDOW_SIZE)
-                logger.warning("Ungültige gespeicherte Fenstergeometrie. Verwende Standardgröße.")
+                logger.warning("Ungültige gespeicherte Fenstergeometrie. Verwende Standardgröße.", category='UI')
         else:
             self.root.geometry(DEFAULT_WINDOW_SIZE)
 
     @handle_exceptions
     def setup_logging(self) -> None:
         """Konfiguriert das Logging für die Anwendung."""
-        logger.info("WordweberGUI initialisiert")
+        logger.info("WordweberGUI initialisiert", category='STARTUP')
 
     @handle_exceptions
     def load_saved_settings(self) -> None:
         """Lädt und wendet gespeicherte Einstellungen an."""
         self.theme_manager.apply_saved_theme()
         self.update_colors()
+        self.sync_gui_with_settings()
 
     @handle_exceptions
     def load_initial_model(self) -> None:
@@ -144,12 +141,12 @@ class WordweberGUI:
                 self.root.after(0, self.transcribe_and_update)
         except Exception as e:
             self.root.after(0, lambda: self.main_window.update_status_bar(status=f"Fehler beim Laden des Modells: {str(e)}", status_color="red"))
-            logger.error(f"Fehler beim Laden des Modells: {str(e)}")
+            logger.error(f"Fehler beim Laden des Modells: {str(e)}", category='ERROR')
 
     @handle_exceptions
     def run(self) -> None:
         """Startet die Hauptschleife der GUI."""
-        logger.info("Starte Anwendung")
+        logger.info("Starte Anwendung", category='STARTUP')
         self.input_processor.start_listener()
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.root.mainloop()
@@ -157,7 +154,7 @@ class WordweberGUI:
     @handle_exceptions
     def on_closing(self) -> None:
         """Wird aufgerufen, wenn das Anwendungsfenster geschlossen wird."""
-        logger.info("Anwendung wird geschlossen")
+        logger.info("Anwendung wird geschlossen", category='SHUTDOWN')
         self.save_current_settings()
         self.input_processor.stop_listener()
         if self.backend.transcriber.model is not None:
@@ -195,7 +192,10 @@ class WordweberGUI:
         :param event: Das Konfigurationsereignis
         """
         if event.widget == self.root:
-            self.settings_manager.set_setting("window_geometry", self.root.geometry())
+            current_time = time.time()
+            if current_time - self.last_geometry_save >= 1:
+                self.settings_manager.set_setting("window_geometry", self.root.geometry())
+                self.last_geometry_save = current_time
 
     @handle_exceptions
     def transcribe_and_update(self) -> None:
@@ -254,7 +254,7 @@ class WordweberGUI:
         char_delay = self.settings_manager.get_setting("char_delay", DEFAULT_CHAR_DELAY)
         self.settings_manager.set_setting("delay_mode", delay_mode)
         self.settings_manager.set_setting("char_delay", char_delay)
-        logger.info(f"Verzögerungseinstellungen initialisiert: Modus={delay_mode}, Verzögerung={char_delay}")
+        logger.info(f"Verzögerungseinstellungen initialisiert: Modus={delay_mode}, Verzögerung={char_delay}", category='SETTINGS')
 
     @handle_exceptions
     def get_delay_settings(self):
@@ -318,7 +318,29 @@ class WordweberGUI:
             self.update_colors()
         elif key == "push_to_talk_key":
             self.update_shortcut_display(value)
-        # Weitere spezifische Aktualisierungen können hier hinzugefügt werden
+        self.sync_gui_with_settings()
+
+    @handle_exceptions
+    def sync_gui_with_settings(self):
+        """Synchronisiert alle GUI-Elemente mit den aktuellen Einstellungen."""
+        # Aktualisiere MainWindow
+        self.main_window.auto_copy_var.set(self.settings_manager.get_setting("auto_copy", True))
+
+        # Aktualisiere OptionsPanel
+        self.options_panel.language_var.set(self.settings_manager.get_setting("language", "de"))
+        self.options_panel.model_var.set(self.settings_manager.get_setting("model", "small"))
+        self.options_panel.output_mode_var.set(self.settings_manager.get_setting("output_mode", "textfenster"))
+
+        # Aktualisiere TranscriptionPanel
+        self.transcription_panel.set_font(
+            self.settings_manager.get_setting("font_family", "TkDefaultFont"),
+            self.settings_manager.get_setting("font_size", 12)
+        )
+
+        # Weitere Synchronisierungen hier hinzufügen...
+
+        logger.info("GUI mit Einstellungen synchronisiert", category='UI')
+
 
 # Zusätzliche Erklärungen:
 

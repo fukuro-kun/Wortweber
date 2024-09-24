@@ -5,6 +5,18 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.25.1] - 2024-09-24
+### Fixed
+- Korrektur der Speicherlogik für Plugin-Einstellungen
+
+### Improved
+- Verbesserte Robustheit des SettingsManager beim Speichern und Laden von Einstellungen
+- Optimierte Fehlerbehandlung und Logging in PluginManager und SettingsManager
+
+### Changed
+- Überarbeitung der Plugin-Verwaltung für konsistentere Speicherung des Plugin-Status
+
+
 ## [0.25.0] - 2024-09-23
 ### Added
 - Implementierung eines erweiterten, kategoriebasierten Logging-Systems

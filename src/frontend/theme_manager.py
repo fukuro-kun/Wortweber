@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
 """
 Dieses Modul verwaltet die Themes und Farbeinstellungen der Wortweber-Anwendung.
 Es bietet Funktionen zum Ändern von Themes und zur Auswahl benutzerdefinierter Farben.
@@ -31,7 +29,7 @@ from tkcolorpicker import askcolor
 
 # Projektspezifische Module
 from src.config import DEFAULT_THEME
-from src.utils.error_handling import handle_exceptions
+from src.utils.error_handling import handle_exceptions, logger
 
 class ThemeManager:
     """
@@ -50,7 +48,6 @@ class ThemeManager:
         self.root = root
         self.settings_manager = settings_manager
         self.themes = sorted(ttkthemes.THEMES)
-        self.current_theme_index = 0
         self.current_theme = tk.StringVar(value=self.settings_manager.get_setting("theme", DEFAULT_THEME))
 
         # Farbvariablen initialisieren
@@ -62,6 +59,7 @@ class ThemeManager:
         self.highlight_fg = tk.StringVar(value=self.settings_manager.get_setting("highlight_fg", "black"))
 
         self.gui = None
+        logger.info("ThemeManager initialisiert", category='UI')
 
     @handle_exceptions
     def set_gui(self, gui):
@@ -71,6 +69,7 @@ class ThemeManager:
         :param gui: Referenz zur Hauptanwendung (WordweberGUI-Instanz)
         """
         self.gui = gui
+        logger.debug("GUI-Referenz im ThemeManager gesetzt", category='UI')
 
     @handle_exceptions
     def setup_theme_selection(self, parent):
@@ -103,6 +102,7 @@ class ThemeManager:
 
         # Konfiguriere die Spaltengewichtung für das gesamte Frame
         theme_frame.columnconfigure(1, weight=1)
+        logger.info("Theme-Auswahl-GUI erstellt", category='UI')
 
     @handle_exceptions
     def create_color_row(self, parent, label, fg_var, bg_var, row):
@@ -144,8 +144,7 @@ class ThemeManager:
             if preview_text.winfo_exists():
                 preview_text.config(fg=fg_var.get(), bg=bg_var.get())
         except tk.TclError:
-            # Widget wurde zerstört, ignoriere den Fehler
-            pass
+            logger.error("Fehler beim Aktualisieren der Farbvorschau", category='UI')
 
     @handle_exceptions
     def on_dropdown_focus(self, event):
@@ -157,7 +156,7 @@ class ThemeManager:
                     index = self.themes.index(current_theme)
                     self.theme_dropdown.current(index)
         except tk.TclError:
-            pass
+            logger.error("Fehler beim Fokussieren des Theme-Dropdowns", category='UI')
         return "break"
 
     @handle_exceptions
@@ -192,7 +191,7 @@ class ThemeManager:
                 self.current_theme.set(self.themes[new_index])
                 self.on_theme_change()
         except tk.TclError:
-            pass
+            logger.error("Fehler bei der Theme-Navigation", category='UI')
 
     @handle_exceptions
     def on_theme_change(self, event=None):
@@ -205,7 +204,7 @@ class ThemeManager:
                 selected_theme = self.current_theme.get()
                 self.change_theme(selected_theme)
         except tk.TclError:
-            pass
+            logger.error("Fehler beim Ändern des Themes", category='UI')
 
     @handle_exceptions
     def change_theme(self, theme_name):
@@ -219,8 +218,9 @@ class ThemeManager:
                 self.root.set_theme(theme_name)
                 self.current_theme.set(theme_name)
                 self.settings_manager.set_setting("theme", theme_name)
+                logger.info(f"Theme geändert zu: {theme_name}", category='UI')
         except tk.TclError:
-            pass
+            logger.error(f"Fehler beim Anwenden des Themes: {theme_name}", category='UI')
 
     @handle_exceptions
     def choose_color(self, color_var, preview_frame):
@@ -241,8 +241,9 @@ class ThemeManager:
                     self.settings_manager.set_setting(setting_name, color[1])
                     self.settings_manager.save_settings()
                     self.update_colors()
+                    logger.info(f"Farbe geändert: {setting_name} = {color[1]}", category='UI')
         except tk.TclError:
-            pass
+            logger.error("Fehler bei der Farbauswahl", category='UI')
 
     @handle_exceptions
     def update_colors(self):
@@ -263,13 +264,11 @@ class ThemeManager:
 
                 # Aktualisiere das Hauptfenster
                 self.gui.root.update()
-
-                # Informiere den Benutzer über die Aktualisierung
-                print("Farben wurden aktualisiert.")
+                logger.info("GUI-Farben aktualisiert", category='UI')
             except tk.TclError as e:
-                print(f"Fehler beim Aktualisieren der Farben: {e}")
+                logger.error(f"Fehler beim Aktualisieren der Farben: {e}", category='UI')
         else:
-            print("Warnung: GUI-Referenz nicht gesetzt. Farben werden nicht aktualisiert.")
+            logger.warning("GUI-Referenz nicht gesetzt. Farben werden nicht aktualisiert.", category='UI')
 
     @handle_exceptions
     def apply_saved_theme(self):
@@ -292,30 +291,36 @@ class ThemeManager:
                         getattr(self, color_setting).set(saved_color)
 
                 self.update_colors()
+                logger.info("Gespeichertes Theme und Farben angewendet", category='UI')
         except tk.TclError:
-            pass
+            logger.error("Fehler beim Anwenden des gespeicherten Themes", category='UI')
 
 # Zusätzliche Erklärungen:
 
-# 1. Dropdown-Menü-Verhalten:
-#    Das Standardverhalten des Dropdown-Menüs wurde beibehalten, einschließlich des eingebauten Buttons.
-#    Der Button lässt sich nicht gesondert ausblenden, da er Teil des Standard-Widgets ist.
+# 1. Fehlerbehandlung:
+#    Alle Methoden sind mit dem @handle_exceptions Decorator versehen, um eine konsistente
+#    Fehlerbehandlung in der gesamten Klasse zu gewährleisten.
 
-# 2. Ereignisbehandlung:
-#    Die Ereignisbehandlung wurde optimiert, um eine bessere Benutzererfahrung zu bieten,
-#    insbesondere bei der Verwendung der Tastatur zur Navigation.
+# 2. Logging:
+#    Es wurden umfangreiche Logging-Aufrufe hinzugefügt, um die Nachvollziehbarkeit von
+#    Aktionen und möglichen Problemen zu verbessern.
 
-# 3. Farbauswahl:
-#    Die Farbauswahl-Funktionalität ermöglicht es dem Benutzer, die Farben für verschiedene
-#    Textkategorien individuell anzupassen.
+# 3. Tkinter-Fehlerbehandlung:
+#    TclErrors werden abgefangen, um robuster mit Situationen umzugehen, in denen
+#    Widgets möglicherweise nicht mehr existieren.
 
-# 4. Fehlerbehandlung:
-#    Robuste Fehlerbehandlung wurde implementiert, um mögliche TclErrors abzufangen,
-#    die auftreten können, wenn Widgets zerstört werden.
+# 4. Farbmanagement:
+#    Die Farbeinstellungen werden nun konsistent über den SettingsManager verwaltet
+#    und bei Änderungen sofort gespeichert.
 
-# 5. Einstellungspersistenz:
-#    Alle Farbeinstellungen und das ausgewählte Theme werden über den SettingsManager
-#    gespeichert und beim Neustart der Anwendung wiederhergestellt.
+# 5. Theme-Verwaltung:
+#    Die Navigation durch Themes wurde verbessert und ist nun robuster gegenüber
+#    unerwarteten Zustände.
 
-# Diese Implementierung bietet eine ausgewogene Mischung aus Funktionalität und Benutzerfreundlichkeit,
-# während sie die Anforderungen an die Themenverwaltung und Farbauswahl erfüllt.
+# 6. GUI-Updates:
+#    Die update_colors Methode stellt sicher, dass Farbänderungen in der gesamten
+#    Anwendung konsistent angewendet werden.
+
+# Diese Implementierung bietet eine flexible und benutzerfreundliche Verwaltung von
+# Themes und Farben in der Wortweber-Anwendung, mit Fokus auf Robustheit und
+# Fehlertoleranz.

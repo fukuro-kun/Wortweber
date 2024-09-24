@@ -41,7 +41,7 @@ class TranscriptionPanel(ttk.Frame):
         self.font_family = self.gui.settings_manager.get_setting("font_family", DEFAULT_FONT_FAMILY)
         self.setup_ui()
         self.load_saved_text()
-        logger.info("TranscriptionPanel initialisiert")
+        logger.info("TranscriptionPanel initialisiert", category='UI')
 
     @handle_exceptions
     def setup_ui(self):
@@ -59,7 +59,7 @@ class TranscriptionPanel(ttk.Frame):
 
         self.text_widget.bind("<<Modified>>", self.on_text_modified)
         self.text_widget.bind("<<Selection>>", self.on_selection_change)
-        logger.debug("TranscriptionPanel UI eingerichtet")
+        logger.debug("TranscriptionPanel UI eingerichtet", category='UI')
 
     @handle_exceptions
     def set_font(self, family, size):
@@ -80,7 +80,7 @@ class TranscriptionPanel(ttk.Frame):
         self.gui.settings_manager.set_setting("font_family", family)
         self.gui.settings_manager.set_setting("font_size", size)
         self.gui.settings_manager.save_settings()
-        logger.info(f"Schriftart auf {family}, Größe {size} geändert")
+        logger.info(f"Schriftart auf {family}, Größe {size} geändert", category='UI')
 
     @handle_exceptions
     def get_font_family(self):
@@ -96,7 +96,7 @@ class TranscriptionPanel(ttk.Frame):
     def show_context_menu(self, event):
         """Zeigt das Kontextmenü an der Position des Mausklicks an."""
         create_context_menu(self.text_widget, event)
-        logger.debug("Kontextmenü angezeigt")
+        logger.debug("Kontextmenü angezeigt", category='UI')
 
     @handle_exceptions
     def insert_text(self, text):
@@ -114,16 +114,16 @@ class TranscriptionPanel(ttk.Frame):
         self.save_text()
         incognito_mode = self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
         if incognito_mode:
-            logger.info(f"Text eingefügt und hervorgehoben (Incognito-Modus aktiv). Länge: {len(text)} Zeichen")
+            logger.info(f"Text eingefügt und hervorgehoben (Incognito-Modus aktiv). Länge: {len(text)} Zeichen", category='TRANSCRIPTION')
         else:
-            logger.info(f"Text eingefügt und hervorgehoben: {text[:50]}..." if len(text) > 50 else f"Text eingefügt und hervorgehoben: {text}")
+            logger.info(f"Text eingefügt und hervorgehoben: {text[:50]}..." if len(text) > 50 else f"Text eingefügt und hervorgehoben: {text}", category='TRANSCRIPTION')
 
     @handle_exceptions
     def clear_transcription(self):
         """Löscht den gesamten Text im Transkriptionsfeld."""
         self.text_widget.delete(1.0, tk.END)
         self.save_text()
-        logger.info("Transkription gelöscht")
+        logger.info("Transkription gelöscht", category='TRANSCRIPTION')
 
     @handle_exceptions
     def copy_all_to_clipboard(self):
@@ -133,9 +133,9 @@ class TranscriptionPanel(ttk.Frame):
         self.gui.main_window.update_status_bar(status="Gesamter Text in die Zwischenablage kopiert", status_color="green")
         incognito_mode = self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
         if incognito_mode:
-            logger.info(f"Gesamter Text in die Zwischenablage kopiert (Incognito-Modus aktiv). Länge: {len(all_text)} Zeichen")
+            logger.info(f"Gesamter Text in die Zwischenablage kopiert (Incognito-Modus aktiv). Länge: {len(all_text)} Zeichen", category='TRANSCRIPTION')
         else:
-            logger.info(f"Gesamter Text in die Zwischenablage kopiert: {all_text[:50]}..." if len(all_text) > 50 else f"Gesamter Text in die Zwischenablage kopiert: {all_text}")
+            logger.info(f"Gesamter Text in die Zwischenablage kopiert: {all_text[:50]}..." if len(all_text) > 50 else f"Gesamter Text in die Zwischenablage kopiert: {all_text}", category='TRANSCRIPTION')
 
     @handle_exceptions
     def save_text(self):
@@ -145,9 +145,9 @@ class TranscriptionPanel(ttk.Frame):
         self.gui.settings_manager.save_settings()
         incognito_mode = self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
         if incognito_mode:
-            logger.debug(f"Transkriptionstext gespeichert (Incognito-Modus aktiv). Länge: {len(text_content)} Zeichen")
+            logger.debug(f"Transkriptionstext gespeichert (Incognito-Modus aktiv). Länge: {len(text_content)} Zeichen", category='TRANSCRIPTION')
         else:
-            logger.debug(f"Transkriptionstext gespeichert: {text_content[:50]}..." if len(text_content) > 50 else f"Transkriptionstext gespeichert: {text_content}")
+            logger.debug(f"Transkriptionstext gespeichert: {text_content[:50]}..." if len(text_content) > 50 else f"Transkriptionstext gespeichert: {text_content}", category='TRANSCRIPTION')
 
     @handle_exceptions
     def load_saved_text(self):
@@ -158,11 +158,11 @@ class TranscriptionPanel(ttk.Frame):
             self.text_widget.insert(tk.END, saved_text)
             incognito_mode = self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
             if incognito_mode:
-                logger.info(f"Gespeicherter Text geladen (Incognito-Modus aktiv). Länge: {len(saved_text)} Zeichen")
+                logger.info(f"Gespeicherter Text geladen (Incognito-Modus aktiv). Länge: {len(saved_text)} Zeichen", category='TRANSCRIPTION')
             else:
-                logger.info(f"Gespeicherter Text geladen: {saved_text[:50]}..." if len(saved_text) > 50 else f"Gespeicherter Text geladen: {saved_text}")
+                logger.info(f"Gespeicherter Text geladen: {saved_text[:50]}..." if len(saved_text) > 50 else f"Gespeicherter Text geladen: {saved_text}", category='TRANSCRIPTION')
         else:
-            logger.info("Kein gespeicherter Text gefunden")
+            logger.info("Kein gespeicherter Text gefunden", category='TRANSCRIPTION')
 
     @handle_exceptions
     def on_text_modified(self, event):
@@ -176,9 +176,9 @@ class TranscriptionPanel(ttk.Frame):
             incognito_mode = self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
             current_text = self.text_widget.get(1.0, tk.END).strip()
             if incognito_mode:
-                logger.debug(f"Text geändert und gespeichert (Incognito-Modus aktiv). Neue Länge: {len(current_text)} Zeichen")
+                logger.debug(f"Text geändert und gespeichert (Incognito-Modus aktiv). Neue Länge: {len(current_text)} Zeichen", category='TRANSCRIPTION')
             else:
-                logger.debug(f"Text geändert und gespeichert: {current_text[:50]}..." if len(current_text) > 50 else f"Text geändert und gespeichert: {current_text}")
+                logger.debug(f"Text geändert und gespeichert: {current_text[:50]}..." if len(current_text) > 50 else f"Text geändert und gespeichert: {current_text}", category='TRANSCRIPTION')
 
     @handle_exceptions
     def on_selection_change(self, event):
@@ -186,7 +186,7 @@ class TranscriptionPanel(ttk.Frame):
         if self.text_widget.tag_ranges("sel"):
             self.text_widget.tag_remove("select", "1.0", tk.END)
             self.text_widget.tag_add("select", "sel.first", "sel.last")
-            logger.debug("Textauswahl geändert")
+            logger.debug("Textauswahl geändert", category='UI')
 
     @handle_exceptions
     def update_colors(self, text_fg, text_bg, select_fg, select_bg, highlight_fg, highlight_bg):
@@ -208,7 +208,7 @@ class TranscriptionPanel(ttk.Frame):
         )
         self.text_widget.tag_configure("highlight", foreground=highlight_fg, background=highlight_bg)
         self.text_widget.tag_configure("select", foreground=select_fg, background=select_bg)
-        logger.info("Textfarben aktualisiert")
+        logger.info("Textfarben aktualisiert", category='UI')
 
     @handle_exceptions
     def get_current_text(self):

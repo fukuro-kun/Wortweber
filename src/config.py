@@ -38,7 +38,7 @@ DEFAULT_INCOGNITO_MODE = True  # Standardeinstellung für den Incognito-Modus
 DEFAULT_WINDOW_SIZE = "900x700"  # Standardgröße des Anwendungsfensters
 HIGHLIGHT_DURATION = 2000  # Dauer der Texthighlights in Millisekunden
 DEFAULT_FONT_SIZE = 12  # Standard-Textgröße
-DEFAULT_FONT_FAMILY = "Nimbus Mono L"  # Die korrekte Schreibweise ist "Nimbus Mono L"
+DEFAULT_FONT_FAMILY = "Nimbus Mono L"  # Standardschriftart
 
 # Audio-Einstellungen
 AUDIO_FORMAT = pyaudio.paInt16  # 16-bit int Sampling
@@ -95,6 +95,11 @@ PLUGIN_SPECIFIC_SETTINGS = {
     # Weitere Plugin-spezifische Einstellungen können hier hinzugefügt werden
 }
 
+# Einstellungen für den SettingsManager
+SETTINGS_FILE = "user_settings.json"  # Name der Einstellungsdatei
+SETTINGS_SAVE_DELAY = 5.0  # Verzögerung in Sekunden für das automatische Speichern von Einstellungen
+SETTINGS_VERSION = 1  # Aktuelle Version der Einstellungsstruktur
+
 # Wichtige Hinweise
 RESAMPLING_NOTE = """
 WICHTIG: Resampling ist notwendig, da die Audiogeräte 16000 Hz nicht unterstützen.
@@ -120,26 +125,23 @@ mit der aktuellen Version von Wortweber sind.
 # Sie erleichtert die Anpassung und Wartung der Anwendung, indem sie einen einzigen Ort für
 # häufig zu ändernde Parameter bereitstellt.
 
-
 # Zusätzliche Erklärungen:
 
-# 1. DEFAULT_PLUGIN_DIR:
-#    Definiert das Standardverzeichnis, in dem Wortweber nach Plugins sucht.
+# 1. PROJECT_ROOT:
+#    Definiert den Wurzelpfad des Projekts, was für relative Pfadangaben nützlich ist.
 
-# 2. DEFAULT_ENABLED_PLUGINS:
-#    Eine Liste von Plugins, die standardmäßig aktiviert sind. Benutzer können diese Liste anpassen.
+# 2. Audio-Einstellungen:
+#    AUDIO_RATE und TARGET_RATE sind unterschiedlich, da ein Resampling erforderlich ist.
+#    Dies wird im RESAMPLING_NOTE erklärt.
 
-# 3. DEFAULT_PLUGIN_SETTINGS:
-#    Globale Einstellungen, die für alle Plugins gelten. Sie definieren Grenzwerte und
-#    Verhaltensweisen, die für die Sicherheit und Leistung wichtig sind.
+# 3. Plugin-System:
+#    Die Plugin-Einstellungen ermöglichen eine flexible Konfiguration und Erweiterung der Anwendung.
 
-# 4. PLUGIN_SPECIFIC_SETTINGS:
-#    Hier können Standardeinstellungen für spezifische Plugins definiert werden.
-#    Dies ermöglicht eine feinere Kontrolle über das Verhalten einzelner Plugins.
+# 4. SettingsManager-Konfiguration:
+#    SETTINGS_FILE, SETTINGS_SAVE_DELAY und SETTINGS_VERSION unterstützen die zentrale Verwaltung von Benutzereinstellungen.
 
-# 5. PLUGIN_NOTE:
-#    Ein wichtiger Hinweis für Entwickler und Benutzer von Plugins, der auf
-#    Sicherheits- und Kompatibilitätsaspekte aufmerksam macht.
+# 5. Sicherheitshinweise:
+#    RESAMPLING_NOTE, SHORTCUT_NOTE und PLUGIN_NOTE bieten wichtige Informationen für Entwickler und Benutzer.
 
-# Diese Ergänzungen zur config.py unterstützen die Integration des Plugin-Systems
-# und bieten gleichzeitig Flexibilität für zukünftige Erweiterungen und Anpassungen.
+# Diese Konfigurationsdatei bildet das Rückgrat für die konsistente Einstellungsverwaltung in Wortweber
+# und unterstützt die Wartbarkeit und Erweiterbarkeit des Projekts.

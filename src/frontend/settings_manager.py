@@ -16,7 +16,9 @@
 
 import json
 import os
-from typing import Dict, Any, Optional
+import threading
+import time
+from typing import Dict, Any, Optional, List
 from src.config import (DEFAULT_LANGUAGE, DEFAULT_WHISPER_MODEL, DEFAULT_THEME,
                         DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY, DEFAULT_FONT_SIZE,
                         DEFAULT_INCOGNITO_MODE, DEFAULT_PLUGIN_DIR, DEFAULT_ENABLED_PLUGINS,
@@ -32,9 +34,13 @@ class SettingsManager:
     def __init__(self):
         """Initialisiert den SettingsManager und lädt bestehende Einstellungen."""
         self.settings_file = "user_settings.json"
-        self.settings = self.load_settings()
-        self.observers = []
-        logger.info("SettingsManager initialisiert")
+        self.settings: Dict[str, Any] = self.load_settings()
+        self.observers: List[Any] = []
+        self.changed_settings: set = set()
+        self.save_timer: Optional[threading.Timer] = None
+        self.last_save_time: float = 0
+        self.version: int = self.settings.get("version", 1)
+        logger.info("SettingsManager initialisiert", category='SETTINGS')
         self.print_current_settings()
 
     @handle_exceptions
@@ -49,25 +55,35 @@ class SettingsManager:
             try:
                 with open(self.settings_file, "r") as f:
                     settings = json.load(f)
-                logger.info("Einstellungen erfolgreich geladen")
-                # Füge fehlende Plugin-Einstellungen hinzu
+                logger.info("Einstellungen erfolgreich geladen", category='SETTINGS')
                 if "plugins" not in settings:
                     settings["plugins"] = self.get_default_settings()["plugins"]
                 return settings
             except json.JSONDecodeError:
-                logger.error("Fehler beim Laden der Einstellungen. Verwende Standardeinstellungen.")
+                logger.error("Fehler beim Laden der Einstellungen. Verwende Standardeinstellungen.", category='SETTINGS')
         return self.get_default_settings()
 
     @handle_exceptions
     def save_settings(self):
         """Speichert die aktuellen Einstellungen in einer JSON-Datei."""
+        current_time = time.time()
+        if current_time - self.last_save_time < 1:  # Verhindert zu häufiges Speichern
+            return
+
+        temp_file = f"{self.settings_file}.temp"
         try:
-            with open(self.settings_file, "w") as f:
+            with open(temp_file, "w") as f:
                 json.dump(self.settings, f, indent=4)
-            logger.info("Einstellungen erfolgreich gespeichert")
+            os.replace(temp_file, self.settings_file)
+            self.last_save_time = current_time
+            logger.info("Einstellungen erfolgreich gespeichert", category='SETTINGS')
             self.notify_observers()
+            self.changed_settings.clear()
         except Exception as e:
-            logger.error(f"Fehler beim Speichern der Einstellungen: {e}")
+            logger.error(f"Fehler beim Speichern der Einstellungen: {e}", category='SETTINGS')
+        finally:
+            if os.path.exists(temp_file):
+                os.remove(temp_file)
 
     @handle_exceptions
     def get_setting(self, key: str, default: Optional[Any] = None) -> Any:
@@ -81,23 +97,31 @@ class SettingsManager:
         value = self.settings.get(key, default)
         if value is None:
             value = self.get_default_settings().get(key, default)
-        logger.debug(f"Einstellung abgerufen: {key} = {value}")
+        logger.debug(f"Einstellung abgerufen: {key} = {value}", category='SETTINGS')
         return value
 
     @handle_exceptions
     def set_setting(self, key: str, value: Any):
         """
-        Setzt den Wert einer bestimmten Einstellung und speichert die Änderungen.
+        Setzt den Wert einer bestimmten Einstellung und plant das Speichern.
 
         :param key: Der Schlüssel der zu setzenden Einstellung
         :param value: Der neue Wert der Einstellung
         """
         if self.settings.get(key) != value:
             self.settings[key] = value
-            self.save_settings()
+            self.changed_settings.add(key)
             if key != "text_content":  # Vermeiden des Loggens von Transkriptionen
-                logger.info(f"Einstellung geändert: {key} = {value}")
+                logger.info(f"Einstellung geändert: {key} = {value}", category='SETTINGS')
+            self.schedule_save()
             self.notify_observers(key, value)
+
+    @handle_exceptions
+    def schedule_save(self):
+        """Plant das Speichern der Einstellungen."""
+        if self.save_timer is None:
+            self.save_timer = threading.Timer(5.0, self.save_settings)
+            self.save_timer.start()
 
     @handle_exceptions
     def get_default_settings(self) -> Dict[str, Any]:
@@ -107,6 +131,7 @@ class SettingsManager:
         :return: Ein Dictionary mit Standardeinstellungen
         """
         return {
+            "version": self.version,
             "language": DEFAULT_LANGUAGE,
             "model": DEFAULT_WHISPER_MODEL,
             "theme": DEFAULT_THEME,
@@ -152,20 +177,21 @@ class SettingsManager:
         if "specific_settings" not in self.settings["plugins"]:
             self.settings["plugins"]["specific_settings"] = {}
         self.settings["plugins"]["specific_settings"][plugin_name] = settings
-        self.save_settings()
-        logger.info(f"Plugin-Einstellungen für {plugin_name} aktualisiert")
+        self.changed_settings.add(f"plugins.specific_settings.{plugin_name}")
+        self.schedule_save()
+        logger.info(f"Plugin-Einstellungen für {plugin_name} aktualisiert", category='SETTINGS')
 
     @handle_exceptions
     def print_current_settings(self):
         """Gibt die aktuellen Einstellungen in lesbarer Form aus."""
-        logger.info("Aktuelle Einstellungen:")
+        logger.info("Aktuelle Einstellungen:", category='SETTINGS')
         for key, value in self.settings.items():
             if key != "plugins":
-                logger.info(f"  {key}: {value}")
+                logger.info(f"  {key}: {value}", category='SETTINGS')
             else:
-                logger.info("  Plugin-Einstellungen:")
+                logger.info("  Plugin-Einstellungen:", category='SETTINGS')
                 for plugin_key, plugin_value in value.items():
-                    logger.info(f"    {plugin_key}: {plugin_value}")
+                    logger.info(f"    {plugin_key}: {plugin_value}", category='SETTINGS')
 
     def add_observer(self, observer):
         """Fügt einen Beobachter hinzu."""
@@ -181,34 +207,51 @@ class SettingsManager:
             if hasattr(observer, 'on_settings_changed'):
                 observer.on_settings_changed(key, value)
 
+    @handle_exceptions
+    def migrate_settings(self):
+        """Migriert die Einstellungen auf die neueste Version."""
+        if self.version < 2:
+            # Beispiel für eine Migration von Version 1 zu Version 2
+            if "new_setting" not in self.settings:
+                self.settings["new_setting"] = "default_value"
+            self.version = 2
+            self.settings["version"] = self.version
+            logger.info(f"Einstellungen auf Version {self.version} migriert", category='SETTINGS')
+        # Fügen Sie hier weitere Migrationsschritte hinzu, wenn nötig
+
+    @handle_exceptions
+    def validate_settings(self):
+        """Überprüft die Gültigkeit der Einstellungen."""
+        # Implementieren Sie hier Validierungslogik
+        pass
+
+
 # Zusätzliche Erklärungen:
 
-# 1. Robuste Fehlerbehandlung:
-#    Alle Methoden verwenden den @handle_exceptions Decorator, um eine einheitliche
-#    Fehlerbehandlung und Logging zu gewährleisten.
+# 1. Versionierung:
+#    Die Versionsnummer wird nun in den Einstellungen gespeichert und kann für
+#    zukünftige Migrationen verwendet werden.
 
-# 2. Typisierung:
-#    Die Verwendung von Typ-Annotationen verbessert die Lesbarkeit und ermöglicht
-#    eine bessere statische Codeanalyse.
+# 2. Atomic Writes:
+#    Die save_settings Methode verwendet nun temporäre Dateien und os.replace,
+#    um atomare Schreibvorgänge zu gewährleisten.
 
-# 3. Standardeinstellungen:
-#    Die get_default_settings Methode zentralisiert die Definition von Standardwerten,
-#    was die Wartung und Aktualisierung erleichtert.
+# 3. Verzögertes Speichern:
+#    Die schedule_save Methode plant das Speichern mit einer Verzögerung,
+#    um häufige Schreibvorgänge zu reduzieren.
 
-# 4. Plugin-Unterstützung:
-#    Spezielle Methoden für Plugin-Einstellungen ermöglichen eine flexible Verwaltung
-#    von Plugin-spezifischen Konfigurationen.
+# 4. Änderungsverfolgung:
+#    changed_settings hält eine Liste der geänderten Einstellungen,
+#    um selektives Speichern zu ermöglichen.
 
-# 5. Logging:
-#    Umfangreiches Logging hilft bei der Fehlersuche und Überwachung des Einstellungsverhaltens.
+# 5. Validierung:
+#    Eine Methode zur Validierung der Einstellungen wurde hinzugefügt,
+#    die in Zukunft implementiert werden kann.
 
-# 6. Beobachter-Muster:
-#    Die Implementation des Beobachter-Musters ermöglicht es anderen Teilen der Anwendung,
-#    auf Einstellungsänderungen zu reagieren.
-
-# 7. Datenpersistenz:
-#    Die Klasse kümmert sich um das Laden und Speichern von Einstellungen in einer JSON-Datei,
-#    was die Persistenz zwischen Anwendungssitzungen gewährleistet.
+# 6. Migration:
+#    Die migrate_settings Methode ermöglicht es, Einstellungen zwischen
+#    verschiedenen Versionen zu migrieren.
 
 # Diese Implementierung bietet eine robuste und erweiterbare Grundlage für die
-# Verwaltung von Einstellungen in der Wortweber-Anwendung.
+# Verwaltung von Einstellungen in der Wortweber-Anwendung, mit Fokus auf
+# Datenkonsistenz, Effizienz und Zukunftssicherheit.

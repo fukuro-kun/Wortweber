@@ -38,7 +38,7 @@ class MainWindow:
         self.root = root
         self.gui = gui
         self.setup_ui()
-        logger.info("MainWindow initialisiert")
+        logger.info("MainWindow initialisiert", category='UI')
 
     @handle_exceptions
     def setup_ui(self):
@@ -100,12 +100,13 @@ class MainWindow:
         self.transcription_time = tk.Label(right_frame, text="0.00 s", bg="black", fg="white", anchor="e")
         self.transcription_time.pack(side=tk.LEFT)
 
-        self.auto_copy_var = tk.BooleanVar(value=self.gui.settings_manager.get_setting("auto_copy"))
+        self.auto_copy_var = tk.BooleanVar(value=self.gui.settings_manager.get_setting("auto_copy", True))
         self.auto_copy_checkbox = tk.Checkbutton(right_frame, text="Auto-Kopieren", variable=self.auto_copy_var,
-                                                    bg="black", fg="white", selectcolor="black", activebackground="black")
+                                                 bg="black", fg="white", selectcolor="black", activebackground="black",
+                                                 command=self.on_auto_copy_change)
         self.auto_copy_checkbox.pack(side=tk.RIGHT)
 
-        logger.info("UI-Setup abgeschlossen")
+        logger.info("UI-Setup abgeschlossen", category='UI')
 
     @handle_exceptions
     def update_status_bar(self, model=None, output_mode=None, status=None, record_time=None, transcription_time=None, status_color=None):
@@ -119,7 +120,7 @@ class MainWindow:
         :param transcription_time: Transkriptionszeit in Sekunden (optional)
         :param status_color: Farbe für die Statusnachricht (optional)
         """
-        if model:
+        if model is not None:
             self.model_status.config(text=model)
             if "Geladen" in model:
                 self.model_status.config(fg="green")
@@ -128,10 +129,10 @@ class MainWindow:
             else:
                 self.model_status.config(fg="white")
 
-        if output_mode:
+        if output_mode is not None:
             self.output_mode_status.config(text=output_mode)
 
-        if status:
+        if status is not None:
             self.main_status.config(text=status)
             if status_color:
                 self.main_status.config(fg=status_color)
@@ -146,6 +147,14 @@ class MainWindow:
 
         # Explizite Aktualisierung des Fensters, um sicherzustellen, dass Änderungen sofort sichtbar sind
         self.root.update_idletasks()
+
+    @handle_exceptions
+    def on_auto_copy_change(self):
+        """Behandelt Änderungen der Auto-Kopieren-Einstellung."""
+        new_value = self.auto_copy_var.get()
+        self.gui.settings_manager.set_setting("auto_copy", new_value)
+        self.gui.settings_manager.save_settings()
+        logger.info(f"Auto-Kopieren-Einstellung geändert: {new_value}", category='SETTINGS')
 
 # Zusätzliche Erklärungen:
 
@@ -170,3 +179,11 @@ class MainWindow:
 # 6. Dynamische Statusaktualisierung:
 #    Die update_status_bar Methode ermöglicht es, verschiedene Teile der Statusleiste unabhängig voneinander zu aktualisieren,
 #    was eine flexible und effiziente Statusanzeige ermöglicht.
+
+# 7. Auto-Kopieren-Funktionalität:
+#    Die on_auto_copy_change Methode wurde hinzugefügt, um Änderungen der Auto-Kopieren-Einstellung zu behandeln
+#    und diese in den Einstellungen zu speichern.
+
+# 8. Einstellungsintegration:
+#    Die Klasse nutzt den SettingsManager, um Benutzereinstellungen zu laden und zu speichern,
+#    was eine konsistente Benutzererfahrung über mehrere Sitzungen hinweg ermöglicht.

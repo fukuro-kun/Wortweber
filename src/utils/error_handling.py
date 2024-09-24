@@ -1,5 +1,3 @@
-# src/utils/error_handling.py
-
 # Wortweber - Echtzeit-Sprachtranskription mit KI
 # Copyright (C) 2024 fukuro-kun
 #
@@ -54,22 +52,40 @@ class CustomLogger:
 
         self.disabled_categories = set()
 
-    def log(self, category: str, message: str, level: int = None):
+    def log(self, category: str, message: str, level: int = logging.INFO) -> None:
         """
         Loggt eine Nachricht mit der angegebenen Kategorie und dem Logging-Level.
 
         :param category: Die Logging-Kategorie
         :param message: Die zu loggende Nachricht
-        :param level: Das Logging-Level (optional)
+        :param level: Das Logging-Level (optional, Standard ist INFO)
         """
         if category not in self.categories:
             category = 'GENERAL'
-        if level is None:
-            level = self.categories.get(category, logging.INFO)
         if category not in self.disabled_categories:
             self.logger.log(level, message, extra={'category': category})
 
-    def set_category_level(self, category: str, level: int):
+    def debug(self, message: str, category: str = 'GENERAL'):
+        """Loggt eine DEBUG-Nachricht."""
+        self.log(category, message, logging.DEBUG)
+
+    def info(self, message: str, category: str = 'GENERAL'):
+        """Loggt eine INFO-Nachricht."""
+        self.log(category, message, logging.INFO)
+
+    def warning(self, message: str, category: str = 'GENERAL'):
+        """Loggt eine WARNING-Nachricht."""
+        self.log(category, message, logging.WARNING)
+
+    def error(self, message: str, category: str = 'ERROR'):
+        """Loggt eine ERROR-Nachricht."""
+        self.log(category, message, logging.ERROR)
+
+    def critical(self, message: str, category: str = 'ERROR'):
+        """Loggt eine CRITICAL-Nachricht."""
+        self.log(category, message, logging.CRITICAL)
+
+    def set_category_level(self, category: str, level: int) -> None:
         """
         Setzt das Logging-Level für eine bestimmte Kategorie.
 
@@ -78,7 +94,7 @@ class CustomLogger:
         """
         self.categories[category] = level
 
-    def disable_category(self, category: str):
+    def disable_category(self, category: str) -> None:
         """
         Deaktiviert das Logging für eine bestimmte Kategorie.
 
@@ -86,7 +102,7 @@ class CustomLogger:
         """
         self.disabled_categories.add(category)
 
-    def enable_category(self, category: str):
+    def enable_category(self, category: str) -> None:
         """
         Aktiviert das Logging für eine zuvor deaktivierte Kategorie.
 

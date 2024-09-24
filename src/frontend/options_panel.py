@@ -42,6 +42,7 @@ class OptionsPanel(ttk.Frame):
         super().__init__(parent)
         self.gui = gui
         self.setup_ui()
+        logger.info("OptionsPanel initialisiert", category='UI')
 
     @handle_exceptions
     def setup_ui(self):
@@ -88,21 +89,23 @@ class OptionsPanel(ttk.Frame):
                                        bg="black", fg="white", padx=5, pady=2)
         self.shortcut_label.pack()
 
-        logger.info("OptionsPanel UI eingerichtet")
+        logger.info("OptionsPanel UI eingerichtet", category='UI')
 
     @handle_exceptions
     def on_language_change(self):
         """Behandelt Änderungen der ausgewählten Sprache."""
-        self.gui.settings_manager.set_setting("language", self.language_var.get())
+        new_language = self.language_var.get()
+        self.gui.settings_manager.set_setting("language", new_language)
         self.gui.settings_manager.save_settings()
-        logger.info(f"Sprache geändert auf: {self.language_var.get()}")
+        logger.info(f"Sprache geändert auf: {new_language}", category='SETTINGS')
 
     @handle_exceptions
     def on_model_change(self, event):
         """Behandelt Änderungen des ausgewählten Whisper-Modells."""
-        self.gui.settings_manager.set_setting("model", self.model_var.get())
-        self.gui.load_model_async(self.model_var.get())
-        logger.info(f"Whisper-Modell geändert auf: {self.model_var.get()}")
+        new_model = self.model_var.get()
+        self.gui.settings_manager.set_setting("model", new_model)
+        self.gui.load_model_async(new_model)
+        logger.info(f"Whisper-Modell geändert auf: {new_model}", category='SETTINGS')
 
     @handle_exceptions
     def on_output_mode_change(self):
@@ -111,7 +114,7 @@ class OptionsPanel(ttk.Frame):
         self.gui.settings_manager.set_setting("output_mode", new_output_mode)
         self.gui.settings_manager.save_settings()
         self.gui.main_window.update_status_bar(output_mode=new_output_mode)
-        logger.info(f"Ausgabemodus geändert auf: {new_output_mode}")
+        logger.info(f"Ausgabemodus geändert auf: {new_output_mode}", category='SETTINGS')
 
     @handle_exceptions
     def get_delay_settings(self):
@@ -125,7 +128,7 @@ class OptionsPanel(ttk.Frame):
     def update_shortcut_display(self, new_shortcut):
         """Aktualisiert die Anzeige des aktuellen Shortcuts."""
         self.shortcut_label.config(text=f"{new_shortcut} um aufzunehmen")
-        logger.info(f"Shortcut-Anzeige aktualisiert auf: {new_shortcut}")
+        logger.info(f"Shortcut-Anzeige aktualisiert auf: {new_shortcut}", category='UI')
 
     @handle_exceptions
     def update_delay_settings(self, delay_mode, char_delay):
@@ -133,7 +136,7 @@ class OptionsPanel(ttk.Frame):
         self.gui.settings_manager.set_setting("delay_mode", delay_mode)
         self.gui.settings_manager.set_setting("char_delay", char_delay)
         self.gui.settings_manager.save_settings()
-        logger.info(f"Verzögerungseinstellungen aktualisiert: Modus={delay_mode}, Verzögerung={char_delay}")
+        logger.info(f"Verzögerungseinstellungen aktualisiert: Modus={delay_mode}, Verzögerung={char_delay}", category='SETTINGS')
 
 # Zusätzliche Erklärungen:
 
@@ -164,5 +167,5 @@ class OptionsPanel(ttk.Frame):
 #    und platzsparende Darstellung ermöglicht.
 
 # 7. Shortcut-Anzeige:
-#    Die neue Shortcut-Anzeige wurde am rechten Rand des Panels hinzugefügt, um dem
+#    Die Shortcut-Anzeige wurde am rechten Rand des Panels hinzugefügt, um dem
 #    Benutzer eine schnelle visuelle Referenz für den aktuellen Aufnahme-Shortcut zu bieten.

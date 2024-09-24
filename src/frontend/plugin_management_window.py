@@ -18,7 +18,6 @@ import tkinter as tk
 from tkinter import ttk, messagebox, font
 from src.utils.error_handling import handle_exceptions, logger
 from src.plugin_system.plugin_manager import PluginManager
-from src.frontend.settings_manager import SettingsManager
 from typing import Any, Dict
 
 class PluginManagementWindow:
@@ -45,6 +44,7 @@ class PluginManagementWindow:
         self.create_widgets()
         self.drag_item = None
         self.drag_start_y = 0
+        logger.info("Plugin-Verwaltungsfenster initialisiert", category='PLUGIN')
 
     @handle_exceptions
     def setup_font(self):
@@ -60,7 +60,7 @@ class PluginManagementWindow:
             self.custom_font = font.Font(family=chosen_font, size=10)
             self.window.option_add("*Font", self.custom_font)
         else:
-            logger.warning("Keine geeignete Schriftart für Unicode-Symbole gefunden.")
+            logger.warning("Keine geeignete Schriftart für Unicode-Symbole gefunden.", category='UI')
             self.custom_font = font.nametofont("TkDefaultFont")
 
     @handle_exceptions
@@ -68,6 +68,7 @@ class PluginManagementWindow:
         """Erstellt die Widgets für das Plugin-Verwaltungsfenster."""
         self.tree = self.create_plugin_tree()
         self.create_buttons()
+        logger.debug("Widgets für Plugin-Verwaltungsfenster erstellt", category='UI')
 
     @handle_exceptions
     def create_plugin_tree(self):
@@ -120,6 +121,7 @@ class PluginManagementWindow:
             self.insert_plugin_to_tree(tree, plugin_info)
 
         tree.bind("<ButtonRelease-1>", self.on_tree_click)
+        logger.debug("Plugin-Liste aktualisiert", category='PLUGIN')
 
     @handle_exceptions
     def insert_plugin_to_tree(self, tree, plugin_info: Dict[str, Any]):
@@ -139,11 +141,12 @@ class PluginManagementWindow:
             plugin_info['version'],
             status_symbol,
             "☑" if is_active else "☐",
-            "Einst."
+            "..."
         ))
 
         tree.tag_configure(f'status_{item}', foreground=status_color)
         tree.item(item, tags=(f'status_{item}',))
+        logger.debug(f"Plugin {plugin_name} in Treeview eingefügt", category='PLUGIN')
 
     @handle_exceptions
     def on_tree_press(self, event):
@@ -189,6 +192,7 @@ class PluginManagementWindow:
             self.save_plugin_order()
             self.drag_item = None
             self.tree.tag_configure('dragging', background='')
+            logger.info(f"Plugin {plugin_name} auf Position {new_index} verschoben", category='PLUGIN')
 
     @handle_exceptions
     def on_tree_click(self, event):
@@ -215,10 +219,11 @@ class PluginManagementWindow:
         """
         if plugin_name in self.plugin_manager.active_plugins:
             self.plugin_manager.deactivate_plugin(plugin_name)
+            logger.info(f"Plugin {plugin_name} deaktiviert", category='PLUGIN')
         else:
             self.plugin_manager.activate_plugin(plugin_name)
+            logger.info(f"Plugin {plugin_name} aktiviert", category='PLUGIN')
         self.update_plugin_list(self.tree)
-        logger.info(f"Plugin-Status geändert: {plugin_name}")
 
     @handle_exceptions
     def open_plugin_settings(self, plugin_name):
@@ -259,15 +264,17 @@ class PluginManagementWindow:
             self.plugin_manager.update_plugin_settings(plugin_name, new_settings)
             settings_window.destroy()
             self.update_plugin_list(self.tree)
+            logger.info(f"Einstellungen für Plugin {plugin_name} aktualisiert", category='PLUGIN')
 
         ttk.Button(settings_window, text="Speichern", command=save_settings).pack(pady=10)
+        logger.debug(f"Einstellungsfenster für Plugin {plugin_name} geöffnet", category='PLUGIN')
 
     @handle_exceptions
     def save_plugin_order(self):
         """Speichert die aktuelle Reihenfolge der Plugins."""
         plugin_order = [self.tree.item(child)["values"][0] for child in self.tree.get_children()]
         self.plugin_manager.save_plugin_order(plugin_order)
-        logger.info(f"Plugin-Reihenfolge gespeichert: {plugin_order}")
+        logger.info(f"Plugin-Reihenfolge gespeichert: {plugin_order}", category='PLUGIN')
 
     @handle_exceptions
     def create_buttons(self):
@@ -276,6 +283,7 @@ class PluginManagementWindow:
         button_frame.pack(fill="x", padx=10, pady=10)
 
         ttk.Button(button_frame, text="Schließen", command=self.window.destroy).pack(side="right")
+        logger.debug("Buttons für Plugin-Verwaltungsfenster erstellt", category='UI')
 
     @classmethod
     @handle_exceptions
@@ -287,8 +295,8 @@ class PluginManagementWindow:
         :param plugin_manager: Eine Instanz des PluginManager
         :return: Eine Instanz des PluginManagementWindow
         """
+        logger.info("Plugin-Verwaltungsfenster geöffnet", category='PLUGIN')
         return cls(parent, plugin_manager)
-
 
 # Zusätzliche Erklärungen:
 
@@ -311,6 +319,10 @@ class PluginManagementWindow:
 # 5. Fehlerbehandlung:
 #    Alle Methoden sind mit dem @handle_exceptions Decorator versehen, um eine
 #    konsistente Fehlerbehandlung zu gewährleisten.
+
+# 6. Logging:
+#    Umfangreiches Logging wurde hinzugefügt, um die Nachvollziehbarkeit von
+#    Aktionen im Plugin-Verwaltungsfenster zu verbessern.
 
 # Diese Implementierung bietet eine benutzerfreundliche und erweiterbare Schnittstelle
 # zur Verwaltung von Plugins in der Wortweber-Anwendung, mit Fokus auf Flexibilität
