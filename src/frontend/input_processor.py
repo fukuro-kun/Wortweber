@@ -49,6 +49,7 @@ class InputProcessor:
         self.push_to_talk_key = self.parse_shortcut(self.gui.settings_manager.get_setting("push_to_talk_key", DEFAULT_PUSH_TO_TALK_KEY))
         self.currently_pressed_keys = set()
         self.recording_active = False
+        self.pushtotalk_pressed = False
         logger.info("InputProcessor initialisiert")
 
     @handle_exceptions
@@ -74,10 +75,10 @@ class InputProcessor:
         """
         normalized_key = self.normalize_key(key)
         self.currently_pressed_keys.add(normalized_key)
-        logger.debug(f"Taste gedrückt: {normalized_key}")
-        logger.debug(f"Aktuell gedrückte Tasten: {self.currently_pressed_keys}")
 
-        if self.is_push_to_talk_key(key) and not self.recording_active:
+        if self.is_push_to_talk_key(key) and not self.recording_active and not self.pushtotalk_pressed:
+            logger.debug(f"Push-to-Talk-Taste gedrückt: {normalized_key}")
+            self.pushtotalk_pressed = True
             self.start_recording()
 
     @handle_exceptions
@@ -89,12 +90,11 @@ class InputProcessor:
         """
         normalized_key = self.normalize_key(key)
         self.currently_pressed_keys.discard(normalized_key)
-        logger.debug(f"Taste losgelassen: {normalized_key}")
-        logger.debug(f"Aktuell gedrückte Tasten nach Loslassen: {self.currently_pressed_keys}")
 
         if self.recording_active and self.is_push_to_talk_key(key):
+            logger.debug(f"Push-to-Talk-Taste losgelassen: {normalized_key}")
+            self.pushtotalk_pressed = False
             self.stop_recording()
-
 
     @handle_exceptions
     def is_push_to_talk_key(self, key):
@@ -107,16 +107,9 @@ class InputProcessor:
         required_modifiers = self.push_to_talk_key['modifiers']
         required_key = self.push_to_talk_key['key']
 
-        logger.debug(f"Überprüfe Push-to-Talk für Taste: {key}")
-        logger.debug(f"Erforderliche Modifikatoren: {required_modifiers}")
-        logger.debug(f"Erforderliche Haupttaste: {required_key}")
-        logger.debug(f"Aktuell gedrückte Tasten: {self.currently_pressed_keys}")
-
         if not required_modifiers:
-            # Für einzelne Tasten ohne Modifikatoren
             return self.normalize_key(key) == required_key.lower()
 
-        # Für Tastenkombinationen
         return all(mod.name.lower() in self.currently_pressed_keys for mod in required_modifiers) and \
                self.normalize_key(key) == required_key.lower()
 
@@ -291,6 +284,7 @@ class InputProcessor:
         # Tastenstatus zurücksetzen
         self.currently_pressed_keys.clear()
         self.recording_active = False
+        self.pushtotalk_pressed = False
 
         # Listener neu starten
         self.start_listener()

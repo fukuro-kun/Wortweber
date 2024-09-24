@@ -5,6 +5,17 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.24.4] - 2024-09-24
+### Changed
+- Optimiertes Logging für Textauswahl-Änderungen, um die Logmenge zu reduzieren und die Übersichtlichkeit zu verbessern.
+
+## [0.24.3] - 2024-09-24
+### Fixed
+- Verbesserte Handhabung der Fenstergeometrie-Speicherung für alle Fenster.
+### Changed
+- Reduzierung der Log-Ausgaben für routinemäßige Operationen.
+- Anpassung der Logging-Levels für verschiedene Komponenten zur Verbesserung der Übersichtlichkeit.
+
 ## [0.24.2] - 2024-09-24
 ### Fixed
 - Korrekte Speicherung der Fenstergeometrie für das Plugin-Verwaltungsfenster implementiert.

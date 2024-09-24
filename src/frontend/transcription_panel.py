@@ -18,6 +18,7 @@ import tkinter as tk
 from tkinter import ttk, scrolledtext
 import tkinter.font as tkFont
 import pyperclip
+import time
 from src.config import HIGHLIGHT_DURATION, DEFAULT_FONT_SIZE, DEFAULT_FONT_FAMILY, DEFAULT_INCOGNITO_MODE
 from src.frontend.context_menu import create_context_menu
 from src.utils.error_handling import handle_exceptions, logger
@@ -39,6 +40,8 @@ class TranscriptionPanel(ttk.Frame):
         self.gui = gui
         self.font_size = self.gui.settings_manager.get_setting("font_size", DEFAULT_FONT_SIZE)
         self.font_family = self.gui.settings_manager.get_setting("font_family", DEFAULT_FONT_FAMILY)
+        self.last_selection_log = 0
+        self.selection_log_delay = 0.1  # 100 ms
         self.setup_ui()
         self.load_saved_text()
         logger.info("TranscriptionPanel initialisiert")
@@ -193,7 +196,14 @@ class TranscriptionPanel(ttk.Frame):
         if self.text_widget.tag_ranges("sel"):
             self.text_widget.tag_remove("select", "1.0", tk.END)
             self.text_widget.tag_add("select", "sel.first", "sel.last")
-            logger.debug("Textauswahl geändert")
+            self.throttled_log("Textauswahl geändert")
+
+    def throttled_log(self, message):
+        """Loggt eine Nachricht, aber nicht öfter als alle 100 ms."""
+        current_time = time.time()
+        if current_time - self.last_selection_log > self.selection_log_delay:
+            logger.debug(message)
+            self.last_selection_log = current_time
 
     @handle_exceptions
     def update_colors(self, text_fg, text_bg, select_fg, select_bg, highlight_fg, highlight_bg):
@@ -216,6 +226,7 @@ class TranscriptionPanel(ttk.Frame):
         self.text_widget.tag_configure("highlight", foreground=highlight_fg, background=highlight_bg)
         self.text_widget.tag_configure("select", foreground=select_fg, background=select_bg)
         logger.info("Textfarben aktualisiert")
+
 
 # Zusätzliche Erklärungen:
 
