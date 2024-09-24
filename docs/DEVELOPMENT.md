@@ -4,10 +4,11 @@
 Wortweber ist eine Python-basierte Anwendung zur Echtzeit-Sprachtranskription mit KI, die nun durch ein leistungsfähiges Plugin-System erweitert wurde. Das Projekt nutzt das OpenAI Whisper-Modell für die Spracherkennung und bietet eine benutzerfreundliche grafische Oberfläche mit Push-to-Talk-Funktionalität und Plugin-Unterstützung.
 
 ## 2. Aktuelle Entwicklungsschwerpunkte
-- Verfeinerung und Optimierung des neu implementierten Plugin-Systems
-- Erweiterung der Plugin-API und -Dokumentation
-- Entwicklung zusätzlicher Beispiel-Plugins zur Demonstration der Systemfähigkeiten
+- Optimierung und Erweiterung des neu implementierten Plugin-Systems
 - Verbesserung der Benutzeroberfläche für Plugin-Verwaltung und -Konfiguration
+- Erweiterung der Plugin-API und -Dokumentation für Drittentwickler
+- Entwicklung zusätzlicher Beispiel-Plugins zur Demonstration der Systemfähigkeiten
+- Verbesserung der Audiogeräteauswahl und -verwaltung
 
 ## 3. Nächste geplante Features
 1. Erweiterte Dokumentation für Drittentwickler
@@ -29,10 +30,12 @@ Wortweber/
 ├── docs/
 │   ├── CHANGELOG.md
 │   ├── DEVELOPMENT.md
-│   ├── README.md
 │   ├── REFACTORING_NOTES.md
 │   └── TODO.md
+├── logs/
+│   └── wortweber.log
 ├── plugins/
+│   ├── README.md
 │   └── text_transformer.py
 ├── src/
 │   ├── backend/
@@ -75,27 +78,31 @@ Wortweber/
 │   │   ├── test_text_processor.py
 │   │   └── test_transcription.py
 │   ├── frontend/
-│   │   ├── __init__.py
 │   │   ├── test_main_window.py
+│   │   ├── test_options_panel.py
+│   │   ├── test_status_panel.py
+│   │   ├── test_transcription_panel.py
 │   │   └── test_wortweber_gui.py
-│   ├── test_data/
-│   │   └── speech_sample.wav
 │   ├── utils/
 │   │   └── test_text_processing.py
 │   ├── __init__.py
 │   ├── base_test.py
 │   ├── test_config.py
+│   ├── test_error_handling.py
 │   ├── test_parallel_transcription.py
 │   └── test_sequential_transcription.py
+├── .env
 ├── .gitignore
 ├── install_and_test.sh
 ├── LICENSE
 ├── NOTICE
+├── pyrightconfig.json
+├── README.md
 ├── requirements.txt
 ├── run_tests.py
 ├── THIRD_PARTY_LICENSES.md
-├── VERSION
-└── wortweber.sh
+├── user_settings.json
+└── VERSION
 ```
 
 ## 6. Installation und Einrichtung
