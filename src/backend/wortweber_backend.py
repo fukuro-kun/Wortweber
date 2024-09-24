@@ -46,7 +46,7 @@ class WordweberBackend:
         self.on_transcription_complete: Optional[Callable[[str], None]] = None
         self.pending_audio: List[np.ndarray] = []
         self.gui = None  # Wird später von der GUI gesetzt
-        logger.info("WordweberBackend initialisiert")
+        logger.debug("WordweberBackend initialisiert")
 
     @handle_exceptions
     def set_gui(self, gui):
@@ -89,7 +89,7 @@ class WordweberBackend:
     def _record_audio(self) -> None:
         """Interne Methode zur Audioaufnahme."""
         duration = self.audio_processor.record_audio(self.state)
-        logger.debug(f"Audioaufnahme beendet. Dauer: {duration:.2f} Sekunden")
+        logger.info(f"Audioaufnahme beendet. Dauer: {duration:.2f} Sekunden")
 
     @handle_exceptions
     def process_and_transcribe(self, language: str) -> str:

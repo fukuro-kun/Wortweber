@@ -37,7 +37,7 @@ class Transcriber:
         self.model_name = model_name
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.settings_manager = None  # Wird später von der GUI gesetzt
-        logger.info(f"Transcriber initialisiert mit Modell {model_name} auf Gerät {self.device}")
+        logger.debug(f"Transcriber initialisiert mit Modell {model_name} auf Gerät {self.device}")
 
     @handle_exceptions
     def load_model(self) -> None:

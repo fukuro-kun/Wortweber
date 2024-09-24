@@ -27,33 +27,36 @@ class PluginManager:
     """
 
     @handle_exceptions
-    def __init__(self, plugin_dir: str = "plugins", settings_manager: Optional[SettingsManager] = None):
+    def __init__(self, plugin_dir: str, settings_manager: SettingsManager):
         self.plugin_dir = plugin_dir
         self.plugins: Dict[str, AbstractPlugin] = {}
         self.active_plugins: List[str] = []
-        self.settings_manager = settings_manager or SettingsManager()
+        self.settings_manager = settings_manager
         self.plugin_loader = PluginLoader(plugin_dir)
-        logger.info("PluginManager initialisiert")
+        logger.debug("PluginManager initialisiert")
 
     @handle_exceptions
     def discover_plugins(self) -> None:
         """Durchsucht das Plugin-Verzeichnis nach verfügbaren Plugins und lädt sie."""
-        logger.info(f"Suche nach Plugins in: {self.plugin_dir}")
+        logger.debug(f"Suche nach Plugins in: {self.plugin_dir}")
         plugin_settings = self.settings_manager.get_setting("plugins", {}).get("specific_settings", {})
         loaded_plugins = self.plugin_loader.load_all_plugins(plugin_settings)
         for plugin in loaded_plugins:
-            self.plugins[plugin.name] = plugin
-            logger.info(f"Plugin entdeckt: {plugin.name} v{plugin.version}")
+            if plugin.name not in self.plugins:
+                self.plugins[plugin.name] = plugin
+                logger.info(f"Plugin entdeckt: {plugin.name} v{plugin.version}")
+            else:
+                logger.debug(f"Plugin {plugin.name} bereits geladen, wird übersprungen")
 
         # Aktiviere zuvor aktivierte Plugins
         enabled_plugins = self.settings_manager.get_setting("plugins", {}).get("enabled_plugins", [])
         for plugin_name in enabled_plugins:
-            if plugin_name in self.plugins:
+            if plugin_name in self.plugins and plugin_name not in self.active_plugins:
                 self.activate_plugin(plugin_name)
-            else:
+            elif plugin_name not in self.plugins:
                 logger.warning(f"Zuvor aktiviertes Plugin nicht gefunden: {plugin_name}")
 
-        logger.info(f"Insgesamt {len(self.plugins)} Plugins geladen")
+        logger.info(f"Insgesamt {len(self.plugins)} Plugins geladen, {len(self.active_plugins)} aktiv")
 
     @handle_exceptions
     def activate_plugin(self, plugin_name: str) -> bool:
@@ -113,7 +116,7 @@ class PluginManager:
                 validated_settings = self.plugin_loader.validate_plugin_settings(plugin, settings)
                 plugin.set_settings(validated_settings)
                 self.settings_manager.set_plugin_settings(plugin_name, validated_settings)
-                logger.info(f"Einstellungen für Plugin {plugin_name} aktualisiert")
+                logger.debug(f"Einstellungen für Plugin {plugin_name} aktualisiert")
                 return True
             except Exception as e:
                 logger.error(f"Fehler beim Aktualisieren der Einstellungen für Plugin {plugin_name}: {str(e)}")
@@ -158,6 +161,7 @@ class PluginManager:
         plugins_settings = self.settings_manager.get_setting("plugins", {})
         plugins_settings["enabled_plugins"] = self.active_plugins
         self.settings_manager.set_setting("plugins", plugins_settings)
+
 
 # Zusätzliche Erklärungen:
 

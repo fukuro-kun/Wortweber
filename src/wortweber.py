@@ -31,7 +31,6 @@ from src.backend.wortweber_backend import WordweberBackend
 from src.frontend.wortweber_gui import WordweberGUI
 from src.frontend.settings_manager import SettingsManager
 from src.plugin_system.plugin_manager import PluginManager
-from src.plugin_system.plugin_loader import PluginLoader
 
 # Unterdrücke ALSA-Warnungen
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="sounddevice")
@@ -63,21 +62,15 @@ class Wortweber:
         self.backend = WordweberBackend(self.settings_manager)
 
         # Initialisieren des Plugin-Systems
-        self.plugin_loader = PluginLoader()
-        self.plugin_manager = PluginManager()
-        self.load_plugins()
-
+        self.plugin_manager = PluginManager(self.settings_manager.get_setting("plugins", {}).get("plugin_dir", "plugins"), self.settings_manager)
         self.gui = WordweberGUI(self.backend, self.plugin_manager)
 
-        # Füge diese Zeile hinzu, um die aktuellen Einstellungen zu drucken
-        self.settings_manager.print_current_settings()
+        # Initialisiere Plugins nur einmal
+        self.plugin_manager.discover_plugins()
 
-    @handle_exceptions
-    def load_plugins(self):
-        plugins = self.plugin_loader.load_all_plugins()
-        for plugin in plugins:
-            self.plugin_manager.plugins[plugin.name] = plugin
-        self.plugin_manager.discover_plugins()  # Dies lädt zusätzliche Plugins aus dem Verzeichnis
+        # Drucke die aktuellen Einstellungen nur einmal beim Start
+        logger.info("Initiale Anwendungseinstellungen:")
+        self.settings_manager.print_current_settings()
 
     @handle_exceptions
     def run(self):

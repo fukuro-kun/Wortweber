@@ -31,7 +31,7 @@ class PluginLoader:
     @handle_exceptions
     def __init__(self, plugin_dir: str = "plugins"):
         self.plugin_dir = plugin_dir
-        logger.info(f"PluginLoader initialisiert mit Verzeichnis: {plugin_dir}")
+        logger.debug(f"PluginLoader initialisiert mit Verzeichnis: {plugin_dir}")
 
     @handle_exceptions
     def load_plugin(self, plugin_name: str, settings: Optional[Dict[str, Any]] = None) -> Optional[AbstractPlugin]:
@@ -75,7 +75,7 @@ class PluginLoader:
             validated_settings = self.validate_plugin_settings(plugin_instance, settings)
             plugin_instance.set_settings(validated_settings)
 
-            logger.info(f"Plugin erfolgreich geladen: {plugin_name}")
+            logger.debug(f"Plugin erfolgreich geladen: {plugin_name}")
             return plugin_instance
 
         except Exception as e:

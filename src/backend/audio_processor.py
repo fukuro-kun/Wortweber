@@ -38,7 +38,7 @@ class AudioProcessor:
         self.p = pyaudio.PyAudio()
         self.current_device_index = self.get_device_index()
         self.stream = None
-        logger.info(f"AudioProcessor initialisiert mit Geräteindex: {self.current_device_index}")
+        logger.debug(f"AudioProcessor initialisiert mit Geräteindex: {self.current_device_index}")
 
     def __del__(self):
         self.cleanup()
@@ -50,14 +50,14 @@ class AudioProcessor:
             self.stream.close()
         if self.p:
             self.p.terminate()
-        logger.info("AudioProcessor Ressourcen bereinigt")
+        logger.debug("AudioProcessor Ressourcen bereinigt")
 
     @handle_exceptions
     def reinitialize(self):
         self.cleanup()
         self.p = pyaudio.PyAudio()
         self.current_device_index = self.get_device_index()
-        logger.info("AudioProcessor reinitialisiert")
+        logger.debug("AudioProcessor reinitialisiert")
 
     @handle_exceptions
     def get_device_index(self):
@@ -95,7 +95,7 @@ class AudioProcessor:
             self.current_device_index = new_index
             self.settings_manager.set_setting("audio_device_index", new_index)
             self.settings_manager.save_settings()
-            logger.info(f"Audiogerät aktualisiert auf Index: {new_index}")
+            logger.debug(f"Audiogerät aktualisiert auf Index: {new_index}")
             return True
         else:
             logger.error(f"Ungültiger Audiogeräteindex: {new_index}")

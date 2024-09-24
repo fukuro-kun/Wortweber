@@ -35,7 +35,7 @@ class SettingsManager:
         """Initialisiert den SettingsManager und lädt bestehende Einstellungen."""
         self.settings_file = "user_settings.json"
         self.settings = self.load_settings()
-        logger.info("SettingsManager initialisiert")
+        logger.debug("SettingsManager initialisiert")
         self.print_current_settings()
 
     @handle_exceptions
@@ -50,7 +50,7 @@ class SettingsManager:
             try:
                 with open(self.settings_file, "r") as f:
                     settings = json.load(f)
-                logger.info("Einstellungen erfolgreich geladen")
+                logger.debug("Einstellungen erfolgreich geladen")
                 # Füge fehlende Plugin-Einstellungen hinzu
                 if "plugins" not in settings:
                     settings["plugins"] = self.get_default_settings()["plugins"]

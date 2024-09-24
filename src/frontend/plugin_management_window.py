@@ -30,7 +30,7 @@ class PluginManagementWindow(tk.Toplevel):
         self.create_widgets()
         self.load_window_geometry()
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
-        logger.info("Plugin-Verwaltungsfenster initialisiert")
+        logger.debug("Plugin-Verwaltungsfenster initialisiert")
 
     @handle_exceptions
     def create_widgets(self):

@@ -75,12 +75,12 @@ class WordweberGUI:
         if saved_geometry:
             try:
                 self.root.geometry(saved_geometry)
-                logger.info(f"Gespeicherte Fenstergeometrie geladen: {saved_geometry}")
+                logger.debug(f"Gespeicherte Fenstergeometrie geladen: {saved_geometry}")
             except tk.TclError:
                 logger.warning("Ungültige gespeicherte Geometrie, verwende Standardgröße")
                 self.root.geometry(DEFAULT_WINDOW_SIZE)
         else:
-            logger.info("Keine gespeicherte Geometrie gefunden, verwende Standardgröße")
+            logger.debug("Keine gespeicherte Geometrie gefunden, verwende Standardgröße")
             self.root.geometry(DEFAULT_WINDOW_SIZE)
 
 
