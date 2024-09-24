@@ -108,6 +108,7 @@ class SettingsManager:
             "model": DEFAULT_WHISPER_MODEL,
             "theme": DEFAULT_THEME,
             "window_geometry": DEFAULT_WINDOW_SIZE,
+            "plugin_window_geometry": "",
             "input_mode": "textfenster",
             "delay_mode": "no_delay",
             "char_delay": str(DEFAULT_CHAR_DELAY),

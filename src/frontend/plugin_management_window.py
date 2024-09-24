@@ -22,13 +22,16 @@ from typing import Any
 
 class PluginManagementWindow:
     @handle_exceptions
-    def __init__(self, parent, plugin_manager: PluginManager):
+    def __init__(self, parent, plugin_manager: PluginManager, gui):
         self.parent = parent
         self.plugin_manager = plugin_manager
+        self.gui = gui
         self.window = tk.Toplevel(parent)
         self.window.title("Plugin-Verwaltung")
-        self.window.geometry("600x400")
         self.create_widgets()
+        self.load_window_geometry()
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
+        logger.info("Plugin-Verwaltungsfenster initialisiert")
 
     @handle_exceptions
     def create_widgets(self):
@@ -140,7 +143,32 @@ class PluginManagementWindow:
 
         ttk.Button(button_frame, text="Schließen", command=self.window.destroy).pack(side="right")
 
+    @handle_exceptions
+    def load_window_geometry(self):
+        """Lädt die gespeicherte Fenstergröße und -position."""
+        geometry = self.gui.settings_manager.get_setting("plugin_window_geometry")
+        if geometry:
+            self.window.geometry(geometry)
+            logger.debug(f"Gespeicherte Plugin-Fenstergeometrie geladen: {geometry}")
+        else:
+            # Wenn keine gespeicherte Geometrie vorhanden ist, zentriere das Fenster
+            self.window.update_idletasks()
+            width = self.window.winfo_width()
+            height = self.window.winfo_height()
+            x = (self.window.winfo_screenwidth() // 2) - (width // 2)
+            y = (self.window.winfo_screenheight() // 2) - (height // 2)
+            self.window.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+            logger.debug("Plugin-Fenster zentriert (keine gespeicherte Geometrie)")
+
+    @handle_exceptions
+    def on_closing(self):
+        """Wird aufgerufen, wenn das Fenster geschlossen wird."""
+        # Speichere die aktuelle Fenstergröße und -position
+        self.gui.settings_manager.set_setting("plugin_window_geometry", self.window.geometry())
+        self.gui.settings_manager.save_settings()
+        self.window.destroy()
+
     @classmethod
     @handle_exceptions
-    def open_window(cls, parent, plugin_manager):
-        return cls(parent, plugin_manager)
+    def open_window(cls, parent, plugin_manager, gui):
+        return cls(parent, plugin_manager, gui)

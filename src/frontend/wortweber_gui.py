@@ -328,7 +328,7 @@ class WordweberGUI:
     @handle_exceptions
     def open_plugin_management_window(self):
         """Öffnet das Fenster zur Plugin-Verwaltung."""
-        PluginManagementWindow.open_window(self.root, self.plugin_manager)
+        PluginManagementWindow.open_window(self.root, self.plugin_manager, self)
 
 
 # Zusätzliche Erklärungen:
