@@ -56,7 +56,11 @@ class PluginManager:
             elif plugin_name not in self.plugins:
                 logger.warning(f"Zuvor aktiviertes Plugin nicht gefunden: {plugin_name}")
 
+        # Löse Abhängigkeiten auf
+        self.resolve_dependencies()
+
         logger.info(f"Insgesamt {len(self.plugins)} Plugins geladen, {len(self.active_plugins)} aktiv")
+
 
     @handle_exceptions
     def activate_plugin(self, plugin_name: str) -> bool:
@@ -100,6 +104,33 @@ class PluginManager:
             except Exception as e:
                 logger.error(f"Fehler beim Deaktivieren des Plugins {plugin_name}: {str(e)}")
         return False
+
+    @handle_exceptions
+    def reload_plugin(self, plugin_name: str) -> bool:
+        """Lädt ein Plugin neu."""
+        if plugin_name in self.plugins:
+            old_plugin = self.plugins[plugin_name]
+            new_plugin = self.plugin_loader.reload_plugin(plugin_name)
+            if new_plugin:
+                self.plugins[plugin_name] = new_plugin
+                if plugin_name in self.active_plugins:
+                    old_plugin.deactivate()
+                    new_plugin.activate(self.settings_manager.get_plugin_settings(plugin_name))
+                new_plugin.on_update()
+                logger.info(f"Plugin {plugin_name} erfolgreich neu geladen")
+                return True
+        logger.warning(f"Konnte Plugin {plugin_name} nicht neu laden")
+        return False
+
+    @handle_exceptions
+    def resolve_dependencies(self):
+        """Löst Plugin-Abhängigkeiten auf."""
+        for plugin in self.plugins.values():
+            for dependency in plugin.dependencies:
+                if dependency not in self.plugins:
+                    logger.warning(f"Abhängigkeit {dependency} für Plugin {plugin.name} nicht gefunden")
+                elif dependency not in self.active_plugins:
+                    self.activate_plugin(dependency)
 
     @handle_exceptions
     def update_plugin_settings(self, plugin_name: str, settings: Dict[str, Any]) -> bool:

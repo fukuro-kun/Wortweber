@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from src.utils.error_handling import handle_exceptions, logger
 
 class AbstractPlugin(ABC):
@@ -23,6 +23,7 @@ class AbstractPlugin(ABC):
     Abstrakte Basisklasse für alle Wortweber-Plugins.
     Alle Plugins müssen diese Klasse erweitern und ihre Methoden implementieren.
     """
+    dependencies: List[str] = []  # Neue Zeile
 
     @property
     @abstractmethod
