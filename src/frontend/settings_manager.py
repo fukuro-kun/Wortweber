@@ -60,12 +60,12 @@ class SettingsManager:
         return self.get_default_settings()
 
     @handle_exceptions
-    def save_settings(self):
-        """Speichert die aktuellen Einstellungen in einer JSON-Datei."""
+    def save_settings(self) -> None:
+        """Speichert alle Einstellungen in der Datei."""
         try:
-            with open(self.settings_file, "w") as f:
+            with open(self.settings_file, 'w') as f:
                 json.dump(self.settings, f, indent=4)
-            logger.info("Einstellungen erfolgreich gespeichert")
+            logger.debug("Einstellungen erfolgreich gespeichert")
         except Exception as e:
             logger.error(f"Fehler beim Speichern der Einstellungen: {e}")
 
@@ -83,22 +83,18 @@ class SettingsManager:
         return value
 
     @handle_exceptions
-    def set_setting(self, key, value):
+    def set_setting(self, key: str, value: Any) -> None:
         """
         Setzt den Wert einer bestimmten Einstellung und speichert die Änderungen.
 
         :param key: Der Schlüssel der zu setzenden Einstellung
         :param value: Der neue Wert der Einstellung
         """
-        self.settings[key] = value
-        self.save_settings()
-        if key != "text_content":  # Vermeiden des Loggens von Transkriptionen
-            logger.info(f"Einstellung geändert: {key} = {value}")
-
-        # Überprüfen, ob die Einstellung tatsächlich gespeichert wurde
-        saved_value = self.get_setting(key)
-        if saved_value != value:
-            logger.error(f"Einstellung {key} konnte nicht korrekt gespeichert werden. Erwartet: {value}, Tatsächlich: {saved_value}")
+        if self.settings.get(key) != value:
+            self.settings[key] = value
+            self.save_settings()
+            if key != "text_content":  # Vermeiden des Loggens von Transkriptionen
+                logger.debug(f"Einstellung geändert und gespeichert: {key} = {value}")
 
     @handle_exceptions
     def get_default_settings(self):
@@ -168,6 +164,7 @@ class SettingsManager:
                 logger.info("Plugin-Einstellungen:")
                 for plugin_key, plugin_value in value.items():
                     logger.info(f"  {plugin_key}: {plugin_value}")
+
 
 # Zusätzliche Erklärungen:
 

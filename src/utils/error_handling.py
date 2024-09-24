@@ -16,8 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
 import logging
 import traceback
 from typing import Callable, Any
@@ -26,11 +24,11 @@ from functools import wraps
 # Konfigurieren des Logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(levelname)s - %(message)s',
     filename='wortweber.log'
 )
 
-logger = logging.getLogger('Wortweber')
+logger = logging.getLogger()
 
 def log_and_raise(exception: Exception, message: str, log_level: int = logging.ERROR) -> None:
     """

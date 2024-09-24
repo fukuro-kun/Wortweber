@@ -25,7 +25,8 @@ from tkinter import ttk, messagebox
 import time
 import logging
 import threading
-from typing import Optional
+from typing import Optional, Callable
+from functools import wraps
 
 # Drittanbieterbibliotheken
 import ttkthemes
@@ -43,7 +44,7 @@ from src.config import DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY, DEFAULT_PUSH_TO_
 from src.utils.error_handling import handle_exceptions, logger
 from src.plugin_system.plugin_manager import PluginManager
 from src.frontend.context_menu import create_context_menu
-from src.frontend.plugin_management_window import PluginManagementWindow  # Neuer Import
+from src.frontend.plugin_management_window import PluginManagementWindow
 
 class WordweberGUI:
     """
@@ -67,17 +68,21 @@ class WordweberGUI:
         self.root.title("Wortweber Transkription")
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
+        self.root.after(5000, self.update_geometry)
 
         # Laden der gespeicherten Fenstergeometrie
         saved_geometry = self.settings_manager.get_setting("window_geometry")
         if saved_geometry:
             try:
                 self.root.geometry(saved_geometry)
+                logger.info(f"Gespeicherte Fenstergeometrie geladen: {saved_geometry}")
             except tk.TclError:
-                # Wenn die gespeicherte Geometrie ungültig ist, verwenden wir die Standardgröße
+                logger.warning("Ungültige gespeicherte Geometrie, verwende Standardgröße")
                 self.root.geometry(DEFAULT_WINDOW_SIZE)
         else:
+            logger.info("Keine gespeicherte Geometrie gefunden, verwende Standardgröße")
             self.root.geometry(DEFAULT_WINDOW_SIZE)
+
 
         self.theme_manager = ThemeManager(self.root, self.settings_manager)
         self.input_processor = InputProcessor(self)
@@ -98,11 +103,18 @@ class WordweberGUI:
         # Plugins entdecken
         self.plugin_manager.discover_plugins()
 
-        # Hinzufügen eines Event-Handlers für Größenänderungen
-        self.root.bind("<Configure>", self.on_window_configure)
+        # Fügen Sie einen Protokoll-Handler für das Schließen des Hauptfensters hinzu
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         # Initialisierung der Shortcut-Anzeige
         self.options_panel.update_shortcut_display(self.settings_manager.get_setting("push_to_talk_key", DEFAULT_PUSH_TO_TALK_KEY))
+
+    @handle_exceptions
+    def update_geometry(self):
+        current_geometry = self.root.geometry()
+        self.settings_manager.set_setting("window_geometry", current_geometry)
+        logger.debug(f"Fenstergeometrie aktualisiert: {current_geometry}")
+        self.root.after(5000, self.update_geometry)  # Alle 5 Sekunden aktualisieren
 
     @handle_exceptions
     def setup_logging(self) -> None:
@@ -153,15 +165,15 @@ class WordweberGUI:
         """Startet die Hauptschleife der GUI."""
         logging.debug("Starte Anwendung")
         self.input_processor.start_listener()
-        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.root.mainloop()
 
     @handle_exceptions
     def on_closing(self) -> None:
         """Wird aufgerufen, wenn das Anwendungsfenster geschlossen wird."""
         logging.debug("Anwendung wird geschlossen")
-        self.settings_manager.set_setting("window_geometry", self.root.geometry())
-        self.settings_manager.set_setting("output_mode", self.options_panel.output_mode_var.get())
+        current_geometry = self.root.geometry()
+        self.settings_manager.set_setting("window_geometry", current_geometry)
+        logger.info(f"Aktuelle Fenstergeometrie gespeichert: {current_geometry}")
 
         # Verzögerungseinstellungen aus dem OptionsWindow holen
         delay_settings = self.get_delay_settings()
@@ -181,21 +193,22 @@ class WordweberGUI:
         self.root.destroy()
 
     @handle_exceptions
-    def open_options_window(self) -> None:
-        """Öffnet das Fenster für erweiterte Optionen."""
-        OptionsWindow.open_window(self.root, self.theme_manager, self.transcription_panel, self)
+    def save_current_geometry(self):
+        """Speichert die aktuelle Fenstergeometrie in den Einstellungen."""
+        current_geometry = self.root.winfo_geometry()
+        self.settings_manager.set_setting("window_geometry", current_geometry)
+        logger.debug(f"Fenstergeometrie beim Schließen gespeichert: {current_geometry}")
 
     @handle_exceptions
-    def on_window_configure(self, event: tk.Event) -> None:
-        """
-        Wird aufgerufen, wenn sich die Fenstergröße ändert.
-        Speichert die neue Fenstergröße in den Einstellungen.
+    def open_options_window(self) -> None:
+        """Öffnet das Fenster für erweiterte Optionen."""
+        options_window = OptionsWindow.open_window(self.root, self.theme_manager, self.transcription_panel, self)
+        if options_window:
+            options_window.protocol("WM_DELETE_WINDOW", lambda: self.on_options_window_closing(options_window))
 
-        :param event: Das Konfigurationsereignis
-        """
-        if event.widget == self.root:
-            self.settings_manager.set_setting("window_geometry", self.root.geometry())
-            self.settings_manager.save_settings()
+    def on_options_window_closing(self, window):
+        self.save_current_geometry()
+        window.destroy()
 
     @handle_exceptions
     def transcribe_and_update(self) -> None:
@@ -348,6 +361,10 @@ class WordweberGUI:
 
 # 8. Kontextmenü:
 #    Ein Kontextmenü wurde hinzugefügt, um schnellen Zugriff auf häufig verwendete Funktionen zu bieten.
+
+# 9. Debounce-Funktionalität:
+#    Die Implementierung einer Debounce-Funktion hilft, die Häufigkeit bestimmter Ereignisse
+#    (wie Fensterkonfigurationsänderungen) zu begrenzen, was die Leistung verbessert.
 
 # Diese Implementierung bietet eine flexible und erweiterbare Basis für die
 # Benutzeroberfläche von Wortweber, mit Fokus auf Benutzerfreundlichkeit,

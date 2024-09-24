@@ -48,6 +48,7 @@ class OptionsWindow(tk.Toplevel):
             cls._instance.focus_force()
             cls._instance.lift()
         logger.info("Optionsfenster geöffnet oder in den Vordergrund gebracht")
+        return cls._instance
 
     @handle_exceptions
     def __init__(self, parent, theme_manager, transcription_panel, gui):
