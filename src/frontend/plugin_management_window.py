@@ -20,17 +20,16 @@ from src.utils.error_handling import handle_exceptions, logger
 from src.plugin_system.plugin_manager import PluginManager
 from typing import Any
 
-class PluginManagementWindow:
+class PluginManagementWindow(tk.Toplevel):
     @handle_exceptions
     def __init__(self, parent, plugin_manager: PluginManager, gui):
-        self.parent = parent
+        super().__init__(parent)
         self.plugin_manager = plugin_manager
         self.gui = gui
-        self.window = tk.Toplevel(parent)
-        self.window.title("Plugin-Verwaltung")
+        self.title("Plugin-Verwaltung")
         self.create_widgets()
         self.load_window_geometry()
-        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
         logger.info("Plugin-Verwaltungsfenster initialisiert")
 
     @handle_exceptions
@@ -41,7 +40,7 @@ class PluginManagementWindow:
     @handle_exceptions
     def create_plugin_tree(self):
         columns = ("Name", "Version", "Status", "Aktiv", "Einstellungen")
-        tree = ttk.Treeview(self.window, columns=columns, show="headings")
+        tree = ttk.Treeview(self, columns=columns, show="headings")
 
         for col in columns:
             tree.heading(col, text=col, anchor="center")
@@ -105,7 +104,7 @@ class PluginManagementWindow:
     @handle_exceptions
     def open_plugin_settings(self, plugin_name):
         plugin = self.plugin_manager.plugins[plugin_name]
-        settings_window = tk.Toplevel(self.window)
+        settings_window = tk.Toplevel(self)
         settings_window.title(f"{plugin_name} Einstellungen")
         settings_window.geometry("400x300")
 
@@ -138,35 +137,36 @@ class PluginManagementWindow:
 
     @handle_exceptions
     def create_buttons(self):
-        button_frame = ttk.Frame(self.window)
+        button_frame = ttk.Frame(self)
         button_frame.pack(fill="x", padx=10, pady=10)
 
-        ttk.Button(button_frame, text="Schließen", command=self.window.destroy).pack(side="right")
+        ttk.Button(button_frame, text="Schließen", command=self.on_closing).pack(side="right")
 
     @handle_exceptions
     def load_window_geometry(self):
         """Lädt die gespeicherte Fenstergröße und -position."""
         geometry = self.gui.settings_manager.get_setting("plugin_window_geometry")
         if geometry:
-            self.window.geometry(geometry)
+            self.geometry(geometry)
             logger.debug(f"Gespeicherte Plugin-Fenstergeometrie geladen: {geometry}")
         else:
             # Wenn keine gespeicherte Geometrie vorhanden ist, zentriere das Fenster
-            self.window.update_idletasks()
-            width = self.window.winfo_width()
-            height = self.window.winfo_height()
-            x = (self.window.winfo_screenwidth() // 2) - (width // 2)
-            y = (self.window.winfo_screenheight() // 2) - (height // 2)
-            self.window.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+            self.update_idletasks()
+            width = self.winfo_width()
+            height = self.winfo_height()
+            x = (self.winfo_screenwidth() // 2) - (width // 2)
+            y = (self.winfo_screenheight() // 2) - (height // 2)
+            self.geometry('{}x{}+{}+{}'.format(width, height, x, y))
             logger.debug("Plugin-Fenster zentriert (keine gespeicherte Geometrie)")
 
     @handle_exceptions
     def on_closing(self):
         """Wird aufgerufen, wenn das Fenster geschlossen wird."""
-        # Speichere die aktuelle Fenstergröße und -position
-        self.gui.settings_manager.set_setting("plugin_window_geometry", self.window.geometry())
+        current_geometry = self.geometry()
+        self.gui.settings_manager.set_setting("plugin_window_geometry", current_geometry)
         self.gui.settings_manager.save_settings()
-        self.window.destroy()
+        logger.info(f"Plugin-Verwaltungsfenster geschlossen, Geometrie {current_geometry} gespeichert")
+        self.destroy()
 
     @classmethod
     @handle_exceptions
