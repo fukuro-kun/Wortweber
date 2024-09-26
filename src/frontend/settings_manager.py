@@ -19,10 +19,10 @@
 import json
 import os
 from typing import Dict, Any, List
-from src.config import (DEFAULT_LANGUAGE, DEFAULT_WHISPER_MODEL, DEFAULT_THEME,
-                        DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY, DEFAULT_FONT_SIZE,
+from src.config import (DEFAULT_LANGUAGE, DEFAULT_WHISPER_MODEL, DEFAULT_PUSH_TO_TALK_KEY,
+                        DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY, DEFAULT_FONT_SIZE, DEFAULT_THEME,
                         DEFAULT_INCOGNITO_MODE, DEFAULT_PLUGIN_DIR, DEFAULT_ENABLED_PLUGINS,
-                        DEFAULT_PLUGIN_SETTINGS, PLUGIN_SPECIFIC_SETTINGS)
+                        DEFAULT_PLUGIN_SETTINGS, PLUGIN_SPECIFIC_SETTINGS, DEFAULT_FONT_FAMILY, )
 from src.utils.error_handling import handle_exceptions, logger
 
 class SettingsManager:
@@ -137,6 +137,33 @@ class SettingsManager:
             self.save_setting(key, value)
             if key != "text_content":  # Vermeiden des Loggens von Transkriptionen
                 logger.debug(f"Einstellung geändert und sofort gespeichert: {key} = {value}")
+
+
+    @handle_exceptions
+    def get_current_settings(self):
+        """
+        Gibt ein Dictionary mit allen aktuellen Einstellungen zurück.
+
+        :return: Ein Dictionary mit den aktuellen Einstellungen
+        """
+        return {
+            "theme": self.get_setting("theme", DEFAULT_THEME),
+            "font_size": self.get_setting("font_size", DEFAULT_FONT_SIZE),
+            "font_family": self.get_setting("font_family", DEFAULT_FONT_FAMILY),
+            "save_test_recording": self.get_setting("save_test_recording", False),
+            "incognito_mode": self.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE),
+            "text_fg": self.get_setting("text_fg", "black"),
+            "text_bg": self.get_setting("text_bg", "white"),
+            "select_fg": self.get_setting("select_fg", "black"),
+            "select_bg": self.get_setting("select_bg", "lightblue"),
+            "highlight_fg": self.get_setting("highlight_fg", "black"),
+            "highlight_bg": self.get_setting("highlight_bg", "yellow"),
+            "push_to_talk_key": self.get_setting("push_to_talk_key", DEFAULT_PUSH_TO_TALK_KEY),
+            "delay_settings": {
+                "delay_mode": self.get_setting("delay_mode", "no_delay"),
+                "char_delay": self.get_setting("char_delay", DEFAULT_CHAR_DELAY)
+            }
+        }
 
     @handle_exceptions
     def get_default_settings(self):

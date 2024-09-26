@@ -8,12 +8,13 @@ Wortweber befindet sich in einer frühen Entwicklungsphase und ist noch nicht f�
 
 ## Geplante Hauptfunktionen
 
-- Echtzeit-Audioaufnahme mit Push-to-Talk-Funktionalität (F12-Taste)
+- Echtzeit-Audioaufnahme mit Push-to-Talk-Funktionalität (Standard: F12-Taste, änderbar)
 - Transkription in Deutsch und Englisch mit Whisper-Modellen
 - Einfache grafische Benutzeroberfläche
 - Umwandlung von Zahlwörtern in Ziffern und umgekehrt
 - Flexible Eingabemodi: Textfenster oder Systemcursor-Position
 - Speichern von Benutzereinstellungen
+- Erweitertes Plugin-System
 
 ## Installation und Nutzung
 
