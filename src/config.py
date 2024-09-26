@@ -1,3 +1,5 @@
+# src/config.py
+
 # Wortweber - Echtzeit-Sprachtranskription mit KI
 # Copyright (C) 2024 fukuro-kun
 #
@@ -14,8 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# src/config.py
-
 # Standardbibliotheken
 import os
 
@@ -31,14 +31,16 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Allgemeine Einstellungen
 DEFAULT_LANGUAGE = "de"  # Standardsprache für die Transkription
 DEFAULT_WHISPER_MODEL = "small"  # Standardmodell für Whisper
-DEFAULT_THEME = "arc"  # Standardtheme für die GUI
+DEFAULT_THEME = "black"  # Standardtheme für die GUI
 DEFAULT_INCOGNITO_MODE = True  # Standardeinstellung für den Incognito-Modus
 
 # GUI-Einstellungen
-DEFAULT_WINDOW_SIZE = "900x700"  # Standardgröße des Anwendungsfensters
+DEFAULT_WINDOW_SIZE = "890x404+760+123"  # Standardgröße und -position des Anwendungsfensters
+DEFAULT_PLUGIN_WINDOW_GEOMETRY = "892x291+758+594"  # Standardgröße und -position des Plugin-Fensters
+DEFAULT_OPTIONS_WINDOW_GEOMETRY = "606x370+1652+124"  # Standardgröße und -position des Optionsfensters
 HIGHLIGHT_DURATION = 2000  # Dauer der Texthighlights in Millisekunden
 DEFAULT_FONT_SIZE = 12  # Standard-Textgröße
-DEFAULT_FONT_FAMILY = "Nimbus Mono L"  # Die korrekte Schreibweise ist "Nimbus Mono L"
+DEFAULT_FONT_FAMILY = "Nimbus Mono L"  # Standard-Schriftart
 
 # Audio-Einstellungen
 AUDIO_FORMAT = pyaudio.paInt16  # 16-bit int Sampling
@@ -47,7 +49,7 @@ AUDIO_RATE = 44100  # Sampling-Rate in Hz
 TARGET_RATE = 16000  # Ziel-Sampling-Rate für Whisper
 AUDIO_CHUNK = 4096  # Größe der Audio-Chunks für die Aufnahme
 DEVICE_INDEX = 6  # Index des zu verwendenden Audiogeräts
-DEFAULT_AUDIO_DEVICE_INDEX = 0  # Eintrag für den Standard-Audiogeräteindex
+DEFAULT_AUDIO_DEVICE_INDEX = 6  # Standard-Audiogeräteindex
 
 # Aufnahme-Einstellungen
 MIN_RECORD_SECONDS = 0.5  # Mindestaufnahmedauer in Sekunden
@@ -56,7 +58,20 @@ MIN_RECORD_SECONDS = 0.5  # Mindestaufnahmedauer in Sekunden
 DEFAULT_PUSH_TO_TALK_KEY = "F12"  # Standard-Tastenkombination für Push-to-Talk-Funktion
 
 # Verzögerungseinstellungen
-DEFAULT_CHAR_DELAY = 10  # Standardverzögerung zwischen Zeichen in Millisekunden
+DEFAULT_DELAY_MODE = "char_delay"  # Standardverzögerungsmodus
+DEFAULT_CHAR_DELAY = 18  # Standardverzögerung zwischen Zeichen in Millisekunden
+
+# Ausgabe-Einstellungen
+DEFAULT_AUTO_COPY = True  # Standardeinstellung für automatisches Kopieren
+DEFAULT_OUTPUT_MODE = "systemcursor"  # Standardausgabemodus
+
+# Farbeinstellungen
+DEFAULT_TEXT_FG = "#FFFFFF"  # Standard-Textfarbe
+DEFAULT_TEXT_BG = "#000000"  # Standard-Hintergrundfarbe
+DEFAULT_SELECT_FG = "black"  # Standard-Textfarbe für Auswahl
+DEFAULT_SELECT_BG = "#FFFFFF"  # Standard-Hintergrundfarbe für Auswahl
+DEFAULT_HIGHLIGHT_FG = "#FFFFFF"  # Standard-Textfarbe für Hervorhebung
+DEFAULT_HIGHLIGHT_BG = "#FF0000"  # Standard-Hintergrundfarbe für Hervorhebung
 
 # Whisper-Modelle
 WHISPER_MODELS = ["tiny", "base", "small", "medium", "large"]  # Verfügbare Whisper-Modelle
@@ -119,7 +134,6 @@ mit der aktuellen Version von Wortweber sind.
 # Diese Konfigurationsdatei zentralisiert alle wichtigen Einstellungen für die Wortweber-Anwendung.
 # Sie erleichtert die Anpassung und Wartung der Anwendung, indem sie einen einzigen Ort für
 # häufig zu ändernde Parameter bereitstellt.
-
 
 # Zusätzliche Erklärungen:
 

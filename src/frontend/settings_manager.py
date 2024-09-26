@@ -1,3 +1,5 @@
+# src/frontend/settings_manager.py
+
 # Wortweber - Echtzeit-Sprachtranskription mit KI
 # Copyright (C) 2024 fukuro-kun
 #
@@ -14,15 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# src/frontend/settings_manager.py
-
 import json
 import os
 from typing import Dict, Any, List
-from src.config import (DEFAULT_LANGUAGE, DEFAULT_WHISPER_MODEL, DEFAULT_PUSH_TO_TALK_KEY,
-                        DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY, DEFAULT_FONT_SIZE, DEFAULT_THEME,
-                        DEFAULT_INCOGNITO_MODE, DEFAULT_PLUGIN_DIR, DEFAULT_ENABLED_PLUGINS,
-                        DEFAULT_PLUGIN_SETTINGS, PLUGIN_SPECIFIC_SETTINGS, DEFAULT_FONT_FAMILY, )
+from src.config import *    # Importiert alle Variablen und Funktionen aus der config.py-Datei
 from src.utils.error_handling import handle_exceptions, logger
 
 class SettingsManager:
@@ -138,7 +135,6 @@ class SettingsManager:
             if key != "text_content":  # Vermeiden des Loggens von Transkriptionen
                 logger.debug(f"Einstellung geändert und sofort gespeichert: {key} = {value}")
 
-
     @handle_exceptions
     def get_current_settings(self):
         """
@@ -147,23 +143,31 @@ class SettingsManager:
         :return: Ein Dictionary mit den aktuellen Einstellungen
         """
         return {
+            "language": self.get_setting("language", DEFAULT_LANGUAGE),
+            "model": self.get_setting("model", DEFAULT_WHISPER_MODEL),
             "theme": self.get_setting("theme", DEFAULT_THEME),
+            "window_geometry": self.get_setting("window_geometry", DEFAULT_WINDOW_SIZE),
+            "plugin_window_geometry": self.get_setting("plugin_window_geometry", DEFAULT_PLUGIN_WINDOW_GEOMETRY),
+            "options_window_geometry": self.get_setting("options_window_geometry", DEFAULT_OPTIONS_WINDOW_GEOMETRY),
+            "delay_mode": self.get_setting("delay_mode", DEFAULT_DELAY_MODE),
+            "char_delay": self.get_setting("char_delay", DEFAULT_CHAR_DELAY),
+            "auto_copy": self.get_setting("auto_copy", DEFAULT_AUTO_COPY),
+            "text_content": self.get_setting("text_content", ""),
             "font_size": self.get_setting("font_size", DEFAULT_FONT_SIZE),
             "font_family": self.get_setting("font_family", DEFAULT_FONT_FAMILY),
             "save_test_recording": self.get_setting("save_test_recording", False),
             "incognito_mode": self.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE),
-            "text_fg": self.get_setting("text_fg", "black"),
-            "text_bg": self.get_setting("text_bg", "white"),
-            "select_fg": self.get_setting("select_fg", "black"),
-            "select_bg": self.get_setting("select_bg", "lightblue"),
-            "highlight_fg": self.get_setting("highlight_fg", "black"),
-            "highlight_bg": self.get_setting("highlight_bg", "yellow"),
-            "push_to_talk_key": self.get_setting("push_to_talk_key", DEFAULT_PUSH_TO_TALK_KEY),
-            "delay_settings": {
-                "delay_mode": self.get_setting("delay_mode", "no_delay"),
-                "char_delay": self.get_setting("char_delay", DEFAULT_CHAR_DELAY)
-            }
+            "audio_device_index": self.get_setting("audio_device_index", DEFAULT_AUDIO_DEVICE_INDEX),
+            "text_fg": self.get_setting("text_fg", DEFAULT_TEXT_FG),
+            "text_bg": self.get_setting("text_bg", DEFAULT_TEXT_BG),
+            "select_fg": self.get_setting("select_fg", DEFAULT_SELECT_FG),
+            "select_bg": self.get_setting("select_bg", DEFAULT_SELECT_BG),
+            "highlight_fg": self.get_setting("highlight_fg", DEFAULT_HIGHLIGHT_FG),
+            "highlight_bg": self.get_setting("highlight_bg", DEFAULT_HIGHLIGHT_BG),
+            "output_mode": self.get_setting("output_mode", DEFAULT_OUTPUT_MODE),
+            "push_to_talk_key": self.get_setting("push_to_talk_key", DEFAULT_PUSH_TO_TALK_KEY)
         }
+        logger.debug("Standardeinstellungen abgerufen")
 
     @handle_exceptions
     def get_default_settings(self):
@@ -172,20 +176,30 @@ class SettingsManager:
 
         :return: Ein Dictionary mit Standardeinstellungen
         """
-        default_settings = {
+        return {
             "language": DEFAULT_LANGUAGE,
             "model": DEFAULT_WHISPER_MODEL,
             "theme": DEFAULT_THEME,
             "window_geometry": DEFAULT_WINDOW_SIZE,
-            "plugin_window_geometry": "",
-            "input_mode": "textfenster",
-            "delay_mode": "no_delay",
-            "char_delay": str(DEFAULT_CHAR_DELAY),
-            "auto_copy": True,
+            "plugin_window_geometry": DEFAULT_PLUGIN_WINDOW_GEOMETRY,
+            "options_window_geometry": DEFAULT_OPTIONS_WINDOW_GEOMETRY,
+            "delay_mode": DEFAULT_DELAY_MODE,
+            "char_delay": DEFAULT_CHAR_DELAY,
+            "auto_copy": DEFAULT_AUTO_COPY,
             "text_content": "",
             "font_size": DEFAULT_FONT_SIZE,
+            "font_family": DEFAULT_FONT_FAMILY,
             "save_test_recording": False,
             "incognito_mode": DEFAULT_INCOGNITO_MODE,
+            "audio_device_index": DEFAULT_AUDIO_DEVICE_INDEX,
+            "text_fg": DEFAULT_TEXT_FG,
+            "text_bg": DEFAULT_TEXT_BG,
+            "select_fg": DEFAULT_SELECT_FG,
+            "select_bg": DEFAULT_SELECT_BG,
+            "highlight_fg": DEFAULT_HIGHLIGHT_FG,
+            "highlight_bg": DEFAULT_HIGHLIGHT_BG,
+            "output_mode": DEFAULT_OUTPUT_MODE,
+            "push_to_talk_key": DEFAULT_PUSH_TO_TALK_KEY,
             "plugins": {
                 "enabled_plugins": DEFAULT_ENABLED_PLUGINS,
                 "plugin_dir": DEFAULT_PLUGIN_DIR,
@@ -193,8 +207,6 @@ class SettingsManager:
                 "specific_settings": PLUGIN_SPECIFIC_SETTINGS
             }
         }
-        logger.debug("Standardeinstellungen abgerufen")
-        return default_settings
 
     @handle_exceptions
     def get_plugin_settings(self, plugin_name: str) -> Dict[str, Any]:
@@ -271,7 +283,7 @@ class SettingsManager:
 # Zusätzliche Erklärungen:
 
 # 1. sync_settings_from_file Methode:
-#    Diese neue Methode wurde hinzugefügt, um den internen Zustand mit der JSON-Datei zu synchronisieren.
+#    Diese Methode wurde hinzugefügt, um den internen Zustand mit der JSON-Datei zu synchronisieren.
 #    Sie wird in der get_setting Methode aufgerufen, um sicherzustellen, dass immer die aktuellsten
 #    Einstellungen abgerufen werden.
 
