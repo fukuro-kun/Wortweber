@@ -162,26 +162,36 @@ class PluginManager:
         plugins_settings["enabled_plugins"] = self.active_plugins
         self.settings_manager.set_setting("plugins", plugins_settings)
 
-
 # Zusätzliche Erklärungen:
 
-# 1. Integration des SettingsManager:
-#    Der SettingsManager wird nun im Konstruktor übergeben oder erstellt, um Plugin-Einstellungen zu verwalten.
+# 1. Plugin-Verwaltung:
+#    Die Klasse PluginManager ist verantwortlich für die Verwaltung aller Plugins,
+#    einschließlich des Ladens, Aktivierens, Deaktivierens und Ausführens.
 
-# 2. discover_plugins:
-#    Diese Methode wurde erweitert, um Plugin-Einstellungen beim Laden zu berücksichtigen
-#    und zuvor aktivierte Plugins automatisch zu aktivieren.
+# 2. Entdeckung von Plugins:
+#    Die discover_plugins-Methode durchsucht das Plugin-Verzeichnis nach verfügbaren
+#    Plugins und lädt sie. Zuvor aktivierte Plugins werden automatisch wieder aktiviert.
 
-# 3. activate_plugin und deactivate_plugin:
-#    Diese Methoden wurden angepasst, um Einstellungen beim Aktivieren zu laden und beim Deaktivieren zu speichern.
-#    Sie aktualisieren auch die Liste der aktivierten Plugins in den Einstellungen.
+# 3. Aktivierung und Deaktivierung:
+#    Die Methoden activate_plugin und deactivate_plugin ermöglichen es, Plugins zur
+#    Laufzeit zu aktivieren oder zu deaktivieren. Die Liste der aktiven Plugins wird
+#    in den Einstellungen gespeichert.
 
-# 4. update_plugin_settings:
-#    Eine neue Methode, die es ermöglicht, die Einstellungen eines Plugins zu aktualisieren.
-#    Sie validiert die Einstellungen und speichert sie sowohl im Plugin als auch im SettingsManager.
+# 4. Einstellungsverwaltung:
+#    Die update_plugin_settings-Methode ermöglicht es, die Einstellungen einzelner
+#    Plugins zu aktualisieren. Die Einstellungen werden validiert und im SettingsManager gespeichert.
 
-# 5. _update_enabled_plugins:
-#    Eine private Hilfsmethode, die die Liste der aktivierten Plugins in den Einstellungen aktualisiert.
+# 5. Textverarbeitung:
+#    Die process_text_with_plugins-Methode verarbeitet Text mit allen aktiven Plugins,
+#    was eine flexible Erweiterung der Textverarbeitungsfunktionen ermöglicht.
 
-# Diese Änderungen ermöglichen eine umfassende Verwaltung von Plugin-Einstellungen und -Zuständen,
-# während sie die bestehende Funktionalität des PluginManager beibehalten und erweitern.
+# 6. Fehlerbehandlung:
+#    Alle Methoden verwenden den @handle_exceptions Decorator für eine einheitliche
+#    Fehlerbehandlung und -protokollierung.
+
+# 7. Logging:
+#    Ausführliches Logging wird verwendet, um den Zustand des PluginManagers und
+#    Aktionen im Zusammenhang mit Plugins zu protokollieren.
+
+# Diese Implementierung bietet eine robuste und erweiterbare Grundlage für die
+# Plugin-Verwaltung in der Wortweber-Anwendung.

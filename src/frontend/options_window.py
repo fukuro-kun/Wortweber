@@ -234,7 +234,6 @@ class OptionsWindow(tk.Toplevel):
         char_delay = self.char_delay_entry.get()
         self.gui.settings_manager.set_setting("delay_mode", delay_mode)
         self.gui.settings_manager.set_setting("char_delay", char_delay)
-        self.gui.settings_manager.save_settings()
         logger.info(f"Verzögerungsmodus geändert auf: {delay_mode}, Zeichenverzögerung: {char_delay}")
 
     @handle_exceptions
@@ -276,7 +275,6 @@ class OptionsWindow(tk.Toplevel):
         """
         new_value = self.save_test_recording_var.get()
         self.gui.settings_manager.set_setting("save_test_recording", new_value)
-        self.gui.settings_manager.save_settings()
         logger.info(f"Testaufnahme-Einstellung geändert: {new_value}")
 
     @handle_exceptions
@@ -287,76 +285,87 @@ class OptionsWindow(tk.Toplevel):
         """
         new_value = self.incognito_var.get()
         self.gui.settings_manager.set_setting("incognito_mode", new_value)
-        self.gui.settings_manager.save_settings()
         logger.info(f"Incognito-Modus geändert: {new_value}")
 
-    @handle_exceptions
-    def get_current_settings(self):
-        """
-        Erfasst die aktuellen Einstellungen.
+@handle_exceptions
+def get_current_settings(self):
+    """
+    Erfasst die aktuellen Einstellungen.
 
-        :return: Ein Dictionary mit den aktuellen Einstellungen
-        """
-        settings = {
-            "theme": self.theme_manager.current_theme.get(),
-            "font_size": self.transcription_panel.get_font_size(),
-            "font_family": self.transcription_panel.get_font_family(),
-            "save_test_recording": self.gui.settings_manager.get_setting("save_test_recording", False),
-            "incognito_mode": self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE),
-            "text_fg": self.theme_manager.text_fg.get(),
-            "text_bg": self.theme_manager.text_bg.get(),
-            "select_fg": self.theme_manager.select_fg.get(),
-            "select_bg": self.theme_manager.select_bg.get(),
-            "highlight_fg": self.theme_manager.highlight_fg.get(),
-            "highlight_bg": self.theme_manager.highlight_bg.get(),
-            "push_to_talk_key": self.gui.settings_manager.get_setting("push_to_talk_key", DEFAULT_PUSH_TO_TALK_KEY)
+    :return: Ein Dictionary mit den aktuellen Einstellungen
+    """
+    settings = {
+        "theme": self.theme_manager.current_theme.get(),
+        "font_size": self.transcription_panel.get_font_size(),
+        "font_family": self.transcription_panel.get_font_family(),
+        "save_test_recording": self.gui.settings_manager.get_setting("save_test_recording", False),
+        "incognito_mode": self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE),
+        "text_fg": self.theme_manager.text_fg.get(),
+        "text_bg": self.theme_manager.text_bg.get(),
+        "select_fg": self.theme_manager.select_fg.get(),
+        "select_bg": self.theme_manager.select_bg.get(),
+        "highlight_fg": self.theme_manager.highlight_fg.get(),
+        "highlight_bg": self.theme_manager.highlight_bg.get(),
+        "push_to_talk_key": self.gui.settings_manager.get_setting("push_to_talk_key", DEFAULT_PUSH_TO_TALK_KEY),
+        "delay_settings": {
+            "delay_mode": self.gui.settings_manager.get_setting("delay_mode", "no_delay"),
+            "char_delay": self.gui.settings_manager.get_setting("char_delay", DEFAULT_CHAR_DELAY)
         }
-        logger.debug("Aktuelle Einstellungen erfasst")
-        return settings
+    }
+    logger.debug("Aktuelle Einstellungen erfasst")
+    return settings
 
     @handle_exceptions
     def undo_changes(self):
         """Setzt alle Änderungen auf den Stand zurück, als das Fenster geöffnet wurde."""
+        # Theme zurücksetzen
         self.theme_manager.change_theme(self.initial_settings["theme"])
+
+        # Schriftart und -größe zurücksetzen
         self.transcription_panel.set_font(self.initial_settings["font_family"], self.initial_settings["font_size"])
+        self.size_var.set(str(self.initial_settings["font_size"]))
+        self.font_var.set(self.initial_settings["font_family"])
+
+        # Testaufnahme- und Incognito-Einstellungen zurücksetzen
         self.save_test_recording_var.set(self.initial_settings["save_test_recording"])
         self.incognito_var.set(self.initial_settings["incognito_mode"])
 
         # Audiogeräteeinstellungen zurücksetzen
         self.audio_options_panel.undo_changes()
 
-        # Aktualisiere die UI-Elemente
-        self.size_var.set(str(self.initial_settings["font_size"]))
-        self.font_var.set(self.initial_settings["font_family"])
-        self.theme_manager.current_theme.set(self.initial_settings["theme"])
-
-        # Setze die Farbeinstellungen zurück und aktualisiere die Vorschau
+        # Farbeinstellungen zurücksetzen
         color_settings = ['text_fg', 'text_bg', 'select_fg', 'select_bg', 'highlight_fg', 'highlight_bg']
         for setting in color_settings:
-            getattr(self.theme_manager, setting).set(self.initial_settings[setting])
+            initial_color = self.initial_settings[setting]
+            getattr(self.theme_manager, setting).set(initial_color)
+            self.gui.settings_manager.set_setting(setting, initial_color)
             preview_attr = f"{setting.replace('_', '')}_preview"
             if hasattr(self, preview_attr):
-                getattr(self, preview_attr).config(bg=self.initial_settings[setting])
+                getattr(self, preview_attr).config(bg=initial_color)
 
-        # Aktualisiere die Einstellungen im SettingsManager
+        # Verzögerungseinstellungen zurücksetzen
+        initial_delay_settings = self.initial_settings.get("delay_settings", {})
+        self.delay_mode_var.set(initial_delay_settings.get("delay_mode", "no_delay"))
+        self.char_delay_entry.delete(0, tk.END)
+        self.char_delay_entry.insert(0, str(initial_delay_settings.get("char_delay", DEFAULT_CHAR_DELAY)))
+        self.gui.options_panel.update_delay_settings(
+            initial_delay_settings.get("delay_mode", "no_delay"),
+            initial_delay_settings.get("char_delay", DEFAULT_CHAR_DELAY)
+        )
+
+        # Shortcut zurücksetzen
+        initial_shortcut = self.initial_settings.get("push_to_talk_key", DEFAULT_PUSH_TO_TALK_KEY)
+        self.shortcut_panel.current_shortcut.set(initial_shortcut)
+        self.gui.input_processor.update_shortcut(initial_shortcut)
+
+        # Alle Einstellungen im SettingsManager zurücksetzen
         for key, value in self.initial_settings.items():
-            self.gui.settings_manager.set_setting(key, value)
-        self.gui.settings_manager.save_settings()
+            if key not in ['delay_settings']:  # Spezielle Behandlung für verschachtelte Einstellungen
+                self.gui.settings_manager.set_setting(key, value)
 
-        # Aktualisiere die Farben in der GUI
+        # GUI-Elemente aktualisieren
         self.gui.theme_manager.update_colors()
         self.gui.main_window.update_status_bar()
-
-        # Setze die Verzögerungseinstellungen zurück
-        initial_delay_settings = self.gui.options_panel.get_delay_settings()
-        self.delay_mode_var.set(initial_delay_settings["delay_mode"])
-        self.char_delay_entry.delete(0, tk.END)
-        self.char_delay_entry.insert(0, str(initial_delay_settings["char_delay"]))
-        self.gui.options_panel.update_delay_settings(initial_delay_settings["delay_mode"], initial_delay_settings["char_delay"])
-
-        # Setze den Shortcut zurück
-        self.shortcut_panel.current_shortcut.set(self.initial_settings["push_to_talk_key"])
-        self.gui.input_processor.update_shortcut(self.initial_settings["push_to_talk_key"])
 
         logger.info("Alle Änderungen rückgängig gemacht")
 
@@ -389,7 +398,6 @@ class OptionsWindow(tk.Toplevel):
             current_color = getattr(self.theme_manager, setting).get()
             self.gui.settings_manager.set_setting(setting, current_color)
 
-        self.gui.settings_manager.save_settings()
         self.gui.main_window.update_status_bar()
         logger.info("Optionsfenster geschlossen, Einstellungen gespeichert")
         self.destroy()

@@ -14,24 +14,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
 """
 Dieses Modul verwaltet die Themes und Farbeinstellungen der Wortweber-Anwendung.
 Es bietet Funktionen zum Ändern von Themes und zur Auswahl benutzerdefinierter Farben.
 """
 
-# Standardbibliotheken
 import tkinter as tk
 from tkinter import ttk
-
-# Drittanbieterbibliotheken
 import ttkthemes
 from tkcolorpicker import askcolor
-
-# Projektspezifische Module
 from src.config import DEFAULT_THEME
-from src.utils.error_handling import handle_exceptions
+from src.utils.error_handling import handle_exceptions, logger
 
 class ThemeManager:
     """
@@ -239,7 +232,6 @@ class ThemeManager:
                     preview_frame.config(bg=color[1])
                     setting_name = str(color_var).split('.')[-1]  # Extrahiere den Namen der Variablen
                     self.settings_manager.set_setting(setting_name, color[1])
-                    self.settings_manager.save_settings()
                     self.update_colors()
         except tk.TclError:
             pass
@@ -262,7 +254,7 @@ class ThemeManager:
                 )
 
                 # Aktualisiere das Hauptfenster
-                self.gui.root.update()
+                self.root.update()
 
                 # Informiere den Benutzer über die Aktualisierung
                 print("Farben wurden aktualisiert.")

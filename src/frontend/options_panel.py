@@ -94,7 +94,6 @@ class OptionsPanel(ttk.Frame):
     def on_language_change(self):
         """Behandelt Änderungen der ausgewählten Sprache."""
         self.gui.settings_manager.set_setting("language", self.language_var.get())
-        self.gui.settings_manager.save_settings()
         logger.info(f"Sprache geändert auf: {self.language_var.get()}")
 
     @handle_exceptions
@@ -109,7 +108,6 @@ class OptionsPanel(ttk.Frame):
         """Behandelt Änderungen des ausgewählten Ausgabemodus."""
         new_output_mode = self.output_mode_var.get()
         self.gui.settings_manager.set_setting("output_mode", new_output_mode)
-        self.gui.settings_manager.save_settings()
         self.gui.main_window.update_status_bar(output_mode=new_output_mode)
         logger.info(f"Ausgabemodus geändert auf: {new_output_mode}")
 
@@ -132,7 +130,6 @@ class OptionsPanel(ttk.Frame):
         """Aktualisiert die Verzögerungseinstellungen."""
         self.gui.settings_manager.set_setting("delay_mode", delay_mode)
         self.gui.settings_manager.set_setting("char_delay", char_delay)
-        self.gui.settings_manager.save_settings()
         logger.info(f"Verzögerungseinstellungen aktualisiert: Modus={delay_mode}, Verzögerung={char_delay}")
 
 # Zusätzliche Erklärungen:
@@ -164,5 +161,5 @@ class OptionsPanel(ttk.Frame):
 #    und platzsparende Darstellung ermöglicht.
 
 # 7. Shortcut-Anzeige:
-#    Die neue Shortcut-Anzeige wurde am rechten Rand des Panels hinzugefügt, um dem
+#    Die Shortcut-Anzeige wurde am rechten Rand des Panels hinzugefügt, um dem
 #    Benutzer eine schnelle visuelle Referenz für den aktuellen Aufnahme-Shortcut zu bieten.

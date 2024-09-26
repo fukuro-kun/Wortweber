@@ -83,7 +83,6 @@ class TranscriptionPanel(ttk.Frame):
         self.text_widget.configure(font=font)
         self.gui.settings_manager.set_setting("font_family", family)
         self.gui.settings_manager.set_setting("font_size", size)
-        self.gui.settings_manager.save_settings()
         logger.info(f"Schriftart auf {family}, Größe {size} geändert")
 
     @handle_exceptions
@@ -154,7 +153,6 @@ class TranscriptionPanel(ttk.Frame):
         """Speichert den aktuellen Inhalt des Transkriptionsfelds in den Einstellungen."""
         text_content = self.text_widget.get(1.0, tk.END).strip()
         self.gui.settings_manager.set_setting("text_content", text_content)
-        self.gui.settings_manager.save_settings()
         incognito_mode = self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
         if not incognito_mode:
             logger.debug(f"Transkriptionstext gespeichert. Länge: {len(text_content)} Zeichen")

@@ -20,6 +20,7 @@ import os
 import warnings
 import ctypes
 import atexit
+import json
 
 # Füge den Projektordner zum Python-Pfad hinzu
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -82,13 +83,27 @@ class Wortweber:
         self.backend.list_audio_devices()  # Zeigt verfügbare Audiogeräte an
         self.gui.run()
 
+    @handle_exceptions
     def cleanup(self):
+        logger.info("Beginne cleanup-Prozess")
+
+        logger.debug(f"Einstellungen vor cleanup: {json.dumps(self.settings_manager.settings, indent=2)}")
+
         if hasattr(self, 'backend'):
+            logger.info("Führe Audio-Processor cleanup durch")
             self.backend.audio_processor.cleanup()
+
+        logger.debug(f"Einstellungen nach Audio-Processor cleanup: {json.dumps(self.settings_manager.settings, indent=2)}")
+
         # Deaktivieren aller aktiven Plugins
+        logger.info(f"Aktive Plugins vor Deaktivierung: {self.plugin_manager.active_plugins}")
         for plugin_name in self.plugin_manager.active_plugins:
+            logger.info(f"Deaktiviere Plugin: {plugin_name}")
             self.plugin_manager.deactivate_plugin(plugin_name)
+            logger.debug(f"Einstellungen nach Deaktivierung von {plugin_name}: {json.dumps(self.settings_manager.settings, indent=2)}")
+
         logger.info("Wortweber-Anwendung beendet und Ressourcen bereinigt")
+        logger.debug(f"Finale Einstellungen nach cleanup: {json.dumps(self.settings_manager.settings, indent=2)}")
 
 @handle_exceptions
 def main():

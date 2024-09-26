@@ -293,8 +293,6 @@ class InputProcessor:
         self.gui.update_shortcut_display(new_shortcut)
         # Speichere den neuen Shortcut in den Einstellungen
         self.gui.settings_manager.set_setting("push_to_talk_key", new_shortcut)
-        # Sichere die Änderungen in den Einstellungen
-        self.gui.settings_manager.save_settings()
 
 
 # Zusätzliche Erklärungen:

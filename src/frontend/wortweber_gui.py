@@ -171,22 +171,6 @@ class WordweberGUI:
     def on_closing(self) -> None:
         """Wird aufgerufen, wenn das Anwendungsfenster geschlossen wird."""
         logging.debug("Anwendung wird geschlossen")
-        current_geometry = self.root.geometry()
-        self.settings_manager.set_setting("window_geometry", current_geometry)
-        logger.info(f"Aktuelle Fenstergeometrie gespeichert: {current_geometry}")
-
-        # Verzögerungseinstellungen aus dem OptionsWindow holen
-        delay_settings = self.get_delay_settings()
-        self.settings_manager.set_setting("delay_mode", delay_settings["delay_mode"])
-        self.settings_manager.set_setting("char_delay", delay_settings["char_delay"])
-
-        # Speichere alle aktuellen Farbeinstellungen
-        color_settings = ['text_fg', 'text_bg', 'select_fg', 'select_bg', 'highlight_fg', 'highlight_bg']
-        for setting in color_settings:
-            current_color = getattr(self.theme_manager, setting).get()
-            self.settings_manager.set_setting(setting, current_color)
-
-        self.settings_manager.save_settings()
         self.input_processor.stop_listener()
         if self.backend.transcriber.model is not None:
             del self.backend.transcriber.model

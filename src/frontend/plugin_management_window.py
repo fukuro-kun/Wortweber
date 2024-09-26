@@ -164,7 +164,6 @@ class PluginManagementWindow(tk.Toplevel):
         """Wird aufgerufen, wenn das Fenster geschlossen wird."""
         current_geometry = self.geometry()
         self.gui.settings_manager.set_setting("plugin_window_geometry", current_geometry)
-        self.gui.settings_manager.save_settings()
         logger.info(f"Plugin-Verwaltungsfenster geschlossen, Geometrie {current_geometry} gespeichert")
         self.destroy()
 
