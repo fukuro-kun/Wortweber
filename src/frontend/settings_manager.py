@@ -87,10 +87,10 @@ class SettingsManager:
         :param value: Der neue Wert der Einstellung
         """
         try:
-            # Aktualisiere nur den spezifischen Schlüssel
+            # Aktualisiere den internen Zustand
             self.update_nested_dict(self.settings, key.split('.'), value)
 
-            # Speichere die gesamten Einstellungen
+            # Speichere die gesamten Einstellungen in der Datei
             with open(self.settings_file, 'w') as f:
                 json.dump(self.settings, f, indent=4)
             logger.debug(f"Einstellung gespeichert: {key} = {value}")
@@ -112,6 +112,9 @@ class SettingsManager:
         :param default: Ein optionaler Standardwert, falls die Einstellung nicht existiert
         :return: Der Wert der Einstellung oder der Standardwert
         """
+        # Immer die aktuellsten Einstellungen aus der Datei laden
+        self.sync_settings_from_file()
+
         keys = key.split('.')
         value = self.settings
         for k in keys:
@@ -200,24 +203,62 @@ class SettingsManager:
                 for plugin_key, plugin_value in value.items():
                     logger.info(f"  {plugin_key}: {plugin_value}")
 
+    @handle_exceptions
+    def sync_settings_from_file(self):
+        """
+        Synchronisiert den internen Zustand mit der JSON-Datei.
+
+        Diese Methode liest die aktuellen Einstellungen aus der JSON-Datei und
+        aktualisiert den internen Zustand des SettingsManager entsprechend.
+        Nur die Schlüssel, die in der Datei vorhanden sind, werden aktualisiert.
+        Dies stellt sicher, dass der interne Zustand immer mit den gespeicherten
+        Einstellungen übereinstimmt.
+
+        Raises:
+            Exception: Wenn beim Lesen oder Verarbeiten der JSON-Datei ein Fehler auftritt.
+        """
+        try:
+            with open(self.settings_file, 'r') as f:
+                file_settings = json.load(f)
+
+            # Aktualisiere nur die Schlüssel, die in der Datei vorhanden sind
+            for key, value in file_settings.items():
+                if key in self.settings:
+                    self.settings[key] = value
+
+            logger.debug("Einstellungen erfolgreich mit Datei synchronisiert")
+        except Exception as e:
+            logger.error(f"Fehler beim Synchronisieren der Einstellungen: {e}")
+
+    @handle_exceptions
+    def get_enabled_plugins(self) -> List[str]:
+        plugins_settings = self.get_setting("plugins", {})
+        return plugins_settings.get("enabled_plugins", [])
+
+    @handle_exceptions
+    def set_enabled_plugins(self, enabled_plugins: List[str]) -> None:
+        plugins_settings = self.get_setting("plugins", {})
+        plugins_settings["enabled_plugins"] = enabled_plugins
+        self.set_setting("plugins", plugins_settings)
+
 # Zusätzliche Erklärungen:
 
-# 1. Entfernung der save_settings Methode:
-#    Die separate save_settings Methode wurde entfernt, da jetzt jede Einstellung
-#    sofort nach der Änderung gespeichert wird.
+# 1. sync_settings_from_file Methode:
+#    Diese neue Methode wurde hinzugefügt, um den internen Zustand mit der JSON-Datei zu synchronisieren.
+#    Sie wird in der get_setting Methode aufgerufen, um sicherzustellen, dass immer die aktuellsten
+#    Einstellungen abgerufen werden.
 
-# 2. Neue save_setting Methode:
-#    Diese Methode wurde hinzugefügt, um eine einzelne Einstellung sofort zu speichern.
-#    Sie wird von set_setting aufgerufen.
+# 2. Überarbeitete get_setting Methode:
+#    Die Methode ruft nun sync_settings_from_file auf, bevor sie den Wert zurückgibt.
+#    Dies stellt sicher, dass immer die aktuellsten Einstellungen aus der Datei gelesen werden.
 
-# 3. Anpassung der set_setting Methode:
-#    Diese Methode ruft nun save_setting auf, um die Änderung sofort zu speichern.
+# 3. save_setting Methode:
+#    Diese Methode aktualisiert nun sowohl den internen Zustand als auch die JSON-Datei.
+#    Sie verwendet update_nested_dict, um auch verschachtelte Einstellungen korrekt zu aktualisieren.
 
-# 4. Anpassung der set_plugin_settings Methode:
-#    Diese Methode verwendet nun save_setting, um die Plugin-Einstellungen sofort zu speichern.
+# 4. set_setting Methode:
+#    Diese Methode wurde beibehalten, um die Kompatibilität mit dem bestehenden Code zu gewährleisten.
+#    Sie ruft save_setting auf, um die Änderungen sofort zu speichern.
 
-# 5. Beibehaltung der Logging-Logik:
-#    Die bestehende Logging-Logik wurde beibehalten, um die Nachvollziehbarkeit von Änderungen zu gewährleisten.
-
-# Diese Änderungen stellen sicher, dass alle Einstellungsänderungen sofort in die user_settings.json
-# geschrieben werden, während die bestehende Funktionalität und Struktur des SettingsManager beibehalten wird.
+# Diese Änderungen stellen sicher, dass die Einstellungen immer konsistent zwischen dem internen Zustand
+# und der JSON-Datei sind, und dass Änderungen sofort gespeichert werden.

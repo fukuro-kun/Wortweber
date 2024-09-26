@@ -64,14 +64,18 @@ class Wortweber:
 
         # Initialisieren des Plugin-Systems
         self.plugin_manager = PluginManager(self.settings_manager.get_setting("plugins", {}).get("plugin_dir", "plugins"), self.settings_manager)
-        self.gui = WordweberGUI(self.backend, self.plugin_manager)
 
-        # Initialisiere Plugins nur einmal
+        # Entdecke und lade Plugins
         self.plugin_manager.discover_plugins()
+
+        # Initialisiere die GUI nach dem Laden der Plugins
+        self.gui = WordweberGUI(self.backend, self.plugin_manager)
 
         # Drucke die aktuellen Einstellungen nur einmal beim Start
         logger.info("Initiale Anwendungseinstellungen:")
         self.settings_manager.print_current_settings()
+
+        logger.info(f"Aktive Plugins nach Initialisierung: {', '.join(self.plugin_manager.active_plugins)}")
 
     @handle_exceptions
     def run(self):
@@ -95,9 +99,10 @@ class Wortweber:
 
         logger.debug(f"Einstellungen nach Audio-Processor cleanup: {json.dumps(self.settings_manager.settings, indent=2)}")
 
-        # Deaktivieren aller aktiven Plugins
         logger.info(f"Aktive Plugins vor Deaktivierung: {self.plugin_manager.active_plugins}")
-        for plugin_name in self.plugin_manager.active_plugins:
+
+        # Sicheres Deaktivieren der Plugins
+        for plugin_name in list(self.plugin_manager.active_plugins):
             logger.info(f"Deaktiviere Plugin: {plugin_name}")
             self.plugin_manager.deactivate_plugin(plugin_name)
             logger.debug(f"Einstellungen nach Deaktivierung von {plugin_name}: {json.dumps(self.settings_manager.settings, indent=2)}")

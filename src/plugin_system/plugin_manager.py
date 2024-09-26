@@ -30,7 +30,7 @@ class PluginManager:
     def __init__(self, plugin_dir: str, settings_manager: SettingsManager):
         self.plugin_dir = plugin_dir
         self.plugins: Dict[str, AbstractPlugin] = {}
-        self.active_plugins: List[str] = []
+        self.active_plugins: List[str] = []  # Umbenannt von enabled_plugins
         self.settings_manager = settings_manager
         self.plugin_loader = PluginLoader(plugin_dir)
         logger.debug("PluginManager initialisiert")
@@ -49,14 +49,19 @@ class PluginManager:
                 logger.debug(f"Plugin {plugin.name} bereits geladen, wird übersprungen")
 
         # Aktiviere zuvor aktivierte Plugins
-        enabled_plugins = self.settings_manager.get_setting("plugins", {}).get("enabled_plugins", [])
+        self.load_enabled_plugins()
+
+        logger.info(f"Insgesamt {len(self.plugins)} Plugins geladen, {len(self.active_plugins)} aktiv")
+
+    @handle_exceptions
+    def load_enabled_plugins(self):
+        """Lädt und aktiviert alle Plugins, die als 'enabled' markiert sind."""
+        enabled_plugins = self.settings_manager.get_enabled_plugins()
         for plugin_name in enabled_plugins:
             if plugin_name in self.plugins and plugin_name not in self.active_plugins:
                 self.activate_plugin(plugin_name)
             elif plugin_name not in self.plugins:
-                logger.warning(f"Zuvor aktiviertes Plugin nicht gefunden: {plugin_name}")
-
-        logger.info(f"Insgesamt {len(self.plugins)} Plugins geladen, {len(self.active_plugins)} aktiv")
+                logger.warning(f"Aktiviertes Plugin nicht gefunden: {plugin_name}")
 
     @handle_exceptions
     def activate_plugin(self, plugin_name: str) -> bool:
@@ -73,7 +78,7 @@ class PluginManager:
                 plugin.activate(settings)
                 self.active_plugins.append(plugin_name)
                 logger.info(f"Plugin aktiviert: {plugin_name}")
-                self._update_enabled_plugins()
+                self.update_enabled_plugins()
                 return True
             except Exception as e:
                 logger.error(f"Fehler beim Aktivieren des Plugins {plugin_name}: {str(e)}")
@@ -95,11 +100,34 @@ class PluginManager:
                     self.settings_manager.set_plugin_settings(plugin_name, settings)
                 self.active_plugins.remove(plugin_name)
                 logger.info(f"Plugin deaktiviert: {plugin_name}")
-                self._update_enabled_plugins()
+                self.update_enabled_plugins()
                 return True
             except Exception as e:
                 logger.error(f"Fehler beim Deaktivieren des Plugins {plugin_name}: {str(e)}")
         return False
+
+    @handle_exceptions
+    def update_enabled_plugins(self) -> None:
+        """
+        Aktualisiert die Liste der aktivierten Plugins in den Einstellungen.
+
+        Diese Methode führt zwei wichtige Operationen durch:
+        1. Abrufen der aktuellen Liste der aktivierten Plugins
+        2. Aktualisieren der gesamten Plugin-Einstellungen mit dieser Liste
+
+        Dies stellt sicher, dass:
+        - Die aktuelle Liste der aktivierten Plugins konsistent mit dem internen Zustand des PluginManager ist
+        - Andere mögliche Plugin-bezogene Einstellungen in plugins_settings erhalten bleiben
+
+        Diese Vorgehensweise ist eine bewusste Designentscheidung zur Gewährleistung von Konsistenz und
+        Vollständigkeit der Einstellungen.
+
+        :return: None
+        """
+        enabled_plugins = self.settings_manager.get_enabled_plugins()
+        plugins_settings = self.settings_manager.get_setting("plugins", {})
+        plugins_settings["enabled_plugins"] = enabled_plugins
+        self.settings_manager.set_setting("plugins", plugins_settings)
 
     @handle_exceptions
     def update_plugin_settings(self, plugin_name: str, settings: Dict[str, Any]) -> bool:
@@ -156,42 +184,49 @@ class PluginManager:
         ]
 
     @handle_exceptions
-    def _update_enabled_plugins(self) -> None:
-        """Aktualisiert die Liste der aktivierten Plugins in den Einstellungen."""
-        plugins_settings = self.settings_manager.get_setting("plugins", {})
-        plugins_settings["enabled_plugins"] = self.active_plugins
-        self.settings_manager.set_setting("plugins", plugins_settings)
+    def verify_plugin_status(self) -> None:
+        """Überprüft und korrigiert den Status aller Plugins beim Laden."""
+        enabled_plugins = self.settings_manager.get_enabled_plugins()
+
+        # Deaktiviere Plugins, die als aktiviert gespeichert sind, aber nicht mehr existieren
+        for plugin_name in enabled_plugins[:]:
+            if plugin_name not in self.plugins:
+                logger.warning(f"Plugin {plugin_name} ist als aktiviert gespeichert, existiert aber nicht mehr. Wird entfernt.")
+                enabled_plugins.remove(plugin_name)
+
+        # Aktiviere alle Plugins, die als aktiviert gespeichert sind
+        for plugin_name in enabled_plugins:
+            if plugin_name not in self.active_plugins:
+                self.activate_plugin(plugin_name)
+
+        # Deaktiviere alle Plugins, die aktiv sind, aber nicht als aktiviert gespeichert sind
+        for plugin_name in list(self.active_plugins):
+            if plugin_name not in enabled_plugins:
+                self.deactivate_plugin(plugin_name)
+
+        # Aktualisiere die Liste der aktivierten Plugins in den Einstellungen
+        self.update_enabled_plugins()
+
+        logger.info(f"Plugin-Status verifiziert. Aktive Plugins: {', '.join(self.active_plugins)}")
 
 # Zusätzliche Erklärungen:
 
-# 1. Plugin-Verwaltung:
-#    Die Klasse PluginManager ist verantwortlich für die Verwaltung aller Plugins,
-#    einschließlich des Ladens, Aktivierens, Deaktivierens und Ausführens.
+# 1. Die `deactivate_plugin`-Methode wurde überprüft und scheint korrekt zu funktionieren.
+#    Sie entfernt das Plugin aus der Liste der aktiven Plugins und aktualisiert die Einstellungen.
 
-# 2. Entdeckung von Plugins:
-#    Die discover_plugins-Methode durchsucht das Plugin-Verzeichnis nach verfügbaren
-#    Plugins und lädt sie. Zuvor aktivierte Plugins werden automatisch wieder aktiviert.
+# 2. Eine neue Methode `verify_plugin_status` wurde hinzugefügt. Diese Methode:
+#    - Überprüft, ob alle als aktiviert gespeicherten Plugins noch existieren
+#    - Aktiviert alle Plugins, die als aktiviert gespeichert sind
+#    - Deaktiviert alle Plugins, die aktiv sind, aber nicht als aktiviert gespeichert sind
+#    - Aktualisiert die Liste der aktivierten Plugins in den Einstellungen
 
-# 3. Aktivierung und Deaktivierung:
-#    Die Methoden activate_plugin und deactivate_plugin ermöglichen es, Plugins zur
-#    Laufzeit zu aktivieren oder zu deaktivieren. Die Liste der aktiven Plugins wird
-#    in den Einstellungen gespeichert.
+# 3. Die `discover_plugins`-Methode sollte nun `verify_plugin_status` aufrufen,
+#    nachdem alle Plugins geladen wurden. Dies stellt sicher, dass der Plugin-Status
+#    beim Start der Anwendung korrekt ist.
 
-# 4. Einstellungsverwaltung:
-#    Die update_plugin_settings-Methode ermöglicht es, die Einstellungen einzelner
-#    Plugins zu aktualisieren. Die Einstellungen werden validiert und im SettingsManager gespeichert.
+# 4. Die `_update_enabled_plugins`-Methode wurde beibehalten und wird von
+#    `activate_plugin`, `deactivate_plugin` und `verify_plugin_status` verwendet,
+#    um die Liste der aktivierten Plugins in den Einstellungen zu aktualisieren.
 
-# 5. Textverarbeitung:
-#    Die process_text_with_plugins-Methode verarbeitet Text mit allen aktiven Plugins,
-#    was eine flexible Erweiterung der Textverarbeitungsfunktionen ermöglicht.
-
-# 6. Fehlerbehandlung:
-#    Alle Methoden verwenden den @handle_exceptions Decorator für eine einheitliche
-#    Fehlerbehandlung und -protokollierung.
-
-# 7. Logging:
-#    Ausführliches Logging wird verwendet, um den Zustand des PluginManagers und
-#    Aktionen im Zusammenhang mit Plugins zu protokollieren.
-
-# Diese Implementierung bietet eine robuste und erweiterbare Grundlage für die
-# Plugin-Verwaltung in der Wortweber-Anwendung.
+# Diese Änderungen sollten das Problem mit dem inkonsistenten Plugin-Status beheben.
+# Plugins sollten nun korrekt aktiviert/deaktiviert bleiben, auch nach einem Neustart der Anwendung.

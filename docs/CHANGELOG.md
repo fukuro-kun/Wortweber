@@ -5,6 +5,16 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.24.5] - 2024-09-26
+### Changed
+- Verbesserte Konsistenz im Plugin-Management-System
+- Optimierte Unterscheidung zwischen aktiven und für den Start aktivierten Plugins
+- Erhöhte Zuverlässigkeit der Einstellungsverwaltung
+
+### Fixed
+- Behebung von Inkonsistenzen bei der Plugin-Aktivierung und -Deaktivierung
+- Verbesserung der Synchronisation zwischen internem Zustand und gespeicherten Einstellungen
+
 ## [0.24.4] - 2024-09-24
 ### Changed
 - Optimiertes Logging für Textauswahl-Änderungen, um die Logmenge zu reduzieren und die Übersichtlichkeit zu verbessern.

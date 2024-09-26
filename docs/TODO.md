@@ -2,17 +2,21 @@
 
 ## Kernfunktionen
 ### Hohe Priorität
+- [ ] Entwicklung einer detaillierten API-Dokumentation für Plugin-Entwickler
 - [ ] Durchführung umfassender Tests für die neue Shortcut-Funktionalität
 - [ ] Überprüfung und Optimierung der Gerätekompatibilität für verschiedene Systemkonfigurationen
 - [ ] Durchführung umfassender Tests für die Zahlwort-Konvertierungsfunktionalität
 - [x] Implementierung einer auswählbaren Shortcut-Taste für die Push-to-Talk-Funktion
 
 ### Mittlere Priorität
+- [ ] Implementierung umfassender Tests für das überarbeitete Plugin-System
 - [ ] Optimieren der Effizienz der Zahlwortverarbeitung für sehr große Zahlen
 - [ ] Implementierung zusätzlicher Module für die Ausgabe (z.B. Ollama-Unterstützung)
 - [ ] Überprüfen und ggf. Verbessern der Fehlerbehandlung in der TextProcessor-Klasse
 
 ### Niedrige Priorität
+- [ ] Implementierung eines Mechanismus zur Überprüfung von Plugin-Abhängigkeiten
+- [ ] Entwicklung zusätzlicher Beispiel-Plugins zur Demonstration der Systemfähigkeiten
 - [ ] Untersuchung der Unterstützung verschiedener Audiocodecs
 - [ ] Evaluierung alternativer Spracherkennungsmodelle für zukünftige Integration
 - [ ] Implementierung eines Plugin-Systems
