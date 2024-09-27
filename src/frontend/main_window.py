@@ -102,7 +102,8 @@ class MainWindow:
 
         self.auto_copy_var = tk.BooleanVar(value=self.gui.settings_manager.get_setting("auto_copy"))
         self.auto_copy_checkbox = tk.Checkbutton(right_frame, text="Auto-Kopieren", variable=self.auto_copy_var,
-                                                    bg="black", fg="white", selectcolor="black", activebackground="black")
+                                                    bg="black", fg="white", selectcolor="black", activebackground="black",
+                                                    command=self.on_auto_copy_change)
         self.auto_copy_checkbox.pack(side=tk.RIGHT)
 
         logger.info("UI-Setup abgeschlossen")
@@ -130,6 +131,7 @@ class MainWindow:
 
         if output_mode:
             self.output_mode_status.config(text=output_mode)
+            self.gui.settings_manager.set_setting("output_mode", output_mode)
 
         if status:
             self.main_status.config(text=status)
@@ -146,6 +148,13 @@ class MainWindow:
 
         # Explizite Aktualisierung des Fensters, um sicherzustellen, dass Änderungen sofort sichtbar sind
         self.root.update_idletasks()
+
+    @handle_exceptions
+    def on_auto_copy_change(self):
+        """Behandelt Änderungen der Auto-Kopieren-Einstellung."""
+        auto_copy_value = self.auto_copy_var.get()
+        self.gui.settings_manager.set_setting("auto_copy", auto_copy_value)
+        logger.debug(f"Auto-Kopieren-Einstellung geändert auf: {auto_copy_value}")
 
 # Zusätzliche Erklärungen:
 
@@ -170,3 +179,7 @@ class MainWindow:
 # 6. Dynamische Statusaktualisierung:
 #    Die update_status_bar Methode ermöglicht es, verschiedene Teile der Statusleiste unabhängig voneinander zu aktualisieren,
 #    was eine flexible und effiziente Statusanzeige ermöglicht.
+
+# 7. Sofortige Einstellungsspeicherung:
+#    Die on_auto_copy_change Methode wurde hinzugefügt, um Änderungen der Auto-Kopieren-Einstellung sofort zu speichern.
+#    In der update_status_bar Methode wird nun der Ausgabemodus sofort gespeichert, wenn er sich ändert.

@@ -39,7 +39,7 @@ class PluginManagementWindow(tk.Toplevel):
 
     @handle_exceptions
     def create_plugin_tree(self):
-        columns = ("Name", "Version", "Status", "Aktiv", "Einstellungen")
+        columns = ("Name", "Version", "Aktueller Status", "Aktivieren bei Anwendungsstart", "Einstellungen")
         tree = ttk.Treeview(self, columns=columns, show="headings")
 
         for col in columns:
@@ -47,11 +47,13 @@ class PluginManagementWindow(tk.Toplevel):
             tree.column(col, anchor="center", width=100)
 
         tree.column("Name", width=200)
+        tree.column("Aktueller Status", width=150)
+        tree.column("Aktivieren bei Anwendungsstart", width=200)
         tree.column("Einstellungen", width=100)
 
         # Erstelle Tags für aktive und inaktive Plugins
-        tree.tag_configure('active', foreground='green')
-        tree.tag_configure('inactive', foreground='red')
+        tree.tag_configure('active', background='lightgreen')
+        tree.tag_configure('inactive', background='lightpink')
 
         tree.pack(expand=True, fill="both", padx=10, pady=10)
 
@@ -63,21 +65,22 @@ class PluginManagementWindow(tk.Toplevel):
         for item in tree.get_children():
             tree.delete(item)
 
+        enabled_plugins = self.plugin_manager.settings_manager.get_enabled_plugins()
+
         for plugin_info in self.plugin_manager.get_plugin_info():
             plugin_name = plugin_info['name']
-            is_active = plugin_info['active']
-            status_text = "Aktiv" if is_active else "Inaktiv"
+            is_active = plugin_name in self.plugin_manager.active_plugins
+            is_enabled = plugin_name in enabled_plugins
             status_tag = 'active' if is_active else 'inactive'
 
             item = tree.insert("", "end", values=(
                 plugin_name,
                 plugin_info['version'],
-                status_text,
                 "☑" if is_active else "☐",
+                "☑" if is_enabled else "☐",
                 "⚙"
             ))
 
-            # Wende das Tag nur auf die Status-Spalte an
             tree.item(item, tags=(status_tag,))
 
         tree.bind("<ButtonRelease-1>", self.on_tree_click)
@@ -88,17 +91,30 @@ class PluginManagementWindow(tk.Toplevel):
         if region == "cell":
             column = self.tree.identify_column(event.x)
             item = self.tree.identify_row(event.y)
-            if column == "#4":  # Aktiv-Spalte
-                self.toggle_plugin(self.tree.item(item)["values"][0])
-            elif column == "#5":  # Einstellungen-Spalte
-                self.open_plugin_settings(self.tree.item(item)["values"][0])
+            plugin_name = self.tree.item(item)["values"][0]
+            if column == "#3":  # Aktueller Status
+                self.toggle_plugin_now(plugin_name)
+            elif column == "#4":  # Aktivieren bei Anwendungsstart
+                self.toggle_plugin_enabled(plugin_name)
+            elif column == "#5":  # Einstellungen
+                self.open_plugin_settings(plugin_name)
 
     @handle_exceptions
-    def toggle_plugin(self, plugin_name):
+    def toggle_plugin_now(self, plugin_name):
         if plugin_name in self.plugin_manager.active_plugins:
             self.plugin_manager.deactivate_plugin(plugin_name)
         else:
             self.plugin_manager.activate_plugin(plugin_name)
+        self.update_plugin_list(self.tree)
+
+    @handle_exceptions
+    def toggle_plugin_enabled(self, plugin_name):
+        enabled_plugins = self.plugin_manager.settings_manager.get_enabled_plugins()
+        if plugin_name in enabled_plugins:
+            enabled_plugins.remove(plugin_name)
+        else:
+            enabled_plugins.append(plugin_name)
+        self.plugin_manager.settings_manager.set_enabled_plugins(enabled_plugins)
         self.update_plugin_list(self.tree)
 
     @handle_exceptions
@@ -164,7 +180,6 @@ class PluginManagementWindow(tk.Toplevel):
         """Wird aufgerufen, wenn das Fenster geschlossen wird."""
         current_geometry = self.geometry()
         self.gui.settings_manager.set_setting("plugin_window_geometry", current_geometry)
-        self.gui.settings_manager.save_settings()
         logger.info(f"Plugin-Verwaltungsfenster geschlossen, Geometrie {current_geometry} gespeichert")
         self.destroy()
 

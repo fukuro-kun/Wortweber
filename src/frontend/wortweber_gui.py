@@ -171,22 +171,6 @@ class WordweberGUI:
     def on_closing(self) -> None:
         """Wird aufgerufen, wenn das Anwendungsfenster geschlossen wird."""
         logging.debug("Anwendung wird geschlossen")
-        current_geometry = self.root.geometry()
-        self.settings_manager.set_setting("window_geometry", current_geometry)
-        logger.info(f"Aktuelle Fenstergeometrie gespeichert: {current_geometry}")
-
-        # Verzögerungseinstellungen aus dem OptionsWindow holen
-        delay_settings = self.get_delay_settings()
-        self.settings_manager.set_setting("delay_mode", delay_settings["delay_mode"])
-        self.settings_manager.set_setting("char_delay", delay_settings["char_delay"])
-
-        # Speichere alle aktuellen Farbeinstellungen
-        color_settings = ['text_fg', 'text_bg', 'select_fg', 'select_bg', 'highlight_fg', 'highlight_bg']
-        for setting in color_settings:
-            current_color = getattr(self.theme_manager, setting).get()
-            self.settings_manager.set_setting(setting, current_color)
-
-        self.settings_manager.save_settings()
         self.input_processor.stop_listener()
         if self.backend.transcriber.model is not None:
             del self.backend.transcriber.model
@@ -212,27 +196,49 @@ class WordweberGUI:
 
     @handle_exceptions
     def transcribe_and_update(self) -> None:
-        """Führt die Transkription durch und aktualisiert die GUI."""
+        """
+        Führt die Transkription durch und aktualisiert die GUI.
+
+        Diese Methode orchestriert den gesamten Prozess der Transkription und GUI-Aktualisierung,
+        wobei sie geschickt asynchrone Ausführung und Kapselung kombiniert.
+        """
         def update_gui(text, transcription_time):
+            """
+            Innere Funktion zur Aktualisierung der GUI nach der Transkription.
+
+            Diese Struktur kapselt die GUI-Update-Logik und verhindert unbeabsichtigte
+            externe Aufrufe, was die Integrität des Update-Prozesses gewährleistet.
+            """
             # Verarbeite den Text mit aktiven Plugins
             processed_text = self.plugin_manager.process_text_with_plugins(text)
 
+            # Aktualisiere die Statusleiste mit dem Transkriptionsergebnis
             self.main_window.update_status_bar(status="Transkription abgeschlossen", status_color="green", transcription_time=transcription_time)
-            self.input_processor.process_text(processed_text)  # Verwende den verarbeiteten Text
 
+            # Verarbeite den Text entsprechend den aktuellen Einstellungen
+            self.input_processor.process_text(processed_text)
+
+            # Aktualisiere den Ausgabemodus in der Statusleiste
             output_mode = self.options_panel.output_mode_var.get()
             self.main_window.update_status_bar(output_mode=output_mode)
 
+            # Informiere den Benutzer über den Abschluss der Transkription und ggf. das Kopieren in die Zwischenablage
             if self.main_window.auto_copy_var.get():
                 self.main_window.update_status_bar(status="Text transkribiert und in Zwischenablage kopiert", status_color="green")
             else:
                 self.main_window.update_status_bar(status="Text transkribiert", status_color="green")
 
+        # Informiere den Benutzer über den Beginn der Transkription
         self.main_window.update_status_bar(status="Transkribiere...", status_color="orange")
+        logger.debug("Starte Transkription")
+
+        # Führe die eigentliche Transkription durch und messe die Zeit
         start_time = time.time()
         text = self.backend.process_and_transcribe(self.options_panel.language_var.get())
         transcription_time = time.time() - start_time
 
+        # Plane die GUI-Aktualisierung asynchron
+        # Dies verhindert Blockieren der Hauptthread und gewährleistet eine reaktionsschnelle Benutzeroberfläche
         self.root.after(0, lambda: update_gui(text, transcription_time))
 
     @handle_exceptions

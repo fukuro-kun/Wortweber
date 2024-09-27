@@ -30,6 +30,7 @@ Wortweber/
 ├── docs/
 │   ├── CHANGELOG.md
 │   ├── DEVELOPMENT.md
+│   ├── PLUGINSYSTEM.md
 │   ├── REFACTORING_NOTES.md
 │   └── TODO.md
 ├── logs/
@@ -102,7 +103,8 @@ Wortweber/
 ├── run_tests.py
 ├── THIRD_PARTY_LICENSES.md
 ├── user_settings.json
-└── VERSION
+├── VERSION
+└── wortweber.sh
 ```
 
 ## 6. Installation und Einrichtung
@@ -111,18 +113,25 @@ Wortweber/
 3. Installationsskript ausführen: `bash install_and_test.sh`
 4. Anwendung starten: `python src/wortweber.py`
 
-### Plugin-System
-- `src/plugin_system/plugin_manager.py`: Zentrale Verwaltung von Plugins
-- `src/plugin_system/plugin_loader.py`: Dynamisches Laden von Plugins
-- `src/plugin_system/plugin_interface.py`: Definition der Plugin-Schnittstelle
-- `plugins/`: Verzeichnis für installierte Plugins
+## Plugin-System
 
-## 6.1 Plugin-Entwicklung
-- Plugins müssen von `AbstractPlugin` erben und die definierten Schnittstellen implementieren
-- Jedes Plugin sollte in einer eigenen Python-Datei im `plugins/` Verzeichnis liegen
-- Plugins können eigene Einstellungen definieren, die über die GUI konfigurierbar sind
-- Die `process_text`-Methode ist der Haupteinstiegspunkt für die Textverarbeitung durch Plugins
+### Aktive vs. Aktivierte Plugins
+Das Plugin-System unterscheidet nun zwischen "aktiven" und "für den Start aktivierten" Plugins:
+- Aktive Plugins: Plugins, die derzeit in der laufenden Sitzung aktiv sind.
+- Für den Start aktivierte Plugins: Plugins, die beim nächsten Start der Anwendung automatisch aktiviert werden.
 
+Diese Unterscheidung ermöglicht eine flexiblere Verwaltung von Plugins und verhindert unerwartetes Verhalten beim Neustart der Anwendung.
+
+### Verbesserte Einstellungsverwaltung
+Die `SettingsManager`-Klasse wurde optimiert, um eine bessere Synchronisation zwischen dem internen Zustand und den gespeicherten Einstellungen zu gewährleisten. Die `sync_settings_from_file`-Methode stellt sicher, dass immer die aktuellsten Einstellungen verwendet werden.
+
+### Plugin-Entwicklung
+Entwickler von Plugins sollten beachten:
+- Plugins müssen die `AbstractPlugin`-Schnittstelle implementieren.
+- Die `activate` und `deactivate` Methoden sollten robust implementiert werden, um einen reibungslosen Übergang zwischen den Zuständen zu gewährleisten.
+- Plugin-Einstellungen werden automatisch vom `SettingsManager` verwaltet.
+
+[Weitere Details zur API-Dokumentation werden in zukünftigen Updates hinzugefügt.]
 
 ## 7. Beitrag zum Projekt und Entwicklungsworkflow für Contributors
 Wir freuen uns über Beiträge zur Verbesserung von Wortweber. Hier ist der empfohlene Workflow für externe Contributors:
