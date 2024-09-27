@@ -113,27 +113,22 @@ Wortweber/
 3. Installationsskript ausführen: `bash install_and_test.sh`
 4. Anwendung starten: `python src/wortweber.py`
 
-## Plugin-System
+## 7. Plugin-System
 
-### Aktive vs. Aktivierte Plugins
-Das Plugin-System unterscheidet nun zwischen "aktiven" und "für den Start aktivierten" Plugins:
-- Aktive Plugins: Plugins, die derzeit in der laufenden Sitzung aktiv sind.
-- Für den Start aktivierte Plugins: Plugins, die beim nächsten Start der Anwendung automatisch aktiviert werden.
+Wortweber verfügt über ein leistungsfähiges und flexibles Plugin-System, das es Entwicklern ermöglicht, die Funktionalität der Anwendung zu erweitern. Das Plugin-System unterstützt verschiedene Arten von Plugins, darunter Textverarbeitungs-, Audio-, UI-Erweiterungs- und LLM-Integrations-Plugins.
 
-Diese Unterscheidung ermöglicht eine flexiblere Verwaltung von Plugins und verhindert unerwartetes Verhalten beim Neustart der Anwendung.
+Wichtige Aspekte des Plugin-Systems:
 
-### Verbesserte Einstellungsverwaltung
-Die `SettingsManager`-Klasse wurde optimiert, um eine bessere Synchronisation zwischen dem internen Zustand und den gespeicherten Einstellungen zu gewährleisten. Die `sync_settings_from_file`-Methode stellt sicher, dass immer die aktuellsten Einstellungen verwendet werden.
+- Plugins erben von der AbstractPlugin-Klasse
+- Der PluginManager verwaltet das Laden, Aktivieren und Deaktivieren von Plugins
+- Plugins können eigene Einstellungen und UI-Elemente definieren
+- Das System unterstützt asynchrone Operationen und Interoperabilität zwischen Plugins
 
-### Plugin-Entwicklung
-Entwickler von Plugins sollten beachten:
-- Plugins müssen die `AbstractPlugin`-Schnittstelle implementieren.
-- Die `activate` und `deactivate` Methoden sollten robust implementiert werden, um einen reibungslosen Übergang zwischen den Zuständen zu gewährleisten.
-- Plugin-Einstellungen werden automatisch vom `SettingsManager` verwaltet.
+Für eine detaillierte Beschreibung der Architektur, API-Referenz und Entwicklungsrichtlinien des Plugin-Systems, siehe die [PLUGINSYSTEM.md](docs/PLUGINSYSTEM.md) Dokumentation.
 
-[Weitere Details zur API-Dokumentation werden in zukünftigen Updates hinzugefügt.]
+Bei der Entwicklung neuer Plugins beachten Sie bitte die in dieser Dokumentation beschriebenen Best Practices und Sicherheitsrichtlinien.
 
-## 7. Beitrag zum Projekt und Entwicklungsworkflow für Contributors
+## 8. Beitrag zum Projekt und Entwicklungsworkflow für Contributors
 Wir freuen uns über Beiträge zur Verbesserung von Wortweber. Hier ist der empfohlene Workflow für externe Contributors:
 
 1. Forken Sie das Repository auf GitHub.
@@ -154,7 +149,7 @@ Bitte beachten Sie folgende Richtlinien:
 
 Wir werden Ihren Pull Request überprüfen und gegebenenfalls Feedback geben. Vielen Dank für Ihren Beitrag!
 
-## 8. Codekonventionen und Kommentierungsrichtlinien
+## 9. Codekonventionen und Kommentierungsrichtlinien
 - PEP 8 Stilrichtlinien strikt befolgen
 - Docstrings für alle Klassen und öffentlichen Methoden:
   - Kurze Beschreibung der Funktionalität
@@ -173,24 +168,24 @@ Wir werden Ihren Pull Request überprüfen und gegebenenfalls Feedback geben. Vi
 - Bei Codeänderungen bestehende Kommentare erhalten und bei Bedarf aktualisieren
 - Kommentare in deutscher Sprache verfassen
 
-## 9. Fehlerbehandlung und Logging
+## 10. Fehlerbehandlung und Logging
 - Zentrale Fehlerbehandlung in `src/utils/error_handling.py`
 - Verwendung des `@handle_exceptions` Decorators für alle öffentlichen Methoden
 - Konsistente Logging-Levels: DEBUG, INFO, WARNING, ERROR, CRITICAL
 - Log-Datei: `wortweber.log` im Projekthauptverzeichnis
 
-## 10. Testabdeckung
+## 11. Testabdeckung
 - Unittest-Framework für Backend- und Integrationstests
 - Parallelisierte Tests für effiziente Ausführung
 - Testdaten im `tests/test_data/` Verzeichnis
 - Führen Sie Tests mit `python run_tests.py` aus
 
-## 11. Versionierung
+## 12. Versionierung
 - Semantische Versionierung (MAJOR.MINOR.PATCH)
 - VERSION-Datei im Hauptverzeichnis für aktuelle Versionsnummer
 - Git-Tags für jede Version: `v0.x.x`
 
-## 12. Technische Details
+## 13. Technische Details
 - Python 3.11
 - OpenAI Whisper (Version 20231117)
 - PyAudio für Audioaufnahme
@@ -199,7 +194,7 @@ Wir werden Ihren Pull Request überprüfen und gegebenenfalls Feedback geben. Vi
 - pynput für Tastatureingabe-Simulation
 - ttkthemes für erweiterte GUI-Themes
 
-## 13. Entwicklungsworkflow für Hauptentwickler
+## 14. Entwicklungsworkflow für Hauptentwickler
 1. Arbeiten auf dem `main`-Branch für kleinere Änderungen
 2. Erstellen von Feature-Branches für größere Funktionen: `git checkout -b feature/neue-funktion`
 3. Regelmäßige Commits mit aussagekräftigen Nachrichten
@@ -207,14 +202,14 @@ Wir werden Ihren Pull Request überprüfen und gegebenenfalls Feedback geben. Vi
 5. Merge in `main` mit `--no-ff` Flag: `git checkout main && git merge --no-ff feature/neue-funktion`
 6. Für Releases, annotierte Tags erstellen: `git tag -a v0.x.x -m "Version 0.x.x"`
 
-## 14. Wichtige Hinweise
+## 15. Wichtige Hinweise
 - ALSA-Warnungen können in den meisten Fällen ignoriert werden
 - Bei Audiogeräte-Problemen DEVICE_INDEX in config.py anpassen
 - Regelmäßige Überprüfung auf Sicherheitsupdates für Abhängigkeiten
 - Stellen Sie bei der Verwendung und Integration von Bibliotheken die Kompatibilität mit der GPLv3 sicher
 - Achten Sie besonders auf die korrekte Verwendung von pynput als dynamisch verlinkte Bibliothek gemäß LGPL
 
-## 15. Lizenzierung
+## 16. Lizenzierung
 Wortweber ist unter der GNU General Public License v3.0 (GPLv3) lizenziert. Dies hat wichtige Auswirkungen auf die Entwicklung und Verteilung des Projekts:
 
 - Alle Änderungen und Erweiterungen des Codes müssen ebenfalls unter der GPLv3 oder einer kompatiblen Lizenz veröffentlicht werden.
@@ -224,12 +219,18 @@ Wortweber ist unter der GNU General Public License v3.0 (GPLv3) lizenziert. Dies
 
 Entwickler sollten sich mit den Bedingungen der GPLv3 vertraut machen und sicherstellen, dass alle Beiträge und Änderungen konform sind.
 
-## 16. Kontakt
+## 17. Kontakt
 Bei Fragen oder Problemen ein Issue auf GitHub erstellen oder sich an den Projektbetreuer wenden.
 
-## 17. Historie
+## 18. Historie
 
-### Version 0.24.0 (aktuell)
+### Version 0.25.0 (aktuell)
+- Erstellung einer umfassenden Dokumentation für das Plugin-System (PLUGINSYSTEM.md)
+- Ausarbeitung detaillierter Konzepte für zukünftige Plugin-System-Erweiterungen
+- Erweiterung und Verfeinerung des Glossars für Plugin-Begriffe und -Konzepte
+- Verbesserung der Codebeispiele zur Veranschaulichung von Plugin-Konzepten
+
+### Version 0.24.0
 - Implementierung eines umfassenden Plugin-Systems
 - Einführung des PluginManager und PluginLoader
 - Integration der Plugin-Verwaltung in die GUI

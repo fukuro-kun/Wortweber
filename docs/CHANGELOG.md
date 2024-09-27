@@ -5,6 +5,18 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.25.0] - 2024-09-27
+### Added
+- Umfassende Dokumentation des Wortweber Plugin-Systems
+- Detaillierte Beschreibung der Plugin-Architektur und -Entwicklung
+- Ausführliche API-Referenz für das Plugin-System
+- Umfangreicher Glossar mit Querverweisen und Beispielreferenzen
+- Kapitel über zukünftige Entwicklungen des Plugin-Systems
+
+### Improved
+- Strukturierung und Konsistenz der gesamten Projektdokumentation
+- Codebeispiele zur Veranschaulichung von Plugin-Konzepten
+
 ## [0.24.6] - 2023-09-27
 ### Changed
 - Verbesserte Logging-Struktur für erhöhte Übersichtlichkeit

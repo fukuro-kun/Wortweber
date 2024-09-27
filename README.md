@@ -14,7 +14,11 @@ Wortweber befindet sich in einer frühen Entwicklungsphase und ist noch nicht f�
 - Umwandlung von Zahlwörtern in Ziffern und umgekehrt
 - Flexible Eingabemodi: Textfenster oder Systemcursor-Position
 - Speichern von Benutzereinstellungen
-- Erweitertes Plugin-System
+
+## Plugin-System
+
+Wortweber verfügt über ein umfangreiches Plugin-System, das es Entwicklern ermöglicht, die Funktionalität der Anwendung zu erweitern. Detaillierte Informationen zur Architektur, Entwicklung und Nutzung von Plugins finden Sie in der [Plugin-System-Dokumentation](docs/PLUGINSYSTEM.md).
+
 
 ## Installation und Nutzung
 
@@ -96,11 +100,20 @@ Nach der Installation können Sie Wortweber auf zwei Arten starten:
 - `src/`: Enthält den Quellcode
   - `backend/`: Backend-Logik für Audioaufnahme und Transkription
   - `frontend/`: GUI-Komponenten und Benutzerschnittstelle
+  - `plugin_system/`: Kernkomponenten des Plugin-Systems
+  - `utils/`: Hilfsfunktionen und -klassen
 - `docs/`: Enthält die Projektdokumentation
+  - `PLUGINSYSTEM.md`: Umfassende Dokumentation des Plugin-Systems
+  - `CHANGELOG.md`: Änderungsprotokoll des Projekts
+  - `DEVELOPMENT.md`: Entwicklerdokumentation
+  - `TODO.md`: Aufgabenliste für zukünftige Entwicklungen
 - `tests/`: Enthält Unittests und Integrationstests
+- `plugins/`: Verzeichnis für installierte Plugins
+- `logs/`: Enthält Logdateien der Anwendung
 - `requirements.txt`: Liste der Python-Abhängigkeiten
 - `install_and_test.sh`: Installations- und Testskript
 - `VERSION`: Aktuelle Versionsnummer des Projekts
+- `wortweber.sh`: Startskript für die Anwendung
 
 ## Tests
 
