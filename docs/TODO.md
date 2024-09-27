@@ -18,7 +18,7 @@
 - [ ] Entwicklung zusätzlicher Beispiel-Plugins zur Demonstration der Systemfähigkeiten
 - [ ] Untersuchung der Unterstützung verschiedener Audiocodecs
 - [ ] Evaluierung alternativer Spracherkennungsmodelle für zukünftige Integration
-- [ ] Implementierung eines Plugin-Systems
+- [x] Implementierung eines Plugin-Systems
 
 ## Benutzeroberfläche und Bedienung
 ### Hohe Priorität
