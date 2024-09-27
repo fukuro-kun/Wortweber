@@ -148,7 +148,7 @@ class AudioProcessor:
 
     @handle_exceptions
     def record_audio(self, state):
-        logger.info("Audioaufnahme gestartet")
+        logger.info("Audioaufnahme gestartet.")
         try:
             self.reset_stream()
             self.stream = self.open_audio_stream()

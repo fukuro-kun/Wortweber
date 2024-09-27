@@ -166,7 +166,6 @@ class InputProcessor:
                 self.gui.main_window.update_status_bar(status="Aufnahme läuft...", status_color="red")
                 self.gui.start_timer()
                 self.recording_active = True
-                logger.info("Audioaufnahme gestartet")
             else:
                 self.gui.main_window.update_status_bar(status="Audiogerät nicht verfügbar", status_color="red")
                 logger.error("Audiogerät nicht verfügbar")
