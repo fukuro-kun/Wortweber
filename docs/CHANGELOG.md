@@ -5,6 +5,17 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.26.0] - 2024-09-27
+   ### Added
+   - Erweitertes Plugin-System mit Unterstützung für Abhängigkeiten
+   - Neue Methoden in AbstractPlugin: on_update(), get_config_ui(), und register_events()
+   - Möglichkeit zum Neuladen einzelner Plugins
+   - Automatische Auflösung von Plugin-Abhängigkeiten
+
+   ### Changed
+   - Verbesserte Struktur des PluginManagers für erweiterte Funktionalität
+   - Optimierte Fehlerbehandlung und Logging für Plugins
+
 ## [0.25.0] - 2024-09-27
 ### Added
 - Umfassende Dokumentation des Wortweber Plugin-Systems

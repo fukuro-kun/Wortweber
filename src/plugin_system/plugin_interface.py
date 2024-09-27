@@ -15,14 +15,17 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from src.utils.error_handling import handle_exceptions, logger
+import tkinter as tk
+from tkinter import ttk
 
 class AbstractPlugin(ABC):
     """
     Abstrakte Basisklasse für alle Wortweber-Plugins.
     Alle Plugins müssen diese Klasse erweitern und ihre Methoden implementieren.
     """
+    dependencies: List[str] = []  # Neue Zeile
 
     @property
     @abstractmethod
@@ -127,6 +130,39 @@ class AbstractPlugin(ABC):
 
         :param key: Der Schlüssel der geänderten Einstellung
         :param value: Der neue Wert der Einstellung
+        """
+        pass
+
+    @handle_exceptions
+    def on_update(self) -> None:
+        """
+        Wird aufgerufen, wenn das Plugin aktualisiert wird.
+        Diese Methode kann von konkreten Plugin-Implementierungen überschrieben werden.
+        """
+        pass
+
+    @handle_exceptions
+    def get_config_ui(self, parent: tk.Widget) -> ttk.Frame:
+        """
+        Gibt ein Tkinter Frame mit Konfigurationselementen zurück.
+        Diese Methode sollte von konkreten Plugin-Implementierungen überschrieben werden,
+        wenn sie eine benutzerdefinierte Konfigurationsoberfläche benötigen.
+
+        :param parent: Das übergeordnete Tkinter-Widget
+        :return: Ein ttk.Frame mit Konfigurationselementen
+        """
+        frame = ttk.Frame(parent)
+        ttk.Label(frame, text="Keine Konfigurationsoptionen verfügbar").pack()
+        return frame
+
+    @handle_exceptions
+    def register_events(self, event_system: Any) -> None:
+        """
+        Registriert Plugin-Ereignisse.
+        Diese Methode kann von konkreten Plugin-Implementierungen überschrieben werden,
+        um sich für bestimmte Ereignisse zu registrieren.
+
+        :param event_system: Das Ereignissystem der Anwendung
         """
         pass
 
