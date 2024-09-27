@@ -5,6 +5,13 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.27.1] - 2024-09-27
+### Hinzugefügt
+- Mermaid-Diagramm zur Visualisierung des Plugin-Lebenszyklus in PLUGINSYSTEM.md
+
+### Verbessert
+- Erweiterte Erklärung des Plugin-Lebenszyklus in der Dokumentation
+
 ## [0.27.0] - 2024-09-27
 ### Hinzugefügt
 - Umfassende Dokumentation des Plugin-Systems

@@ -342,14 +342,39 @@ Weitere Informationen zum Event-System finden Sie in Kapitel 5: Event-System.
 
 ## 3.2 Plugin-Lebenszyklus
 
-Verstehen Sie den Lebenszyklus Ihres Plugins, um es effektiv zu implementieren:
+Der Lebenszyklus eines Plugins in Wortweber umfasst mehrere Phasen, von der Entdeckung bis zur Deaktivierung. Das folgende Diagramm veranschaulicht diesen Prozess:
 
-1. **Entdeckung**: Wortweber findet Ihr Plugin-Skript im Plugin-Verzeichnis.
-2. **Laden**: Die Plugin-Klasse wird instanziiert.
-3. **Aktivierung**: Die `activate`-Methode wird aufgerufen.
-4. **Verwendung**: Die `process_text`-Methode wird für jede Textverarbeitung aufgerufen.
-5. **Deaktivierung**: Die `deactivate`-Methode wird aufgerufen.
-6. **Entladen**: Das Plugin wird aus dem Speicher entfernt.
+```mermaid
+graph TD
+    A[Plugin-Datei] -->|Entdeckung| B(PluginLoader lädt Modul)
+    B -->|Instanziierung| C(Plugin-Objekt erstellt)
+    C -->|Validierung| D{Gültiges Plugin?}
+    D -->|Ja| E(Plugin registriert)
+    D -->|Nein| F(Plugin verworfen)
+    E -->|Aktivierung| G(activate Methode aufgerufen)
+    G -->|Konfiguration| H(Einstellungen geladen)
+    H -->|Bereit| I(Plugin aktiv)
+    I -->|Verwendung| J(process_text Methode aufgerufen)
+    I -->|Deaktivierung| K(deactivate Methode aufgerufen)
+    K -->|Ressourcenfreigabe| L(Plugin inaktiv)
+    L -->|Entladen| M(Plugin aus Speicher entfernt)
+    M -->|Neustart/Update| A
+```
+
+1. **Entdeckung**: Wortweber findet die Plugin-Datei im Plugin-Verzeichnis.
+2. **Laden**: Der PluginLoader lädt das Plugin-Modul dynamisch.
+3. **Instanziierung**: Ein Plugin-Objekt wird erstellt.
+4. **Validierung**: Das Plugin wird auf Gültigkeit geprüft (Implementierung aller notwendigen Methoden).
+5. **Registrierung**: Gültige Plugins werden im System registriert.
+6. **Aktivierung**: Die `activate` Methode des Plugins wird aufgerufen.
+7. **Konfiguration**: Plugin-spezifische Einstellungen werden geladen.
+8. **Aktiver Zustand**: Das Plugin ist bereit zur Verwendung.
+9. **Verwendung**: Die `process_text` Methode wird bei Bedarf aufgerufen.
+10. **Deaktivierung**: Die `deactivate` Methode wird aufgerufen, wenn das Plugin deaktiviert wird.
+11. **Ressourcenfreigabe**: Das Plugin gibt alle verwendeten Ressourcen frei.
+12. **Entladen**: Das Plugin wird aus dem Speicher entfernt.
+
+Dieser Lebenszyklus gewährleistet eine effiziente und sichere Verwaltung von Plugins innerhalb des Wortweber-Systems.
 
 ## 3.3 Implementierung eines Plugins
 
