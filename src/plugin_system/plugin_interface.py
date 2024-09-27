@@ -14,11 +14,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# Standardbibliotheken
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, List
-from src.utils.error_handling import handle_exceptions, logger
+
+# Drittanbieterbibliotheken
 import tkinter as tk
 from tkinter import ttk
+
+# Projektspezifische Module
+from src.utils.error_handling import handle_exceptions, logger
+from src.plugin_system.event_system import EventSystem
+
 
 class AbstractPlugin(ABC):
     """
@@ -137,9 +144,10 @@ class AbstractPlugin(ABC):
     def on_update(self) -> None:
         """
         Wird aufgerufen, wenn das Plugin aktualisiert wird.
-        Diese Methode kann von konkreten Plugin-Implementierungen überschrieben werden.
+        Diese Methode kann von konkreten Plugin-Implementierungen überschrieben werden,
+        um spezifische Aktionen bei einem Update durchzuführen.
         """
-        pass
+        logger.info(f"Plugin {self.name} wurde aktualisiert.")
 
     @handle_exceptions
     def get_config_ui(self, parent: tk.Widget) -> ttk.Frame:
@@ -156,10 +164,10 @@ class AbstractPlugin(ABC):
         return frame
 
     @handle_exceptions
-    def register_events(self, event_system: Any) -> None:
+    def register_events(self, event_system: EventSystem) -> None:
         """
         Registriert Plugin-Ereignisse.
-        Diese Methode kann von konkreten Plugin-Implementierungen überschrieben werden,
+        Diese Methode sollte von konkreten Plugin-Implementierungen überschrieben werden,
         um sich für bestimmte Ereignisse zu registrieren.
 
         :param event_system: Das Ereignissystem der Anwendung

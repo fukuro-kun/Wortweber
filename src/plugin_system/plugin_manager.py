@@ -14,30 +14,61 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# Standardbibliotheken
 import os
 from typing import Dict, List, Union, Optional, Any
+from types import MethodType
+
+# Projektspezifische Module
 from src.plugin_system.plugin_interface import AbstractPlugin
 from src.plugin_system.plugin_loader import PluginLoader
 from src.frontend.settings_manager import SettingsManager
 from src.utils.error_handling import handle_exceptions, logger
+from src.plugin_system.event_system import EventSystem
 
 class PluginManager:
     """
     Verwaltet das Laden, Aktivieren, Deaktivieren und Ausführen von Plugins.
+
+    Diese Klasse ist verantwortlich für den gesamten Lebenszyklus der Plugins,
+    einschließlich ihrer Entdeckung, Aktivierung, Deaktivierung und Aktualisierung.
+    Sie stellt auch sicher, dass der Plugin-Status konsistent bleibt und
+    verwaltet die Plugin-Einstellungen.
+
+    Attributes:
+        plugin_dir (str): Das Verzeichnis, in dem die Plugins gespeichert sind.
+        plugins (Dict[str, AbstractPlugin]): Ein Dictionary aller geladenen Plugins.
+        active_plugins (List[str]): Eine Liste der Namen der aktuell aktiven Plugins.
+        settings_manager (SettingsManager): Verwaltet die Einstellungen für Plugins.
+        plugin_loader (PluginLoader): Lädt Plugin-Module dynamisch.
+        event_system (EventSystem): Verwaltet das Event-System für Plugins.
     """
 
     @handle_exceptions
     def __init__(self, plugin_dir: str, settings_manager: SettingsManager):
+        """
+        Initialisiert den PluginManager.
+
+        Args:
+            plugin_dir (str): Das Verzeichnis, in dem die Plugins gespeichert sind.
+            settings_manager (SettingsManager): Der SettingsManager für die Verwaltung von Plugin-Einstellungen.
+        """
         self.plugin_dir = plugin_dir
         self.plugins: Dict[str, AbstractPlugin] = {}
-        self.active_plugins: List[str] = []  # Umbenannt von enabled_plugins
+        self.active_plugins: List[str] = []
         self.settings_manager = settings_manager
         self.plugin_loader = PluginLoader(plugin_dir)
+        self.event_system = EventSystem()
         logger.debug("PluginManager initialisiert")
 
     @handle_exceptions
     def discover_plugins(self) -> None:
-        """Durchsucht das Plugin-Verzeichnis nach verfügbaren Plugins und lädt sie."""
+        """
+        Durchsucht das Plugin-Verzeichnis nach verfügbaren Plugins und lädt sie.
+
+        Diese Methode scannt das Plugin-Verzeichnis, lädt alle verfügbaren Plugins
+        und aktiviert diejenigen, die als aktiviert markiert sind.
+        """
         logger.debug(f"Suche nach Plugins in: {self.plugin_dir}")
         plugin_settings = self.settings_manager.get_setting("plugins", {}).get("specific_settings", {})
         loaded_plugins = self.plugin_loader.load_all_plugins(plugin_settings)
@@ -48,14 +79,19 @@ class PluginManager:
             else:
                 logger.debug(f"Plugin {plugin.name} bereits geladen, wird übersprungen")
 
-        # Aktiviere zuvor aktivierte Plugins
         self.load_enabled_plugins()
+        self.verify_plugin_status()
 
         logger.info(f"Insgesamt {len(self.plugins)} Plugins geladen, {len(self.active_plugins)} aktiv")
 
     @handle_exceptions
     def load_enabled_plugins(self):
-        """Lädt und aktiviert alle Plugins, die als 'enabled' markiert sind."""
+        """
+        Lädt und aktiviert alle Plugins, die als 'enabled' markiert sind.
+
+        Diese Methode aktiviert alle Plugins, die in den Einstellungen als aktiviert
+        markiert sind, und löst deren Abhängigkeiten auf.
+        """
         enabled_plugins = self.settings_manager.get_enabled_plugins()
         for plugin_name in enabled_plugins:
             if plugin_name in self.plugins and plugin_name not in self.active_plugins:
@@ -63,7 +99,6 @@ class PluginManager:
             elif plugin_name not in self.plugins:
                 logger.warning(f"Zuvor aktiviertes Plugin nicht gefunden: {plugin_name}")
 
-        # Löse Abhängigkeiten auf
         self.resolve_dependencies()
 
         logger.info(f"Insgesamt {len(self.plugins)} Plugins geladen, {len(self.active_plugins)} aktiv")
@@ -73,8 +108,11 @@ class PluginManager:
         """
         Aktiviert ein spezifisches Plugin.
 
-        :param plugin_name: Name des zu aktivierenden Plugins
-        :return: True, wenn das Plugin erfolgreich aktiviert wurde, sonst False
+        Args:
+            plugin_name (str): Name des zu aktivierenden Plugins.
+
+        Returns:
+            bool: True, wenn das Plugin erfolgreich aktiviert wurde, sonst False.
         """
         if plugin_name in self.plugins and plugin_name not in self.active_plugins:
             plugin = self.plugins[plugin_name]
@@ -84,6 +122,7 @@ class PluginManager:
                 self.active_plugins.append(plugin_name)
                 logger.info(f"Plugin aktiviert: {plugin_name}")
                 self.update_enabled_plugins()
+                plugin.register_events(self.event_system)
                 return True
             except Exception as e:
                 logger.error(f"Fehler beim Aktivieren des Plugins {plugin_name}: {str(e)}")
@@ -94,8 +133,11 @@ class PluginManager:
         """
         Deaktiviert ein spezifisches Plugin.
 
-        :param plugin_name: Name des zu deaktivierenden Plugins
-        :return: True, wenn das Plugin erfolgreich deaktiviert wurde, sonst False
+        Args:
+            plugin_name (str): Name des zu deaktivierenden Plugins.
+
+        Returns:
+            bool: True, wenn das Plugin erfolgreich deaktiviert wurde, sonst False.
         """
         if plugin_name in self.active_plugins:
             plugin = self.plugins[plugin_name]
@@ -106,10 +148,36 @@ class PluginManager:
                 self.active_plugins.remove(plugin_name)
                 logger.info(f"Plugin deaktiviert: {plugin_name}")
                 self.update_enabled_plugins()
+                self.remove_plugin_events(plugin)
                 return True
             except Exception as e:
                 logger.error(f"Fehler beim Deaktivieren des Plugins {plugin_name}: {str(e)}")
         return False
+
+    @handle_exceptions
+    def remove_plugin_events(self, plugin: AbstractPlugin):
+        """
+        Entfernt alle Event-Listener eines Plugins.
+
+        Args:
+            plugin (AbstractPlugin): Das Plugin, dessen Event-Listener entfernt werden sollen.
+        """
+        for event_type in self.event_system.listeners:
+            self.event_system.listeners[event_type] = [
+                listener for listener in self.event_system.listeners[event_type]
+                if not isinstance(listener, MethodType) or listener.__self__ is not plugin
+            ]
+
+    @handle_exceptions
+    def emit_event(self, event_type: str, data: Any = None):
+        """
+        Löst ein Event für alle aktiven Plugins aus.
+
+        Args:
+            event_type (str): Der Typ des auszulösenden Events.
+            data (Any, optional): Optionale Daten, die mit dem Event gesendet werden.
+        """
+        self.event_system.emit(event_type, data)
 
     @handle_exceptions
     def update_enabled_plugins(self) -> None:
@@ -126,8 +194,6 @@ class PluginManager:
 
         Diese Vorgehensweise ist eine bewusste Designentscheidung zur Gewährleistung von Konsistenz und
         Vollständigkeit der Einstellungen.
-
-        :return: None
         """
         enabled_plugins = self.settings_manager.get_enabled_plugins()
         plugins_settings = self.settings_manager.get_setting("plugins", {})
@@ -136,24 +202,49 @@ class PluginManager:
 
     @handle_exceptions
     def reload_plugin(self, plugin_name: str) -> bool:
-        """Lädt ein Plugin neu."""
-        if plugin_name in self.plugins:
-            old_plugin = self.plugins[plugin_name]
+        """
+        Lädt ein Plugin neu.
+
+        Diese Methode deaktiviert das angegebene Plugin, lädt es neu und aktiviert es wieder,
+        falls es zuvor aktiv war. Dies ermöglicht das Aktualisieren von Plugins zur Laufzeit.
+
+        Args:
+            plugin_name (str): Name des neu zu ladenden Plugins.
+
+        Returns:
+            bool: True, wenn das Plugin erfolgreich neu geladen wurde, sonst False.
+        """
+        if plugin_name not in self.plugins:
+            logger.warning(f"Plugin {plugin_name} nicht gefunden und kann nicht neu geladen werden.")
+            return False
+
+        was_active = plugin_name in self.active_plugins
+        if was_active:
+            self.deactivate_plugin(plugin_name)
+
+        try:
             new_plugin = self.plugin_loader.reload_plugin(plugin_name)
             if new_plugin:
                 self.plugins[plugin_name] = new_plugin
-                if plugin_name in self.active_plugins:
-                    old_plugin.deactivate()
-                    new_plugin.activate(self.settings_manager.get_plugin_settings(plugin_name))
+                if was_active:
+                    self.activate_plugin(plugin_name)
                 new_plugin.on_update()
                 logger.info(f"Plugin {plugin_name} erfolgreich neu geladen")
                 return True
-        logger.warning(f"Konnte Plugin {plugin_name} nicht neu laden")
-        return False
+            else:
+                logger.error(f"Fehler beim Neuladen des Plugins {plugin_name}")
+                return False
+        except Exception as e:
+            logger.error(f"Unerwarteter Fehler beim Neuladen des Plugins {plugin_name}: {str(e)}")
+            return False
 
     @handle_exceptions
     def resolve_dependencies(self):
-        """Löst Plugin-Abhängigkeiten auf."""
+        """
+        Löst Plugin-Abhängigkeiten auf.
+
+        Diese Methode überprüft und aktiviert alle notwendigen Abhängigkeiten für jedes Plugin.
+        """
         for plugin in self.plugins.values():
             for dependency in plugin.dependencies:
                 if dependency not in self.plugins:
@@ -166,9 +257,12 @@ class PluginManager:
         """
         Aktualisiert die Einstellungen eines Plugins.
 
-        :param plugin_name: Name des Plugins
-        :param settings: Neue Einstellungen für das Plugin
-        :return: True, wenn die Einstellungen erfolgreich aktualisiert wurden, sonst False
+        Args:
+            plugin_name (str): Name des Plugins.
+            settings (Dict[str, Any]): Neue Einstellungen für das Plugin.
+
+        Returns:
+            bool: True, wenn die Einstellungen erfolgreich aktualisiert wurden, sonst False.
         """
         if plugin_name in self.plugins:
             plugin = self.plugins[plugin_name]
@@ -187,8 +281,11 @@ class PluginManager:
         """
         Verarbeitet den Text mit allen aktiven Plugins.
 
-        :param text: Der zu verarbeitende Text
-        :return: Der verarbeitete Text
+        Args:
+            text (str): Der zu verarbeitende Text.
+
+        Returns:
+            str: Der verarbeitete Text.
         """
         for plugin_name in self.active_plugins:
             try:
@@ -202,7 +299,8 @@ class PluginManager:
         """
         Gibt Informationen über alle verfügbaren Plugins zurück.
 
-        :return: Eine Liste von Dictionaries mit Plugin-Informationen
+        Returns:
+            List[Dict[str, Union[str, bool]]]: Eine Liste von Dictionaries mit Plugin-Informationen.
         """
         return [
             {
@@ -216,8 +314,14 @@ class PluginManager:
         ]
 
     @handle_exceptions
-    def verify_plugin_status(self) -> None:
-        """Überprüft und korrigiert den Status aller Plugins beim Laden."""
+    def verify_plugin_status(self) -> bool:
+        """
+        Überprüft und korrigiert den Status aller Plugins beim Laden.
+
+        Returns:
+            bool: True, wenn Änderungen vorgenommen wurden, sonst False.
+        """
+        changes_made = False
         enabled_plugins = self.settings_manager.get_enabled_plugins()
 
         # Deaktiviere Plugins, die als aktiviert gespeichert sind, aber nicht mehr existieren
@@ -225,21 +329,25 @@ class PluginManager:
             if plugin_name not in self.plugins:
                 logger.warning(f"Plugin {plugin_name} ist als aktiviert gespeichert, existiert aber nicht mehr. Wird entfernt.")
                 enabled_plugins.remove(plugin_name)
+                changes_made = True
 
         # Aktiviere alle Plugins, die als aktiviert gespeichert sind
         for plugin_name in enabled_plugins:
             if plugin_name not in self.active_plugins:
                 self.activate_plugin(plugin_name)
+                changes_made = True
 
         # Deaktiviere alle Plugins, die aktiv sind, aber nicht als aktiviert gespeichert sind
         for plugin_name in list(self.active_plugins):
             if plugin_name not in enabled_plugins:
                 self.deactivate_plugin(plugin_name)
+                changes_made = True
 
         # Aktualisiere die Liste der aktivierten Plugins in den Einstellungen
         self.update_enabled_plugins()
 
         logger.info(f"Plugin-Status verifiziert. Aktive Plugins: {', '.join(self.active_plugins)}")
+        return changes_made
 
 # Zusätzliche Erklärungen:
 
@@ -252,11 +360,11 @@ class PluginManager:
 #    - Deaktiviert alle Plugins, die aktiv sind, aber nicht als aktiviert gespeichert sind
 #    - Aktualisiert die Liste der aktivierten Plugins in den Einstellungen
 
-# 3. Die `discover_plugins`-Methode sollte nun `verify_plugin_status` aufrufen,
+# 3. Die `discover_plugins`-Methode ruft nun `verify_plugin_status` auf,
 #    nachdem alle Plugins geladen wurden. Dies stellt sicher, dass der Plugin-Status
 #    beim Start der Anwendung korrekt ist.
 
-# 4. Die `_update_enabled_plugins`-Methode wurde beibehalten und wird von
+# 4. Die `update_enabled_plugins`-Methode wird von
 #    `activate_plugin`, `deactivate_plugin` und `verify_plugin_status` verwendet,
 #    um die Liste der aktivierten Plugins in den Einstellungen zu aktualisieren.
 

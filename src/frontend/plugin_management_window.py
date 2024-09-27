@@ -14,15 +14,33 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# Standardbibliotheken
 import tkinter as tk
 from tkinter import ttk, messagebox
-from src.utils.error_handling import handle_exceptions, logger
-from src.plugin_system.plugin_manager import PluginManager
 from typing import Any
 
+# Projektspezifische Module
+from src.utils.error_handling import handle_exceptions, logger
+from src.plugin_system.plugin_manager import PluginManager
+
 class PluginManagementWindow(tk.Toplevel):
+    """
+    Ein Fenster zur Verwaltung von Plugins in der Wortweber-Anwendung.
+
+    Diese Klasse erstellt ein Toplevel-Fenster, das eine Übersicht aller verfügbaren Plugins
+    anzeigt und Funktionen zur Aktivierung, Deaktivierung und Konfiguration von Plugins bietet.
+    """
+
     @handle_exceptions
     def __init__(self, parent, plugin_manager: PluginManager, gui):
+        """
+        Initialisiert das Plugin-Verwaltungsfenster.
+
+        Args:
+            parent: Das übergeordnete Tkinter-Widget.
+            plugin_manager (PluginManager): Der PluginManager der Anwendung.
+            gui: Die Hauptinstanz der GUI.
+        """
         super().__init__(parent)
         self.plugin_manager = plugin_manager
         self.gui = gui
@@ -34,11 +52,18 @@ class PluginManagementWindow(tk.Toplevel):
 
     @handle_exceptions
     def create_widgets(self):
+        """Erstellt alle Widgets für das Plugin-Verwaltungsfenster."""
         self.tree = self.create_plugin_tree()
         self.create_buttons()
 
     @handle_exceptions
     def create_plugin_tree(self):
+        """
+        Erstellt und konfiguriert den Treeview für die Plugin-Liste.
+
+        Returns:
+            ttk.Treeview: Der konfigurierte Treeview für die Plugin-Anzeige.
+        """
         columns = ("Name", "Version", "Aktueller Status", "Aktivieren bei Anwendungsstart", "Einstellungen")
         tree = ttk.Treeview(self, columns=columns, show="headings")
 
@@ -62,6 +87,12 @@ class PluginManagementWindow(tk.Toplevel):
 
     @handle_exceptions
     def update_plugin_list(self, tree):
+        """
+        Aktualisiert die Plugin-Liste im Treeview.
+
+        Args:
+            tree (ttk.Treeview): Der Treeview, der aktualisiert werden soll.
+        """
         for item in tree.get_children():
             tree.delete(item)
 
@@ -87,6 +118,12 @@ class PluginManagementWindow(tk.Toplevel):
 
     @handle_exceptions
     def on_tree_click(self, event):
+        """
+        Behandelt Klick-Ereignisse auf den Plugin-Treeview.
+
+        Args:
+            event: Das Tkinter-Event-Objekt des Klicks.
+        """
         region = self.tree.identify("region", event.x, event.y)
         if region == "cell":
             column = self.tree.identify_column(event.x)
@@ -101,6 +138,12 @@ class PluginManagementWindow(tk.Toplevel):
 
     @handle_exceptions
     def toggle_plugin_now(self, plugin_name):
+        """
+        Aktiviert oder deaktiviert ein Plugin sofort.
+
+        Args:
+            plugin_name (str): Der Name des zu togglenden Plugins.
+        """
         if plugin_name in self.plugin_manager.active_plugins:
             self.plugin_manager.deactivate_plugin(plugin_name)
         else:
@@ -109,6 +152,12 @@ class PluginManagementWindow(tk.Toplevel):
 
     @handle_exceptions
     def toggle_plugin_enabled(self, plugin_name):
+        """
+        Ändert den Aktivierungsstatus eines Plugins für den nächsten Start.
+
+        Args:
+            plugin_name (str): Der Name des Plugins, dessen Status geändert werden soll.
+        """
         enabled_plugins = self.plugin_manager.settings_manager.get_enabled_plugins()
         if plugin_name in enabled_plugins:
             enabled_plugins.remove(plugin_name)
@@ -119,6 +168,12 @@ class PluginManagementWindow(tk.Toplevel):
 
     @handle_exceptions
     def open_plugin_settings(self, plugin_name):
+        """
+        Öffnet ein Einstellungsfenster für ein spezifisches Plugin.
+
+        Args:
+            plugin_name (str): Der Name des Plugins, dessen Einstellungen geändert werden sollen.
+        """
         plugin = self.plugin_manager.plugins[plugin_name]
         settings_window = tk.Toplevel(self)
         settings_window.title(f"{plugin_name} Einstellungen")
@@ -153,6 +208,7 @@ class PluginManagementWindow(tk.Toplevel):
 
     @handle_exceptions
     def create_buttons(self):
+        """Erstellt die Schaltflächen im Plugin-Verwaltungsfenster."""
         button_frame = ttk.Frame(self)
         button_frame.pack(fill="x", padx=10, pady=10)
 
@@ -186,4 +242,15 @@ class PluginManagementWindow(tk.Toplevel):
     @classmethod
     @handle_exceptions
     def open_window(cls, parent, plugin_manager, gui):
+        """
+        Öffnet ein neues Plugin-Verwaltungsfenster.
+
+        Args:
+            parent: Das übergeordnete Tkinter-Widget.
+            plugin_manager (PluginManager): Der PluginManager der Anwendung.
+            gui: Die Hauptinstanz der GUI.
+
+        Returns:
+            PluginManagementWindow: Eine neue Instanz des Plugin-Verwaltungsfensters.
+        """
         return cls(parent, plugin_manager, gui)

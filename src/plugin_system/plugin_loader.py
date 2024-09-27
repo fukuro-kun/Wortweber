@@ -14,11 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# Standardbibliotheken
 import os
 import importlib
 import importlib.util
 import sys
 from typing import List, Optional, Dict, Any
+
+# Projektspezifische Module
 from src.plugin_system.plugin_interface import AbstractPlugin
 from src.utils.error_handling import handle_exceptions, logger
 from src.config import DEFAULT_PLUGIN_SETTINGS
@@ -26,10 +29,21 @@ from src.config import DEFAULT_PLUGIN_SETTINGS
 class PluginLoader:
     """
     Verantwortlich für das dynamische Laden von Plugin-Modulen.
+
+    Diese Klasse bietet Methoden zum Laden, Neuladen und Verwalten von Plugins
+    für die Wortweber-Anwendung. Sie stellt sicher, dass Plugins korrekt
+    initialisiert und mit den entsprechenden Einstellungen versehen werden.
     """
 
     @handle_exceptions
     def __init__(self, plugin_dir: str = "plugins"):
+        """
+        Initialisiert den PluginLoader mit einem spezifizierten Plugin-Verzeichnis.
+
+        Args:
+            plugin_dir (str): Der Pfad zum Verzeichnis, in dem die Plugins gespeichert sind.
+                              Standardmäßig ist dies "plugins".
+        """
         self.plugin_dir = plugin_dir
         logger.debug(f"PluginLoader initialisiert mit Verzeichnis: {plugin_dir}")
 
@@ -38,9 +52,15 @@ class PluginLoader:
         """
         Lädt ein einzelnes Plugin basierend auf seinem Namen und initialisiert es mit den gegebenen Einstellungen.
 
-        :param plugin_name: Name des zu ladenden Plugins (ohne .py Erweiterung)
-        :param settings: Optionale Einstellungen für das Plugin
-        :return: Eine Instanz des Plugins oder None, wenn das Laden fehlschlägt
+        Diese Methode sucht nach der Plugin-Datei, lädt das Modul dynamisch, instanziiert die Plugin-Klasse
+        und initialisiert sie mit den validierten Einstellungen.
+
+        Args:
+            plugin_name (str): Name des zu ladenden Plugins (ohne .py Erweiterung)
+            settings (Optional[Dict[str, Any]]): Optionale Einstellungen für das Plugin
+
+        Returns:
+            Optional[AbstractPlugin]: Eine Instanz des Plugins oder None, wenn das Laden fehlschlägt
         """
         plugin_path = os.path.join(self.plugin_dir, f"{plugin_name}.py")
 
@@ -87,8 +107,15 @@ class PluginLoader:
         """
         Lädt alle Plugins aus dem Plugin-Verzeichnis und initialisiert sie mit den gegebenen Einstellungen.
 
-        :param settings: Ein Dictionary mit Plugin-Namen als Schlüssel und ihren Einstellungen als Werte
-        :return: Eine Liste aller erfolgreich geladenen Plugin-Instanzen
+        Diese Methode durchsucht das Plugin-Verzeichnis nach Python-Dateien, lädt jedes gefundene Plugin
+        und initialisiert es mit den entsprechenden Einstellungen, falls vorhanden.
+
+        Args:
+            settings (Optional[Dict[str, Dict[str, Any]]]): Ein Dictionary mit Plugin-Namen als Schlüssel
+                                                            und ihren Einstellungen als Werte
+
+        Returns:
+            List[AbstractPlugin]: Eine Liste aller erfolgreich geladenen Plugin-Instanzen
         """
         loaded_plugins = []
         for filename in os.listdir(self.plugin_dir):
@@ -107,9 +134,15 @@ class PluginLoader:
         """
         Lädt ein bereits geladenes Plugin neu und initialisiert es mit den gegebenen Einstellungen.
 
-        :param plugin_name: Name des neu zu ladenden Plugins
-        :param settings: Optionale neue Einstellungen für das Plugin
-        :return: Die neu geladene Plugin-Instanz oder None bei Fehler
+        Diese Methode entfernt das alte Modul aus dem Cache und lädt es dann neu. Dies ermöglicht
+        das Aktualisieren von Plugins zur Laufzeit.
+
+        Args:
+            plugin_name (str): Name des neu zu ladenden Plugins
+            settings (Optional[Dict[str, Any]]): Optionale neue Einstellungen für das Plugin
+
+        Returns:
+            Optional[AbstractPlugin]: Die neu geladene Plugin-Instanz oder None bei Fehler
         """
         # Entferne das alte Modul aus dem Cache, falls vorhanden
         module_name = f"{self.plugin_dir}.{plugin_name}"
@@ -123,9 +156,16 @@ class PluginLoader:
         """
         Validiert die gegebenen Einstellungen für ein Plugin und ergänzt fehlende Standardeinstellungen.
 
-        :param plugin: Die Plugin-Instanz
-        :param settings: Die zu validierenden Einstellungen
-        :return: Ein Dictionary mit validierten und vervollständigten Einstellungen
+        Diese Methode kombiniert die Standardeinstellungen des Plugins mit den übergebenen Einstellungen
+        und den globalen Standardeinstellungen. Sie stellt sicher, dass alle erforderlichen Einstellungen
+        vorhanden sind und ignoriert unbekannte Einstellungen.
+
+        Args:
+            plugin (AbstractPlugin): Die Plugin-Instanz
+            settings (Optional[Dict[str, Any]]): Die zu validierenden Einstellungen
+
+        Returns:
+            Dict[str, Any]: Ein Dictionary mit validierten und vervollständigten Einstellungen
         """
         default_settings = plugin.get_default_settings()
         validated_settings = default_settings.copy()

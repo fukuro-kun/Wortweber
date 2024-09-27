@@ -5,6 +5,20 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.27.0] - 2024-09-27
+### Hinzugefügt
+- Umfassende Dokumentation des Plugin-Systems
+- Erweiterte Funktionalität für Plugin-Validierung in PluginLoader
+
+### Geändert
+- Verbesserte Fehlerbehandlung und Logging in PluginManager
+- Aktualisierte Beschreibungen für Event-System und Einstellungsverwaltung
+
+### Dokumentation
+- Neue PLUGINSYSTEM.md mit detaillierter Beschreibung des Plugin-Systems
+- Neue GLOSSAR.md mit Plugin-spezifischen Begriffen
+- Verbesserte Codebeispiele und Erklärungen in der Dokumentation
+
 ## [0.26.1] - 2024-09-27
 ### Fixed
 - Behebung des Problems mit doppelten Log-Einträgen bei Audioaufnahmen

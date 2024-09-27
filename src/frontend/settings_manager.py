@@ -1,5 +1,3 @@
-# src/frontend/settings_manager.py
-
 # Wortweber - Echtzeit-Sprachtranskription mit KI
 # Copyright (C) 2024 fukuro-kun
 #
@@ -15,16 +13,32 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# src/frontend/settings_manager.py
 
+# Standardbibliotheken
 import json
 import os
 from typing import Dict, Any, List
+
+# Drittanbieterbibliotheken
+# (Keine Drittanbieterbibliotheken in diesem Modul)
+
+# Projektspezifische Module
 from src.config import *    # Importiert alle Variablen und Funktionen aus der config.py-Datei
 from src.utils.error_handling import handle_exceptions, logger
 
 class SettingsManager:
     """
     Verwaltet das Laden, Speichern und Abrufen von Benutzereinstellungen für die Wortweber-Anwendung.
+
+    Diese Klasse ist verantwortlich für die Verwaltung aller Benutzereinstellungen, einschließlich
+    Plugin-Einstellungen. Sie stellt Methoden zum Lesen, Schreiben und Aktualisieren von Einstellungen
+    bereit und sorgt für die Persistenz dieser Einstellungen zwischen Anwendungssitzungen.
+
+    Attributes:
+        settings_file (str): Der Pfad zur JSON-Datei, in der die Einstellungen gespeichert werden.
+        settings (dict): Ein Dictionary, das die aktuellen Einstellungen enthält.
+        default_settings (dict): Ein Dictionary mit den Standardeinstellungen der Anwendung.
     """
 
     @handle_exceptions
@@ -62,9 +76,11 @@ class SettingsManager:
     def load_settings(self):
         """
         Lädt Benutzereinstellungen aus einer JSON-Datei.
+
         Falls die Datei nicht existiert oder beschädigt ist, werden Standardeinstellungen verwendet.
 
-        :return: Ein Dictionary mit den geladenen Einstellungen
+        Returns:
+            dict: Ein Dictionary mit den geladenen Einstellungen
         """
         if os.path.exists(self.settings_file):
             try:
@@ -78,7 +94,12 @@ class SettingsManager:
 
     @handle_exceptions
     def ensure_settings_consistency(self):
-        """Stellt sicher, dass alle erforderlichen Schlüssel in den Einstellungen vorhanden sind."""
+        """
+        Stellt sicher, dass alle erforderlichen Schlüssel in den Einstellungen vorhanden sind.
+
+        Diese Methode vergleicht die geladenen Einstellungen mit den Standardeinstellungen und
+        fügt fehlende Schlüssel hinzu. Sie arbeitet rekursiv für verschachtelte Dictionaries.
+        """
         for key, value in self.default_settings.items():
             if key not in self.settings:
                 self.settings[key] = value
@@ -88,7 +109,16 @@ class SettingsManager:
         logger.debug("Einstellungskonsistenz sichergestellt")
 
     def merge_dicts(self, default: Dict, current: Dict) -> Dict:
-        """Führt zwei Dictionaries zusammen und stellt sicher, dass alle Schlüssel vorhanden sind."""
+        """
+        Führt zwei Dictionaries zusammen und stellt sicher, dass alle Schlüssel vorhanden sind.
+
+        Args:
+            default (Dict): Das Standard-Dictionary mit allen erforderlichen Schlüsseln.
+            current (Dict): Das aktuelle Dictionary, das aktualisiert werden soll.
+
+        Returns:
+            Dict: Das zusammengeführte Dictionary.
+        """
         for key, value in default.items():
             if key not in current:
                 current[key] = value
@@ -101,8 +131,9 @@ class SettingsManager:
         """
         Speichert eine einzelne Einstellung und aktualisiert die JSON-Datei.
 
-        :param key: Der Schlüssel der zu speichernden Einstellung
-        :param value: Der neue Wert der Einstellung
+        Args:
+            key (str): Der Schlüssel der zu speichernden Einstellung
+            value (Any): Der neue Wert der Einstellung
         """
         try:
             # Aktualisiere den internen Zustand
@@ -116,7 +147,14 @@ class SettingsManager:
             logger.error(f"Fehler beim Speichern der Einstellung {key}: {e}")
 
     def update_nested_dict(self, d: Dict, keys: List[str], value: Any):
-        """Aktualisiert ein verschachteltes Dictionary basierend auf einer Liste von Schlüsseln."""
+        """
+        Aktualisiert ein verschachteltes Dictionary basierend auf einer Liste von Schlüsseln.
+
+        Args:
+            d (Dict): Das zu aktualisierende Dictionary
+            keys (List[str]): Eine Liste von Schlüsseln, die den Pfad zum zu aktualisierenden Wert darstellen
+            value (Any): Der neue Wert, der gesetzt werden soll
+        """
         for key in keys[:-1]:
             d = d.setdefault(key, {})
         d[keys[-1]] = value
@@ -126,9 +164,12 @@ class SettingsManager:
         """
         Ruft den Wert einer bestimmten Einstellung ab.
 
-        :param key: Der Schlüssel der gewünschten Einstellung
-        :param default: Ein optionaler Standardwert, falls die Einstellung nicht existiert
-        :return: Der Wert der Einstellung oder der Standardwert
+        Args:
+            key (str): Der Schlüssel der gewünschten Einstellung
+            default: Ein optionaler Standardwert, falls die Einstellung nicht existiert
+
+        Returns:
+            Der Wert der Einstellung oder der Standardwert
         """
         # Immer die aktuellsten Einstellungen aus der Datei laden
         self.sync_settings_from_file()
@@ -148,8 +189,9 @@ class SettingsManager:
         """
         Setzt den Wert einer bestimmten Einstellung und speichert die Änderungen sofort.
 
-        :param key: Der Schlüssel der zu setzenden Einstellung
-        :param value: Der neue Wert der Einstellung
+        Args:
+            key (str): Der Schlüssel der zu setzenden Einstellung
+            value (Any): Der neue Wert der Einstellung
         """
         if self.get_setting(key) != value:
             self.save_setting(key, value)
@@ -161,7 +203,8 @@ class SettingsManager:
         """
         Gibt ein Dictionary mit allen aktuellen Einstellungen zurück.
 
-        :return: Ein Dictionary mit den aktuellen Einstellungen
+        Returns:
+            dict: Ein Dictionary mit den aktuellen Einstellungen
         """
         return {
             "language": self.get_setting("language", DEFAULT_LANGUAGE),
@@ -188,14 +231,14 @@ class SettingsManager:
             "output_mode": self.get_setting("output_mode", DEFAULT_OUTPUT_MODE),
             "push_to_talk_key": self.get_setting("push_to_talk_key", DEFAULT_PUSH_TO_TALK_KEY)
         }
-        logger.debug("Standardeinstellungen abgerufen")
 
     @handle_exceptions
     def get_default_settings(self):
         """
         Liefert ein Dictionary mit den Standardeinstellungen der Anwendung.
 
-        :return: Ein Dictionary mit Standardeinstellungen
+        Returns:
+            dict: Ein Dictionary mit Standardeinstellungen
         """
         return {
             "language": DEFAULT_LANGUAGE,
@@ -234,8 +277,11 @@ class SettingsManager:
         """
         Ruft die Einstellungen für ein spezifisches Plugin ab.
 
-        :param plugin_name: Name des Plugins
-        :return: Ein Dictionary mit den Plugin-Einstellungen
+        Args:
+            plugin_name (str): Name des Plugins
+
+        Returns:
+            Dict[str, Any]: Ein Dictionary mit den Plugin-Einstellungen
         """
         plugin_settings = self.get_setting(f"plugins.specific_settings.{plugin_name}", {})
         global_settings = self.get_setting("plugins.global_settings", {})
@@ -246,8 +292,9 @@ class SettingsManager:
         """
         Setzt die Einstellungen für ein spezifisches Plugin und speichert sie sofort.
 
-        :param plugin_name: Name des Plugins
-        :param settings: Ein Dictionary mit den neuen Plugin-Einstellungen
+        Args:
+            plugin_name (str): Name des Plugins
+            settings (Dict[str, Any]): Ein Dictionary mit den neuen Plugin-Einstellungen
         """
         self.set_setting(f"plugins.specific_settings.{plugin_name}", settings)
         logger.info(f"Plugin-Einstellungen für {plugin_name} aktualisiert und sofort gespeichert")
@@ -256,6 +303,8 @@ class SettingsManager:
     def print_current_settings(self):
         """
         Gibt die aktuellen Einstellungen aus.
+
+        Diese Methode protokolliert die wesentlichen Einstellungen und die Anzahl der aktiven Plugins.
         """
         essential_settings = ['language', 'model', 'theme', 'incognito_mode', 'output_mode']
         logger.info("Wesentliche Einstellungen:")
@@ -301,11 +350,23 @@ class SettingsManager:
 
     @handle_exceptions
     def get_enabled_plugins(self) -> List[str]:
+        """
+        Gibt eine Liste der aktivierten Plugins zurück.
+
+        Returns:
+            List[str]: Eine Liste der Namen der aktivierten Plugins
+        """
         plugins_settings = self.get_setting("plugins", {})
         return plugins_settings.get("enabled_plugins", [])
 
     @handle_exceptions
     def set_enabled_plugins(self, enabled_plugins: List[str]) -> None:
+        """
+        Setzt die Liste der aktivierten Plugins.
+
+        Args:
+            enabled_plugins (List[str]): Eine Liste der Namen der zu aktivierenden Plugins
+        """
         plugins_settings = self.get_setting("plugins", {})
         plugins_settings["enabled_plugins"] = enabled_plugins
         self.set_setting("plugins", plugins_settings)
