@@ -2,11 +2,10 @@
 
 ## Kernfunktionen
 ### Hohe Priorität
-- [ ] Entwicklung einer detaillierten API-Dokumentation für Plugin-Entwickler
 - [ ] Durchführung umfassender Tests für die neue Shortcut-Funktionalität
 - [ ] Überprüfung und Optimierung der Gerätekompatibilität für verschiedene Systemkonfigurationen
 - [ ] Durchführung umfassender Tests für die Zahlwort-Konvertierungsfunktionalität
-- [x] Implementierung einer auswählbaren Shortcut-Taste für die Push-to-Talk-Funktion
+- [x] Entwicklung einer detaillierten API-Dokumentation für Plugin-Entwickler
 
 ### Mittlere Priorität
 - [ ] Implementierung umfassender Tests für das überarbeitete Plugin-System
