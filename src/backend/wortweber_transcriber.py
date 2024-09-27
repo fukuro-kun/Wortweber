@@ -57,46 +57,52 @@ class Transcriber:
     @handle_exceptions
     def transcribe(self, audio: Union[np.ndarray, torch.Tensor], language: str) -> str:
         """
-        Transkribiert die gegebenen Audiodaten.
+        Transkribiert die gegebenen Audiodaten in Text.
 
         :param audio: Audiodaten als NumPy-Array oder PyTorch-Tensor
         :param language: Sprache der Audiodaten
         :return: Transkribierter Text
         :raises RuntimeError: Wenn das Modell nicht geladen ist
         """
+        # Überprüfen, ob das Modell geladen ist
         if self.model is None:
             logger.error("Modell nicht geladen. Bitte warten Sie, bis das Modell vollständig geladen ist.")
-            raise RuntimeError("Modell nicht geladen. Bitte warten Sie, bis das Modell vollständig geladen ist.")
+            raise RuntimeError("Modell nicht geladen.")
 
+        # Setzen der Dekodierungsoptionen für Whisper
         options = whisper.DecodingOptions(language=language, without_timestamps=True)
 
-        # Vergewissern, dass der Ton im richtigen Format vorliegt.
+        # Sicherstellen, dass das Audio die korrekte Länge für das Modell hat
+        # Dies ist wichtig, da Whisper eine feste Eingabelänge erwartet
         audio = whisper.pad_or_trim(audio)
-
         logger.debug(f"Audio shape after padding/trimming: {audio.shape}")
 
-        # Erstellt das Log-Mel-Spektrogramm und verschiebt es auf das gleiche Gerät wie das Modell.
+        # Erstellen des Mel-Spektrogramms aus dem Audio
+        # Dies ist die eigentliche Eingabe für das Whisper-Modell
         mel = whisper.log_mel_spectrogram(audio).to(self.device)
-
         logger.debug(f"Mel spectrogram shape: {mel.shape}")
 
         try:
+            # Durchführen der eigentlichen Transkription
             result = whisper.decode(self.model, mel, options)
-            transcribed_text = result.text
+            transcribed_text = result[0].text if isinstance(result, list) else result.text
 
+            # Überprüfen des Incognito-Modus für das Logging
             incognito_mode = self.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE) if self.settings_manager else DEFAULT_INCOGNITO_MODE
 
-            if not incognito_mode:
-                logger.info(f"Transkription: {transcribed_text}")
+            # Erstellen einer geeigneten Log-Nachricht basierend auf dem Incognito-Modus
+            if incognito_mode:
+                log_message = f"Transkription abgeschlossen. Länge: {len(transcribed_text)} Zeichen."
             else:
-                logger.info("Transkription abgeschlossen (Incognito-Modus aktiv)")
+                log_message = f"Transkription: {transcribed_text}"
 
-            logger.info(f"Transkriptionslänge: {len(transcribed_text)} Zeichen")
+            logger.info(log_message)
 
             return transcribed_text
+
         except Exception as e:
-            logger.error(f"Fehler bei der Transkription: {e}")
-            logger.error(f"Detaillierter Traceback: {traceback.format_exc()}")
+            # Ausführliches Logging im Fehlerfall
+            logger.error(f"Fehler bei der Transkription: {e}", exc_info=True)
             return f"Fehler bei der Transkription: {str(e)}"
 
 

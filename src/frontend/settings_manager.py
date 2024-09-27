@@ -29,13 +29,34 @@ class SettingsManager:
 
     @handle_exceptions
     def __init__(self):
-        """Initialisiert den SettingsManager und lädt bestehende Einstellungen."""
+        """
+        Initialisiert den SettingsManager und lädt bestehende Einstellungen.
+
+        Diese Methode setzt den Pfad zur Einstellungsdatei, lädt vorhandene Einstellungen,
+        initialisiert Standardeinstellungen und stellt die Konsistenz sicher. Falls keine
+        Einstellungsdatei existiert, wird sie mit Standardwerten erstellt.
+        """
         self.settings_file = "user_settings.json"
         self.settings = self.load_settings()
         self.default_settings = self.get_default_settings()
         self.ensure_settings_consistency()
+        if not os.path.exists(self.settings_file):
+            self.save_settings()  # Speichert die Standardeinstellungen, wenn keine Datei existiert
         logger.debug("SettingsManager initialisiert")
         self.print_current_settings()
+
+    @handle_exceptions
+    def save_settings(self):
+        """
+        Speichert die aktuellen Einstellungen in der JSON-Datei.
+
+        Diese Methode schreibt den aktuellen Zustand der Einstellungen in die
+        'user_settings.json' Datei. Sie wird verwendet, um Änderungen zu persistieren
+        und um die Datei mit Standardwerten zu initialisieren, falls sie nicht existiert.
+        """
+        with open(self.settings_file, 'w') as f:
+            json.dump(self.settings, f, indent=4)
+        logger.info(f"Einstellungen in {self.settings_file} gespeichert")
 
     @handle_exceptions
     def load_settings(self):
@@ -233,14 +254,17 @@ class SettingsManager:
 
     @handle_exceptions
     def print_current_settings(self):
-        logger.info("Aktuelle Einstellungen:")
-        for key, value in self.settings.items():
-            if key != "plugins":
-                logger.info(f"{key}: {value}")
-            else:
-                logger.info("Plugin-Einstellungen:")
-                for plugin_key, plugin_value in value.items():
-                    logger.info(f"  {plugin_key}: {plugin_value}")
+        """
+        Gibt die aktuellen Einstellungen aus.
+        """
+        essential_settings = ['language', 'model', 'theme', 'incognito_mode', 'output_mode']
+        logger.info("Wesentliche Einstellungen:")
+        for key in essential_settings:
+            value = self.settings.get(key, "Nicht gesetzt")
+            logger.info(f"{key}: {value}")
+
+        logger.info("Plugin-Einstellungen:")
+        logger.info(f"  Anzahl aktiver Plugins: {len(self.settings.get('plugins', {}).get('enabled_plugins', []))}")
 
     @handle_exceptions
     def sync_settings_from_file(self):
@@ -249,25 +273,31 @@ class SettingsManager:
 
         Diese Methode liest die aktuellen Einstellungen aus der JSON-Datei und
         aktualisiert den internen Zustand des SettingsManager entsprechend.
-        Nur die Schlüssel, die in der Datei vorhanden sind, werden aktualisiert.
-        Dies stellt sicher, dass der interne Zustand immer mit den gespeicherten
-        Einstellungen übereinstimmt.
-
-        Raises:
-            Exception: Wenn beim Lesen oder Verarbeiten der JSON-Datei ein Fehler auftritt.
+        Wenn die Datei nicht existiert, wird sie mit Standardeinstellungen erstellt.
         """
+        if not os.path.exists(self.settings_file):
+            logger.warning(f"Einstellungsdatei {self.settings_file} nicht gefunden. Erstelle neue Datei mit Standardeinstellungen.")
+            self.save_settings()
+            return
+
         try:
             with open(self.settings_file, 'r') as f:
                 file_settings = json.load(f)
 
-            # Aktualisiere nur die Schlüssel, die in der Datei vorhanden sind
-            for key, value in file_settings.items():
-                if key in self.settings:
-                    self.settings[key] = value
+            # Aktualisiere rekursiv die Einstellungen
+            self.settings = self.merge_dicts(self.settings, file_settings)
 
             logger.debug("Einstellungen erfolgreich mit Datei synchronisiert")
+        except json.JSONDecodeError:
+            logger.error(f"Fehler beim Lesen der Einstellungsdatei. Die Datei könnte beschädigt sein.")
+            # Erstelle eine Sicherungskopie der beschädigten Datei
+            backup_file = f"{self.settings_file}.bak"
+            os.rename(self.settings_file, backup_file)
+            logger.info(f"Beschädigte Einstellungsdatei wurde als {backup_file} gesichert.")
+            # Erstelle eine neue Datei mit Standardeinstellungen
+            self.save_settings()
         except Exception as e:
-            logger.error(f"Fehler beim Synchronisieren der Einstellungen: {e}")
+            logger.error(f"Unerwarteter Fehler beim Synchronisieren der Einstellungen: {e}")
 
     @handle_exceptions
     def get_enabled_plugins(self) -> List[str]:

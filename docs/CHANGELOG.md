@@ -5,6 +5,14 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.24.6] - 2023-09-27
+### Changed
+- Verbesserte Logging-Struktur für erhöhte Übersichtlichkeit
+- Reduzierte redundante Logs, insbesondere bei Einstellungen und Plugin-Informationen
+- Anpassung des Incognito-Modus-Loggings für konsistentere Ausgaben
+### Fixed
+- Korrektur der Anwendung des Incognito-Modus beim Logging
+
 ## [0.24.5] - 2024-09-26
 ### Changed
 - Verbesserte Konsistenz im Plugin-Management-System

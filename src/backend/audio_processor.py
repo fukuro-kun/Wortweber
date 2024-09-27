@@ -176,6 +176,7 @@ class AudioProcessor:
             logger.error(f"Fehler bei der Audioaufnahme: {e}")
             logger.error(f"Fehlertyp: {type(e).__name__}")
             logger.error(f"Geräteinformationen: {self.p.get_device_info_by_index(self.current_device_index)}")
+            logger.debug("Detaillierter Traceback:", exc_info=True)
             raise
         finally:
             if self.stream:
@@ -224,7 +225,7 @@ class AudioProcessor:
                 max_channels = device_info.get('maxInputChannels')
                 if max_channels is not None and int(max_channels) > 0:
                     print(f"Input Device id {i} - {device_info.get('name')}")
-                    logger.info(f"Input Device id {i} - {device_info.get('name')}")
+                    logger.debug(f"Input Device id {i} - {device_info.get('name')}")
         logger.info("Auflistung der Audiogeräte abgeschlossen")
 
 # Zusätzliche Erklärungen:

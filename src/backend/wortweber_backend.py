@@ -69,7 +69,6 @@ class WordweberBackend:
         self.state.recording = True
         self.state.audio_data = []
         threading.Thread(target=self._record_audio, daemon=True).start()
-        logger.info("Audioaufnahme gestartet")
 
     @handle_exceptions
     def stop_recording(self) -> None:
@@ -87,9 +86,12 @@ class WordweberBackend:
 
     @handle_exceptions
     def _record_audio(self) -> None:
-        """Interne Methode zur Audioaufnahme."""
-        duration = self.audio_processor.record_audio(self.state)
-        logger.info(f"Audioaufnahme beendet. Dauer: {duration:.2f} Sekunden")
+        """
+        Interne Methode zur Audioaufnahme.
+        Diese Methode kann in Zukunft für chunkweise Verarbeitung oder andere Erweiterungen angepasst werden.
+        """
+        self.audio_processor.record_audio(self.state)
+        # Kein zusätzliches Logging hier
 
     @handle_exceptions
     def process_and_transcribe(self, language: str) -> str:
