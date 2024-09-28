@@ -14,11 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# Standardbibliotheken
 import tkinter as tk
 from tkinter import ttk
+
+# Projektspezifische Module
 from src.frontend.transcription_panel import TranscriptionPanel
 from src.frontend.options_panel import OptionsPanel
-from src.frontend.options_window import OptionsWindow
 from src.utils.error_handling import handle_exceptions, logger
 
 class MainWindow:
@@ -58,6 +60,10 @@ class MainWindow:
 
         self.transcription_panel = TranscriptionPanel(main_frame, self.gui)
         self.transcription_panel.grid(column=0, row=1, sticky="nsew")
+
+        # Neuer Frame für die Plugin-Leiste
+        self.plugin_bar_frame = ttk.Frame(self.options_panel)
+        self.plugin_bar_frame.grid(column=3, row=0, sticky="e")  # Annahme: Spalte 3 ist der bisherige Leerraum
 
         # Statusleiste
         self.status_bar = tk.Frame(main_frame, bg="black", bd=1, relief="sunken")
@@ -102,8 +108,8 @@ class MainWindow:
 
         self.auto_copy_var = tk.BooleanVar(value=self.gui.settings_manager.get_setting("auto_copy"))
         self.auto_copy_checkbox = tk.Checkbutton(right_frame, text="Auto-Kopieren", variable=self.auto_copy_var,
-                                                    bg="black", fg="white", selectcolor="black", activebackground="black",
-                                                    command=self.on_auto_copy_change)
+                                                 bg="black", fg="white", selectcolor="black", activebackground="black",
+                                                 command=self.on_auto_copy_change)
         self.auto_copy_checkbox.pack(side=tk.RIGHT)
 
         logger.info("UI-Setup abgeschlossen")
@@ -183,3 +189,7 @@ class MainWindow:
 # 7. Sofortige Einstellungsspeicherung:
 #    Die on_auto_copy_change Methode wurde hinzugefügt, um Änderungen der Auto-Kopieren-Einstellung sofort zu speichern.
 #    In der update_status_bar Methode wird nun der Ausgabemodus sofort gespeichert, wenn er sich ändert.
+
+# 8. Plugin-Leiste:
+#    Ein neuer Frame für die Plugin-Leiste wurde im oberen rechten Bereich des OptionsPanel hinzugefügt,
+#    um Platz für Plugin-spezifische UI-Elemente zu schaffen.

@@ -42,6 +42,8 @@ class PluginManager:
         settings_manager (SettingsManager): Verwaltet die Einstellungen für Plugins.
         plugin_loader (PluginLoader): Lädt Plugin-Module dynamisch.
         event_system (EventSystem): Verwaltet das Event-System für Plugins.
+        plugin_ui_elements (Dict[str, Dict[str, Any]]): UI-Elemente der Plugins.
+        plugin_menu_entries (Dict[str, List[Dict[str, Any]]]): Menüeinträge der Plugins.
     """
 
     @handle_exceptions
@@ -59,6 +61,8 @@ class PluginManager:
         self.settings_manager = settings_manager
         self.plugin_loader = PluginLoader(plugin_dir)
         self.event_system = EventSystem()
+        self.plugin_ui_elements: Dict[str, Dict[str, Any]] = {}
+        self.plugin_menu_entries: Dict[str, List[Dict[str, Any]]] = {}
         logger.debug("PluginManager initialisiert")
 
     @handle_exceptions
@@ -75,6 +79,8 @@ class PluginManager:
         for plugin in loaded_plugins:
             if plugin.name not in self.plugins:
                 self.plugins[plugin.name] = plugin
+                self.plugin_ui_elements[plugin.name] = plugin.get_ui_elements()
+                self.plugin_menu_entries[plugin.name] = plugin.get_menu_entries()
                 logger.info(f"Plugin entdeckt: {plugin.name} v{plugin.version}")
             else:
                 logger.debug(f"Plugin {plugin.name} bereits geladen, wird übersprungen")
@@ -123,6 +129,8 @@ class PluginManager:
                 logger.info(f"Plugin aktiviert: {plugin_name}")
                 self.update_enabled_plugins()
                 plugin.register_events(self.event_system)
+                self.update_plugin_ui_elements(plugin_name)
+                self.update_plugin_menu_entries(plugin_name)
                 return True
             except Exception as e:
                 logger.error(f"Fehler beim Aktivieren des Plugins {plugin_name}: {str(e)}")
@@ -149,6 +157,8 @@ class PluginManager:
                 logger.info(f"Plugin deaktiviert: {plugin_name}")
                 self.update_enabled_plugins()
                 self.remove_plugin_events(plugin)
+                self.remove_plugin_ui_elements(plugin_name)
+                self.remove_plugin_menu_entries(plugin_name)
                 return True
             except Exception as e:
                 logger.error(f"Fehler beim Deaktivieren des Plugins {plugin_name}: {str(e)}")
@@ -226,6 +236,8 @@ class PluginManager:
             new_plugin = self.plugin_loader.reload_plugin(plugin_name)
             if new_plugin:
                 self.plugins[plugin_name] = new_plugin
+                self.plugin_ui_elements[plugin_name] = new_plugin.get_ui_elements()
+                self.plugin_menu_entries[plugin_name] = new_plugin.get_menu_entries()
                 if was_active:
                     self.activate_plugin(plugin_name)
                 new_plugin.on_update()
@@ -349,24 +361,92 @@ class PluginManager:
         logger.info(f"Plugin-Status verifiziert. Aktive Plugins: {', '.join(self.active_plugins)}")
         return changes_made
 
+    @handle_exceptions
+    def get_plugin_ui_elements(self) -> Dict[str, Dict[str, Any]]:
+        """
+        Gibt die UI-Elemente aller aktiven Plugins zurück.
+
+        Returns:
+            Dict[str, Dict[str, Any]]: Ein Dictionary mit Plugin-Namen als Schlüssel und deren UI-Elementen als Werte.
+        """
+        return {name: elements for name, elements in self.plugin_ui_elements.items() if name in self.active_plugins}
+
+    @handle_exceptions
+    def get_plugin_menu_entries(self) -> List[Dict[str, Any]]:
+        """
+        Gibt die Menüeinträge aller aktiven Plugins zurück.
+
+        Returns:
+            List[Dict[str, Any]]: Eine Liste von Menüeinträgen aller aktiven Plugins.
+        """
+        entries = []
+        for name in self.active_plugins:
+            entries.extend(self.plugin_menu_entries.get(name, []))
+        return entries
+
+    @handle_exceptions
+    def update_plugin_ui_elements(self, plugin_name: str) -> None:
+        """
+        Aktualisiert die UI-Elemente eines spezifischen Plugins.
+
+        Args:
+            plugin_name (str): Name des Plugins, dessen UI-Elemente aktualisiert werden sollen.
+        """
+        if plugin_name in self.plugins and plugin_name in self.active_plugins:
+            self.plugin_ui_elements[plugin_name] = self.plugins[plugin_name].get_ui_elements()
+        logger.info(f"UI-Elemente für Plugin {plugin_name} aktualisiert")
+
+    @handle_exceptions
+    def update_plugin_menu_entries(self, plugin_name: str) -> None:
+        """
+        Aktualisiert die Menüeinträge eines spezifischen Plugins.
+
+        Args:
+            plugin_name (str): Name des Plugins, dessen Menüeinträge aktualisiert werden sollen.
+        """
+        if plugin_name in self.plugins and plugin_name in self.active_plugins:
+            self.plugin_menu_entries[plugin_name] = self.plugins[plugin_name].get_menu_entries()
+        logger.info(f"Menüeinträge für Plugin {plugin_name} aktualisiert")
+
+    @handle_exceptions
+    def remove_plugin_ui_elements(self, plugin_name: str) -> None:
+        """
+        Entfernt die UI-Elemente eines spezifischen Plugins.
+
+        Args:
+            plugin_name (str): Name des Plugins, dessen UI-Elemente entfernt werden sollen.
+        """
+        self.plugin_ui_elements.pop(plugin_name, None)
+        logger.info(f"UI-Elemente für Plugin {plugin_name} entfernt")
+
+    @handle_exceptions
+    def remove_plugin_menu_entries(self, plugin_name: str) -> None:
+        """
+        Entfernt die Menüeinträge eines spezifischen Plugins.
+
+        Args:
+            plugin_name (str): Name des Plugins, dessen Menüeinträge entfernt werden sollen.
+        """
+        self.plugin_menu_entries.pop(plugin_name, None)
+        logger.info(f"Menüeinträge für Plugin {plugin_name} entfernt")
+
 # Zusätzliche Erklärungen:
 
-# 1. Die `deactivate_plugin`-Methode wurde überprüft und scheint korrekt zu funktionieren.
-#    Sie entfernt das Plugin aus der Liste der aktiven Plugins und aktualisiert die Einstellungen.
+# 1. Die Klasse wurde um Attribute für UI-Elemente und Menüeinträge erweitert:
+#    - plugin_ui_elements speichert die UI-Elemente jedes Plugins
+#    - plugin_menu_entries speichert die Menüeinträge jedes Plugins
 
-# 2. Eine neue Methode `verify_plugin_status` wurde hinzugefügt. Diese Methode:
-#    - Überprüft, ob alle als aktiviert gespeicherten Plugins noch existieren
-#    - Aktiviert alle Plugins, die als aktiviert gespeichert sind
-#    - Deaktiviert alle Plugins, die aktiv sind, aber nicht als aktiviert gespeichert sind
-#    - Aktualisiert die Liste der aktivierten Plugins in den Einstellungen
+# 2. Neue Methoden wurden hinzugefügt, um diese Elemente zu verwalten:
+#    - get_plugin_ui_elements() und get_plugin_menu_entries() geben die Elemente aktiver Plugins zurück
+#    - update_plugin_ui_elements() und update_plugin_menu_entries() aktualisieren die Elemente eines Plugins
+#    - remove_plugin_ui_elements() und remove_plugin_menu_entries() entfernen die Elemente eines Plugins
 
-# 3. Die `discover_plugins`-Methode ruft nun `verify_plugin_status` auf,
-#    nachdem alle Plugins geladen wurden. Dies stellt sicher, dass der Plugin-Status
-#    beim Start der Anwendung korrekt ist.
+# 3. Die bestehenden Methoden wurden angepasst, um die neuen Funktionen zu integrieren:
+#    - discover_plugins() lädt nun auch UI-Elemente und Menüeinträge
+#    - activate_plugin() und deactivate_plugin() aktualisieren bzw. entfernen diese Elemente
+#    - reload_plugin() berücksichtigt die Aktualisierung dieser Elemente
 
-# 4. Die `update_enabled_plugins`-Methode wird von
-#    `activate_plugin`, `deactivate_plugin` und `verify_plugin_status` verwendet,
-#    um die Liste der aktivierten Plugins in den Einstellungen zu aktualisieren.
+# 4. Die Fehlerbehandlung und das Logging wurden beibehalten und für die neuen Methoden erweitert
 
-# Diese Änderungen sollten das Problem mit dem inkonsistenten Plugin-Status beheben.
-# Plugins sollten nun korrekt aktiviert/deaktiviert bleiben, auch nach einem Neustart der Anwendung.
+# Diese Änderungen ermöglichen eine verbesserte Integration von Plugin-UI-Elementen und Menüeinträgen
+# in die Hauptanwendung, während die bestehende Funktionalität erhalten bleibt.

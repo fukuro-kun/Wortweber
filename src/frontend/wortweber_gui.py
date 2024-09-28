@@ -25,7 +25,7 @@ from tkinter import ttk, messagebox
 import time
 import logging
 import threading
-from typing import Optional, Callable
+from typing import Optional, Callable, Dict, Any, List
 from functools import wraps
 
 # Drittanbieterbibliotheken
@@ -83,7 +83,6 @@ class WordweberGUI:
             logger.debug("Keine gespeicherte Geometrie gefunden, verwende Standardgröße")
             self.root.geometry(DEFAULT_WINDOW_SIZE)
 
-
         self.theme_manager = ThemeManager(self.root, self.settings_manager)
         self.input_processor = InputProcessor(self)
 
@@ -99,6 +98,7 @@ class WordweberGUI:
         self.initialize_delay_settings()
         self.setup_menu()
         self.setup_context_menu()
+        self.setup_plugin_bar()
 
         # Plugins entdecken
         self.plugin_manager.discover_plugins()
@@ -109,8 +109,11 @@ class WordweberGUI:
         # Initialisierung der Shortcut-Anzeige
         self.options_panel.update_shortcut_display(self.settings_manager.get_setting("push_to_talk_key", DEFAULT_PUSH_TO_TALK_KEY))
 
+        self.plugin_windows: Dict[str, tk.Toplevel] = {}
+
     @handle_exceptions
-    def update_geometry(self):
+    def update_geometry(self) -> None:
+        """Aktualisiert und speichert die aktuelle Fenstergeometrie."""
         current_geometry = self.root.geometry()
         self.settings_manager.set_setting("window_geometry", current_geometry)
         logger.debug(f"Fenstergeometrie aktualisiert: {current_geometry}")
@@ -177,7 +180,7 @@ class WordweberGUI:
         self.root.destroy()
 
     @handle_exceptions
-    def save_current_geometry(self):
+    def save_current_geometry(self) -> None:
         """Speichert die aktuelle Fenstergeometrie in den Einstellungen."""
         current_geometry = self.root.winfo_geometry()
         self.settings_manager.set_setting("window_geometry", current_geometry)
@@ -190,7 +193,12 @@ class WordweberGUI:
         if options_window:
             options_window.protocol("WM_DELETE_WINDOW", lambda: self.on_options_window_closing(options_window))
 
-    def on_options_window_closing(self, window):
+    def on_options_window_closing(self, window: tk.Toplevel) -> None:
+        """
+        Behandelt das Schließen des Optionsfensters.
+
+        :param window: Das zu schließende Optionsfenster
+        """
         self.save_current_geometry()
         window.destroy()
 
@@ -202,12 +210,15 @@ class WordweberGUI:
         Diese Methode orchestriert den gesamten Prozess der Transkription und GUI-Aktualisierung,
         wobei sie geschickt asynchrone Ausführung und Kapselung kombiniert.
         """
-        def update_gui(text, transcription_time):
+        def update_gui(text: str, transcription_time: float) -> None:
             """
             Innere Funktion zur Aktualisierung der GUI nach der Transkription.
 
             Diese Struktur kapselt die GUI-Update-Logik und verhindert unbeabsichtigte
             externe Aufrufe, was die Integrität des Update-Prozesses gewährleistet.
+
+            :param text: Der transkribierte Text
+            :param transcription_time: Die für die Transkription benötigte Zeit
             """
             # Verarbeite den Text mit aktiven Plugins
             processed_text = self.plugin_manager.process_text_with_plugins(text)
@@ -242,13 +253,13 @@ class WordweberGUI:
         self.root.after(0, lambda: update_gui(text, transcription_time))
 
     @handle_exceptions
-    def start_timer(self):
+    def start_timer(self) -> None:
         """Startet den Timer für die Aufnahmedauer."""
         self.input_processor.start_time = int(time.time())
         self.update_timer()
 
     @handle_exceptions
-    def update_timer(self):
+    def update_timer(self) -> None:
         """Aktualisiert die Anzeige der Aufnahmedauer."""
         if self.backend.state.recording:
             elapsed_time = time.time() - self.input_processor.start_time
@@ -256,7 +267,7 @@ class WordweberGUI:
             self.root.after(100, self.update_timer)
 
     @handle_exceptions
-    def stop_timer(self):
+    def stop_timer(self) -> None:
         """Stoppt den Timer für die Aufnahmedauer."""
         self.main_window.update_status_bar(record_time=0.0)
 
@@ -275,7 +286,7 @@ class WordweberGUI:
         )
 
     @handle_exceptions
-    def initialize_delay_settings(self):
+    def initialize_delay_settings(self) -> None:
         """Initialisiert die Verzögerungseinstellungen."""
         delay_mode = self.settings_manager.get_setting("delay_mode", "no_delay")
         char_delay = self.settings_manager.get_setting("char_delay", DEFAULT_CHAR_DELAY)
@@ -284,20 +295,28 @@ class WordweberGUI:
         logger.info(f"Verzögerungseinstellungen initialisiert: Modus={delay_mode}, Verzögerung={char_delay}")
 
     @handle_exceptions
-    def get_delay_settings(self):
-        """Holt die aktuellen Verzögerungseinstellungen."""
+    def get_delay_settings(self) -> Dict[str, Any]:
+        """
+        Holt die aktuellen Verzögerungseinstellungen.
+
+        :return: Ein Dictionary mit den aktuellen Verzögerungseinstellungen
+        """
         return {
             "delay_mode": self.settings_manager.get_setting("delay_mode", "no_delay"),
             "char_delay": self.settings_manager.get_setting("char_delay", DEFAULT_CHAR_DELAY)
         }
 
     @handle_exceptions
-    def update_shortcut_display(self, new_shortcut):
-        """Aktualisiert die Shortcut-Anzeige im OptionsPanel."""
+    def update_shortcut_display(self, new_shortcut: str) -> None:
+        """
+        Aktualisiert die Shortcut-Anzeige im OptionsPanel.
+
+        :param new_shortcut: Der neue Shortcut, der angezeigt werden soll
+        """
         self.options_panel.update_shortcut_display(new_shortcut)
 
     @handle_exceptions
-    def setup_menu(self):
+    def setup_menu(self) -> None:
         """Richtet das Hauptmenü der Anwendung ein."""
         menubar = tk.Menu(self.root)
         self.root.config(menu=menubar)
@@ -323,8 +342,28 @@ class WordweberGUI:
         menubar.add_cascade(label="Plugins", menu=plugin_menu)
         plugin_menu.add_command(label="Plugin-Verwaltung", command=self.open_plugin_management_window)
 
+        # Dynamisches Hinzufügen von Plugin-Menüeinträgen
+        for entry in self.plugin_manager.get_plugin_menu_entries():
+            self.add_menu_entry(plugin_menu, entry)
+
     @handle_exceptions
-    def setup_context_menu(self):
+    def add_menu_entry(self, menu: tk.Menu, entry: Dict[str, Any]) -> None:
+        """
+        Fügt einen Menüeintrag zum angegebenen Menü hinzu.
+
+        :param menu: Das Menü, zu dem der Eintrag hinzugefügt werden soll
+        :param entry: Ein Dictionary mit den Informationen für den Menüeintrag
+        """
+        if 'submenu' in entry:
+            submenu = tk.Menu(menu, tearoff=0)
+            menu.add_cascade(label=entry['label'], menu=submenu)
+            for subentry in entry['submenu']:
+                self.add_menu_entry(submenu, subentry)
+        else:
+            menu.add_command(label=entry['label'], command=self.safe_execute(entry['command']))
+
+    @handle_exceptions
+    def setup_context_menu(self) -> None:
         """Richtet das Kontextmenü für das Transkriptionsfenster ein."""
         def show_context_menu(event):
             create_context_menu(self.transcription_panel.text_widget, event)
@@ -332,11 +371,76 @@ class WordweberGUI:
         self.transcription_panel.text_widget.bind("<Button-3>", show_context_menu)
 
     @handle_exceptions
-    def open_plugin_management_window(self):
+    def open_plugin_management_window(self) -> None:
         """Öffnet das Fenster zur Plugin-Verwaltung."""
         self.plugin_window = PluginManagementWindow.open_window(self.root, self.plugin_manager, self)
 
+    @handle_exceptions
+    def setup_plugin_bar(self) -> None:
+        """Richtet die Plugin-Leiste ein."""
+        plugin_bar = self.main_window.plugin_bar_frame  # Verwendung des neuen Frames aus MainWindow
 
+        ui_elements = self.plugin_manager.get_plugin_ui_elements()
+        for plugin_name, elements in ui_elements.items():
+            if 'buttons' in elements:
+                for button_config in elements['buttons']:
+                    btn = ttk.Button(plugin_bar, text=button_config['text'],
+                                    command=self.safe_execute(button_config['command']))
+                    btn.pack(side=tk.LEFT, padx=2)
+
+            if 'window' in elements:
+                window_creator = elements['window']
+                if callable(window_creator):
+                    btn = ttk.Button(plugin_bar, text=f"Open {plugin_name}",
+                                    command=lambda name=plugin_name, creator=window_creator:
+                                    self.open_plugin_window(name, creator))
+                    btn.pack(side=tk.LEFT, padx=2)
+
+        logger.debug("Plugin-Leiste erfolgreich eingerichtet")
+
+    @handle_exceptions
+    def open_plugin_window(self, plugin_name: str, window_creator: Callable) -> None:
+        """
+        Öffnet ein Plugin-Fenster.
+
+        :param plugin_name: Name des Plugins
+        :param window_creator: Funktion zum Erstellen des Fensters
+        """
+        if plugin_name not in self.plugin_windows:
+            window = window_creator(self.root)
+            if isinstance(window, tk.Toplevel):
+                self.plugin_windows[plugin_name] = window
+                window.protocol("WM_DELETE_WINDOW", lambda: self.close_plugin_window(plugin_name))
+            else:
+                logger.error(f"Plugin {plugin_name} returned invalid window type")
+
+    @handle_exceptions
+    def close_plugin_window(self, plugin_name: str) -> None:
+        """
+        Schließt ein Plugin-Fenster.
+
+        :param plugin_name: Name des Plugins, dessen Fenster geschlossen werden soll
+        """
+        if plugin_name in self.plugin_windows:
+            self.plugin_windows[plugin_name].destroy()
+            del self.plugin_windows[plugin_name]
+
+    @handle_exceptions
+    def safe_execute(self, func: Callable) -> Callable:
+        """
+        Wrapper für die sichere Ausführung von Plugin-Funktionen.
+
+        :param func: Die auszuführende Funktion
+        :return: Eine gewrappte Version der Funktion mit Fehlerbehandlung
+        """
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                logger.error(f"Fehler bei der Ausführung einer Plugin-Funktion: {str(e)}")
+                # Hier könnte ein Fehler-Popup für den Benutzer angezeigt werden
+        return wrapper
 
 # Zusätzliche Erklärungen:
 
@@ -359,8 +463,8 @@ class WordweberGUI:
 #    Der ThemeManager wird verwendet, um das Erscheinungsbild der Anwendung anzupassen.
 
 # 6. Plugin-Integration:
-#    Das Plugin-System wird durch die setup_menu und open_plugin_management_window Methoden integriert,
-#    was die Erweiterbarkeit der Anwendung demonstriert.
+#    Das Plugin-System wird durch die setup_menu, setup_plugin_bar und open_plugin_management_window
+#    Methoden integriert, was die Erweiterbarkeit der Anwendung demonstriert.
 
 # 7. Fehlerbehandlung und Logging:
 #    Umfassende Fehlerbehandlung und Logging sind implementiert, um die Stabilität

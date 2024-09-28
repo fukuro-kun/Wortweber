@@ -14,8 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from tkinter import ttk
+# Standardbibliotheken
 import tkinter as tk
+from tkinter import ttk
+
+# Projektspezifische Module
 from src.config import (
     SUPPORTED_LANGUAGES,
     WHISPER_MODELS,
@@ -26,9 +29,13 @@ from src.config import (
 )
 from src.utils.error_handling import handle_exceptions, logger
 
+
 class OptionsPanel(ttk.Frame):
     """
     Panel für Benutzeroptionen und Einstellungen in der Wortweber-Anwendung.
+
+    Dieses Panel ermöglicht die Konfiguration verschiedener Anwendungseinstellungen
+    wie Sprache, Whisper-Modell und Ausgabemodus.
     """
 
     @handle_exceptions
@@ -45,7 +52,12 @@ class OptionsPanel(ttk.Frame):
 
     @handle_exceptions
     def setup_ui(self):
-        """Richtet die Benutzeroberfläche für das OptionsPanel ein."""
+        """
+        Richtet die Benutzeroberfläche für das OptionsPanel ein.
+
+        Diese Methode erstellt und positioniert alle UI-Elemente des Panels,
+        einschließlich Sprachauswahl, Modellauswahl, Ausgabemodus und Shortcut-Anzeige.
+        """
         self.columnconfigure(0, weight=1)
 
         main_frame = ttk.Frame(self)
@@ -57,7 +69,7 @@ class OptionsPanel(ttk.Frame):
         lang_frame.grid(row=0, column=0, padx=(0, 20), sticky="w")
         ttk.Label(lang_frame, text="Sprache:").pack(side=tk.LEFT, padx=(0, 5))
         self.language_var = tk.StringVar(value=self.gui.settings_manager.get_setting("language", DEFAULT_LANGUAGE))
-        for i, (lang_code, lang_name) in enumerate(SUPPORTED_LANGUAGES.items()):
+        for lang_code, lang_name in SUPPORTED_LANGUAGES.items():
             ttk.Radiobutton(lang_frame, text=lang_name, variable=self.language_var, value=lang_code, command=self.on_language_change).pack(side=tk.LEFT, padx=5)
 
         # Whisper-Modell
@@ -92,20 +104,37 @@ class OptionsPanel(ttk.Frame):
 
     @handle_exceptions
     def on_language_change(self):
-        """Behandelt Änderungen der ausgewählten Sprache."""
+        """
+        Behandelt Änderungen der ausgewählten Sprache.
+
+        Aktualisiert die Spracheinstellung in den Anwendungseinstellungen
+        und protokolliert die Änderung.
+        """
         self.gui.settings_manager.set_setting("language", self.language_var.get())
         logger.info(f"Sprache geändert auf: {self.language_var.get()}")
 
     @handle_exceptions
     def on_model_change(self, event):
-        """Behandelt Änderungen des ausgewählten Whisper-Modells."""
+        """
+        Behandelt Änderungen des ausgewählten Whisper-Modells.
+
+        Aktualisiert die Modelleinstellung, lädt das neue Modell asynchron
+        und protokolliert die Änderung.
+
+        :param event: Das Ereignis, das die Änderung ausgelöst hat (wird nicht verwendet)
+        """
         self.gui.settings_manager.set_setting("model", self.model_var.get())
         self.gui.load_model_async(self.model_var.get())
         logger.info(f"Whisper-Modell geändert auf: {self.model_var.get()}")
 
     @handle_exceptions
     def on_output_mode_change(self):
-        """Behandelt Änderungen des ausgewählten Ausgabemodus."""
+        """
+        Behandelt Änderungen des ausgewählten Ausgabemodus.
+
+        Aktualisiert die Ausgabemodus-Einstellung, aktualisiert die Statusleiste
+        und protokolliert die Änderung.
+        """
         new_output_mode = self.output_mode_var.get()
         self.gui.settings_manager.set_setting("output_mode", new_output_mode)
         self.gui.main_window.update_status_bar(output_mode=new_output_mode)
@@ -113,7 +142,11 @@ class OptionsPanel(ttk.Frame):
 
     @handle_exceptions
     def get_delay_settings(self):
-        """Holt die aktuellen Verzögerungseinstellungen."""
+        """
+        Holt die aktuellen Verzögerungseinstellungen.
+
+        :return: Ein Dictionary mit den aktuellen Verzögerungseinstellungen
+        """
         return {
             "delay_mode": self.gui.settings_manager.get_setting("delay_mode", "no_delay"),
             "char_delay": self.gui.settings_manager.get_setting("char_delay", DEFAULT_CHAR_DELAY)
@@ -121,16 +154,26 @@ class OptionsPanel(ttk.Frame):
 
     @handle_exceptions
     def update_shortcut_display(self, new_shortcut):
-        """Aktualisiert die Anzeige des aktuellen Shortcuts."""
+        """
+        Aktualisiert die Anzeige des aktuellen Shortcuts.
+
+        :param new_shortcut: Der neue Shortcut, der angezeigt werden soll
+        """
         self.shortcut_label.config(text=f"{new_shortcut} um aufzunehmen")
         logger.info(f"Shortcut-Anzeige aktualisiert auf: {new_shortcut}")
 
     @handle_exceptions
     def update_delay_settings(self, delay_mode, char_delay):
-        """Aktualisiert die Verzögerungseinstellungen."""
+        """
+        Aktualisiert die Verzögerungseinstellungen.
+
+        :param delay_mode: Der neue Verzögerungsmodus
+        :param char_delay: Die neue Zeichenverzögerung
+        """
         self.gui.settings_manager.set_setting("delay_mode", delay_mode)
         self.gui.settings_manager.set_setting("char_delay", char_delay)
         logger.info(f"Verzögerungseinstellungen aktualisiert: Modus={delay_mode}, Verzögerung={char_delay}")
+
 
 # Zusätzliche Erklärungen:
 

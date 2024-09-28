@@ -119,15 +119,51 @@ class AbstractPlugin(ABC):
         """
         pass
 
-    @handle_exceptions
     def get_ui_elements(self) -> Dict[str, Any]:
         """
         Gibt UI-Elemente zurück, die in die Hauptanwendung integriert werden sollen.
-        Diese Methode kann von Plugins überschrieben werden, um benutzerdefinierte UI-Elemente bereitzustellen.
 
-        :return: Ein Dictionary mit UI-Elementen (z.B. Tkinter-Widgets)
+        Diese Methode behält die bisherige Funktionalität bei und erweitert sie um neue Möglichkeiten.
+
+        Returns:
+            Ein Dictionary mit folgenden optionalen Schlüsseln:
+            - 'widgets': Ein Dictionary mit Tkinter-Widgets (bisherige Funktionalität)
+            - 'buttons': Liste von Button-Konfigurationen für die Plugin-Leiste
+            - 'window': Ein Tkinter-Toplevel-Fenster oder eine Funktion, die eines erstellt
+            - 'sidebar': Elemente für eine mögliche Seitenleiste
+
+        Beispiel:
+        {
+            'widgets': {'my_label': tk.Label(text="Mein Plugin")},
+            'buttons': [{'text': 'Plugin-Aktion', 'command': self.some_action}],
+            'window': self.create_plugin_window,
+            'sidebar': [{'text': 'Sidebar-Eintrag', 'command': self.sidebar_action}]
+        }
         """
         return {}
+
+    def get_menu_entries(self) -> List[Dict[str, Any]]:
+        """
+        Gibt eine Liste von Menüeinträgen zurück, die das Plugin zum Hauptmenü hinzufügen möchte.
+
+        Returns:
+            Eine Liste von Dictionaries mit den Schlüsseln:
+            - 'label': Der anzuzeigende Text des Menüeintrags
+            - 'command': Die auszuführende Funktion beim Klick
+            - 'submenu': Optional, eine Liste von Untermenü-Einträgen im gleichen Format
+
+        Beispiel:
+        [
+            {
+                'label': 'Mein Plugin',
+                'command': self.main_action,
+                'submenu': [
+                    {'label': 'Unterfunktion', 'command': self.sub_action}
+                ]
+            }
+        ]
+        """
+        return []
 
     @handle_exceptions
     def on_config_change(self, key: str, value: Any) -> None:
