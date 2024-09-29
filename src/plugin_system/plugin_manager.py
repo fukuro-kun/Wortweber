@@ -26,6 +26,7 @@ from src.frontend.settings_manager import SettingsManager
 from src.utils.error_handling import handle_exceptions, logger
 from src.plugin_system.event_system import EventSystem
 
+
 class PluginManager:
     """
     Verwaltet das Laden, Aktivieren, Deaktivieren und Ausführen von Plugins.
@@ -46,7 +47,6 @@ class PluginManager:
         plugin_menu_entries (Dict[str, List[Dict[str, Any]]]): Menüeinträge der Plugins.
     """
 
-    @handle_exceptions
     def __init__(self, plugin_dir: str, settings_manager: SettingsManager):
         """
         Initialisiert den PluginManager.
@@ -91,7 +91,7 @@ class PluginManager:
         logger.info(f"Insgesamt {len(self.plugins)} Plugins geladen, {len(self.active_plugins)} aktiv")
 
     @handle_exceptions
-    def load_enabled_plugins(self):
+    def load_enabled_plugins(self) -> None:
         """
         Lädt und aktiviert alle Plugins, die als 'enabled' markiert sind.
 
@@ -131,6 +131,7 @@ class PluginManager:
                 plugin.register_events(self.event_system)
                 self.update_plugin_ui_elements(plugin_name)
                 self.update_plugin_menu_entries(plugin_name)
+                self.event_system.emit('plugin_activated', plugin_name)
                 return True
             except Exception as e:
                 logger.error(f"Fehler beim Aktivieren des Plugins {plugin_name}: {str(e)}")
@@ -159,13 +160,14 @@ class PluginManager:
                 self.remove_plugin_events(plugin)
                 self.remove_plugin_ui_elements(plugin_name)
                 self.remove_plugin_menu_entries(plugin_name)
+                self.event_system.emit('plugin_deactivated', plugin_name)
                 return True
             except Exception as e:
                 logger.error(f"Fehler beim Deaktivieren des Plugins {plugin_name}: {str(e)}")
         return False
 
     @handle_exceptions
-    def remove_plugin_events(self, plugin: AbstractPlugin):
+    def remove_plugin_events(self, plugin: AbstractPlugin) -> None:
         """
         Entfernt alle Event-Listener eines Plugins.
 
@@ -179,7 +181,7 @@ class PluginManager:
             ]
 
     @handle_exceptions
-    def emit_event(self, event_type: str, data: Any = None):
+    def emit_event(self, event_type: str, data: Any = None) -> None:
         """
         Löst ein Event für alle aktiven Plugins aus.
 
@@ -251,7 +253,7 @@ class PluginManager:
             return False
 
     @handle_exceptions
-    def resolve_dependencies(self):
+    def resolve_dependencies(self) -> None:
         """
         Löst Plugin-Abhängigkeiten auf.
 
@@ -282,10 +284,13 @@ class PluginManager:
                 validated_settings = self.plugin_loader.validate_plugin_settings(plugin, settings)
                 plugin.set_settings(validated_settings)
                 self.settings_manager.set_plugin_settings(plugin_name, validated_settings)
-                logger.debug(f"Einstellungen für Plugin {plugin_name} aktualisiert")
+                logger.info(f"Einstellungen für Plugin {plugin_name} aktualisiert und gespeichert")
+                self.event_system.emit('plugin_settings_updated', plugin_name)
                 return True
             except Exception as e:
                 logger.error(f"Fehler beim Aktualisieren der Einstellungen für Plugin {plugin_name}: {str(e)}")
+        else:
+            logger.warning(f"Plugin {plugin_name} nicht gefunden, Einstellungen konnten nicht aktualisiert werden")
         return False
 
     @handle_exceptions
@@ -430,6 +435,7 @@ class PluginManager:
         self.plugin_menu_entries.pop(plugin_name, None)
         logger.info(f"Menüeinträge für Plugin {plugin_name} entfernt")
 
+
 # Zusätzliche Erklärungen:
 
 # 1. Die Klasse wurde um Attribute für UI-Elemente und Menüeinträge erweitert:
@@ -447,6 +453,9 @@ class PluginManager:
 #    - reload_plugin() berücksichtigt die Aktualisierung dieser Elemente
 
 # 4. Die Fehlerbehandlung und das Logging wurden beibehalten und für die neuen Methoden erweitert
+
+# 5. Event-Emitting wurde für wichtige Aktionen hinzugefügt, um eine bessere Kommunikation
+#    zwischen dem PluginManager und anderen Teilen der Anwendung zu ermöglichen
 
 # Diese Änderungen ermöglichen eine verbesserte Integration von Plugin-UI-Elementen und Menüeinträgen
 # in die Hauptanwendung, während die bestehende Funktionalität erhalten bleibt.

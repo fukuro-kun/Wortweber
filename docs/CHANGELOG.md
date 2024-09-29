@@ -5,6 +5,24 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.28.0] - 2024-09-29
+### Hinzugefügt
+- Erweiterung des Plugin-Systems mit verbesserter UI-Integration
+- Dynamische Plugin-Leiste im Hauptfenster
+- Erweiterte Menüeinträge für Plugins
+- Verbesserte Event-Kommunikation zwischen PluginManager und GUI
+- Ollama-LLM-Chat-Plugin als Beispielimplementierung
+
+### Geändert
+- Überarbeiteter PluginManager mit Event-basierter Kommunikation
+- Anpassungen in WordweberGUI für bessere Plugin-Integration
+- Aktualisierte AbstractPlugin-Klasse mit erweiterten Methoden
+- Changelog auf Deutsch vereinheitlicht
+
+### Behoben
+- Problem mit dem Speichern von Plugin-Einstellungen
+- Inkonsistenzen bei der Anzeige von Plugin-UI-Elementen
+
 ## [0.27.1] - 2024-09-27
 ### Hinzugefügt
 - Mermaid-Diagramm zur Visualisierung des Plugin-Lebenszyklus in PLUGINSYSTEM.md
@@ -27,76 +45,76 @@ und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lan
 - Verbesserte Codebeispiele und Erklärungen in der Dokumentation
 
 ## [0.26.1] - 2024-09-27
-### Fixed
+### Behoben
 - Behebung des Problems mit doppelten Log-Einträgen bei Audioaufnahmen
 
 ## [0.26.0] - 2024-09-27
-### Added
+### Hinzugefügt
 - Erweitertes Plugin-System mit Unterstützung für Abhängigkeiten
 - Neue Methoden in AbstractPlugin: on_update(), get_config_ui(), und register_events()
 - Möglichkeit zum Neuladen einzelner Plugins
 - Automatische Auflösung von Plugin-Abhängigkeiten
 
-### Changed
+### Geändert
 - Verbesserte Struktur des PluginManagers für erweiterte Funktionalität
 - Optimierte Fehlerbehandlung und Logging für Plugins
 
 ## [0.25.0] - 2024-09-27
-### Added
+### Hinzugefügt
 - Umfassende Dokumentation des Wortweber Plugin-Systems
 - Detaillierte Beschreibung der Plugin-Architektur und -Entwicklung
 - Ausführliche API-Referenz für das Plugin-System
 - Umfangreicher Glossar mit Querverweisen und Beispielreferenzen
 - Kapitel über zukünftige Entwicklungen des Plugin-Systems
 
-### Improved
+### Verbessert
 - Strukturierung und Konsistenz der gesamten Projektdokumentation
 - Codebeispiele zur Veranschaulichung von Plugin-Konzepten
 
 ## [0.24.6] - 2023-09-27
-### Changed
+### Geändert
 - Verbesserte Logging-Struktur für erhöhte Übersichtlichkeit
 - Reduzierte redundante Logs, insbesondere bei Einstellungen und Plugin-Informationen
 - Anpassung des Incognito-Modus-Loggings für konsistentere Ausgaben
-### Fixed
+### Behoben
 - Korrektur der Anwendung des Incognito-Modus beim Logging
 
 ## [0.24.5] - 2024-09-26
-### Changed
+### Geändert
 - Verbesserte Konsistenz im Plugin-Management-System
 - Optimierte Unterscheidung zwischen aktiven und für den Start aktivierten Plugins
 - Erhöhte Zuverlässigkeit der Einstellungsverwaltung
 
-### Fixed
+### Behoben
 - Behebung von Inkonsistenzen bei der Plugin-Aktivierung und -Deaktivierung
 - Verbesserung der Synchronisation zwischen internem Zustand und gespeicherten Einstellungen
 
 ## [0.24.4] - 2024-09-24
-### Changed
+### Geändert
 - Optimiertes Logging für Textauswahl-Änderungen, um die Logmenge zu reduzieren und die Übersichtlichkeit zu verbessern.
 
 ## [0.24.3] - 2024-09-24
-### Fixed
+### Behoben
 - Verbesserte Handhabung der Fenstergeometrie-Speicherung für alle Fenster.
-### Changed
+### Geändert
 - Reduzierung der Log-Ausgaben für routinemäßige Operationen.
 - Anpassung der Logging-Levels für verschiedene Komponenten zur Verbesserung der Übersichtlichkeit.
 
 ## [0.24.2] - 2024-09-24
-### Fixed
+### Behoben
 - Korrekte Speicherung der Fenstergeometrie für das Plugin-Verwaltungsfenster implementiert.
 
 ## [0.24.1] - 2024-09-24
-### Fixed
+### Behoben
 - Zuverlässige Speicherung und Wiederherstellung der Fenstergeometrie implementiert
 - Regelmäßige Aktualisierung der Fenstergeometrie während der Laufzeit eingeführt
 
-### Changed
+### Geändert
 - Entfernung des veralteten `window_size`-Eintrags aus den Einstellungen
 - Verbessertes Logging für Fenstergeometrie-bezogene Aktionen
 
 ## [0.24.0] - 2024-09-21
-### Added
+### Hinzugefügt
 - Implementierung eines umfassenden Plugin-Systems für Wortweber
 - Neue `PluginManager`-Klasse zur Verwaltung von Plugins
 - `PluginLoader` für dynamisches Laden von Plugins
@@ -106,13 +124,13 @@ und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lan
 - Integration des Plugin-Systems in den Haupttextverarbeitungsprozess
 - Beispiel-Plugin "TextTransformer" zur Demonstration der Plugin-Funktionalität
 
-### Changed
+### Geändert
 - Umfassende Überarbeitung der Kernarchitektur zur Unterstützung von Plugins
 - Erweiterung des `SettingsManager` zur Verwaltung von Plugin-spezifischen Einstellungen
 - Anpassung der Hauptanwendungslogik in `WordweberGUI` und `WordweberBackend` für Plugin-Integration
 - Erweiterung des Menüsystems um einen Plugin-Verwaltungseintrag
 
-### Improved
+### Verbessert
 - Erhebliche Steigerung der Erweiterbarkeit und Anpassbarkeit der Anwendung
 - Verbesserte Modularität durch klare Trennung von Kern- und Plugin-Funktionalitäten
 - Erweiterte Fehlerbehandlung und Logging für robustere Plugin-Interaktionen
@@ -254,16 +272,16 @@ und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lan
 - Erhöhte Robustheit bei der Auswahl nicht verfügbarer Audiogeräte
 
 ## [0.21.4] - 2024-09-18
-### Added
+### Hinzugefügt
 - Integration von xclip als Systemabhängigkeit für verbesserte Zwischenablagenfunktionalität
 - Erweiterter Installationsprozess mit automatischer xclip-Installation
 - Zusätzliche Fehlerbehebungshinweise für Pyperclip-bezogene Probleme
 
-### Changed
+### Geändert
 - Aktualisierung der Installationsanleitung in der README mit detaillierteren Schritten
 - Verbesserung des `install_and_test.sh`-Skripts für robustere Installation
 
-### Improved
+### Verbessert
 - Verbesserte Benutzerfreundlichkeit durch klarere Installationsanweisungen
 - Erhöhte Stabilität der Zwischenablagenfunktionen unter Linux
 
@@ -273,26 +291,26 @@ und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lan
 - Projektbeschreibung auf GitHub angepasst für realistischere Darstellung
 
 ## [0.21.2] - 2024-09-18
-### Changed
+### Geändert
 - Projektlizenz von Apache License 2.0 zu GNU General Public License v3.0 (GPLv3) geändert
 - Alle Quelldateien mit dem neuen GPLv3-Lizenztext aktualisiert
 - README.md aktualisiert, um die neue Lizenz zu reflektieren
 - NOTICE-Datei aktualisiert mit Informationen zum Lizenzwechsel
 - Entwicklerdokumentation (DEVELOPMENT.md) aktualisiert mit Hinweisen zur GPLv3-Konformität
 
-### Added
+### Hinzugefügt
 - Zusätzlicher Hinweis zur Verwendung von pynput (LGPL) in relevanten Dateien
 
-### Updated
+### Aktualisiert
 - requirements.txt mit Lizenzinformationen für alle Abhängigkeiten ergänzt
 
 ## [0.21.1] - 2024-09-17
-### Fixed
+### Behoben
 - Korrektur der Zahlwort-zu-Ziffer-Konvertierung für Sonderfälle wie 10000001
 - Verbesserung der Inline-Kommentierung in der ziffern_zu_zahlwoerter Funktion
 - Behebung von Inkonsistenzen bei der Verwendung von "ein" vs. "eins"
 
-### Improved
+### Verbessert
 - Erhöhte Lesbarkeit und Verständlichkeit des Codes durch präzisere Inline-Kommentare
 
 ## [0.21.0] - 2024-09-17
@@ -306,20 +324,20 @@ und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lan
 - Anpassung der `parse_german_number`-Funktion zur Verarbeitung von Ziffern und Zahlwörtern
 
 ## [0.20.4] - 2024-09-17
-### Added
+### Hinzugefügt
 - Re-Implementierung der `digits_to_words` Funktion für die Konvertierung von Ziffern zu Zahlwörtern
 - Farbige Ausgabe für Testergebnisse in der `test_words_to_digits` Funktion
-### Improved
+### Verbessert
 - Vervollständigung der bidirektionalen Zahlwort-Ziffer-Konvertierung
 - Verbesserte Lesbarkeit der Testausgabe durch Farbkodierung (Grün für korrekte, Rot für inkorrekte Ergebnisse)
 
 ## [0.20.3] - 2024-09-17
-### Fixed
+### Behoben
 - Korrektur der Verarbeitung von großen Zahlwörtern wie "zwei Millionen"
 - Behebung von Problemen bei der Akkumulation von Zahlwörtern
 - Verbesserung der Erkennung von Zahlwörtern unabhängig von Groß-/Kleinschreibung
 
-### Improved
+### Verbessert
 - Erhöhte Genauigkeit bei der Umwandlung komplexer Zahlwörter in numerische Werte
 
 ## [0.20.2] - 2024-09-16
@@ -334,242 +352,242 @@ und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lan
 - Erhöhte Testgeschwindigkeit und -zuverlässigkeit
 
 ## [0.20.1] - 2024-09-15
-### Fixed
+### Behoben
 - Verbesserte Behandlung von zusammengesetzten deutschen Zahlwörtern
 - Korrigierte Umwandlung von "eine Million" und ähnlichen Fällen
 - Optimierte Leerzeichenbehandlung bei der Umwandlung von Ziffern zu Worten
 
-### Changed
+### Geändert
 - Erweiterte Debugausgaben für bessere Nachvollziehbarkeit der Zahlenkonvertierung
 - Markierte kritische Stellen im Code für deutsche Zahlenbehandlung
 
 ## [0.20.0] - 2024-09-15
-### Added
+### Hinzugefügt
 - Verbesserte Zahlwort-zu-Ziffer und Ziffer-zu-Zahlwort Konvertierung für Deutsch und Englisch
 - Separate Parsing-Funktionen für deutsche und englische Zahlwörter
 - Umfangreiche neue GUI-Tests zur Verbesserung der Testabdeckung
 
-### Changed
+### Geändert
 - Optimierte Behandlung von "ein" und "eine" in deutschen Zahlwörtern
 - Verbesserte Leerzeichenbehandlung bei Ziffer-zu-Zahlwort-Konvertierung
 - Erweiterte Teststruktur für GUI-Komponenten
 
-### Improved
+### Verbessert
 - Erweiterte Wörterbücher für umfassendere Zahlwortabdeckung
 - Verfeinerte Spracherkennungsfunktion für genauere Ergebnisse
 - Erhöhte Robustheit der GUI durch verbesserte Testabdeckung
 
 ## [0.19.0] - 2024-09-15
-### Added
+### Hinzugefügt
 - Implementierung des Incognito-Modus für erhöhten Datenschutz
 - Erweitertes Logging-System mit Berücksichtigung des Incognito-Modus
 
-### Changed
+### Geändert
 - Überarbeitung der Logging-Logik in allen relevanten Modulen
 - Anpassung der Benutzeroberfläche für Incognito-Modus-Einstellungen
 
-### Improved
+### Verbessert
 - Verbesserte Datenschutzmaßnahmen durch selektives Logging
 - Erweiterte Debugging-Möglichkeiten im nicht-Incognito-Modus
 
 ## [0.18.1] - 2024-09-14
-### Added
+### Hinzugefügt
 - Neues `wortweber.sh` Skript für einfacheren Start der Anwendung
 - Automatische Erstellung von `wortweber.sh` im Installations- und Testskript
 
-### Changed
+### Geändert
 - Verbesserte Installation und Einrichtung durch Aktualisierung von `install_and_test.sh`
 - Aktualisierte README mit klaren Anweisungen für beide Startmethoden
 
-### Improved
+### Verbessert
 - Optimierte Projektstruktur für konsistente Ausführung in verschiedenen Szenarien
 - Verbesserte Benutzerfreundlichkeit durch vereinfachten Startprozess
 
 ## [0.18.0] - 2024-09-14
-### Added
+### Hinzugefügt
 - Implementierung einer einheitlichen Fehlerbehandlungs- und Logging-Strategie im gesamten Projekt
 - Neue Datei `src/utils/error_handling.py` für zentrale Fehlerbehandlung und Logging-Konfiguration
 - `@handle_exceptions` Decorator für konsistente Fehlerbehandlung in allen Modulen
 
-### Changed
+### Geändert
 - Ersetzung von Print-Statements durch strukturiertes Logging in allen Modulen
 - Anpassung aller Backend- und Frontend-Dateien zur Nutzung der neuen Fehlerbehandlung und des Loggings
 - Aktualisierung der Hauptdatei `src/wortweber.py` zur Verwendung der neuen Fehlerbehandlung
 
-### Improved
+### Verbessert
 - Verbesserte Fehlerdiagnose und Debugging-Möglichkeiten durch detailliertes Logging
 - Erhöhte Codequalität und Konsistenz durch einheitliche Fehlerbehandlung
 
 ## [0.17.3] - 2024-09-14
-### Fixed
+### Behoben
 - Behebung von Problemen mit der PyAudio-Instanz in AudioProcessor
 - Korrektur der Typannotationen in Transcriber für verbesserte Typsicherheit
 
-### Changed
+### Geändert
 - Ersetzung von Print-Statements durch Logging in Transcriber für bessere Fehlerdiagnose
 - Optimierung der Ressourcenverwaltung in AudioProcessor
 
-### Improved
+### Verbessert
 - Verbesserte Fehlerbehandlung und Logging in kritischen Audiokomponenten
 - Erhöhte Zuverlässigkeit der Transkriptionsfunktion
 
 
 ## [0.17.1] - 2024-09-14
-### Added
+### Hinzugefügt
 - Fenstergröße- und Positionsspeicherung für das Optionsfenster
 - Erweiterte Rückgängig-Funktionalität im Optionsfenster für alle Einstellungen einschließlich Farben
 
-### Changed
+### Geändert
 - Verbesserte Farbaktualisierungsmechanismen in der gesamten GUI
 - Änderung der Standardschriftart zu "Nimbus Mono L"
 
-### Improved
+### Verbessert
 - Implementierung der Einzelinstanz-Funktionalität für das Optionsfenster
 - Optimierte Benutzerinteraktion im Optionsfenster
 
 ## [0.17.0] - 2024-09-14
-### Added
+### Hinzugefügt
 - Implementierung eines Farbauswahldialogs für benutzerdefinierte Textfarben
 - Neue Funktionen zur Anpassung von Textfarbe, Texthintergrund, Auswahlfarbe und Auswahlhintergrund
 - Integration des tkcolorpicker für erweiterte Farbauswahl
 
-### Changed
+### Geändert
 - Überarbeitung des ThemeManagers für verbesserte Farbverwaltung
 - Anpassung der WordweberGUI für die Unterstützung benutzerdefinierter Farben
 - Erweiterung des TranscriptionPanels zur Anwendung der benutzerdefinierten Farben
 
-### Improved
+### Verbessert
 - Verbesserte Benutzerfreundlichkeit durch individuelle Farbanpassungen
 - Optimierte Speicherung und Wiederherstellung von Farbeinstellungen
 
 ## [0.16.1] - 2024-09-14
-### Fixed
+### Behoben
 - Korrektur der Testausführungslogik in `run_tests.py`
 - Behebung von Problemen mit sequentiellen Transkriptionstests
 
-### Added
+### Hinzugefügt
 - Neue Kommandozeilenoptionen für Testausführung: -p/--parallel, -s/--sequential, -a/--all
 - Verbesserte Dokumentation und Kommentare in `run_tests.py`
 
-### Changed
+### Geändert
 - Optimierte Struktur für flexiblere Testausführung
 
 ## [0.16.0] - 2024-09-14
-### Added
+### Hinzugefügt
 - Implementierung von parallelen Transkriptionstests
 - Neue Utility-Funktionen für GPU-Ressourcenüberprüfung
 - Erweiterte Konfigurationsoptionen für Tests
 
-### Changed
+### Geändert
 - Umfassende Überarbeitung der Teststruktur
 - Verbesserung der Testausgabe mit farbiger Darstellung
 - Aktualisierung der run_tests.py für flexiblere Testausführung
 
-### Improved
+### Verbessert
 - Optimierte Ressourcennutzung bei parallelen Tests
 - Verbesserte Lesbarkeit und Wartbarkeit des Testcodes
 
 ## [0.15.1] - 2024-09-13
-### Fixed
+### Behoben
 - Behebung von Gerätekompatibilitätsproblemen bei der Transkription
 - Korrektur der Audiovorverarbeitung für konsistente Eingaben in das Whisper-Modell
 
-### Changed
+### Geändert
 - Verbesserung der Modellinitialisierung mit expliziter Gerätezuweisung
 - Optimierung der Mel-Spektrogramm-Erstellung und -Verarbeitung
 
-### Added
+### Hinzugefügt
 - Erweiterte Fehlerprotokolle für bessere Diagnose von Transkriptionsproblemen
 - Implementierung robusterer Fehlerbehandlung in kritischen Audiokomponenten
 
-### Improved
+### Verbessert
 - Verbesserte Integration der Whisper-Bibliotheksfunktionen für optimale Kompatibilität
 - Erhöhte Zuverlässigkeit der Transkriptionsfunktion
 
 ## [0.15.0] - 2024-09-13
-### Added
+### Hinzugefügt
 - Implementierung der Audioaufnahme-Funktion für Testaufnahmen
 - Erweiterung der Tests für AudioProcessor und Audioaufnahme
 - Hinzufügung von Testdaten (speech_sample.wav) für realistische Audiotests
 
-### Changed
+### Geändert
 - Verbesserung der Fehlerbehandlung in AudioProcessor
 - Optimierung der Resampling-Funktionalität für bessere Audioqualität
 
-### Improved
+### Verbessert
 - Erhöhte Testabdeckung für kritische Audiofunktionen
 - Verbesserte Modularität der Audioverarbeitungskomponenten
 
 ## [0.14.0] - 2024-09-13
-### Added
+### Hinzugefügt
 - Umfassende Kommentierung des gesamten Quellcodes
 - Detaillierte Inline-Kommentare und Docstrings für alle Funktionen und Klassen
 - Zusätzliche Erklärungen für komplexe Code-Abschnitte
 
-### Improved
+### Verbessert
 - Verbesserte Lesbarkeit und Verständlichkeit des Codes
 - Erweiterte Dokumentation zur Unterstützung neuer Entwickler
 
 ## [0.13.1] - 2024-09-13
-### Added
+### Hinzugefügt
 - Implementierung der Textgrößenspeicherung
 - Zentralisierung der Standardwerte in `config.py`
 
-### Changed
+### Geändert
 - Verbesserte Handhabung von Standardwerten in `SettingsManager`
 
-### Fixed
+### Behoben
 - Bugfix in `SettingsManager.get_setting()` Methode für korrekte Handhabung von Standardwerten
 
 ## [0.13.0] - 2024-09-13
-### Added
+### Hinzugefügt
 - Implementierung des Optionsmenüs mit Textgrößenanpassung
 - Verbesserung des Zwischenablage-Loggings
 
-### Changed
+### Geändert
 - Restrukturierung der GUI-Komponenten für bessere Modularität
 
 ## [0.12.0] - 2024-09-13
-### Changed
+### Geändert
 - Umfangreiches Refactoring zur Zentralisierung der Konfigurationseinstellungen in `config.py`
 - Verbesserte Modularität und Wartbarkeit des Codes durch Nutzung zentraler Konfigurationsvariablen
 
-### Improved
+### Verbessert
 - Optimierte Struktur für einfachere zukünftige Anpassungen und Erweiterungen
 - Verbesserte Konsistenz bei der Verwendung von Konfigurationseinstellungen im gesamten Projekt
 
-### Fixed
+### Behoben
 - Behebung potenzieller Inkonsistenzen bei der Verwendung von Standardwerten
 
 ## [0.11.3] - 2024-09-13
-   ### Fixed
+   ### Behoben
    - Verbesserungen und Stabilisierung basierend auf Version 0.11.1
    - Aktualisierte Dokumentation zur Reflektion der neuesten Änderungen
 
-   ### Changed
+   ### Geändert
    - Zusammenführung der Dokumentationsänderungen aus verschiedenen Entwicklungszweigen
 
 ## [0.11.1] - 2024-09-13
-### Fixed
+### Behoben
 - Korrektur von Stabilitätsproblemen bei der Audioaufnahme und -verarbeitung
 - Behebung von Fehlern bei der Anzeige von Transkriptionen im GUI
 
-### Improved
+### Verbessert
 - Verbesserung der Zuverlässigkeit des Audioaufnahmeprozesses
 - Optimierung der Fehlerprotokolle für eine bessere Diagnose von Problemen
 
-### Note
+### Hinweis
 - Diese Version stellt eine stabile Verbesserung gegenüber früheren Versionen dar und wird als aktuell empfohlene Version betrachtet.
 - Aufgrund von Problemen in der nachfolgenden Version 0.11.2 wird empfohlen, bei dieser Version zu bleiben, bis eine neuere stabile Version veröffentlicht wird.
 
 
 ## [0.11.0] - 2024-09-12
-### Added
+### Hinzugefügt
 - Implementierung der verzögerten Verarbeitung von Audioaufnahmen während des Modellladens
 - Neue Methode zum Speichern und Wiederherstellen der Fensterposition und -größe
 - Funktion zum Speichern manueller Textänderungen im Transkriptionsfenster
 
-### Changed
+### Geändert
 - Umfangreiches Refactoring der GUI-Struktur:
   - Aufteilung der `wortweber_gui.py` in mehrere spezialisierte Module
   - Einführung separater Klassen für MainWindow, TranscriptionPanel, OptionsPanel, StatusPanel
@@ -580,99 +598,99 @@ und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lan
 - Verbesserte Fehlerbehandlung beim Laden des Whisper-Modells
 - Aktualisierte GUI-Logik für konsistentere Benutzererfahrung
 
-### Fixed
+### Behoben
 - Problem mit dem Zurücksetzen des Eingabemodus beim Neustart behoben
 - Abstürze beim Beenden der Anwendung durch verbesserte Ressourcenfreigabe behoben
 - Korrektur der Persistenz von Benutzereinstellungen über Sitzungen hinweg
 
-### Improved
+### Verbessert
 - Erhöhte Modularität und Wartbarkeit des GUI-Codes
 - Verbesserte Trennung von Belangen innerhalb der GUI-Komponenten
 - Erhöhte Stabilität der GUI-Funktionalität
 - Verbesserte Benutzerfeedback-Mechanismen für Modellladestatus
 
 ## [0.10.0] - 2024-09-11
-### Added
+### Hinzugefügt
 - Funktion zum Speichern und Laden von Benutzereinstellungen
 - Automatisches Speichern der Fenstergröße und des Textfensterinhalts
 - Wiederherstellung der letzten Einstellungen beim Programmstart
 
 ## [0.9.0] - 2024-09-11
-### Changed
+### Geändert
 - Abschluss des Frontend-Backend-Refactorings
 - Verbesserte Modularität und Wartbarkeit des Codes
 
 ## [0.8.2] - 2024-09-11
-### Changed
+### Geändert
 - Verschoben `text_operations.py` in `backend/text_processor.py` für eine konsistentere Struktur
 - Aktualisierte Importe in anderen Dateien, die `text_operations` verwenden
 
-### Removed
+### Entfernt
 - Entfernte die leere Datei `src/text_operations.py`
 
-### Added
+### Hinzugefügt
 - Erweiterte Dokumentation zur neuen Struktur der Textoperationen im Backend
 
 ## [0.8.0] - 2024-09-11
-### Changed
+### Geändert
 - Umfassendes Refactoring: Trennung von Frontend und Backend
 - Verbesserung der Codestruktur und Modularität
 - Anpassung der GUI an die neue Struktur
 
-### Added
+### Hinzugefügt
 - Neue Backend-Struktur mit separaten Modulen für AudioProcessor, Transcriber und WordweberBackend
 - Verbesserte Fehlerbehandlung und Logging
 - Erweiterte Dokumentation zur neuen Projektstruktur
 
-### Fixed
+### Behoben
 - Behebung von Problemen bei der Audioaufnahme und -verarbeitung
 - Korrektur der Texthervorhebung und des Kontextmenüs gemäß ursprünglichen Spezifikationen
 
 ## [0.7.1] - 2024-09-11
-### Added
+### Hinzugefügt
 - Option zum Ein-/Ausschalten des automatischen Kopierens in die Zwischenablage
 
 ## [0.7.0] - 2024-09-11
-### Added
+### Hinzugefügt
 - Neue Zwischenablage-Option für die Texteingabe an der Systemcursor-Position
 - Benutzerdefiniertes Eingabefeld für die Verzögerung bei zeichenweiser Eingabe
 
-### Changed
+### Geändert
 - Verbesserte Benutzeroberfläche mit dynamischer Aktivierung/Deaktivierung von Verzögerungsoptionen
 
-### Fixed
+### Behoben
 - Behebung eines Fehlers bei der Verwendung der Zwischenablagefunktion mit pynput
 
 ## [0.6.0] - 2024-09-11
-### Changed
+### Geändert
 - Umfassendes Code-Refactoring zur Verbesserung der Struktur und Lesbarkeit
 - Einführung von Klassen für bessere Kapselung: WordweberState, AudioProcessor, Transcriber, und WordweberGUI
 - Verbesserte Fehlerbehandlung in kritischen Funktionen
 - Hinzufügung ausführlicher Docstrings zu allen Klassen und Methoden
 - Überarbeitung der Konfigurationsdatei mit Einführung von HIGHLIGHT_DURATION
 
-### Added
+### Hinzugefügt
 - Neue Typ-Annotationen zur Verbesserung der Code-Qualität und Wartbarkeit
 - Explizite Typüberprüfungen zur Behandlung potenzieller None-Werte
 
-### Fixed
+### Behoben
 - Behebung von Problemen mit der asynchronen Modellladung
 - Korrektur der Audiodatenverarbeitung für konsistentere Ergebnisse
 
 ## [0.5.1] - 2024-09-11
-### Changed
+### Geändert
 - Korrigierte Beschreibung der Audioaufnahme und -verarbeitung in der Entwicklerdokumentation
 - Implementierung der semantischen Versionierung
 
 ## [0.5.0] - 2024-09-10
-### Added
+### Hinzugefügt
 - Dropdown-Menü zur Auswahl verschiedener Whisper-Modelle
 - Anzeige der Transkriptionszeit für jede Aufnahme
 - "Alles kopieren (Zwischenablage)" Button zur einfachen Übernahme des gesamten Transkriptionstexts
 - Kontextmenü für das Transkriptionsfeld mit Optionen zum Ausschneiden, Kopieren, Einfügen und Löschen
 - Eigene Implementierung für die Konvertierung von Zahlwörtern zu Ziffern und umgekehrt
 
-### Changed
+### Geändert
 - Entfernung der Abhängigkeit von num2words
 - Verbesserte Cursor-Sichtbarkeit im Transkriptionsfeld
 - Neuer transkribierter Text wird nun an der Cursorposition eingefügt
@@ -689,36 +707,36 @@ und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lan
 - Anweisungen, Timer und Statusanzeigen oben rechts platziert
 
 ## [0.4.0] - 2024-09-10
-### Changed
+### Geändert
 - Projekt umbenannt zu "Wortweber"
 - Aktualisierte Dokumentation und Codebase, um den neuen Namen zu reflektieren
 
-### Added
+### Hinzugefügt
 - Sprachauswahl-Funktionalität für Deutsch und Englisch
 - Aktualisierte Konfigurationsdatei mit Spracheinstellungen
 - DEVELOPMENT.md für umfassende Projektdokumentation hinzugefügt
 
 ## [0.3.0] - 2024-09-10
-### Added
+### Hinzugefügt
 - Implementierung der Echtzeit-Transkription mit OpenAI Whisper
 - GUI mit Tkinter für einfache Bedienung
 - Push-to-Talk-Funktionalität mit F12-Taste
 - Sprachauswahl (Deutsch/Englisch) in der Benutzeroberfläche
 
-### Changed
+### Geändert
 - Optimierung der Audioaufnahme und -verarbeitung
 - Verbesserung der Transkriptionsgenauigkeit
 
-### Fixed
+### Behoben
 - Behebung von Problemen mit der ALSA-Audioschnittstelle
 
 ## [0.2.0] - 2024-09-10
-### Added
+### Hinzugefügt
 - Grundlegende Audioaufnahmefunktionalität
 - Integration des Whisper-Modells für Transkription
 - Einfache Benutzeroberfläche zur Anzeige der Transkription
 
 ## [0.1.0] - 2024-09-09
-### Added
+### Hinzugefügt
 - Initialisierung des Projekts
 - Grundlegende Projektstruktur und Abhängigkeiten

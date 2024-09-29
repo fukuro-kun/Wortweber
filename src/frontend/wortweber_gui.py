@@ -111,6 +111,19 @@ class WordweberGUI:
 
         self.plugin_windows: Dict[str, tk.Toplevel] = {}
 
+        # Event-Listener für Plugin-Aktivierung und -Deaktivierung hinzufügen
+        self.plugin_manager.event_system.add_listener('plugin_activated', self.on_plugin_state_changed)
+        self.plugin_manager.event_system.add_listener('plugin_deactivated', self.on_plugin_state_changed)
+        self.plugin_manager.event_system.add_listener('plugin_settings_updated', self.on_plugin_settings_updated)
+
+    def on_plugin_state_changed(self, plugin_name: str):
+        self.rebuild_plugin_bar()
+        self.setup_menu()
+
+    def on_plugin_settings_updated(self, plugin_name: str):
+        # Behandle notwendige UI-Aktualisierungen, wenn sich Plugin-Einstellungen ändern
+        pass
+
     @handle_exceptions
     def update_geometry(self) -> None:
         """Aktualisiert und speichert die aktuelle Fenstergeometrie."""
@@ -316,6 +329,13 @@ class WordweberGUI:
         self.options_panel.update_shortcut_display(new_shortcut)
 
     @handle_exceptions
+    def rebuild_plugin_bar(self) -> None:
+        """Baut die Plugin-Leiste neu auf."""
+        for widget in self.main_window.plugin_bar_frame.winfo_children():
+            widget.destroy()
+        self.setup_plugin_bar()
+
+    @handle_exceptions
     def setup_menu(self) -> None:
         """Richtet das Hauptmenü der Anwendung ein."""
         menubar = tk.Menu(self.root)
@@ -340,11 +360,15 @@ class WordweberGUI:
         # Plugin-Menü
         plugin_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Plugins", menu=plugin_menu)
+
+        # Plugin-Verwaltung hinzufügen
         plugin_menu.add_command(label="Plugin-Verwaltung", command=self.open_plugin_management_window)
 
         # Dynamisches Hinzufügen von Plugin-Menüeinträgen
-        for entry in self.plugin_manager.get_plugin_menu_entries():
-            self.add_menu_entry(plugin_menu, entry)
+        for plugin_name, plugin in self.plugin_manager.plugins.items():
+            if plugin_name in self.plugin_manager.active_plugins:
+                for entry in plugin.get_menu_entries():
+                    self.add_menu_entry(plugin_menu, entry)
 
     @handle_exceptions
     def add_menu_entry(self, menu: tk.Menu, entry: Dict[str, Any]) -> None:

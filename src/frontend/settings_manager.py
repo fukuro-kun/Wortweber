@@ -288,7 +288,7 @@ class SettingsManager:
         return {**global_settings, **plugin_settings}
 
     @handle_exceptions
-    def set_plugin_settings(self, plugin_name: str, settings: Dict[str, Any]):
+    def set_plugin_settings(self, plugin_name: str, settings: Dict[str, Any]) -> None:
         """
         Setzt die Einstellungen für ein spezifisches Plugin und speichert sie sofort.
 
@@ -296,8 +296,13 @@ class SettingsManager:
             plugin_name (str): Name des Plugins
             settings (Dict[str, Any]): Ein Dictionary mit den neuen Plugin-Einstellungen
         """
-        self.set_setting(f"plugins.specific_settings.{plugin_name}", settings)
-        logger.info(f"Plugin-Einstellungen für {plugin_name} aktualisiert und sofort gespeichert")
+        if 'plugins' not in self.settings:
+                    self.settings['plugins'] = {}
+        if 'specific_settings' not in self.settings['plugins']:
+            self.settings['plugins']['specific_settings'] = {}
+        self.settings['plugins']['specific_settings'][plugin_name] = settings
+        self.save_settings()
+        logger.info(f"Einstellungen für Plugin {plugin_name} gespeichert")
 
     @handle_exceptions
     def print_current_settings(self):

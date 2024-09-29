@@ -1,3 +1,35 @@
+# Plugin-System Refactoring (Version 0.28.0)
+
+## Begründung für das Refactoring
+1. Verbesserte Trennung von GUI und Logik im PluginManager
+2. Erhöhte Flexibilität durch Event-basierte Kommunikation
+3. Unterstützung dynamischer Plugin-UI-Elemente in der WordweberGUI
+4. Erhöhte Stabilität bei Plugin-Aktivierung und -Deaktivierung
+
+## Hauptänderungen
+1. Überarbeitung des PluginManagers:
+   - Implementierung einer klaren Trennung zwischen GUI-bezogenen und logischen Operationen
+   - Einführung eines Event-basierten Kommunikationssystems für die Interaktion mit der GUI
+
+2. Anpassung der WordweberGUI:
+   - Integration von Funktionen zur dynamischen Unterstützung von Plugin-UI-Elementen
+   - Implementierung von Event-Listenern für Plugin-bezogene Aktualisierungen
+
+3. Verbesserung der Plugin-Verwaltungslogik:
+   - Überarbeitung der Aktivierungs- und Deaktivierungsprozesse für erhöhte Stabilität
+   - Implementierung robuster Fehlerbehandlung bei Plugin-Operationen
+
+4. Erweiterung des Event-Systems:
+   - Einführung neuer Event-Typen für Plugin-spezifische Aktionen
+   - Optimierung der Event-Verarbeitung für effiziente GUI-Aktualisierungen
+
+## Auswirkungen und zukünftige Überlegungen
+- Die neue Struktur ermöglicht eine flexiblere Integration von Plugins in die Benutzeroberfläche
+- Zukünftige Entwicklungen können das Event-System für erweiterte Plugin-Funktionalitäten nutzen
+- Regelmäßige Überprüfungen der Plugin-Kompatibilität und -Performance werden empfohlen
+
+Diese Überarbeitung stellt einen wichtigen Schritt zur Verbesserung der Erweiterbarkeit und Stabilität des Plugin-Systems in Wortweber dar.
+
 ## Implementierung des Plugin-Systems (Version 0.24.0)
 
 ### Begründung für das Refactoring
