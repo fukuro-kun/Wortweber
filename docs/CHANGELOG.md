@@ -5,6 +5,21 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.29.0] - 2024-09-29
+### Hinzugefügt
+- Erweiterte UI-Funktionalitäten für Plugins (Menüeinträge, Kontextmenüs, Plugin-Leiste)
+- Verbesserte Event-System-Integration für Plugins
+- Neue Best Practices für UI-Integration und Event-Handling
+- Umfassendes Plugin-Beispiel zur Demonstration neuer Funktionalitäten
+
+### Geändert
+- Aktualisierung der Plugin-Entwicklungsdokumentation (PLUGINSYSTEM.md)
+- Erweiterung der AbstractPlugin-Klasse um neue UI-bezogene Methoden
+- Anpassung des PluginManagers zur Unterstützung erweiterter UI-Funktionen
+
+### In Bearbeitung
+- Implementierung des Ollama-LLM-Chat-Plugins als Testfall
+
 ## [0.28.0] - 2024-09-29
 ### Hinzugefügt
 - Erweiterung des Plugin-Systems mit verbesserter UI-Integration

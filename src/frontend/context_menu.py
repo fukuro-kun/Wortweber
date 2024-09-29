@@ -14,19 +14,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
+# Standardbibliotheken
 import tkinter as tk
+from typing import Callable
+
+# Projektspezifische Module
 from src.backend.text_processor import words_to_digits, digits_to_words
 from src.utils.error_handling import handle_exceptions, logger
+from src.plugin_system.plugin_manager import PluginManager
 
 @handle_exceptions
-def create_context_menu(text_widget, event):
+def create_context_menu(text_widget: tk.Text, event: tk.Event, plugin_manager: PluginManager) -> None:
     """
     Erstellt und zeigt ein Kontextmenü für das gegebene Text-Widget an.
 
     :param text_widget: Das Tkinter Text-Widget, für das das Kontextmenü erstellt wird
     :param event: Das Ereignis, das das Kontextmenü auslöst (typischerweise ein Rechtsklick)
+    :param plugin_manager: Der PluginManager, um Plugin-Einträge zu erhalten
     """
     context_menu = tk.Menu(text_widget, tearoff=0)
 
@@ -47,12 +51,19 @@ def create_context_menu(text_widget, event):
     context_menu.add_command(label="Transkription löschen", command=lambda: text_widget.delete(1.0, tk.END))
     context_menu.add_command(label="Alles kopieren", command=lambda: text_widget.event_generate("<<Copy>>"))
 
+    # Plugin-Einträge hinzufügen
+    plugin_entries = plugin_manager.get_plugin_context_menu_entries()
+    if plugin_entries:
+        context_menu.add_separator()
+        for entry in plugin_entries:
+            context_menu.add_command(label=entry['label'], command=entry['command'])
+
     context_menu.tk_popup(event.x_root, event.y_root)
     logger.debug("Kontextmenü erstellt und angezeigt")
 
 
 @handle_exceptions
-def convert_text(text_widget, conversion_function):
+def convert_text(text_widget: tk.Text, conversion_function: Callable[[str], str]) -> None:
     """
     Konvertiert den ausgewählten Text im Widget mit der angegebenen Konvertierungsfunktion.
 
@@ -69,16 +80,27 @@ def convert_text(text_widget, conversion_function):
         # Kein Text ausgewählt, tue nichts
         logger.debug("Keine Textauswahl für Konvertierung")
 
-# Diese Datei implementiert das Kontextmenü für das Transkriptionsfenster.
-# Es bietet grundlegende Textbearbeitungsfunktionen sowie spezielle Optionen
-# zur Konvertierung von Zahlwörtern in Ziffern und umgekehrt.
 
-# Hinweise:
-# 1. Die Lambda-Funktionen werden verwendet, um die Tkinter-Ereignisse auszulösen,
+# Zusätzliche Erklärungen:
+
+# 1. Lambda-Funktionen:
+#    Die Lambda-Funktionen werden verwendet, um die Tkinter-Ereignisse auszulösen,
 #    die die Standardaktionen für Ausschneiden, Kopieren, etc. implementieren.
-# 2. Die Konvertierungsfunktionen words_to_digits und digits_to_words werden aus
-#    dem Backend-Modul importiert, um eine konsistente Textverarbeitung zu gewährleisten.
-# 3. Die try-except-Struktur in convert_text fängt den Fall ab, dass kein Text
-#    ausgewählt ist, wenn die Konvertierung versucht wird.
-# 4. Die digits_to_words Funktion nutzt nun intern die neue ziffern_zu_zahlwoerter
-#    Funktion für eine verbesserte Konvertierung von Ziffern zu Zahlwörtern.
+#    Dies ermöglicht eine direkte Bindung der Aktionen an die Menüeinträge.
+
+# 2. Konvertierungsfunktionen:
+#    Die Funktionen words_to_digits und digits_to_words werden aus dem Backend-Modul
+#    importiert. Dies gewährleistet eine konsistente Textverarbeitung in der gesamten Anwendung.
+
+# 3. Fehlerbehandlung:
+#    Die try-except-Struktur in convert_text fängt den Fall ab, dass kein Text
+#    ausgewählt ist, wenn die Konvertierung versucht wird. Dies verhindert unerwartete
+#    Fehler und verbessert die Benutzerfreundlichkeit.
+
+# 4. Logging:
+#    Die Verwendung des Loggers ermöglicht eine konsistente Fehlerprotokollierung
+#    und erleichtert das Debugging.
+
+# 5. Typisierung:
+#    Die Funktionsparameter wurden mit Typ-Hinweisen versehen, um die Codequalität
+#    und Lesbarkeit zu verbessern.

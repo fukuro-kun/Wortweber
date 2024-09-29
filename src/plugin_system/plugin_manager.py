@@ -45,6 +45,7 @@ class PluginManager:
         event_system (EventSystem): Verwaltet das Event-System für Plugins.
         plugin_ui_elements (Dict[str, Dict[str, Any]]): UI-Elemente der Plugins.
         plugin_menu_entries (Dict[str, List[Dict[str, Any]]]): Menüeinträge der Plugins.
+        plugin_context_menu_entries (Dict[str, List[Dict[str, Any]]]): Kontextmenüeinträge der Plugins.
     """
 
     def __init__(self, plugin_dir: str, settings_manager: SettingsManager):
@@ -63,6 +64,7 @@ class PluginManager:
         self.event_system = EventSystem()
         self.plugin_ui_elements: Dict[str, Dict[str, Any]] = {}
         self.plugin_menu_entries: Dict[str, List[Dict[str, Any]]] = {}
+        self.plugin_context_menu_entries: Dict[str, List[Dict[str, Any]]] = {}
         logger.debug("PluginManager initialisiert")
 
     @handle_exceptions
@@ -81,6 +83,7 @@ class PluginManager:
                 self.plugins[plugin.name] = plugin
                 self.plugin_ui_elements[plugin.name] = plugin.get_ui_elements()
                 self.plugin_menu_entries[plugin.name] = plugin.get_menu_entries()
+                self.plugin_context_menu_entries[plugin.name] = plugin.get_context_menu_entries()
                 logger.info(f"Plugin entdeckt: {plugin.name} v{plugin.version}")
             else:
                 logger.debug(f"Plugin {plugin.name} bereits geladen, wird übersprungen")
@@ -131,6 +134,7 @@ class PluginManager:
                 plugin.register_events(self.event_system)
                 self.update_plugin_ui_elements(plugin_name)
                 self.update_plugin_menu_entries(plugin_name)
+                self.update_plugin_context_menu_entries(plugin_name)
                 self.event_system.emit('plugin_activated', plugin_name)
                 return True
             except Exception as e:
@@ -160,6 +164,7 @@ class PluginManager:
                 self.remove_plugin_events(plugin)
                 self.remove_plugin_ui_elements(plugin_name)
                 self.remove_plugin_menu_entries(plugin_name)
+                self.remove_plugin_context_menu_entries(plugin_name)
                 self.event_system.emit('plugin_deactivated', plugin_name)
                 return True
             except Exception as e:
@@ -240,6 +245,7 @@ class PluginManager:
                 self.plugins[plugin_name] = new_plugin
                 self.plugin_ui_elements[plugin_name] = new_plugin.get_ui_elements()
                 self.plugin_menu_entries[plugin_name] = new_plugin.get_menu_entries()
+                self.plugin_context_menu_entries[plugin_name] = new_plugin.get_context_menu_entries()
                 if was_active:
                     self.activate_plugin(plugin_name)
                 new_plugin.on_update()
@@ -390,6 +396,19 @@ class PluginManager:
         return entries
 
     @handle_exceptions
+    def get_plugin_context_menu_entries(self) -> List[Dict[str, Any]]:
+        """
+        Gibt die Kontextmenüeinträge aller aktiven Plugins zurück.
+
+        Returns:
+            List[Dict[str, Any]]: Eine Liste von Kontextmenüeinträgen aller aktiven Plugins.
+        """
+        entries = []
+        for name in self.active_plugins:
+            entries.extend(self.plugin_context_menu_entries.get(name, []))
+        return entries
+
+    @handle_exceptions
     def update_plugin_ui_elements(self, plugin_name: str) -> None:
         """
         Aktualisiert die UI-Elemente eines spezifischen Plugins.
@@ -414,6 +433,18 @@ class PluginManager:
         logger.info(f"Menüeinträge für Plugin {plugin_name} aktualisiert")
 
     @handle_exceptions
+    def update_plugin_context_menu_entries(self, plugin_name: str) -> None:
+        """
+        Aktualisiert die Kontextmenüeinträge eines spezifischen Plugins.
+
+        Args:
+            plugin_name (str): Name des Plugins, dessen Kontextmenüeinträge aktualisiert werden sollen.
+        """
+        if plugin_name in self.plugins and plugin_name in self.active_plugins:
+            self.plugin_context_menu_entries[plugin_name] = self.plugins[plugin_name].get_context_menu_entries()
+        logger.info(f"Kontextmenüeinträge für Plugin {plugin_name} aktualisiert")
+
+    @handle_exceptions
     def remove_plugin_ui_elements(self, plugin_name: str) -> None:
         """
         Entfernt die UI-Elemente eines spezifischen Plugins.
@@ -435,27 +466,39 @@ class PluginManager:
         self.plugin_menu_entries.pop(plugin_name, None)
         logger.info(f"Menüeinträge für Plugin {plugin_name} entfernt")
 
+    @handle_exceptions
+    def remove_plugin_context_menu_entries(self, plugin_name: str) -> None:
+        """
+        Entfernt die Kontextmenüeinträge eines spezifischen Plugins.
+
+        Args:
+            plugin_name (str): Name des Plugins, dessen Kontextmenüeinträge entfernt werden sollen.
+        """
+        self.plugin_context_menu_entries.pop(plugin_name, None)
+        logger.info(f"Kontextmenüeinträge für Plugin {plugin_name} entfernt")
 
 # Zusätzliche Erklärungen:
 
-# 1. Die Klasse wurde um Attribute für UI-Elemente und Menüeinträge erweitert:
-#    - plugin_ui_elements speichert die UI-Elemente jedes Plugins
-#    - plugin_menu_entries speichert die Menüeinträge jedes Plugins
+# 1. Erweiterung für Kontextmenüeinträge:
+#    Die Klasse wurde um Attribute und Methoden für Kontextmenüeinträge erweitert,
+#    analog zu den bestehenden Implementierungen für UI-Elemente und Hauptmenüeinträge.
 
-# 2. Neue Methoden wurden hinzugefügt, um diese Elemente zu verwalten:
-#    - get_plugin_ui_elements() und get_plugin_menu_entries() geben die Elemente aktiver Plugins zurück
-#    - update_plugin_ui_elements() und update_plugin_menu_entries() aktualisieren die Elemente eines Plugins
-#    - remove_plugin_ui_elements() und remove_plugin_menu_entries() entfernen die Elemente eines Plugins
+# 2. Konsistente Implementierung:
+#    Die neuen Methoden für Kontextmenüeinträge (get_plugin_context_menu_entries,
+#    update_plugin_context_menu_entries, remove_plugin_context_menu_entries) folgen
+#    dem gleichen Muster wie die entsprechenden Methoden für Menüeinträge und UI-Elemente.
 
-# 3. Die bestehenden Methoden wurden angepasst, um die neuen Funktionen zu integrieren:
-#    - discover_plugins() lädt nun auch UI-Elemente und Menüeinträge
-#    - activate_plugin() und deactivate_plugin() aktualisieren bzw. entfernen diese Elemente
-#    - reload_plugin() berücksichtigt die Aktualisierung dieser Elemente
+# 3. Aktivierung und Deaktivierung:
+#    Die Methoden activate_plugin und deactivate_plugin wurden aktualisiert, um
+#    auch die Kontextmenüeinträge zu berücksichtigen.
 
-# 4. Die Fehlerbehandlung und das Logging wurden beibehalten und für die neuen Methoden erweitert
+# 4. Reload-Funktionalität:
+#    Die reload_plugin Methode wurde angepasst, um auch die Kontextmenüeinträge
+#    bei einem Neuladen des Plugins zu aktualisieren.
 
-# 5. Event-Emitting wurde für wichtige Aktionen hinzugefügt, um eine bessere Kommunikation
-#    zwischen dem PluginManager und anderen Teilen der Anwendung zu ermöglichen
+# 5. Fehlerbehandlung und Logging:
+#    Alle neuen Methoden verwenden den @handle_exceptions Decorator und
+#    implementieren entsprechendes Logging für eine konsistente Fehlerbehandlung.
 
-# Diese Änderungen ermöglichen eine verbesserte Integration von Plugin-UI-Elementen und Menüeinträgen
-# in die Hauptanwendung, während die bestehende Funktionalität erhalten bleibt.
+# Diese Erweiterungen ermöglichen es Plugins, Kontextmenüeinträge zu definieren und
+# zu verwalten, was die Flexibilität und Erweiterbarkeit des Plugin-Systems weiter erhöht.

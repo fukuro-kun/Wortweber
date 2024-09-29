@@ -210,6 +210,34 @@ class AbstractPlugin(ABC):
         """
         pass
 
+    @handle_exceptions
+    def get_context_menu_entries(self) -> List[Dict[str, Any]]:
+        """
+        Gibt eine Liste von Kontextmenüeinträgen zurück, die das Plugin zum Kontextmenü hinzufügen möchte.
+
+        Returns:
+            Eine Liste von Dictionaries mit den Schlüsseln:
+            - 'label': Der anzuzeigende Text des Menüeintrags
+            - 'command': Die auszuführende Funktion beim Klick
+
+        Beispiel:
+        [
+            {'label': 'Meine Kontextaktion', 'command': self.context_action}
+        ]
+        """
+        return []
+
+    # Zusätzliche Erklärungen:
+
+    # Die get_context_menu_entries Methode wurde hinzugefügt, um Plugins die Möglichkeit zu geben,
+    # Einträge zum Kontextmenü hinzuzufügen. Dies erfolgt analog zur get_menu_entries Methode
+    # für das Hauptmenü, um Konsistenz in der Plugin-Entwicklung zu gewährleisten.
+    #
+    # Die Methode gibt eine Liste von Dictionaries zurück, wobei jedes Dictionary einen
+    # Menüeintrag repräsentiert. Dies ermöglicht eine flexible und erweiterbare Struktur
+    # für zukünftige Erweiterungen des Kontextmenüs.
+
+
 # Zusätzliche Erklärungen:
 
 # 1. get_default_settings():

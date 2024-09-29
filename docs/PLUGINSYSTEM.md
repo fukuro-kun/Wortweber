@@ -31,12 +31,19 @@
    6.1 Definition von Plugin-Einstellungen
    6.2 Zugriff auf Einstellungen
    6.3 Beispiele für Einstellungsverwaltung
+   6.4 Verschlüsselung sensibler Daten
 
 7. [Best Practices](#7-best-practices)
    7.1 Codequalität und -stil
    7.2 Fehlerbehandlung
    7.3 Ressourcenmanagement
-   7.4 Beispiele für gute und schlechte Praktiken
+   7.4 Leistungsoptimierung
+   7.5 Dokumentation
+   7.6 Sicherheit
+   7.7 Testbarkeit
+   7.8 Versionierung
+   7.9 UI-Integration
+   7.10 Event-Handling
 
 8. [API-Referenz](#8-api-referenz)
    8.1 AbstractPlugin
@@ -48,9 +55,7 @@
 9. [Umfassende Plugin-Beispiele](#9-umfassende-plugin-beispiele)
    9.1 Grundlegendes Textverarbeitungs-Plugin
    9.2 Event-basiertes Plugin
-   9.3 Plugin mit komplexer Einstellungsverwaltung
-   9.4 Interoperables Plugin
-   9.5 Erweitertes Plugin-Beispiel (mit Einstellungen und Event-Nutzung)
+   9.3 Umfassendes Plugin-Beispiel
 
 10. [Fortgeschrittene Konzepte und Techniken](#10-fortgeschrittene-konzepte-und-techniken) (Enthält experimentelle und geplante Funktionen)
     10.1 Plugin-Interoperabilität
@@ -224,7 +229,7 @@ Hier ist die grundlegende Struktur der `AbstractPlugin`-Klasse:
 
 ```python
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 import tkinter as tk
 from tkinter import ttk
 
@@ -262,20 +267,34 @@ class AbstractPlugin(ABC):
         pass
 
     def get_config_ui(self, parent: tk.Widget) -> ttk.Frame:
-        """
-        Gibt ein Tkinter Frame mit Konfigurationselementen zurück.
-        Diese Methode kann von konkreten Plugin-Implementierungen überschrieben werden,
-        wenn sie eine benutzerdefinierte Konfigurationsoberfläche benötigen.
-
-        :param parent: Das übergeordnete Tkinter-Widget
-        :return: Ein ttk.Frame mit Konfigurationselementen
-        """
         frame = ttk.Frame(parent)
         ttk.Label(frame, text="Keine Konfigurationsoptionen verfügbar").pack()
         return frame
 
+    def get_menu_entries(self) -> List[Dict[str, Any]]:
+        return []
+
+    def get_context_menu_entries(self) -> List[Dict[str, Any]]:
+        return []
+
+    def get_ui_elements(self) -> Dict[str, Any]:
+        return {}
+
     # Weitere Methoden...
 ```
+
+### Erklärung der Methoden:
+
+- `name`, `version`, `description`, `author`: Metadaten des Plugins.
+- `activate`: Wird beim Aktivieren des Plugins aufgerufen.
+- `deactivate`: Wird beim Deaktivieren des Plugins aufgerufen.
+- `process_text`: Hauptmethode zur Textverarbeitung.
+- `get_config_ui`: Erstellt eine Konfigurationsoberfläche für das Plugin.
+- `get_menu_entries`: Definiert Einträge für das Hauptmenü.
+- `get_context_menu_entries`: Definiert Einträge für das Kontextmenü.
+- `get_ui_elements`: Gibt UI-Elemente für die Integration in die Hauptanwendung zurück.
+
+Die vollständigen Docstrings und detaillierte Beschreibungen finden Sie im Quellcode der `AbstractPlugin`-Klasse.
 
 ### 3.1.2 Kernmethoden
 
@@ -381,9 +400,10 @@ Dieser Lebenszyklus gewährleistet eine effiziente und sichere Verwaltung von Pl
 Hier ist ein vollständiges Beispiel für ein einfaches Wortweber-Plugin:
 
 ```python
-
 from src.plugin_system.plugin_interface import AbstractPlugin
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
+import tkinter as tk
+from tkinter import ttk
 
 class SimpleUppercasePlugin(AbstractPlugin):
     """
@@ -397,6 +417,7 @@ class SimpleUppercasePlugin(AbstractPlugin):
     - Konvertiert eingehenden Text in Großbuchstaben
     - Fügt ein konfigurierbares Präfix zum verarbeiteten Text hinzu
     - Demonstriert die Verwendung von Einstellungen und Event-Handling
+    - Zeigt die Integration von Menüeinträgen, Kontextmenüeinträgen und UI-Elementen
 
     Die Klasse verwendet @property Dekoratoren für die Metadaten-Attribute,
     um eine einheitliche Schnittstelle mit anderen Plugins zu gewährleisten
@@ -412,10 +433,11 @@ class SimpleUppercasePlugin(AbstractPlugin):
 
     def __init__(self):
         self._name = "Simple Uppercase Plugin"
-        self._version = "1.0.0"
-        self._description = "Konvertiert Text in Großbuchstaben"
+        self._version = "1.1.0"
+        self._description = "Konvertiert Text in Großbuchstaben und demonstriert erweiterte Plugin-Funktionen"
         self._author = "Ihr Name"
         self._prefix = ""
+        self._conversion_count = 0
 
     @property   # Der @property Dekorator ist ein Mechanismus in Python, der es ermöglicht,
                 # eine Methode wie ein Attribut zu verwenden. Dies hat mehrere Vorteile:
@@ -441,27 +463,116 @@ class SimpleUppercasePlugin(AbstractPlugin):
 
     def activate(self, settings: Dict[str, Any]) -> None:
         self._prefix = settings.get('prefix', '[Uppercase] ')
+        self._conversion_count = settings.get('conversion_count', 0)
         print(f"{self.name} wurde aktiviert mit Präfix: {self._prefix}")
 
     def deactivate(self) -> Optional[Dict[str, Any]]:
         print(f"{self.name} wird deaktiviert")
-        return {"prefix": self._prefix}
+        return {"prefix": self._prefix, "conversion_count": self._conversion_count}
 
     def process_text(self, text: str) -> str:
+        self._conversion_count += 1
         return self._prefix + text.upper()
 
     def get_settings(self) -> Dict[str, Any]:
-        return {"prefix": self._prefix}
+        return {"prefix": self._prefix, "conversion_count": self._conversion_count}
 
     def set_settings(self, settings: Dict[str, Any]) -> None:
         self._prefix = settings.get('prefix', self._prefix)
+        self._conversion_count = settings.get('conversion_count', self._conversion_count)
 
     def on_event(self, event_type: str, data: Any) -> None:
         if event_type == "application_start":
             print(f"{self.name} hat das Startereignis empfangen")
+
+    def get_menu_entries(self) -> List[Dict[str, Any]]:
+        """
+        Gibt eine Liste von Menüeinträgen zurück, die das Plugin zum Hauptmenü hinzufügen möchte.
+
+        :return: Eine Liste von Dictionaries, die Menüeinträge repräsentieren
+        """
+        return [
+            {'label': 'Zeige Konvertierungen', 'command': self.show_conversion_count},
+            {'label': 'Setze Präfix', 'command': self.set_prefix_dialog}
+        ]
+
+    def get_context_menu_entries(self) -> List[Dict[str, Any]]:
+        """
+        Gibt eine Liste von Kontextmenüeinträgen zurück, die das Plugin zum Kontextmenü hinzufügen möchte.
+
+        :return: Eine Liste von Dictionaries, die Kontextmenüeinträge repräsentieren
+        """
+        return [
+            {'label': 'In Großbuchstaben konvertieren', 'command': self.convert_selected_text}
+        ]
+
+    def get_ui_elements(self) -> Dict[str, Any]:
+        """
+        Gibt UI-Elemente zurück, die in die Hauptanwendung integriert werden sollen.
+
+        :return: Ein Dictionary mit UI-Elementen des Plugins
+        """
+        return {
+            'buttons': [
+                {'text': 'Großbuchstaben', 'command': self.convert_current_text}
+            ],
+            'window': self.create_plugin_window
+        }
+
+    def show_conversion_count(self):
+        """
+        Zeigt die Anzahl der durchgeführten Konvertierungen an.
+        """
+        tk.messagebox.showinfo("Konvertierungen", f"Anzahl der Konvertierungen: {self._conversion_count}")
+
+    def set_prefix_dialog(self):
+        """
+        Öffnet einen Dialog zum Setzen des Präfix.
+        """
+        new_prefix = tk.simpledialog.askstring("Präfix setzen", "Neues Präfix eingeben:", initialvalue=self._prefix)
+        if new_prefix is not None:
+            self._prefix = new_prefix
+            print(f"Neues Präfix gesetzt: {self._prefix}")
+
+    def convert_selected_text(self):
+        """
+        Konvertiert den ausgewählten Text in Großbuchstaben.
+        In einer realen Implementierung würde dies mit dem tatsächlich ausgewählten Text arbeiten.
+        """
+        print("Ausgewählter Text würde in Großbuchstaben konvertiert werden")
+
+    def convert_current_text(self):
+        """
+        Konvertiert den aktuellen Text in Großbuchstaben.
+        In einer realen Implementierung würde dies den aktuellen Text im Editor verarbeiten.
+        """
+        print("Aktueller Text würde in Großbuchstaben konvertiert werden")
+
+    def create_plugin_window(self, parent):
+        """
+        Erstellt ein Fenster für das Plugin.
+
+        :param parent: Das übergeordnete Tkinter-Widget
+        :return: Das erstellte Tkinter-Toplevel-Fenster
+        """
+        window = tk.Toplevel(parent)
+        window.title(f"{self.name} Einstellungen")
+        ttk.Label(window, text="Aktuelles Präfix:").pack(pady=5)
+        ttk.Entry(window, textvariable=tk.StringVar(value=self._prefix)).pack(pady=5)
+        ttk.Button(window, text="Präfix aktualisieren", command=self.set_prefix_dialog).pack(pady=5)
+        ttk.Button(window, text="Konvertierungen anzeigen", command=self.show_conversion_count).pack(pady=5)
+        return window
 ```
 
-Dieses Plugin demonstriert die grundlegende Struktur und Funktionalität eines Wortweber-Plugins. Es konvertiert eingehenden Text in Großbuchstaben und fügt ein konfigurierbares Präfix hinzu.
+Dieses Plugin demonstriert die grundlegende Struktur und Funktionalität eines Wortweber-Plugins.
+Es konvertiert eingehenden Text in Großbuchstaben und fügt ein konfigurierbares Präfix hinzu.
+Es demonstriert zusätzlich:
+
+1. Menüeinträge im Hauptmenü (`get_menu_entries`)
+2. Kontextmenüeinträge (`get_context_menu_entries`)
+3. UI-Elemente, einschließlich eines Buttons und eines eigenen Fensters (`get_ui_elements`)
+4. Erweiterte Funktionalität wie das Zählen von Konvertierungen und das Ändern des Präfix
+5. Ein eigenes Konfigurationsfenster (`create_plugin_window`)
 
 ## 3.4 Best Practices
 
@@ -508,6 +619,18 @@ class PluginManager:
 
     def process_text_with_plugins(self, text: str) -> str:
         # Verarbeitet Text mit allen aktiven Plugins
+
+    def get_plugin_menu_entries(self) -> List[Dict[str, Any]]:
+        # Sammelt und gibt alle Menüeinträge der aktiven Plugins zurück
+        # Rückgabe: Eine Liste von Dictionaries, die Menüeinträge repräsentieren
+
+    def get_plugin_context_menu_entries(self) -> List[Dict[str, Any]]:
+        # Sammelt und gibt alle Kontextmenüeinträge der aktiven Plugins zurück
+        # Rückgabe: Eine Liste von Dictionaries, die Kontextmenüeinträge repräsentieren
+
+    def get_plugin_ui_elements(self) -> Dict[str, Dict[str, Any]]:
+        # Sammelt und gibt alle UI-Elemente der aktiven Plugins zurück
+        # Rückgabe: Ein Dictionary mit Plugin-Namen als Schlüssel und deren UI-Elementen als Werte
 ```
 
 ### 4.1.2 Plugin-Entdeckung
@@ -753,38 +876,38 @@ Die Einstellungsverwaltung ist ein zentraler Aspekt der Plugin-Entwicklung in Wo
 
 ## 6.1 Definition von Plugin-Einstellungen
 
-### 6.1.1 Standardeinstellungen
+### 6.1.1 Initialisierung von Einstellungen
 
-Jedes Plugin sollte Standardeinstellungen definieren, die als Ausgangspunkt dienen.
+Plugins können ihre Einstellungen im Konstruktor initialisieren.
 
 Status: Implementiert
 
 Beispiel:
 ```python
 class MyPlugin(AbstractPlugin):
-    def get_default_settings(self) -> Dict[str, Any]:
-        return {
+    def __init__(self):
+        self._name = "My Plugin"
+        self._version = "1.0.0"
+        self._description = "Ein Plugin mit Einstellungen"
+        self._author = "Plugin-Entwickler"
+        self._settings = {
             "text_color": "blue",
             "font_size": 12,
             "enable_feature_x": True
         }
 ```
 
-### 6.1.2 Einstellungsschema
+### 6.1.2 Einstellungsvalidierung
 
-Status: In Entwicklung
+Die Validierung von Einstellungen erfolgt im `PluginLoader`.
 
-Wortweber plant die Einführung eines Einstellungsschemas, das die Validierung von Einstellungen erleichtert.
+Status: Implementiert
 
-Geplantes Beispiel:
 ```python
-class MyPlugin(AbstractPlugin):
-    def get_settings_schema(self) -> Dict[str, Dict[str, Any]]:
-        return {
-            "text_color": {"type": "string", "choices": ["red", "green", "blue"]},
-            "font_size": {"type": "integer", "min": 8, "max": 24},
-            "enable_feature_x": {"type": "boolean"}
-        }
+class PluginLoader:
+    def validate_plugin_settings(self, plugin: AbstractPlugin, settings: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        # Implementierung der Validierungslogik
+        pass
 ```
 
 ## 6.2 Zugriff auf Einstellungen
@@ -846,26 +969,18 @@ Beispiel:
 ```python
 class MyPlugin(AbstractPlugin):
     def activate(self, settings: Dict[str, Any]) -> None:
-        self.current_settings = settings
+        self.set_settings(settings)
         # Initialisierung mit geladenen Einstellungen
 ```
 
-## 6.4 Dynamische Einstellungen-UI
+## 6.4 Best Practices für die Einstellungsverwaltung
 
-Status: Geplant
-
-Wortweber plant die Implementierung einer dynamischen Benutzeroberfläche für Plugin-Einstellungen basierend auf dem Einstellungsschema.
-
-Konzeptuelles Beispiel:
-```python
-class MyPlugin(AbstractPlugin):
-    def get_settings_ui(self) -> List[Dict[str, Any]]:
-        return [
-            {"type": "color_picker", "key": "text_color", "label": "Textfarbe"},
-            {"type": "slider", "key": "font_size", "label": "Schriftgröße", "min": 8, "max": 24},
-            {"type": "checkbox", "key": "enable_feature_x", "label": "Feature X aktivieren"}
-        ]
-```
+1. **Standardwerte**: Definieren Sie sinnvolle Standardwerte für alle Einstellungen im Konstruktor.
+2. **Validierung**: Überprüfen Sie die Gültigkeit von Einstellungswerten in der `set_settings`-Methode.
+3. **Dokumentation**: Dokumentieren Sie klar, welche Einstellungen Ihr Plugin verwendet und wie sie sich auswirken.
+4. **Granularität**: Finden Sie eine Balance zwischen zu vielen und zu wenigen Einstellungsoptionen.
+5. **Benutzerfreundlichkeit**: Verwenden Sie aussagekräftige Namen und Beschreibungen für Ihre Einstellungen.
+6. **Versionierung**: Behandeln Sie Änderungen an der Einstellungsstruktur sorgfältig, um Kompatibilitätsprobleme zu vermeiden.
 
 ## 6.5 Verschlüsselung sensibler Daten
 
@@ -888,14 +1003,8 @@ class MyPlugin(AbstractPlugin):
         super().set_settings(settings)
 ```
 
-## 6.6 Best Practices für die Einstellungsverwaltung
+Diese geplante Funktion wird es ermöglichen, sensible Daten sicher zu speichern und zu verwalten, ohne sie im Klartext in den Einstellungen zu hinterlegen.
 
-1. **Validierung**: Überprüfen Sie immer die Gültigkeit von Einstellungswerten, bevor Sie sie anwenden.
-2. **Standardwerte**: Stellen Sie sinnvolle Standardwerte für alle Einstellungen bereit.
-3. **Dokumentation**: Dokumentieren Sie klar, welche Einstellungen Ihr Plugin verwendet und wie sie sich auswirken.
-4. **Granularität**: Finden Sie eine Balance zwischen zu vielen und zu wenigen Einstellungsoptionen.
-5. **Benutzerfreundlichkeit**: Verwenden Sie aussagekräftige Namen und Beschreibungen für Ihre Einstellungen.
-6. **Versionierung**: Behandeln Sie Änderungen am Einstellungsschema sorgfältig, um Kompatibilitätsprobleme zu vermeiden.
 
 Die effektive Nutzung der Einstellungsverwaltung ermöglicht es Plugins, flexibel und anpassbar zu sein, was die Benutzererfahrung und die Vielseitigkeit von Wortweber erheblich verbessert.
 
@@ -908,7 +1017,10 @@ Dieses Kapitel behandelt Best Practices für die Entwicklung von Plugins für Wo
 
 ### 7.1.1 PEP 8 Konventionen
 
-Folgen Sie den PEP 8 Stilrichtlinien für Python-Code. Dies verbessert die Lesbarkeit und Konsistenz Ihres Codes.
+- Befolgen Sie PEP 8 Stilrichtlinien
+- Verwenden Sie aussagekräftige Namen für Variablen und Funktionen
+- Kommentieren Sie komplexen Code
+- Strukturieren Sie Ihren Code logisch, insbesondere bei der Implementierung von UI-Elementen und Menüeinträgen
 
 Beispiel:
 
@@ -946,7 +1058,9 @@ def activate(self, settings: Dict[str, Any]) -> None:
 
 ### 7.2.1 Ausnahmen fangen und protokollieren
 
-Fangen Sie spezifische Ausnahmen und protokollieren Sie sie angemessen.
+- Implementieren Sie robuste Fehlerbehandlung
+- Loggen Sie Fehler und wichtige Ereignisse
+- Behandeln Sie Ausnahmen in UI-Callbacks und Menüaktionen angemessen
 
 ```python
 import logging
@@ -1150,7 +1264,127 @@ class MyPlugin(AbstractPlugin):
         self.version = "1.2.3"  # Major.Minor.Patch
 ```
 
-Durch das Befolgen dieser Best Practices können Sie hochwertige, wartbare und benutzerfreundliche Plugins für Wortweber entwickeln. Diese Richtlinien fördern nicht nur die Qualität Ihres eigenen Codes, sondern tragen auch zur Stabilität und Zuverlässigkeit des gesamten Wortweber-Ökosystems bei.
+## 7.9 UI-Integration
+
+Bei der Entwicklung von Plugins mit UI-Elementen beachten Sie folgende Best Practices:
+
+### 7.9.1 Menü- und Kontextmenüeinträge
+
+Implementieren Sie Menü- und Kontextmenüeinträge, um zusätzliche Funktionalitäten bereitzustellen.
+
+```python
+class UIIntegratedPlugin(AbstractPlugin):
+    def get_menu_entries(self) -> List[Dict[str, Any]]:
+        return [
+            {
+                'label': 'Meine Funktion',
+                'command': self.my_function
+            },
+            {
+                'label': 'Untermenü',
+                'submenu': [
+                    {'label': 'Unterfunktion 1', 'command': self.sub_function_1},
+                    {'label': 'Unterfunktion 2', 'command': self.sub_function_2}
+                ]
+            }
+        ]
+
+    def get_context_menu_entries(self) -> List[Dict[str, Any]]:
+        return [
+            {'label': 'Kontextfunktion', 'command': self.context_function}
+        ]
+
+    def my_function(self):
+        print("Hauptmenüfunktion ausgeführt")
+
+    def sub_function_1(self):
+        print("Unterfunktion 1 ausgeführt")
+
+    def sub_function_2(self):
+        print("Unterfunktion 2 ausgeführt")
+
+    def context_function(self):
+        print("Kontextmenüfunktion ausgeführt")
+```
+
+### 7.9.2 Plugin-Leiste
+
+Fügen Sie Buttons zur Plugin-Leiste hinzu, um häufig genutzte Funktionen schnell zugänglich zu machen.
+
+```python
+class PluginBarPlugin(AbstractPlugin):
+    def get_ui_elements(self) -> Dict[str, Any]:
+        return {
+            'buttons': [
+                {
+                    'text': 'Mein Button',
+                    'command': self.button_action
+                }
+            ]
+        }
+
+    def button_action(self):
+        print("Button in der Plugin-Leiste geklickt")
+```
+
+### 7.9.3 Plugin-Fenster
+
+Erstellen Sie eigene Fenster für komplexere Benutzeroberflächen.
+
+```python
+import tkinter as tk
+
+class WindowPlugin(AbstractPlugin):
+    def get_ui_elements(self) -> Dict[str, Any]:
+        return {
+            'window': self.create_plugin_window
+        }
+
+    def create_plugin_window(self, parent):
+        window = tk.Toplevel(parent)
+        window.title("Mein Plugin-Fenster")
+        tk.Label(window, text="Dies ist ein benutzerdefiniertes Plugin-Fenster").pack()
+        tk.Button(window, text="Aktion ausführen", command=self.window_action).pack()
+        return window
+
+    def window_action(self):
+        print("Aktion im Plugin-Fenster ausgeführt")
+```
+
+Beachten Sie bei der UI-Integration:
+- Konsistenz mit dem Hauptanwendungs-Design
+- Klare und intuitive Benutzerführung
+- Vermeidung von übermäßiger UI-Komplexität
+- Angemessene Fehlerbehandlung in UI-Callbacks
+
+## 7.10 Event-Handling
+
+Nutzen Sie das Event-System für die Kommunikation zwischen Plugins und mit der Hauptanwendung.
+
+```python
+class EventAwarePlugin(AbstractPlugin):
+    def activate(self, settings: Dict[str, Any]) -> None:
+        self.event_system.add_listener("text_processed", self.on_text_processed)
+
+    def deactivate(self) -> None:
+        self.event_system.remove_listener("text_processed", self.on_text_processed)
+
+    def on_text_processed(self, data: Any):
+        print(f"Text wurde verarbeitet: {data}")
+
+    def process_text(self, text: str) -> str:
+        processed_text = text.upper()
+        self.event_system.emit("custom_processing_complete", processed_text)
+        return processed_text
+```
+
+Beachten Sie beim Event-Handling:
+- Registrieren Sie Event-Listener in der `activate`-Methode
+- Entfernen Sie Event-Listener in der `deactivate`-Methode
+- Verwenden Sie aussagekräftige Event-Namen
+- Vermeiden Sie übermäßige Event-Emission, um die Leistung nicht zu beeinträchtigen
+
+Durch die Beachtung dieser zusätzlichen Best Practices können Sie Plugins entwickeln, die nahtlos in die Wortweber-Benutzeroberfläche integriert sind und effektiv mit anderen Komponenten kommunizieren. Diese Richtlinien fördern die Entwicklung von benutzerfreundlichen und interaktiven Plugins, die das Benutzererlebnis von Wortweber weiter verbessern.
 
 
 # 8. API-Referenz
@@ -1508,9 +1742,9 @@ Dieses Plugin demonstriert:
 - Reaktion auf verschiedene Event-Typen
 - Zählen von Events als Beispiel für die Zustandsverwaltung
 
-## 9.3 Erweitertes Plugin-Beispiel (mit Einstellungen und Event-Nutzung)
+## 9.3 Umfassendes Plugin-Beispiel
 
-Dieses fortgeschrittene Beispiel kombiniert komplexe Textverarbeitung, umfangreiche Einstellungsverwaltung und Event-Nutzung.
+Dieses fortgeschrittene Beispiel demonstriert komplexe Textverarbeitung, umfangreiche Einstellungsverwaltung, Event-Nutzung, UI-Integration und Menüeinträge.
 
 Status: Implementiert
 
@@ -1518,17 +1752,19 @@ Status: Implementiert
 import re
 from src.plugin_system.plugin_interface import AbstractPlugin
 from typing import Dict, Any, Optional, List
+import tkinter as tk
 
-class AdvancedTextProcessorPlugin(AbstractPlugin):
+class ComprehensivePlugin(AbstractPlugin):
     def __init__(self):
-        self._name = "Advanced Text Processor Plugin"
-        self._version = "1.1.0"
-        self._description = "Ein fortgeschrittenes Plugin zur Textverarbeitung mit vielen Einstellungen"
+        self._name = "Comprehensive Plugin"
+        self._version = "1.2.0"
+        self._description = "Ein umfassendes Beispiel-Plugin mit erweiterten Funktionen"
         self._author = "Wortweber-Entwickler"
         self._case_mode = "unchanged"
         self._word_replacement = {}
         self._enable_stats = False
         self._processed_text_count = 0
+        self._window = None
 
     @property
     def name(self) -> str:
@@ -1560,14 +1796,14 @@ class AdvancedTextProcessorPlugin(AbstractPlugin):
     def deactivate(self) -> Optional[Dict[str, Any]]:
         print(f"{self.name} wird deaktiviert")
         self.event_system.remove_listener("application_shutdown", self.on_shutdown)
+        if self._window and self._window.winfo_exists():
+            self._window.destroy()
         return self.get_settings()
 
     def process_text(self, text: str) -> str:
-        # Wort-Ersetzungen
         for old_word, new_word in self._word_replacement.items():
             text = re.sub(r'\b' + re.escape(old_word) + r'\b', new_word, text)
 
-        # Groß-/Kleinschreibung
         if self._case_mode == "upper":
             text = text.upper()
         elif self._case_mode == "lower":
@@ -1625,16 +1861,67 @@ class AdvancedTextProcessorPlugin(AbstractPlugin):
                 "label": "Statistik aktivieren"
             }
         ]
+
+    def get_menu_entries(self) -> List[Dict[str, Any]]:
+        return [
+            {
+                'label': 'Statistik anzeigen',
+                'command': self.show_stats
+            },
+            {
+                'label': 'Plugin-Fenster öffnen',
+                'command': self.open_plugin_window
+            }
+        ]
+
+    def get_context_menu_entries(self) -> List[Dict[str, Any]]:
+        return [
+            {'label': 'Text verarbeiten', 'command': self.process_selected_text}
+        ]
+
+    def get_ui_elements(self) -> Dict[str, Any]:
+        return {
+            'buttons': [
+                {
+                    'text': 'Statistik',
+                    'command': self.show_stats
+                }
+            ],
+            'window': self.create_plugin_window
+        }
+
+    def show_stats(self):
+        print(f"Aktuelle Statistik: {self._processed_text_count} Texte verarbeitet")
+
+    def process_selected_text(self):
+        # In einem realen Szenario würden Sie hier auf den ausgewählten Text zugreifen
+        print("Ausgewählter Text würde hier verarbeitet werden")
+
+    def open_plugin_window(self):
+        if self._window is None or not self._window.winfo_exists():
+            self.create_plugin_window(tk.Tk())
+
+    def create_plugin_window(self, parent):
+        self._window = tk.Toplevel(parent)
+        self._window.title(f"{self.name} Fenster")
+        tk.Label(self._window, text="Plugin-Einstellungen").pack()
+        tk.Button(self._window, text="Statistik anzeigen", command=self.show_stats).pack()
+        return self._window
 ```
 
-Dieses Plugin demonstriert:
+Dieses umfassende Beispiel demonstriert:
 - Komplexe Textverarbeitung mit mehreren Optionen
 - Erweiterte Einstellungsverwaltung
 - Event-Handling und -Emission
 - Bereitstellung einer benutzerdefinierten UI für Einstellungen
 - Statistische Erfassung der Plugin-Nutzung
+- Integration von Menü- und Kontextmenüeinträgen
+- Erstellung eines Plugin-Fensters und UI-Elementen
+- Ressourcenverwaltung (Fenster-Handling in `deactivate`)
 
-Diese Beispiele zeigen verschiedene Aspekte der Plugin-Entwicklung für Wortweber und können als Ausgangspunkt für Ihre eigenen Plugin-Projekte dienen. Sie demonstrieren Best Practices in Bezug auf Struktur, Fehlerbehandlung, Einstellungsverwaltung und die Nutzung des Event-Systems.
+Dieses kombinierte Beispiel deckt alle wichtigen Aspekte der Plugin-Entwicklung ab und zeigt, wie die verschiedenen Funktionen zusammenspielen können. Es bietet einen guten Überblick über die Möglichkeiten des Plugin-Systems und kann als Ausgangspunkt für Entwickler dienen, die komplexe Plugins erstellen möchten.
+
+
 # 10. Fortgeschrittene Konzepte und Techniken
 
 Dieses Kapitel behandelt fortgeschrittene Konzepte und Techniken für die Entwicklung leistungsfähiger und effizienter Plugins in Wortweber. Diese Konzepte bauen auf den Grundlagen auf und ermöglichen es Entwicklern, das volle Potenzial des Plugin-Systems auszuschöpfen.

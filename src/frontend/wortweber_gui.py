@@ -390,7 +390,7 @@ class WordweberGUI:
     def setup_context_menu(self) -> None:
         """Richtet das Kontextmenü für das Transkriptionsfenster ein."""
         def show_context_menu(event):
-            create_context_menu(self.transcription_panel.text_widget, event)
+            create_context_menu(self.transcription_panel.text_widget, event, self.plugin_manager)
 
         self.transcription_panel.text_widget.bind("<Button-3>", show_context_menu)
 
