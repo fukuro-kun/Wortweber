@@ -14,6 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+"""
+Dieses Modul implementiert den PluginManager für die Wortweber-Anwendung.
+Es verwaltet das Laden, Aktivieren, Deaktivieren und Ausführen von Plugins.
+"""
+
 # Standardbibliotheken
 import os
 from typing import Dict, List, Union, Optional, Any
@@ -26,15 +31,16 @@ from src.frontend.settings_manager import SettingsManager
 from src.utils.error_handling import handle_exceptions, logger
 from src.plugin_system.event_system import EventSystem
 
+# Globale Konstante für bedingtes Debug-Logging
+DEBUG_LOGGING = False
 
 class PluginManager:
     """
-    Verwaltet das Laden, Aktivieren, Deaktivieren und Ausführen von Plugins.
+    Verwaltet den gesamten Lebenszyklus der Plugins in der Wortweber-Anwendung.
 
-    Diese Klasse ist verantwortlich für den gesamten Lebenszyklus der Plugins,
-    einschließlich ihrer Entdeckung, Aktivierung, Deaktivierung und Aktualisierung.
-    Sie stellt auch sicher, dass der Plugin-Status konsistent bleibt und
-    verwaltet die Plugin-Einstellungen.
+    Diese Klasse ist verantwortlich für die Entdeckung, Aktivierung, Deaktivierung
+    und Aktualisierung von Plugins. Sie stellt auch sicher, dass der Plugin-Status
+    konsistent bleibt und verwaltet die Plugin-Einstellungen.
 
     Attributes:
         plugin_dir (str): Das Verzeichnis, in dem die Plugins gespeichert sind.
@@ -65,7 +71,8 @@ class PluginManager:
         self.plugin_ui_elements: Dict[str, Dict[str, Any]] = {}
         self.plugin_menu_entries: Dict[str, List[Dict[str, Any]]] = {}
         self.plugin_context_menu_entries: Dict[str, List[Dict[str, Any]]] = {}
-        logger.debug("PluginManager initialisiert")
+        if DEBUG_LOGGING:
+            logger.debug("PluginManager initialisiert")
 
     @handle_exceptions
     def discover_plugins(self) -> None:
@@ -75,7 +82,8 @@ class PluginManager:
         Diese Methode scannt das Plugin-Verzeichnis, lädt alle verfügbaren Plugins
         und aktiviert diejenigen, die als aktiviert markiert sind.
         """
-        logger.debug(f"Suche nach Plugins in: {self.plugin_dir}")
+        if DEBUG_LOGGING:
+            logger.debug(f"Suche nach Plugins in: {self.plugin_dir}")
         plugin_settings = self.settings_manager.get_setting("plugins", {}).get("specific_settings", {})
         loaded_plugins = self.plugin_loader.load_all_plugins(plugin_settings)
         for plugin in loaded_plugins:
@@ -85,7 +93,7 @@ class PluginManager:
                 self.plugin_menu_entries[plugin.name] = plugin.get_menu_entries()
                 self.plugin_context_menu_entries[plugin.name] = plugin.get_context_menu_entries()
                 logger.info(f"Plugin entdeckt: {plugin.name} v{plugin.version}")
-            else:
+            elif DEBUG_LOGGING:
                 logger.debug(f"Plugin {plugin.name} bereits geladen, wird übersprungen")
 
         self.load_enabled_plugins()
@@ -110,7 +118,8 @@ class PluginManager:
 
         self.resolve_dependencies()
 
-        logger.info(f"Insgesamt {len(self.plugins)} Plugins geladen, {len(self.active_plugins)} aktiv")
+        if DEBUG_LOGGING:
+            logger.debug(f"Insgesamt {len(self.plugins)} Plugins geladen, {len(self.active_plugins)} aktiv")
 
     @handle_exceptions
     def activate_plugin(self, plugin_name: str) -> bool:
@@ -201,16 +210,8 @@ class PluginManager:
         """
         Aktualisiert die Liste der aktivierten Plugins in den Einstellungen.
 
-        Diese Methode führt zwei wichtige Operationen durch:
-        1. Abrufen der aktuellen Liste der aktivierten Plugins
-        2. Aktualisieren der gesamten Plugin-Einstellungen mit dieser Liste
-
-        Dies stellt sicher, dass:
-        - Die aktuelle Liste der aktivierten Plugins konsistent mit dem internen Zustand des PluginManager ist
-        - Andere mögliche Plugin-bezogene Einstellungen in plugins_settings erhalten bleiben
-
-        Diese Vorgehensweise ist eine bewusste Designentscheidung zur Gewährleistung von Konsistenz und
-        Vollständigkeit der Einstellungen.
+        Diese Methode stellt sicher, dass die Liste der aktivierten Plugins in den
+        Einstellungen mit dem aktuellen Zustand des PluginManagers übereinstimmt.
         """
         enabled_plugins = self.settings_manager.get_enabled_plugins()
         plugins_settings = self.settings_manager.get_setting("plugins", {})
@@ -369,7 +370,8 @@ class PluginManager:
         # Aktualisiere die Liste der aktivierten Plugins in den Einstellungen
         self.update_enabled_plugins()
 
-        logger.info(f"Plugin-Status verifiziert. Aktive Plugins: {', '.join(self.active_plugins)}")
+        if DEBUG_LOGGING:
+            logger.debug(f"Plugin-Status verifiziert. Aktive Plugins: {', '.join(self.active_plugins)}")
         return changes_made
 
     @handle_exceptions
@@ -418,7 +420,8 @@ class PluginManager:
         """
         if plugin_name in self.plugins and plugin_name in self.active_plugins:
             self.plugin_ui_elements[plugin_name] = self.plugins[plugin_name].get_ui_elements()
-        logger.info(f"UI-Elemente für Plugin {plugin_name} aktualisiert")
+        if DEBUG_LOGGING:
+            logger.debug(f"UI-Elemente für Plugin {plugin_name} aktualisiert")
 
     @handle_exceptions
     def update_plugin_menu_entries(self, plugin_name: str) -> None:
@@ -430,7 +433,8 @@ class PluginManager:
         """
         if plugin_name in self.plugins and plugin_name in self.active_plugins:
             self.plugin_menu_entries[plugin_name] = self.plugins[plugin_name].get_menu_entries()
-        logger.info(f"Menüeinträge für Plugin {plugin_name} aktualisiert")
+        if DEBUG_LOGGING:
+            logger.debug(f"Menüeinträge für Plugin {plugin_name} aktualisiert")
 
     @handle_exceptions
     def update_plugin_context_menu_entries(self, plugin_name: str) -> None:
@@ -442,7 +446,8 @@ class PluginManager:
         """
         if plugin_name in self.plugins and plugin_name in self.active_plugins:
             self.plugin_context_menu_entries[plugin_name] = self.plugins[plugin_name].get_context_menu_entries()
-        logger.info(f"Kontextmenüeinträge für Plugin {plugin_name} aktualisiert")
+        if DEBUG_LOGGING:
+            logger.debug(f"Kontextmenüeinträge für Plugin {plugin_name} aktualisiert")
 
     @handle_exceptions
     def remove_plugin_ui_elements(self, plugin_name: str) -> None:
@@ -453,7 +458,8 @@ class PluginManager:
             plugin_name (str): Name des Plugins, dessen UI-Elemente entfernt werden sollen.
         """
         self.plugin_ui_elements.pop(plugin_name, None)
-        logger.info(f"UI-Elemente für Plugin {plugin_name} entfernt")
+        if DEBUG_LOGGING:
+            logger.debug(f"UI-Elemente für Plugin {plugin_name} entfernt")
 
     @handle_exceptions
     def remove_plugin_menu_entries(self, plugin_name: str) -> None:
@@ -464,7 +470,8 @@ class PluginManager:
             plugin_name (str): Name des Plugins, dessen Menüeinträge entfernt werden sollen.
         """
         self.plugin_menu_entries.pop(plugin_name, None)
-        logger.info(f"Menüeinträge für Plugin {plugin_name} entfernt")
+        if DEBUG_LOGGING:
+            logger.debug(f"Menüeinträge für Plugin {plugin_name} entfernt")
 
     @handle_exceptions
     def remove_plugin_context_menu_entries(self, plugin_name: str) -> None:
@@ -475,7 +482,8 @@ class PluginManager:
             plugin_name (str): Name des Plugins, dessen Kontextmenüeinträge entfernt werden sollen.
         """
         self.plugin_context_menu_entries.pop(plugin_name, None)
-        logger.info(f"Kontextmenüeinträge für Plugin {plugin_name} entfernt")
+        if DEBUG_LOGGING:
+            logger.debug(f"Kontextmenüeinträge für Plugin {plugin_name} entfernt")
 
 # Zusätzliche Erklärungen:
 
@@ -497,7 +505,7 @@ class PluginManager:
 #    bei einem Neuladen des Plugins zu aktualisieren.
 
 # 5. Fehlerbehandlung und Logging:
-#    Alle neuen Methoden verwenden den @handle_exceptions Decorator und
+#    Alle Methoden verwenden den @handle_exceptions Decorator und
 #    implementieren entsprechendes Logging für eine konsistente Fehlerbehandlung.
 
 # Diese Erweiterungen ermöglichen es Plugins, Kontextmenüeinträge zu definieren und

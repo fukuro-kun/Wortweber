@@ -19,16 +19,30 @@ Dieses Modul enthält die Hauptlogik für das Backend der Wortweber-Anwendung.
 Es koordiniert die Audioaufnahme, Transkription und Datenverwaltung.
 """
 
+# Standardbibliotheken
 from typing import List, Optional, Tuple, Callable
+import threading
+
+# Drittanbieterbibliotheken
 import numpy as np
-from src.config import AUDIO_RATE, AUDIO_FORMAT, AUDIO_CHANNELS, AUDIO_CHUNK, DEVICE_INDEX, TARGET_RATE, DEFAULT_WHISPER_MODEL, DEFAULT_INCOGNITO_MODE
+
+# Projektspezifische Module
+from src.config import (
+    AUDIO_RATE, AUDIO_FORMAT, AUDIO_CHANNELS, AUDIO_CHUNK, DEVICE_INDEX,
+    TARGET_RATE, DEFAULT_WHISPER_MODEL, DEFAULT_INCOGNITO_MODE
+)
 from src.backend.audio_processor import AudioProcessor
 from src.backend.wortweber_transcriber import Transcriber
-import threading
 from src.utils.error_handling import handle_exceptions, logger
 
+# Globale Konstante für bedingtes Debug-Logging
+DEBUG_LOGGING = False
+
 class WordweberState:
+    """Repräsentiert den Zustand der Wortweber-Anwendung."""
+
     def __init__(self):
+        """Initialisiert den Zustand der Wortweber-Anwendung."""
         self.recording: bool = False
         self.audio_data: List[bytes] = []
         self.start_time: float = 0
@@ -36,8 +50,15 @@ class WordweberState:
         self.language: str = "de"
 
 class WordweberBackend:
+    """Hauptklasse für die Backend-Logik der Wortweber-Anwendung."""
+
     @handle_exceptions
     def __init__(self, settings_manager):
+        """
+        Initialisiert das WordweberBackend.
+
+        :param settings_manager: Der SettingsManager für die Verwaltung von Einstellungen
+        """
         self.settings_manager = settings_manager
         self.state = WordweberState()
         self.audio_processor = AudioProcessor(self.settings_manager)
@@ -46,7 +67,8 @@ class WordweberBackend:
         self.on_transcription_complete: Optional[Callable[[str], None]] = None
         self.pending_audio: List[np.ndarray] = []
         self.gui = None  # Wird später von der GUI gesetzt
-        logger.debug("WordweberBackend initialisiert")
+        if DEBUG_LOGGING:
+            logger.debug("WordweberBackend initialisiert")
 
     @handle_exceptions
     def set_gui(self, gui):
@@ -69,6 +91,8 @@ class WordweberBackend:
         self.state.recording = True
         self.state.audio_data = []
         threading.Thread(target=self._record_audio, daemon=True).start()
+        if DEBUG_LOGGING:
+            logger.debug("Audioaufnahme gestartet")
 
     @handle_exceptions
     def stop_recording(self) -> None:
@@ -91,7 +115,8 @@ class WordweberBackend:
         Diese Methode kann in Zukunft für chunkweise Verarbeitung oder andere Erweiterungen angepasst werden.
         """
         self.audio_processor.record_audio(self.state)
-        # Kein zusätzliches Logging hier
+        if DEBUG_LOGGING: # eigentlich kein zusätzliches Logging hier, das geschicht schon in audio_processor.record_audio (DRY-Prinzip)
+            logger.debug("Audioaufnahme in wortweber_backend.py abgeschlossen")
 
     @handle_exceptions
     def process_and_transcribe(self, language: str) -> str:
@@ -122,7 +147,6 @@ class WordweberBackend:
             logger.info("Transkription abgeschlossen (Incognito-Modus aktiv)")
 
         return transcribed_text
-
 
     @handle_exceptions
     def load_transcriber_model(self, model_name: str) -> None:
@@ -187,7 +211,11 @@ class WordweberBackend:
 
     @handle_exceptions
     def get_current_audio_device(self):
-        """Gibt Informationen über das aktuell verwendete Audiogerät zurück."""
+        """
+        Gibt Informationen über das aktuell verwendete Audiogerät zurück.
+
+        :return: Ein Dictionary mit Informationen über das aktuelle Audiogerät
+        """
         return self.audio_processor.get_current_device_info()
 
     @handle_exceptions

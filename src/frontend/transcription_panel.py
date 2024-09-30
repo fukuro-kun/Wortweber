@@ -14,14 +14,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# Standardbibliotheken
 import tkinter as tk
 from tkinter import ttk, scrolledtext
 import tkinter.font as tkFont
 import pyperclip
 import time
+
+# Projektspezifische Module
 from src.config import HIGHLIGHT_DURATION, DEFAULT_FONT_SIZE, DEFAULT_FONT_FAMILY, DEFAULT_INCOGNITO_MODE
 from src.frontend.context_menu import create_context_menu
 from src.utils.error_handling import handle_exceptions, logger
+
+# Globale Konstante für bedingtes Debug-Logging
+DEBUG_LOGGING = False
 
 class TranscriptionPanel(ttk.Frame):
     """
@@ -63,7 +69,8 @@ class TranscriptionPanel(ttk.Frame):
         # Event-Handler für Textänderungen hinzufügen
         self.text_widget.bind("<<Modified>>", self.on_text_modified)
         self.text_widget.bind("<<Selection>>", self.on_selection_change)
-        logger.debug("TranscriptionPanel UI eingerichtet")
+        if DEBUG_LOGGING:
+            logger.debug("TranscriptionPanel UI eingerichtet")
 
     @handle_exceptions
     def set_font(self, family, size):
@@ -74,7 +81,7 @@ class TranscriptionPanel(ttk.Frame):
         :param size: Die neue Schriftgröße
         """
         try:
-            size = int(size)  # Versuchen Sie, size in einen Integer umzuwandeln
+            size = int(size)  # Versuche, size in einen Integer umzuwandeln
         except ValueError:
             size = 12  # Standardgröße, falls die Umwandlung fehlschlägt
         font = tkFont.Font(family=family, size=size)
@@ -107,7 +114,8 @@ class TranscriptionPanel(ttk.Frame):
     def show_context_menu(self, event):
         """Zeigt das Kontextmenü an der Position des Mausklicks an."""
         create_context_menu(self.text_widget, event)
-        logger.debug("Kontextmenü angezeigt")
+        if DEBUG_LOGGING:
+            logger.debug("Kontextmenü angezeigt")
 
     @handle_exceptions
     def insert_text(self, text):
@@ -124,9 +132,9 @@ class TranscriptionPanel(ttk.Frame):
         self.gui.root.after(HIGHLIGHT_DURATION, lambda: self.text_widget.tag_remove("highlight", current_position, end_position))
         self.save_text()
         incognito_mode = self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
-        if not incognito_mode:
+        if not incognito_mode and DEBUG_LOGGING:
             logger.info(f"Text eingefügt und hervorgehoben: {text[:50]}...")
-        else:
+        elif DEBUG_LOGGING:
             logger.info(f"Text eingefügt und hervorgehoben (Incognito-Modus aktiv). Länge: {len(text)} Zeichen")
 
     @handle_exceptions
@@ -151,12 +159,14 @@ class TranscriptionPanel(ttk.Frame):
     @handle_exceptions
     def save_text(self):
         """Speichert den aktuellen Inhalt des Transkriptionsfelds in den Einstellungen."""
-        text_content = self.text_widget.get(1.0, tk.END).strip()
+        text_content = self.text_widget.get("1.0", tk.END).strip()
+        if DEBUG_LOGGING:
+            logger.debug(f"save_text aufgerufen. Neuer text_content: '{text_content[:50]}...'")
         self.gui.settings_manager.set_setting("text_content", text_content)
         incognito_mode = self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
-        if not incognito_mode:
+        if not incognito_mode and DEBUG_LOGGING:
             logger.debug(f"Transkriptionstext gespeichert. Länge: {len(text_content)} Zeichen")
-        else:
+        elif DEBUG_LOGGING:
             logger.debug("Transkriptionstext gespeichert (Incognito-Modus aktiv)")
 
     @handle_exceptions
@@ -183,9 +193,9 @@ class TranscriptionPanel(ttk.Frame):
             # Zurücksetzen des modified flags
             self.text_widget.edit_modified(False)
             incognito_mode = self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
-            if not incognito_mode:
+            if not incognito_mode and DEBUG_LOGGING:
                 logger.debug(f"Text geändert und gespeichert. Neue Länge: {len(self.text_widget.get(1.0, tk.END).strip())} Zeichen")
-            else:
+            elif DEBUG_LOGGING:
                 logger.debug("Text geändert und gespeichert (Incognito-Modus aktiv)")
 
     @handle_exceptions
@@ -200,7 +210,8 @@ class TranscriptionPanel(ttk.Frame):
         """Loggt eine Nachricht, aber nicht öfter als alle 100 ms."""
         current_time = time.time()
         if current_time - self.last_selection_log > self.selection_log_delay:
-            logger.debug(message)
+            if DEBUG_LOGGING:
+                logger.debug(message)
             self.last_selection_log = current_time
 
     @handle_exceptions
@@ -235,3 +246,5 @@ class TranscriptionPanel(ttk.Frame):
 # 5. Ein Kontextmenü ermöglicht zusätzliche Textbearbeitungsfunktionen.
 # 6. Die Klasse interagiert eng mit dem SettingsManager, um Benutzereinstellungen zu persistieren.
 # 7. Die update_colors Methode ermöglicht die dynamische Anpassung der Textfarben.
+# 8. Die Implementierung berücksichtigt den Incognito-Modus, um sensible Informationen zu schützen.
+# 9. Das bedingte Logging (DEBUG_LOGGING) ermöglicht eine feinere Kontrolle über die Menge der generierten Logs.

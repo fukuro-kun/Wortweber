@@ -46,6 +46,9 @@ from src.plugin_system.plugin_manager import PluginManager
 from src.frontend.context_menu import create_context_menu
 from src.frontend.plugin_management_window import PluginManagementWindow
 
+# Globale Konstante für bedingtes Debug-Logging
+DEBUG_LOGGING = False
+
 class WordweberGUI:
     """
     Hauptklasse für die grafische Benutzeroberfläche der Wortweber-Anwendung.
@@ -75,12 +78,14 @@ class WordweberGUI:
         if saved_geometry:
             try:
                 self.root.geometry(saved_geometry)
-                logger.debug(f"Gespeicherte Fenstergeometrie geladen: {saved_geometry}")
+                if DEBUG_LOGGING:
+                    logger.debug(f"Gespeicherte Fenstergeometrie geladen: {saved_geometry}")
             except tk.TclError:
                 logger.warning("Ungültige gespeicherte Geometrie, verwende Standardgröße")
                 self.root.geometry(DEFAULT_WINDOW_SIZE)
         else:
-            logger.debug("Keine gespeicherte Geometrie gefunden, verwende Standardgröße")
+            if DEBUG_LOGGING:
+                logger.debug("Keine gespeicherte Geometrie gefunden, verwende Standardgröße")
             self.root.geometry(DEFAULT_WINDOW_SIZE)
 
         self.theme_manager = ThemeManager(self.root, self.settings_manager)
@@ -117,11 +122,21 @@ class WordweberGUI:
         self.plugin_manager.event_system.add_listener('plugin_settings_updated', self.on_plugin_settings_updated)
 
     def on_plugin_state_changed(self, plugin_name: str):
+        """
+        Wird aufgerufen, wenn sich der Zustand eines Plugins ändert.
+
+        :param plugin_name: Name des Plugins, dessen Zustand sich geändert hat
+        """
         self.rebuild_plugin_bar()
         self.setup_menu()
 
     def on_plugin_settings_updated(self, plugin_name: str):
-        # Behandle notwendige UI-Aktualisierungen, wenn sich Plugin-Einstellungen ändern
+        """
+        Wird aufgerufen, wenn die Einstellungen eines Plugins aktualisiert wurden.
+
+        :param plugin_name: Name des Plugins, dessen Einstellungen aktualisiert wurden
+        """
+        # Hier können in Zukunft notwendige UI-Aktualisierungen implementiert werden
         pass
 
     @handle_exceptions
@@ -129,14 +144,15 @@ class WordweberGUI:
         """Aktualisiert und speichert die aktuelle Fenstergeometrie."""
         current_geometry = self.root.geometry()
         self.settings_manager.set_setting("window_geometry", current_geometry)
-        logger.debug(f"Fenstergeometrie aktualisiert: {current_geometry}")
+        if DEBUG_LOGGING:
+            logger.debug(f"Fenstergeometrie aktualisiert: {current_geometry}")
         self.root.after(5000, self.update_geometry)  # Alle 5 Sekunden aktualisieren
 
     @handle_exceptions
     def setup_logging(self) -> None:
         """Konfiguriert das Logging für die Anwendung."""
-        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-        logging.debug("WordweberGUI initialisiert")
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+        logger.info("WordweberGUI initialisiert")
 
     @handle_exceptions
     def load_saved_settings(self) -> None:
@@ -174,30 +190,38 @@ class WordweberGUI:
                 self.root.after(0, self.transcribe_and_update)
         except Exception as e:
             self.root.after(0, lambda: self.main_window.update_status_bar(status=f"Fehler beim Laden des Modells: {str(e)}", status_color="red"))
-            logging.error(f"Fehler beim Laden des Modells: {str(e)}")
+            logger.error(f"Fehler beim Laden des Modells: {str(e)}")
 
     @handle_exceptions
     def run(self) -> None:
         """Startet die Hauptschleife der GUI."""
-        logging.debug("Starte Anwendung")
+        logger.info("Starte Anwendung")
         self.input_processor.start_listener()
         self.root.mainloop()
 
     @handle_exceptions
     def on_closing(self) -> None:
-        """Wird aufgerufen, wenn das Anwendungsfenster geschlossen wird."""
-        logging.debug("Anwendung wird geschlossen")
+        """Wird aufgerufen, wenn die Anwendung geschlossen wird."""
+        logger.info("Anwendung wird geschlossen")
         self.input_processor.stop_listener()
+
+        # Überprüfe und speichere den aktuellen Textinhalt
+        current_text = self.transcription_panel.text_widget.get("1.0", tk.END).strip()
+        self.settings_manager.set_setting("text_content", current_text)
+
         if self.backend.transcriber.model is not None:
             del self.backend.transcriber.model
+
         self.root.destroy()
+        logger.info("Anwendung erfolgreich beendet")
 
     @handle_exceptions
     def save_current_geometry(self) -> None:
         """Speichert die aktuelle Fenstergeometrie in den Einstellungen."""
         current_geometry = self.root.winfo_geometry()
         self.settings_manager.set_setting("window_geometry", current_geometry)
-        logger.debug(f"Fenstergeometrie beim Schließen gespeichert: {current_geometry}")
+        if DEBUG_LOGGING:
+            logger.debug(f"Fenstergeometrie beim Schließen gespeichert: {current_geometry}")
 
     @handle_exceptions
     def open_options_window(self) -> None:
@@ -254,7 +278,7 @@ class WordweberGUI:
 
         # Informiere den Benutzer über den Beginn der Transkription
         self.main_window.update_status_bar(status="Transkribiere...", status_color="orange")
-        logger.debug("Starte Transkription")
+        logger.info("Starte Transkription")
 
         # Führe die eigentliche Transkription durch und messe die Zeit
         start_time = time.time()
@@ -420,7 +444,8 @@ class WordweberGUI:
                                     self.open_plugin_window(name, creator))
                     btn.pack(side=tk.LEFT, padx=2)
 
-        logger.debug("Plugin-Leiste erfolgreich eingerichtet")
+        if DEBUG_LOGGING:
+            logger.debug("Plugin-Leiste erfolgreich eingerichtet")
 
     @handle_exceptions
     def open_plugin_window(self, plugin_name: str, window_creator: Callable) -> None:

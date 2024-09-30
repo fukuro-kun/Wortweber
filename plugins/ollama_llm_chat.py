@@ -18,6 +18,7 @@
 import tkinter as tk
 from tkinter import ttk
 from typing import Dict, Any, Optional, List
+import json
 
 # Drittanbieterbibliotheken
 import requests
@@ -25,7 +26,7 @@ import requests
 # Projektspezifische Module
 from src.plugin_system.plugin_interface import AbstractPlugin
 from src.plugin_system.event_system import EventSystem
-from src.utils.error_handling import logger
+from src.utils.error_handling import handle_exceptions, logger
 
 class OllamaLLMChatPlugin(AbstractPlugin):
     """
@@ -38,7 +39,7 @@ class OllamaLLMChatPlugin(AbstractPlugin):
     def __init__(self):
         """Initialisiert das OllamaLLMChatPlugin mit Standardwerten."""
         self._name = "Ollama LLM Chat Plugin"
-        self._version = "1.0.0"
+        self._version = "1.0.1"
         self._description = "Ein Plugin für den Chat mit einem von Ollama gehosteten LLM"
         self._author = "Wortweber-Entwickler"
         self._chat_window = None
@@ -47,7 +48,9 @@ class OllamaLLMChatPlugin(AbstractPlugin):
         self._chat_history = []
         self._system_message = "Du bist ein hilfreicher Assistent."
         self._llm_model = "llama3.1:8b-instruct-q6_K"
-        self._ollama_api_url = "http://127.0.0.1:11434/api/generate"
+        self._ollama_base_url = "http://localhost:11434"
+        self._ollama_chat_endpoint = "/api/chat"
+        self._ollama_tags_endpoint = "/api/tags"
 
     @property
     def name(self) -> str:
@@ -78,7 +81,7 @@ class OllamaLLMChatPlugin(AbstractPlugin):
         """
         self._system_message = settings.get('system_message', self._system_message)
         self._llm_model = settings.get('llm_model', self._llm_model)
-        self._ollama_api_url = settings.get('ollama_api_url', self._ollama_api_url)
+        self._ollama_base_url = settings.get('ollama_base_url', self._ollama_base_url)
 
     def deactivate(self) -> Optional[Dict[str, Any]]:
         """
@@ -92,7 +95,7 @@ class OllamaLLMChatPlugin(AbstractPlugin):
         return {
             'system_message': self._system_message,
             'llm_model': self._llm_model,
-            'ollama_api_url': self._ollama_api_url
+            'ollama_base_url': self._ollama_base_url
         }
 
     def process_text(self, text: str) -> str:
@@ -119,7 +122,7 @@ class OllamaLLMChatPlugin(AbstractPlugin):
         return {
             'system_message': self._system_message,
             'llm_model': self._llm_model,
-            'ollama_api_url': self._ollama_api_url
+            'ollama_base_url': self._ollama_base_url
         }
 
     def set_settings(self, settings: Dict[str, Any]) -> None:
@@ -131,7 +134,7 @@ class OllamaLLMChatPlugin(AbstractPlugin):
         """
         self._system_message = settings.get('system_message', self._system_message)
         self._llm_model = settings.get('llm_model', self._llm_model)
-        self._ollama_api_url = settings.get('ollama_api_url', self._ollama_api_url)
+        self._ollama_base_url = settings.get('ollama_base_url', self._ollama_base_url)
         logger.info(f"Einstellungen für {self.name} aktualisiert: {settings}")
 
     def get_menu_entries(self) -> List[Dict[str, Any]]:
@@ -171,27 +174,36 @@ class OllamaLLMChatPlugin(AbstractPlugin):
         self._chat_window.title("Ollama LLM Chat")
         self._chat_window.geometry("600x400")
 
-        self._chat_display = tk.Text(self._chat_window, state='disabled')
+        # Verwenden Sie den gleichen Stil wie das Hauptfenster
+        style = ttk.Style()
+        bg_color = style.lookup('TFrame', 'background')
+        fg_color = style.lookup('TLabel', 'foreground')
+
+        self._chat_display = tk.Text(self._chat_window, wrap='word',
+                                    bg=bg_color, fg=fg_color, insertbackground=fg_color)
         self._chat_display.pack(expand=True, fill='both', padx=10, pady=10)
 
-        input_frame = tk.Frame(self._chat_window)
+        input_frame = ttk.Frame(self._chat_window)
         input_frame.pack(fill='x', padx=10, pady=10)
 
-        self._input_text = tk.Text(input_frame, height=3)
+        self._input_text = tk.Text(input_frame, height=3, wrap='word',
+                                bg=bg_color, fg=fg_color, insertbackground=fg_color)
         self._input_text.pack(side='left', expand=True, fill='both')
 
         send_button = ttk.Button(input_frame, text="Senden", command=self.send_message)
         send_button.pack(side='right')
 
+    @handle_exceptions
     def send_message(self):
         """Sendet die Nachricht aus dem Eingabefeld an das LLM und aktualisiert den Chat-Verlauf."""
         if self._input_text:
             user_message = self._input_text.get("1.0", tk.END).strip()
             if user_message:
-                self.update_chat_display(f"User: {user_message}")
+                self.update_chat_display(f"\nUser: {user_message}\n")
                 self._input_text.delete("1.0", tk.END)
                 self.get_llm_response(user_message)
 
+    @handle_exceptions
     def get_llm_response(self, user_message: str):
         """
         Holt die Antwort vom LLM und aktualisiert den Chat-Verlauf.
@@ -199,29 +211,98 @@ class OllamaLLMChatPlugin(AbstractPlugin):
         Args:
             user_message (str): Die Nachricht des Benutzers.
         """
-        prompt = f"{self._system_message}\n\nUser: {user_message}\nAssistant:"
-        try:
-            response = requests.post(self._ollama_api_url, json={
-                "model": self._llm_model,
-                "prompt": prompt
-            })
-            response.raise_for_status()
-            assistant_message = response.json()['response']
-            self.update_chat_display(f"Assistant: {assistant_message}")
-        except requests.RequestException as e:
-            self.update_chat_display(f"Error: Konnte keine Verbindung zum LLM herstellen. {str(e)}")
+        if not self.test_api_connection():
+            self.update_chat_display("Error: Keine Verbindung zur Ollama API möglich. Bitte überprüfen Sie Ihre Einstellungen und stellen Sie sicher, dass der Ollama-Dienst läuft.")
+            return
 
-    def update_chat_display(self, message: str):
+        # Füge die Benutzernachricht zum Chatverlauf hinzu
+        self._chat_history.append({"role": "user", "content": user_message})
+
+        payload = {
+            "model": self._llm_model,
+            "messages": [{"role": "system", "content": self._system_message}] + self._chat_history,
+            "stream": True
+        }
+
+        try:
+            response = requests.post(f"{self._ollama_base_url}{self._ollama_chat_endpoint}", json=payload, stream=True, timeout=30)
+            response.raise_for_status()
+
+            self.update_chat_display("\nAssistant: ")
+            full_response = ""
+            for line in response.iter_lines():
+                if line:
+                    try:
+                        json_response = json.loads(line)
+                        if 'message' in json_response and 'content' in json_response['message']:
+                            content = json_response['message']['content']
+                            full_response += content
+                            self.update_chat_display(content, append=True)
+                    except json.JSONDecodeError:
+                        logger.warning(f"Konnte Zeile nicht als JSON dekodieren: {line}")
+
+            if full_response:
+                # Füge die LLM-Antwort zum Chatverlauf hinzu
+                self._chat_history.append({"role": "assistant", "content": full_response})
+                self.update_chat_display("\n")  # Neue Zeile nach der Antwort
+                logger.info(f"Vollständige Antwort erhalten, Länge: {len(full_response)} Zeichen")
+            else:
+                self.update_chat_display("Error: Keine lesbare Antwort vom LLM erhalten.")
+
+        except requests.RequestException as e:
+            error_message = f"Fehler bei der Verbindung zum LLM: {str(e)}"
+            self.update_chat_display(f"Error: {error_message}")
+            logger.error(error_message)
+
+    @handle_exceptions
+    def test_api_connection(self):
+        """
+        Testet die Verbindung zur Ollama API.
+
+        Returns:
+            bool: True, wenn die Verbindung erfolgreich ist, sonst False.
+        """
+        try:
+            response = requests.get(f"{self._ollama_base_url}{self._ollama_tags_endpoint}", timeout=5)
+            response.raise_for_status()
+            logger.info("Ollama API-Verbindung erfolgreich getestet.")
+            return True
+        except requests.RequestException as e:
+            logger.error(f"Fehler bei der Verbindung zur Ollama API: {str(e)}")
+            return False
+
+    @handle_exceptions
+    def get_available_models(self):
+        """
+        Holt die Liste der verfügbaren Modelle von der Ollama API.
+
+        Returns:
+            List[str]: Eine Liste der verfügbaren Modellnamen oder eine leere Liste bei Fehlern.
+        """
+        try:
+            response = requests.get(f"{self._ollama_base_url}{self._ollama_tags_endpoint}", timeout=5)
+            response.raise_for_status()
+            data = response.json()
+            return [model['name'] for model in data.get('models', [])]
+        except requests.RequestException as e:
+            logger.error(f"Fehler beim Abrufen der verfügbaren Modelle: {str(e)}")
+            return []
+
+    def update_chat_display(self, message: str, append: bool = False):
         """
         Aktualisiert die Chat-Anzeige mit einer neuen Nachricht.
 
         Args:
             message (str): Die anzuzeigende Nachricht.
+            append (bool): Wenn True, wird die Nachricht an die bestehende angehängt.
         """
         if self._chat_display:
-            self._chat_display.config(state='normal')
-            self._chat_display.insert(tk.END, message + "\n\n")
-            self._chat_display.config(state='disabled')
+            self._chat_display.config(state=tk.NORMAL)
+            if append:
+                self._chat_display.insert(tk.END, message)
+            else:
+                self._chat_display.insert(tk.END, message + "\n")
+            self._chat_display.config(state=tk.DISABLED)
             self._chat_display.see(tk.END)
 
     def get_config_ui(self, parent: tk.Widget) -> ttk.Frame:
@@ -246,15 +327,15 @@ class OllamaLLMChatPlugin(AbstractPlugin):
         llm_model_entry.insert(0, self._llm_model)
         llm_model_entry.pack(fill='x')
 
-        ttk.Label(frame, text="Ollama API URL:").pack(anchor='w')
+        ttk.Label(frame, text="Ollama API Basis-URL:").pack(anchor='w')
         api_url_entry = ttk.Entry(frame)
-        api_url_entry.insert(0, self._ollama_api_url)
+        api_url_entry.insert(0, self._ollama_base_url)
         api_url_entry.pack(fill='x')
 
         def save_settings():
             self._system_message = system_message_entry.get()
             self._llm_model = llm_model_entry.get()
-            self._ollama_api_url = api_url_entry.get()
+            self._ollama_base_url = api_url_entry.get()
 
         save_button = ttk.Button(frame, text="Einstellungen speichern", command=save_settings)
         save_button.pack(pady=10)
@@ -281,21 +362,33 @@ class OllamaLLMChatPlugin(AbstractPlugin):
 
 # Zusätzliche Erklärungen:
 
-# 1. Klassenstruktur:
-#    Die OllamaLLMChatPlugin-Klasse implementiert das AbstractPlugin-Interface und
-#    bietet Funktionen für die Interaktion mit einem Ollama-gehosteten LLM.
+# 1. Chatverlauf:
+#    Der Chatverlauf wird nun in self._chat_history gespeichert und bei jeder Anfrage
+#    an das LLM gesendet. Dies ermöglicht es dem Modell, auf vorherige Nachrichten
+#    Bezug zu nehmen und den Kontext der Unterhaltung zu berücksichtigen.
 
-# 2. Chat-Fenster:
-#    Das Plugin erstellt ein separates Fenster für den Chat, das Text anzeigen
-#    und Benutzereingaben entgegennehmen kann.
+# 2. Formatierung der Chat-Anzeige:
+#    Die update_chat_display Methode wurde angepasst, um eine klare Trennung zwischen
+#    Benutzer- und Assistenten-Nachrichten zu gewährleisten. Jede Nachricht beginnt in
+#    einer neuen Zeile, was die Lesbarkeit verbessert.
 
-# 3. LLM-Interaktion:
-#    Die get_llm_response-Methode sendet Anfragen an das LLM und verarbeitet die Antworten.
+# 3. Streaming-Verarbeitung:
+#    Die get_llm_response Methode verarbeitet die API-Antwort als Stream, was eine
+#    flüssigere und reaktionsschnellere Benutzererfahrung ermöglicht.
 
-# 4. Konfiguration:
-#    Das Plugin bietet eine Benutzeroberfläche zur Konfiguration von System-Nachrichten,
-#    LLM-Modell und API-URL.
+# 4. Fehlerbehandlung:
+#    Es wurden zusätzliche Fehlerprüfungen und Logging-Anweisungen hinzugefügt, um
+#    potenzielle Probleme bei der API-Kommunikation besser diagnostizieren zu können.
 
-# 5. Event-Handling:
-#    Das Plugin registriert sich für das "text_transcribed"-Event, um auf neue
-#    Transkriptionen reagieren zu können.
+# 5. Konfigurationsoberfläche:
+#    Die get_config_ui Methode bietet eine einfache Möglichkeit, die Plugin-Einstellungen
+#    anzupassen, einschließlich des System-Messages, des verwendeten Modells und der API-URL.
+
+# 6. URL-Struktur:
+#    Die URL-Struktur wurde überarbeitet, um eine klare Trennung zwischen Basis-URL und
+#    spezifischen Endpunkten zu ermöglichen. Dies verbessert die Flexibilität und
+#    reduziert die Fehleranfälligkeit bei API-Anfragen.
+
+# Diese Implementierung bietet eine robuste und benutzerfreundliche Schnittstelle für
+# die Interaktion mit dem Ollama-LLM, während sie die Projektrichtlinien für Stil und
+# Dokumentation einhält.
