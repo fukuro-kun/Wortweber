@@ -22,7 +22,12 @@ import pyperclip
 import time
 
 # Projektspezifische Module
-from src.config import HIGHLIGHT_DURATION, DEFAULT_FONT_SIZE, DEFAULT_FONT_FAMILY, DEFAULT_INCOGNITO_MODE
+from src.config import (
+    HIGHLIGHT_DURATION, DEFAULT_FONT_SIZE, DEFAULT_FONT_FAMILY,
+    DEFAULT_INCOGNITO_MODE, DEFAULT_TEXT_FG, DEFAULT_TEXT_BG,
+    DEFAULT_SELECT_FG, DEFAULT_SELECT_BG, DEFAULT_HIGHLIGHT_FG,
+    DEFAULT_HIGHLIGHT_BG
+)
 from src.frontend.context_menu import create_context_menu
 from src.utils.error_handling import handle_exceptions, logger
 
@@ -44,11 +49,13 @@ class TranscriptionPanel(ttk.Frame):
         """
         super().__init__(parent)
         self.gui = gui
-        self.font_size = self.gui.settings_manager.get_setting("font_size", DEFAULT_FONT_SIZE)
-        self.font_family = self.gui.settings_manager.get_setting("font_family", DEFAULT_FONT_FAMILY)
+        self.settings_manager = self.gui.settings_manager
+        self.font_size = self.settings_manager.get_setting("font_size", DEFAULT_FONT_SIZE)
+        self.font_family = self.settings_manager.get_setting("font_family", DEFAULT_FONT_FAMILY)
         self.last_selection_log = 0
         self.selection_log_delay = 0.1  # 100 ms
         self.setup_ui()
+        self.load_colors_from_settings()
         self.load_saved_text()
         logger.info("TranscriptionPanel initialisiert")
 
@@ -81,15 +88,15 @@ class TranscriptionPanel(ttk.Frame):
         :param size: Die neue Schriftgröße
         """
         try:
-            size = int(size)  # Versuche, size in einen Integer umzuwandeln
+            size = int(size)
         except ValueError:
-            size = 12  # Standardgröße, falls die Umwandlung fehlschlägt
+            size = DEFAULT_FONT_SIZE
         font = tkFont.Font(family=family, size=size)
         self.font_family = family
         self.font_size = size
         self.text_widget.configure(font=font)
-        self.gui.settings_manager.set_setting("font_family", family)
-        self.gui.settings_manager.set_setting("font_size", size)
+        self.settings_manager.set_setting("font_family", family)
+        self.settings_manager.set_setting("font_size", size)
         logger.info(f"Schriftart auf {family}, Größe {size} geändert")
 
     @handle_exceptions
@@ -124,6 +131,7 @@ class TranscriptionPanel(ttk.Frame):
 
         :param text: Der einzufügende Text
         """
+        cursor_position = self.save_cursor_position()
         current_position = self.text_widget.index(tk.INSERT)
         self.text_widget.insert(current_position, text)
         end_position = self.text_widget.index(f"{current_position} + {len(text)}c")
@@ -131,11 +139,13 @@ class TranscriptionPanel(ttk.Frame):
         self.text_widget.see(end_position)
         self.gui.root.after(HIGHLIGHT_DURATION, lambda: self.text_widget.tag_remove("highlight", current_position, end_position))
         self.save_text()
-        incognito_mode = self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
+        incognito_mode = self.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
         if not incognito_mode and DEBUG_LOGGING:
             logger.info(f"Text eingefügt und hervorgehoben: {text[:50]}...")
         elif DEBUG_LOGGING:
             logger.info(f"Text eingefügt und hervorgehoben (Incognito-Modus aktiv). Länge: {len(text)} Zeichen")
+        self.restore_cursor_position(cursor_position)
+
 
     @handle_exceptions
     def clear_transcription(self):
@@ -150,7 +160,7 @@ class TranscriptionPanel(ttk.Frame):
         all_text = self.text_widget.get(1.0, tk.END)
         pyperclip.copy(all_text)
         self.gui.main_window.update_status_bar(status="Gesamter Text in die Zwischenablage kopiert", status_color="green")
-        incognito_mode = self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
+        incognito_mode = self.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
         if not incognito_mode:
             logger.info(f"Gesamter Text in die Zwischenablage kopiert. Länge: {len(all_text)} Zeichen")
         else:
@@ -162,8 +172,8 @@ class TranscriptionPanel(ttk.Frame):
         text_content = self.text_widget.get("1.0", tk.END).strip()
         if DEBUG_LOGGING:
             logger.debug(f"save_text aufgerufen. Neuer text_content: '{text_content[:50]}...'")
-        self.gui.settings_manager.set_setting("text_content", text_content)
-        incognito_mode = self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
+        self.settings_manager.set_setting("text_content", text_content)
+        incognito_mode = self.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
         if not incognito_mode and DEBUG_LOGGING:
             logger.debug(f"Transkriptionstext gespeichert. Länge: {len(text_content)} Zeichen")
         elif DEBUG_LOGGING:
@@ -172,10 +182,10 @@ class TranscriptionPanel(ttk.Frame):
     @handle_exceptions
     def load_saved_text(self):
         """Lädt den gespeicherten Text aus den Einstellungen in das Transkriptionsfeld."""
-        saved_text = self.gui.settings_manager.get_setting("text_content")
+        saved_text = self.settings_manager.get_setting("text_content", "")
         if saved_text:
             self.text_widget.insert(tk.END, saved_text)
-            incognito_mode = self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
+            incognito_mode = self.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
             if not incognito_mode:
                 logger.info(f"Gespeicherter Text geladen. Länge: {len(saved_text)} Zeichen")
             else:
@@ -192,7 +202,7 @@ class TranscriptionPanel(ttk.Frame):
             self.save_text()
             # Zurücksetzen des modified flags
             self.text_widget.edit_modified(False)
-            incognito_mode = self.gui.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
+            incognito_mode = self.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
             if not incognito_mode and DEBUG_LOGGING:
                 logger.debug(f"Text geändert und gespeichert. Neue Länge: {len(self.text_widget.get(1.0, tk.END).strip())} Zeichen")
             elif DEBUG_LOGGING:
@@ -236,6 +246,23 @@ class TranscriptionPanel(ttk.Frame):
         self.text_widget.tag_configure("select", foreground=select_fg, background=select_bg)
         logger.info("Textfarben aktualisiert")
 
+    @handle_exceptions
+    def load_colors_from_settings(self):
+        """Lädt die Farbeinstellungen aus dem SettingsManager und wendet sie an."""
+        text_fg = self.settings_manager.get_setting("text_fg", DEFAULT_TEXT_FG)
+        text_bg = self.settings_manager.get_setting("text_bg", DEFAULT_TEXT_BG)
+        select_fg = self.settings_manager.get_setting("select_fg", DEFAULT_SELECT_FG)
+        select_bg = self.settings_manager.get_setting("select_bg", DEFAULT_SELECT_BG)
+        highlight_fg = self.settings_manager.get_setting("highlight_fg", DEFAULT_HIGHLIGHT_FG)
+        highlight_bg = self.settings_manager.get_setting("highlight_bg", DEFAULT_HIGHLIGHT_BG)
+        self.update_colors(text_fg, text_bg, select_fg, select_bg, highlight_fg, highlight_bg)
+
+    def save_cursor_position(self):
+        return self.text_widget.index(tk.INSERT)
+
+    def restore_cursor_position(self, position):
+        self.text_widget.mark_set(tk.INSERT, position)
+        self.text_widget.see(tk.INSERT)
 
 # Zusätzliche Erklärungen:
 
@@ -248,3 +275,4 @@ class TranscriptionPanel(ttk.Frame):
 # 7. Die update_colors Methode ermöglicht die dynamische Anpassung der Textfarben.
 # 8. Die Implementierung berücksichtigt den Incognito-Modus, um sensible Informationen zu schützen.
 # 9. Das bedingte Logging (DEBUG_LOGGING) ermöglicht eine feinere Kontrolle über die Menge der generierten Logs.
+# 10. Die neue Methode load_colors_from_settings lädt die Farbeinstellungen beim Start und wendet sie an.

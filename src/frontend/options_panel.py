@@ -48,7 +48,9 @@ class OptionsPanel(ttk.Frame):
         """
         super().__init__(parent)
         self.gui = gui
+        self.settings_manager = self.gui.settings_manager
         self.setup_ui()
+        self.load_settings()
 
     @handle_exceptions
     def setup_ui(self):
@@ -68,7 +70,7 @@ class OptionsPanel(ttk.Frame):
         lang_frame = ttk.Frame(main_frame)
         lang_frame.grid(row=0, column=0, padx=(0, 20), sticky="w")
         ttk.Label(lang_frame, text="Sprache:").pack(side=tk.LEFT, padx=(0, 5))
-        self.language_var = tk.StringVar(value=self.gui.settings_manager.get_setting("language", DEFAULT_LANGUAGE))
+        self.language_var = tk.StringVar()
         for lang_code, lang_name in SUPPORTED_LANGUAGES.items():
             ttk.Radiobutton(lang_frame, text=lang_name, variable=self.language_var, value=lang_code, command=self.on_language_change).pack(side=tk.LEFT, padx=5)
 
@@ -76,7 +78,7 @@ class OptionsPanel(ttk.Frame):
         model_frame = ttk.Frame(main_frame)
         model_frame.grid(row=0, column=1, padx=(0, 20), sticky="w")
         ttk.Label(model_frame, text="Whisper-Modell:").pack(side=tk.LEFT, padx=(0, 5))
-        self.model_var = tk.StringVar(value=self.gui.settings_manager.get_setting("model", DEFAULT_WHISPER_MODEL))
+        self.model_var = tk.StringVar()
         self.model_dropdown = ttk.Combobox(model_frame, textvariable=self.model_var, values=WHISPER_MODELS, state="readonly", width=10)
         self.model_dropdown.pack(side=tk.LEFT)
         self.model_dropdown.bind("<<ComboboxSelected>>", self.on_model_change)
@@ -85,7 +87,7 @@ class OptionsPanel(ttk.Frame):
         output_frame = ttk.Frame(main_frame)
         output_frame.grid(row=0, column=2, padx=(0, 20), sticky="w")
         ttk.Label(output_frame, text="Ausgabemodus:").pack(side=tk.LEFT, padx=(0, 5))
-        self.output_mode_var = tk.StringVar(value=self.gui.settings_manager.get_setting("output_mode", "textfenster"))
+        self.output_mode_var = tk.StringVar()
         ttk.Radiobutton(output_frame, text="Textfenster", variable=self.output_mode_var, value="textfenster", command=self.on_output_mode_change).pack(side=tk.LEFT, padx=5)
         ttk.Radiobutton(output_frame, text="Systemcursor", variable=self.output_mode_var, value="systemcursor", command=self.on_output_mode_change).pack(side=tk.LEFT, padx=5)
 
@@ -96,11 +98,19 @@ class OptionsPanel(ttk.Frame):
         # Shortcut-Anzeige
         shortcut_frame = tk.Frame(main_frame, bg="black", bd=1, relief="sunken")
         shortcut_frame.grid(row=0, column=4, sticky="e")
-        self.shortcut_label = tk.Label(shortcut_frame, text=f"{DEFAULT_PUSH_TO_TALK_KEY} um aufzunehmen",
-                                       bg="black", fg="white", padx=5, pady=2)
+        self.shortcut_label = tk.Label(shortcut_frame, bg="black", fg="white", padx=5, pady=2)
         self.shortcut_label.pack()
 
         logger.info("OptionsPanel UI eingerichtet")
+
+    @handle_exceptions
+    def load_settings(self):
+        """Lädt die gespeicherten Einstellungen und aktualisiert die UI-Elemente."""
+        self.language_var.set(self.settings_manager.get_setting("language", DEFAULT_LANGUAGE))
+        self.model_var.set(self.settings_manager.get_setting("model", DEFAULT_WHISPER_MODEL))
+        self.output_mode_var.set(self.settings_manager.get_setting("output_mode", "textfenster"))
+        self.update_shortcut_display(self.settings_manager.get_setting("push_to_talk_key", DEFAULT_PUSH_TO_TALK_KEY))
+        logger.info("OptionsPanel Einstellungen geladen")
 
     @handle_exceptions
     def on_language_change(self):
@@ -110,8 +120,9 @@ class OptionsPanel(ttk.Frame):
         Aktualisiert die Spracheinstellung in den Anwendungseinstellungen
         und protokolliert die Änderung.
         """
-        self.gui.settings_manager.set_setting("language", self.language_var.get())
-        logger.info(f"Sprache geändert auf: {self.language_var.get()}")
+        new_language = self.language_var.get()
+        self.settings_manager.set_setting("language", new_language)
+        logger.info(f"Sprache geändert auf: {new_language}")
 
     @handle_exceptions
     def on_model_change(self, event):
@@ -123,9 +134,10 @@ class OptionsPanel(ttk.Frame):
 
         :param event: Das Ereignis, das die Änderung ausgelöst hat (wird nicht verwendet)
         """
-        self.gui.settings_manager.set_setting("model", self.model_var.get())
-        self.gui.load_model_async(self.model_var.get())
-        logger.info(f"Whisper-Modell geändert auf: {self.model_var.get()}")
+        new_model = self.model_var.get()
+        self.settings_manager.set_setting("model", new_model)
+        self.gui.load_model_async(new_model)
+        logger.info(f"Whisper-Modell geändert auf: {new_model}")
 
     @handle_exceptions
     def on_output_mode_change(self):
@@ -136,7 +148,7 @@ class OptionsPanel(ttk.Frame):
         und protokolliert die Änderung.
         """
         new_output_mode = self.output_mode_var.get()
-        self.gui.settings_manager.set_setting("output_mode", new_output_mode)
+        self.settings_manager.set_setting("output_mode", new_output_mode)
         self.gui.main_window.update_status_bar(output_mode=new_output_mode)
         logger.info(f"Ausgabemodus geändert auf: {new_output_mode}")
 
@@ -148,8 +160,8 @@ class OptionsPanel(ttk.Frame):
         :return: Ein Dictionary mit den aktuellen Verzögerungseinstellungen
         """
         return {
-            "delay_mode": self.gui.settings_manager.get_setting("delay_mode", "no_delay"),
-            "char_delay": self.gui.settings_manager.get_setting("char_delay", DEFAULT_CHAR_DELAY)
+            "delay_mode": self.settings_manager.get_setting("delay_mode", "no_delay"),
+            "char_delay": self.settings_manager.get_setting("char_delay", DEFAULT_CHAR_DELAY)
         }
 
     @handle_exceptions
@@ -160,6 +172,7 @@ class OptionsPanel(ttk.Frame):
         :param new_shortcut: Der neue Shortcut, der angezeigt werden soll
         """
         self.shortcut_label.config(text=f"{new_shortcut} um aufzunehmen")
+        self.settings_manager.set_setting("push_to_talk_key", new_shortcut)
         logger.info(f"Shortcut-Anzeige aktualisiert auf: {new_shortcut}")
 
     @handle_exceptions
@@ -170,8 +183,8 @@ class OptionsPanel(ttk.Frame):
         :param delay_mode: Der neue Verzögerungsmodus
         :param char_delay: Die neue Zeichenverzögerung
         """
-        self.gui.settings_manager.set_setting("delay_mode", delay_mode)
-        self.gui.settings_manager.set_setting("char_delay", char_delay)
+        self.settings_manager.set_setting("delay_mode", delay_mode)
+        self.settings_manager.set_setting("char_delay", char_delay)
         logger.info(f"Verzögerungseinstellungen aktualisiert: Modus={delay_mode}, Verzögerung={char_delay}")
 
 
@@ -206,3 +219,7 @@ class OptionsPanel(ttk.Frame):
 # 7. Shortcut-Anzeige:
 #    Die Shortcut-Anzeige wurde am rechten Rand des Panels hinzugefügt, um dem
 #    Benutzer eine schnelle visuelle Referenz für den aktuellen Aufnahme-Shortcut zu bieten.
+
+# 8. Einstellungen laden:
+#    Die neue load_settings Methode stellt sicher, dass alle UI-Elemente beim Start
+#    der Anwendung mit den gespeicherten Einstellungen initialisiert werden.

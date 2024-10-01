@@ -30,9 +30,7 @@ from src.plugin_system.plugin_loader import PluginLoader
 from src.frontend.settings_manager import SettingsManager
 from src.utils.error_handling import handle_exceptions, logger
 from src.plugin_system.event_system import EventSystem
-
-# Globale Konstante für bedingtes Debug-Logging
-DEBUG_LOGGING = True
+from src.config import DEBUG_LOGGING
 
 class PluginManager:
     """
@@ -66,13 +64,12 @@ class PluginManager:
         self.plugins: Dict[str, AbstractPlugin] = {}
         self.active_plugins: List[str] = []
         self.settings_manager = settings_manager
-        self.settings_manager.sync_settings_from_file()
         self.plugin_loader = PluginLoader(plugin_dir)
         self.event_system = EventSystem()
-        self.load_enabled_plugins()
         self.plugin_ui_elements: Dict[str, Dict[str, Any]] = {}
         self.plugin_menu_entries: Dict[str, List[Dict[str, Any]]] = {}
         self.plugin_context_menu_entries: Dict[str, List[Dict[str, Any]]] = {}
+        self.discover_plugins()
         if DEBUG_LOGGING:
             logger.debug(f"PluginManager initialisiert. Aktivierte Plugins laut Einstellungen: {self.settings_manager.get_enabled_plugins()}")
 
@@ -86,7 +83,7 @@ class PluginManager:
         """
         if DEBUG_LOGGING:
             logger.debug(f"Suche nach Plugins in: {self.plugin_dir}")
-        plugin_settings = self.settings_manager.get_setting("plugins", {}).get("specific_settings", {})
+        plugin_settings = self.settings_manager.get_setting("plugins.specific_settings", {})
         loaded_plugins = self.plugin_loader.load_all_plugins(plugin_settings)
         for plugin in loaded_plugins:
             if plugin.name not in self.plugins:
@@ -113,17 +110,14 @@ class PluginManager:
         """
         enabled_plugins = self.settings_manager.get_enabled_plugins()
         if DEBUG_LOGGING:
-                logger.debug(f"Versuche, folgende Plugins zu laden: {enabled_plugins}")
+            logger.debug(f"Versuche, folgende Plugins zu laden: {enabled_plugins}")
         for plugin_name in enabled_plugins:
             if plugin_name in self.plugins and plugin_name not in self.active_plugins:
-                success = self.activate_plugin(plugin_name)
-                if DEBUG_LOGGING:
-                    logger.debug(f"Aktivierung von {plugin_name}: {'erfolgreich' if success else 'fehlgeschlagen'}")
+                self.activate_plugin(plugin_name)
             elif plugin_name not in self.plugins:
                 logger.warning(f"Zuvor aktiviertes Plugin nicht gefunden: {plugin_name}")
 
         self.resolve_dependencies()
-
         if DEBUG_LOGGING:
             logger.debug(f"Insgesamt {len(self.plugins)} Plugins geladen, {len(self.active_plugins)} aktiv")
 
@@ -193,16 +187,15 @@ class PluginManager:
             plugin_name (str): Name des Plugins.
             enabled (bool): True, wenn das Plugin beim Start aktiviert werden soll, sonst False.
         """
-        enabled_plugins = self.settings_manager.get_enabled_plugins()
-        if enabled and plugin_name not in enabled_plugins:
-            enabled_plugins.append(plugin_name)
-            logger.info(f"Plugin {plugin_name} zur Aktivierung beim Start hinzugefügt")
-        elif not enabled and plugin_name in enabled_plugins:
-            enabled_plugins.remove(plugin_name)
-            logger.info(f"Plugin {plugin_name} von der Aktivierung beim Start entfernt")
-        self.settings_manager.set_enabled_plugins(enabled_plugins)
+        enabled_plugins = set(self.settings_manager.get_enabled_plugins())
+        if enabled:
+            enabled_plugins.add(plugin_name)
+        else:
+            enabled_plugins.discard(plugin_name)
+        self.settings_manager.set_enabled_plugins(list(enabled_plugins))
         logger.info(f"Plugin {plugin_name} {'aktiviert' if enabled else 'deaktiviert'} für den nächsten Start")
-        logger.info(f"Aktualisierte Liste der beim Start zu aktivierenden Plugins: {enabled_plugins}")
+        if DEBUG_LOGGING:
+            logger.debug(f"Aktualisierte Liste der beim Start zu aktivierenden Plugins: {list(enabled_plugins)}")
 
     @handle_exceptions
     def remove_plugin_events(self, plugin: AbstractPlugin) -> None:
@@ -357,32 +350,25 @@ class PluginManager:
             bool: True, wenn Änderungen vorgenommen wurden, sonst False.
         """
         changes_made = False
-        enabled_plugins = self.settings_manager.get_enabled_plugins()
-
+        enabled_plugins = set(self.settings_manager.get_enabled_plugins())
         if DEBUG_LOGGING:
             logger.debug(f"Überprüfe Plugin-Status. Aktivierte Plugins laut Einstellungen: {enabled_plugins}")
 
-        # Deaktiviere Plugins, die als aktiviert gespeichert sind, aber nicht mehr existieren
-        for plugin_name in enabled_plugins[:]:
-            if plugin_name not in self.plugins:
-                logger.warning(f"Plugin {plugin_name} ist als aktiviert gespeichert, existiert aber nicht mehr. Wird entfernt.")
-                enabled_plugins.remove(plugin_name)
-                changes_made = True
+        # Entferne nicht existierende Plugins
+        enabled_plugins = {p for p in enabled_plugins if p in self.plugins}
 
         # Aktiviere alle Plugins, die als aktiviert gespeichert sind
-        for plugin_name in enabled_plugins:
-            if plugin_name not in self.active_plugins:
-                self.activate_plugin(plugin_name)
-                changes_made = True
+        for plugin_name in enabled_plugins - set(self.active_plugins):
+            self.activate_plugin(plugin_name)
+            changes_made = True
 
         # Deaktiviere alle Plugins, die aktiv sind, aber nicht als aktiviert gespeichert sind
-        for plugin_name in list(self.active_plugins):
-            if plugin_name not in enabled_plugins:
-                self.deactivate_plugin(plugin_name)
-                changes_made = True
+        for plugin_name in set(self.active_plugins) - enabled_plugins:
+            self.deactivate_plugin(plugin_name)
+            changes_made = True
 
         if changes_made:
-            self.settings_manager.set_enabled_plugins(enabled_plugins)
+            self.settings_manager.set_enabled_plugins(list(enabled_plugins))
             if DEBUG_LOGGING:
                 logger.debug(f"Plugin-Status aktualisiert. Neue aktivierte Plugins: {enabled_plugins}")
 
@@ -500,6 +486,25 @@ class PluginManager:
         self.plugin_context_menu_entries.pop(plugin_name, None)
         if DEBUG_LOGGING:
             logger.debug(f"Kontextmenüeinträge für Plugin {plugin_name} entfernt")
+
+    @handle_exceptions
+    def cleanup(self):
+        """
+        Führt Aufräumarbeiten für alle aktiven Plugins durch und gibt Ressourcen frei.
+        """
+        logger.info("Starte Cleanup-Prozess für Plugins")
+        for plugin_name in list(self.active_plugins):
+            try:
+                self.deactivate_plugin(plugin_name)
+                logger.info(f"Plugin {plugin_name} erfolgreich deaktiviert")
+            except Exception as e:
+                logger.error(f"Fehler beim Deaktivieren von Plugin {plugin_name}: {str(e)}")
+
+        # Zusätzliche Aufräumarbeiten hier, falls nötig
+        self.plugins.clear()
+        self.active_plugins.clear()
+        logger.info("Plugin-Cleanup abgeschlossen")
+
 
 # Zusätzliche Erklärungen:
 

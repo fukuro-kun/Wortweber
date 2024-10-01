@@ -22,6 +22,7 @@ from typing import Any
 # Projektspezifische Module
 from src.utils.error_handling import handle_exceptions, logger
 from src.plugin_system.plugin_manager import PluginManager
+from src.frontend.settings_manager import SettingsManager
 
 class PluginManagementWindow(tk.Toplevel):
     """
@@ -32,18 +33,18 @@ class PluginManagementWindow(tk.Toplevel):
     """
 
     @handle_exceptions
-    def __init__(self, parent, plugin_manager: PluginManager, gui):
+    def __init__(self, parent, plugin_manager: PluginManager, settings_manager: SettingsManager):
         """
         Initialisiert das Plugin-Verwaltungsfenster.
 
         Args:
             parent: Das übergeordnete Tkinter-Widget.
             plugin_manager (PluginManager): Der PluginManager der Anwendung.
-            gui: Die Hauptinstanz der GUI.
+            settings_manager (SettingsManager): Der SettingsManager für die Verwaltung von Einstellungen.
         """
         super().__init__(parent)
         self.plugin_manager = plugin_manager
-        self.gui = gui
+        self.settings_manager = settings_manager
         self.title("Plugin-Verwaltung")
         self.create_widgets()
         self.load_window_geometry()
@@ -217,7 +218,7 @@ class PluginManagementWindow(tk.Toplevel):
     @handle_exceptions
     def load_window_geometry(self):
         """Lädt die gespeicherte Fenstergröße und -position."""
-        geometry = self.gui.settings_manager.get_setting("plugin_window_geometry")
+        geometry = self.settings_manager.get_setting("plugin_window_geometry")
         if geometry:
             self.geometry(geometry)
             logger.debug(f"Gespeicherte Plugin-Fenstergeometrie geladen: {geometry}")
@@ -235,13 +236,13 @@ class PluginManagementWindow(tk.Toplevel):
     def on_closing(self):
         """Wird aufgerufen, wenn das Fenster geschlossen wird."""
         current_geometry = self.geometry()
-        self.gui.settings_manager.set_setting("plugin_window_geometry", current_geometry)
+        self.settings_manager.set_setting("plugin_window_geometry", current_geometry)
         logger.info(f"Plugin-Verwaltungsfenster geschlossen, Geometrie {current_geometry} gespeichert")
         self.destroy()
 
     @classmethod
     @handle_exceptions
-    def open_window(cls, parent, plugin_manager, gui):
+    def open_window(cls, parent, plugin_manager, settings_manager):
         """
         Öffnet ein neues Plugin-Verwaltungsfenster.
 
@@ -253,7 +254,7 @@ class PluginManagementWindow(tk.Toplevel):
         Returns:
             PluginManagementWindow: Eine neue Instanz des Plugin-Verwaltungsfensters.
         """
-        return cls(parent, plugin_manager, gui)
+        return cls(parent, plugin_manager, settings_manager)
 
 # Zusätzliche Erklärungen:
 # Die Klasse PluginManagementWindow implementiert ein Verwaltungsfenster für Plugins.

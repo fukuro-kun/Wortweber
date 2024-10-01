@@ -19,11 +19,16 @@ Dieses Modul verwaltet die Themes und Farbeinstellungen der Wortweber-Anwendung.
 Es bietet Funktionen zum Ändern von Themes und zur Auswahl benutzerdefinierter Farben.
 """
 
+# Standardbibliotheken
 import tkinter as tk
 from tkinter import ttk
+
+# Drittanbieterbibliotheken
 import ttkthemes
 from tkcolorpicker import askcolor
-from src.config import DEFAULT_THEME
+
+# Projektspezifische Module
+from src.config import DEFAULT_THEME, DEBUG_LOGGING
 from src.utils.error_handling import handle_exceptions, logger
 
 class ThemeManager:
@@ -224,17 +229,27 @@ class ThemeManager:
         :param preview_frame: Das Frame, das die Farbvorschau anzeigt
         """
         try:
-            if preview_frame.winfo_exists():
-                current_color = color_var.get()
-                color = askcolor(color=current_color, title="Wähle eine Farbe")
-                if color[1]:
-                    color_var.set(color[1])
-                    preview_frame.config(bg=color[1])
-                    setting_name = str(color_var).split('.')[-1]  # Extrahiere den Namen der Variablen
-                    self.settings_manager.set_setting(setting_name, color[1])
-                    self.update_colors()
-        except tk.TclError:
-            pass
+            if not preview_frame.winfo_exists():
+                return
+
+            current_color = color_var.get()
+            color = askcolor(color=current_color, title="Wähle eine Farbe")
+
+            if color[1]:  # color[1] enthält den Hex-Farbcode
+                new_color = color[1]
+                color_var.set(new_color)
+                preview_frame.config(bg=new_color)
+
+                setting_name = str(color_var).split('.')[-1]
+                self.settings_manager.set_setting(setting_name, new_color)
+
+                if DEBUG_LOGGING:
+                    logger.debug(f"Farbe '{setting_name}' auf '{new_color}' geändert.")
+
+                self.update_colors()
+
+        except Exception as e:
+            logger.error(f"Fehler bei der Farbauswahl: {e}", exc_info=True)
 
     @handle_exceptions
     def update_colors(self):
@@ -256,12 +271,12 @@ class ThemeManager:
                 # Aktualisiere das Hauptfenster
                 self.root.update()
 
-                # Informiere den Benutzer über die Aktualisierung
-                print("Farben wurden aktualisiert.")
+                if DEBUG_LOGGING:
+                    logger.debug("Farben wurden aktualisiert.")
             except tk.TclError as e:
-                print(f"Fehler beim Aktualisieren der Farben: {e}")
-        else:
-            print("Warnung: GUI-Referenz nicht gesetzt. Farben werden nicht aktualisiert.")
+                logger.error(f"Fehler beim Aktualisieren der Farben: {e}")
+        elif DEBUG_LOGGING:
+            logger.debug("GUI-Referenz nicht gesetzt. Farben werden nicht aktualisiert.")
 
     @handle_exceptions
     def apply_saved_theme(self):
@@ -308,6 +323,10 @@ class ThemeManager:
 # 5. Einstellungspersistenz:
 #    Alle Farbeinstellungen und das ausgewählte Theme werden über den SettingsManager
 #    gespeichert und beim Neustart der Anwendung wiederhergestellt.
+
+# 6. Bedingtes Debug-Logging:
+#    Detailliertes Logging wird nur durchgeführt, wenn DEBUG_LOGGING aktiviert ist,
+#    um die Leistung zu optimieren und die Logdatei nicht unnötig zu vergrößern.
 
 # Diese Implementierung bietet eine ausgewogene Mischung aus Funktionalität und Benutzerfreundlichkeit,
 # während sie die Anforderungen an die Themenverwaltung und Farbauswahl erfüllt.

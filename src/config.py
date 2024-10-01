@@ -28,6 +28,12 @@ import pyaudio
 # Pfad zum Projektroot
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Neue Konstanten
+SETTINGS_FILE_NAME = "user_settings.json"
+DEBUG_LOGGING = True  # Kann auf False gesetzt werden, um detailliertes Logging zu deaktivieren
+CONFIG_VERSION = "1.0.0"
+PLUGIN_ACTIVATION_TIMEOUT = 5.0  # Timeout in Sekunden für die Plugin-Aktivierung
+
 # Allgemeine Einstellungen
 DEFAULT_LANGUAGE = "de"  # Standardsprache für die Transkription
 DEFAULT_WHISPER_MODEL = "small"  # Standardmodell für Whisper

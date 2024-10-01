@@ -40,7 +40,7 @@ from src.frontend.options_window import OptionsWindow
 from src.frontend.theme_manager import ThemeManager
 from src.frontend.input_processor import InputProcessor
 from src.frontend.settings_manager import SettingsManager
-from src.config import DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY, DEFAULT_PUSH_TO_TALK_KEY
+from src.config import DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY, DEFAULT_PUSH_TO_TALK_KEY, DEFAULT_WHISPER_MODEL
 from src.utils.error_handling import handle_exceptions, logger
 from src.plugin_system.plugin_manager import PluginManager
 from src.frontend.context_menu import create_context_menu
@@ -121,16 +121,18 @@ class WordweberGUI:
         self.plugin_manager.event_system.add_listener('plugin_deactivated', self.on_plugin_state_changed)
         self.plugin_manager.event_system.add_listener('plugin_settings_updated', self.on_plugin_settings_updated)
 
-    def on_plugin_state_changed(self, plugin_name: str):
+    def on_plugin_state_changed(self, plugin_name: str) -> None:
         """
         Wird aufgerufen, wenn sich der Zustand eines Plugins ändert.
 
         :param plugin_name: Name des Plugins, dessen Zustand sich geändert hat
         """
+        logger.debug(f"on_plugin_state_changed aufgerufen für Plugin: {plugin_name}")
         self.rebuild_plugin_bar()
         self.setup_menu()
+        logger.debug(f"on_plugin_state_changed abgeschlossen für Plugin: {plugin_name}")
 
-    def on_plugin_settings_updated(self, plugin_name: str):
+    def on_plugin_settings_updated(self, plugin_name: str) -> None:
         """
         Wird aufgerufen, wenn die Einstellungen eines Plugins aktualisiert wurden.
 
@@ -159,11 +161,14 @@ class WordweberGUI:
         """Lädt und wendet gespeicherte Einstellungen an."""
         self.theme_manager.apply_saved_theme()
         self.update_colors()
+        # Laden weiterer Einstellungen
+        window_geometry = self.settings_manager.get_setting("window_geometry", DEFAULT_WINDOW_SIZE)
+        self.root.geometry(window_geometry)
 
     @handle_exceptions
     def load_initial_model(self) -> None:
         """Lädt das initial konfigurierte Whisper-Modell."""
-        model_name = self.settings_manager.get_setting("model", "small")
+        model_name = self.settings_manager.get_setting("model", DEFAULT_WHISPER_MODEL)
         self.load_model_async(model_name)
 
     @handle_exceptions
@@ -201,16 +206,27 @@ class WordweberGUI:
 
     @handle_exceptions
     def on_closing(self) -> None:
-        """Wird aufgerufen, wenn die Anwendung geschlossen wird."""
         logger.info("Anwendung wird geschlossen")
         self.input_processor.stop_listener()
 
-        # Überprüfe und speichere den aktuellen Textinhalt
+        # Plugin-Cleanup
+        if hasattr(self.plugin_manager, 'cleanup'):
+            self.plugin_manager.cleanup()
+        else:
+            logger.warning("PluginManager hat keine cleanup-Methode. Führe manuelle Deaktivierung durch.")
+            for plugin_name in list(self.plugin_manager.active_plugins):
+                self.plugin_manager.deactivate_plugin(plugin_name)
+
+        # Speichern des aktuellen Textinhalts
         current_text = self.transcription_panel.text_widget.get("1.0", tk.END).strip()
         self.settings_manager.set_setting("text_content", current_text)
 
+        # Aufräumen des Transkriptionsmodells
         if self.backend.transcriber.model is not None:
             del self.backend.transcriber.model
+
+        # Speichern der aktuellen Fenstergeometrie
+        self.save_current_geometry()
 
         self.root.destroy()
         logger.info("Anwendung erfolgreich beendet")
@@ -351,13 +367,16 @@ class WordweberGUI:
         :param new_shortcut: Der neue Shortcut, der angezeigt werden soll
         """
         self.options_panel.update_shortcut_display(new_shortcut)
+        self.settings_manager.set_setting("push_to_talk_key", new_shortcut)
 
     @handle_exceptions
     def rebuild_plugin_bar(self) -> None:
         """Baut die Plugin-Leiste neu auf."""
+        logger.debug("Starte rebuild_plugin_bar")
         for widget in self.main_window.plugin_bar_frame.winfo_children():
             widget.destroy()
         self.setup_plugin_bar()
+        logger.debug("rebuild_plugin_bar abgeschlossen")
 
     @handle_exceptions
     def setup_menu(self) -> None:
@@ -421,28 +440,38 @@ class WordweberGUI:
     @handle_exceptions
     def open_plugin_management_window(self) -> None:
         """Öffnet das Fenster zur Plugin-Verwaltung."""
-        self.plugin_window = PluginManagementWindow.open_window(self.root, self.plugin_manager, self)
+        self.plugin_window = PluginManagementWindow.open_window(self.root, self.plugin_manager, self.settings_manager)
 
     @handle_exceptions
     def setup_plugin_bar(self) -> None:
         """Richtet die Plugin-Leiste ein."""
-        plugin_bar = self.main_window.plugin_bar_frame  # Verwendung des neuen Frames aus MainWindow
+        plugin_bar = self.main_window.plugin_bar_frame
 
+        enabled_plugins = self.settings_manager.get_enabled_plugins()
+        active_plugins = self.plugin_manager.active_plugins
         ui_elements = self.plugin_manager.get_plugin_ui_elements()
-        for plugin_name, elements in ui_elements.items():
-            if 'buttons' in elements:
-                for button_config in elements['buttons']:
-                    btn = ttk.Button(plugin_bar, text=button_config['text'],
-                                    command=self.safe_execute(button_config['command']))
-                    btn.pack(side=tk.LEFT, padx=2)
 
-            if 'window' in elements:
-                window_creator = elements['window']
-                if callable(window_creator):
-                    btn = ttk.Button(plugin_bar, text=f"Open {plugin_name}",
-                                    command=lambda name=plugin_name, creator=window_creator:
-                                    self.open_plugin_window(name, creator))
-                    btn.pack(side=tk.LEFT, padx=2)
+        logger.debug(f"Richte Plugin-Leiste ein. Enabled Plugins: {enabled_plugins}, Aktive Plugins: {active_plugins}")
+
+        for plugin_name, elements in ui_elements.items():
+            if plugin_name in enabled_plugins or plugin_name in active_plugins:
+                if 'buttons' in elements:
+                    for button_config in elements['buttons']:
+                        btn = ttk.Button(plugin_bar, text=button_config['text'],
+                                        command=self.safe_execute(button_config['command']))
+                        btn.pack(side=tk.LEFT, padx=2)
+                        logger.debug(f"Füge Button für Plugin {plugin_name} hinzu.")
+
+                if 'window' in elements:
+                    window_creator = elements['window']
+                    if callable(window_creator):
+                        btn = ttk.Button(plugin_bar, text=f"Öffne {plugin_name}",
+                                        command=lambda name=plugin_name, creator=window_creator:
+                                        self.open_plugin_window(name, creator))
+                        btn.pack(side=tk.LEFT, padx=2)
+                        logger.debug(f"Füge Fenster Button für Plugin {plugin_name} hinzu.")
+
+        logger.info("Plugin-Leiste erfolgreich eingerichtet")
 
         if DEBUG_LOGGING:
             logger.debug("Plugin-Leiste erfolgreich eingerichtet")

@@ -73,7 +73,7 @@ class Wortweber:
 
         # Drucke die aktuellen Einstellungen nur einmal beim Start
         logger.info("Initiale Anwendungseinstellungen:")
-        self.settings_manager.print_current_settings()
+        logger.info(json.dumps(self.settings_manager.settings, indent=2))
 
         logger.info(f"Aktive Plugins nach Initialisierung: {', '.join(self.plugin_manager.active_plugins)}")
 

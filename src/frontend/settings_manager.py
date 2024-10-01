@@ -17,14 +17,15 @@
 # Standardbibliotheken
 import json
 import os
-from typing import Dict, Any, List
+import threading
+from threading import Timer
+from typing import Any, Dict, List, Optional
 
 # Projektspezifische Module
 from src.config import *
 from src.utils.error_handling import handle_exceptions, logger
 
-# Globale Konstante für bedingtes Debug-Logging
-DEBUG_LOGGING = True
+DEBUG_LOGGING = True  # Ermöglicht detailliertes Logging für Debugging-Zwecke
 
 class SettingsManager:
     """
@@ -36,216 +37,183 @@ class SettingsManager:
 
     Attributes:
         settings_file (str): Der Pfad zur JSON-Datei, in der die Einstellungen gespeichert werden.
-        settings (dict): Ein Dictionary, das die aktuellen Einstellungen enthält.
-        default_settings (dict): Ein Dictionary mit den Standardeinstellungen der Anwendung.
+        settings (Dict[str, Any]): Ein Dictionary, das die aktuellen Einstellungen enthält.
+        lock (threading.Lock): Ein Lock-Objekt für Thread-Sicherheit.
     """
 
-    def __init__(self):
+    def __init__(self, settings_file: str = "user_settings.json"):
         """
         Initialisiert den SettingsManager und lädt bestehende Einstellungen.
 
-        Diese Methode setzt den Pfad zur Einstellungsdatei, lädt vorhandene Einstellungen,
-        initialisiert Standardeinstellungen und stellt die Konsistenz sicher. Falls keine
-        Einstellungsdatei existiert, wird sie mit Standardwerten erstellt.
+        Args:
+            settings_file (str): Der Pfad zur JSON-Datei für die Einstellungen.
         """
-        self.settings_file = "user_settings.json"
-        self.settings = self.load_settings()
-        self.default_settings = self.get_default_settings()
-        self.ensure_settings_consistency()
-        if not os.path.exists(self.settings_file):
-            self.save_settings()
-        logger.debug("SettingsManager initialisiert")
-        self.print_current_settings()
+        self.settings_file = settings_file
+        self.lock = threading.Lock()
+        self.settings: Dict[str, Any] = {}
+        self.load_settings()
+        self.save_timer = None
+        self.migrate_settings()
 
-    @handle_exceptions
-    def save_settings(self):
-        """
-        Speichert die aktuellen Einstellungen in der JSON-Datei.
+    def delayed_save(self):
+        """Verzögert das Speichern der Einstellungen um 5 Sekunden."""
+        if self.save_timer:
+            self.save_timer.cancel()
+        self.save_timer = Timer(5.0, self.save_settings)
+        self.save_timer.start()
 
-        Diese Methode schreibt den aktuellen Zustand der Einstellungen in die
-        'user_settings.json' Datei. Sie wird verwendet, um Änderungen zu persistieren
-        und um die Datei mit Standardwerten zu initialisieren, falls sie nicht existiert.
+    def load_settings(self) -> None:
         """
-        if DEBUG_LOGGING:
-            logger.debug(f"Speichere Einstellungen. Aktivierte Plugins: {self.settings.get('plugins', {}).get('enabled_plugins', [])}")
-        with open(self.settings_file, 'w') as f:
-            json.dump(self.settings, f, indent=4)
-        logger.info(f"Einstellungen in {self.settings_file} gespeichert")
-
-    @handle_exceptions
-    def load_settings(self):
-        """
-        Lädt Benutzereinstellungen aus einer JSON-Datei.
+        Lädt Benutzereinstellungen aus der JSON-Datei.
 
         Falls die Datei nicht existiert oder beschädigt ist, werden Standardeinstellungen verwendet.
-
-        Returns:
-            dict: Ein Dictionary mit den geladenen Einstellungen
         """
-        if os.path.exists(self.settings_file):
+        with self.lock:
             try:
-                with open(self.settings_file, "r") as f:
-                    settings = json.load(f)
+                with open(self.settings_file, 'r') as f:
+                    self.settings = json.load(f)
                 if DEBUG_LOGGING:
-                    logger.info(f"Einstellungen geladen. Aktivierte Plugins: {settings.get('plugins', {}).get('enabled_plugins', [])}")
-                return settings
+                    logger.debug(f"Einstellungen geladen. Aktivierte Plugins: {self.settings.get('plugins', {}).get('enabled_plugins', [])}")
+            except FileNotFoundError:
+                logger.warning(f"Einstellungsdatei {self.settings_file} nicht gefunden. Verwende Standardeinstellungen.")
+                self.settings = self.get_default_settings()
             except json.JSONDecodeError:
-                logger.error("Fehler beim Laden der Einstellungen. Verwende Standardeinstellungen.")
-        return self.get_default_settings()
+                logger.error(f"Fehler beim Lesen der Einstellungsdatei. Verwende Standardeinstellungen.")
+                self.settings = self.get_default_settings()
+
+    def save_settings(self) -> None:
+        """
+        Speichert die aktuellen Einstellungen in der JSON-Datei.
+        """
+        with self.lock:
+            try:
+                with open(self.settings_file, 'w') as f:
+                    json.dump(self.settings, f, indent=4)
+                if DEBUG_LOGGING:
+                    logger.debug(f"Einstellungen in {self.settings_file} gespeichert")
+            except IOError as e:
+                logger.error(f"Fehler beim Speichern der Einstellungen: {e}")
 
     @handle_exceptions
-    def ensure_settings_consistency(self):
-        """
-        Stellt sicher, dass alle erforderlichen Schlüssel in den Einstellungen vorhanden sind.
-
-        Diese Methode vergleicht die geladenen Einstellungen mit den Standardeinstellungen und
-        fügt fehlende Schlüssel hinzu. Sie arbeitet rekursiv für verschachtelte Dictionaries.
-        """
-        for key, value in self.default_settings.items():
-            if key not in self.settings:
-                self.settings[key] = value
-            elif isinstance(value, dict) and isinstance(self.settings[key], dict):
-                self.settings[key] = self.merge_dicts(value, self.settings[key])
-        logger.debug("Einstellungskonsistenz sichergestellt")
-
-    def merge_dicts(self, default: Dict, current: Dict) -> Dict:
-        """
-        Führt zwei Dictionaries zusammen und stellt sicher, dass alle Schlüssel vorhanden sind.
-
-        Args:
-            default (Dict): Das Standard-Dictionary mit allen erforderlichen Schlüsseln.
-            current (Dict): Das aktuelle Dictionary, das aktualisiert werden soll.
-
-        Returns:
-            Dict: Das zusammengeführte Dictionary.
-        """
-        #if DEBUG_LOGGING:
-        #    logger.debug(f"Beginne merge_dicts")
-        for key, value in default.items():
-            if isinstance(value, dict) and isinstance(current.get(key), dict):
-                current[key] = self.merge_dicts(value, current.get(key, {}))
-            else:
-                if key not in current:
-                    current[key] = value
-                elif key == 'enabled_plugins' and isinstance(value, list) and isinstance(current[key], list):
-                    # Spezielle Behandlung für enabled_plugins
-                    current[key] = list(set(current[key] + value))  # Entfernt Duplikate
-                elif key in current and current[key] != value and DEBUG_LOGGING:
-                    logger.debug(f"Wert für {key} geändert. Alt: {current[key]}, Neu: {value}")
-        return current
-
-
-    @handle_exceptions
-    def set_setting(self, key: str, value: Any) -> None:
-        if key == "plugins":
-            logger.debug(f"set_setting aufgerufen für {key} mit Wert {value}") # DEBUGDEBUG
-        old_value = self.get_setting(key)
-        if old_value != value:
-            if DEBUG_LOGGING:
-                logger.debug(f"set_setting aufgerufen. Schlüssel: {key}, Alter Wert: '{old_value}', Neuer Wert: '{value}'")
-
-            keys = key.split('.')
-            target = self.settings
-            for k in keys[:-1]:
-                target = target.setdefault(k, {})
-            target[keys[-1]] = value
-            if DEBUG_LOGGING:
-                logger.debug(f"set_setting aufgerufen für {key} mit Wert {value}")
-            self.save_setting(key, value)
-
-    @handle_exceptions
-    def save_setting(self, key: str, value: Any) -> None:
-        if key == "plugins":
-            logger.debug(f"save_setting aufgerufen für {key} mit Wert {value}") # DEBUGDEBUG
-        """
-        Speichert eine einzelne Einstellung und aktualisiert die JSON-Datei.
-
-        Args:
-            key (str): Der Schlüssel der zu speichernden Einstellung
-            value (Any): Der neue Wert der Einstellung
-        """
-        try:
-            if DEBUG_LOGGING:
-                logger.debug(f"save_setting aufgerufen. Schlüssel: {key}, Wert: '{value}'")
-
-            keys = key.split('.')
-            target = self.settings
-            for k in keys[:-1]:
-                target = target.setdefault(k, {})
-            target[keys[-1]] = value
-
-            with open(self.settings_file, 'w') as f:
-                json.dump(self.settings, f, indent=4)
-
-            if DEBUG_LOGGING:
-                logger.debug(f"Einstellung in Datei gespeichert: {key}")
-        except Exception as e:
-            logger.error(f"Fehler beim Speichern der Einstellung {key} in Datei: {e}")
-            raise
-
-    @handle_exceptions
-    def get_setting(self, key: str, default=None):
+    def get_setting(self, key: str, default: Any = None) -> Any:
         """
         Ruft den Wert einer bestimmten Einstellung ab.
 
         Args:
-            key (str): Der Schlüssel der gewünschten Einstellung
-            default: Ein optionaler Standardwert, falls die Einstellung nicht existiert
+            key (str): Der Schlüssel der gewünschten Einstellung.
+            default: Ein optionaler Standardwert, falls die Einstellung nicht existiert.
 
         Returns:
-            Der Wert der Einstellung oder der Standardwert
+            Any: Der Wert der Einstellung oder der Standardwert.
         """
-        self.sync_settings_from_file()
-        keys = key.split('.')
-        value = self.settings
-        for k in keys:
-            if isinstance(value, dict) and k in value:
-                value = value[k]
+        with self.lock:
+            return self.settings.get(key, default)
+
+    @handle_exceptions
+    def set_setting(self, key: str, value: Any) -> None:
+        """
+        Setzt den Wert einer bestimmten Einstellung und speichert sie.
+
+        Args:
+            key (str): Der Schlüssel der zu setzenden Einstellung.
+            value (Any): Der neue Wert der Einstellung.
+        """
+        with self.lock:
+            old_value = self.settings.get(key)
+            if old_value != value:
+                self.settings[key] = value
+                self.delayed_save()
+                if DEBUG_LOGGING:
+                    logger.debug(f"Einstellung geändert. Schlüssel: {key}, Alter Wert: {old_value}, Neuer Wert: {value}")
+
+    def update_settings(self, new_settings: Dict[str, Any]) -> None:
+        """
+        Aktualisiert mehrere Einstellungen gleichzeitig.
+
+        Args:
+            new_settings (Dict[str, Any]): Ein Dictionary mit den zu aktualisierenden Einstellungen.
+        """
+        with self.lock:
+            self.settings.update(new_settings)
+            self.save_settings()
+
+    def set_enabled_plugins(self, enabled_plugins: List[str]) -> None:
+        """
+        Setzt die Liste der aktivierten Plugins.
+
+        Args:
+            enabled_plugins (List[str]): Eine Liste der Namen der zu aktivierenden Plugins.
+        """
+        plugins_settings = self.get_setting('plugins', {})
+        plugins_settings['enabled_plugins'] = enabled_plugins
+        self.set_setting('plugins', plugins_settings)
+        # Entfernen des alten Schlüssels, falls vorhanden
+        self.settings.pop('plugins.enabled_plugins', None)
+
+    def get_enabled_plugins(self) -> List[str]:
+        """
+        Gibt eine Liste der aktivierten Plugins zurück.
+
+        Returns:
+            List[str]: Eine Liste der Namen der aktivierten Plugins.
+        """
+        return self.get_setting('plugins', {}).get('enabled_plugins', [])
+
+    def toggle_plugin(self, plugin_name: str) -> bool:
+        """
+        Schaltet den Aktivierungsstatus eines Plugins um.
+
+        Args:
+            plugin_name (str): Der Name des Plugins.
+
+        Returns:
+            bool: True, wenn das Plugin aktiviert wurde, False, wenn es deaktiviert wurde.
+        """
+        with self.lock:
+            enabled_plugins = self.get_enabled_plugins()
+            if plugin_name in enabled_plugins:
+                enabled_plugins.remove(plugin_name)
+                is_enabled = False
             else:
-                return default
-        return value
+                enabled_plugins.append(plugin_name)
+                is_enabled = True
+            self.set_enabled_plugins(enabled_plugins)
+            return is_enabled
 
     @handle_exceptions
-    def get_current_settings(self):
+    def get_plugin_settings(self, plugin_name: str) -> Dict[str, Any]:
         """
-        Gibt ein Dictionary mit allen aktuellen Einstellungen zurück.
+        Ruft die Einstellungen für ein spezifisches Plugin ab.
+
+        Args:
+            plugin_name (str): Name des Plugins.
 
         Returns:
-            dict: Ein Dictionary mit den aktuellen Einstellungen
+            Dict[str, Any]: Ein Dictionary mit den Plugin-Einstellungen.
         """
-        return {
-            "language": self.get_setting("language", DEFAULT_LANGUAGE),
-            "model": self.get_setting("model", DEFAULT_WHISPER_MODEL),
-            "theme": self.get_setting("theme", DEFAULT_THEME),
-            "window_geometry": self.get_setting("window_geometry", DEFAULT_WINDOW_SIZE),
-            "plugin_window_geometry": self.get_setting("plugin_window_geometry", DEFAULT_PLUGIN_WINDOW_GEOMETRY),
-            "options_window_geometry": self.get_setting("options_window_geometry", DEFAULT_OPTIONS_WINDOW_GEOMETRY),
-            "delay_mode": self.get_setting("delay_mode", DEFAULT_DELAY_MODE),
-            "char_delay": self.get_setting("char_delay", DEFAULT_CHAR_DELAY),
-            "auto_copy": self.get_setting("auto_copy", DEFAULT_AUTO_COPY),
-            "text_content": self.get_setting("text_content", ""),
-            "font_size": self.get_setting("font_size", DEFAULT_FONT_SIZE),
-            "font_family": self.get_setting("font_family", DEFAULT_FONT_FAMILY),
-            "save_test_recording": self.get_setting("save_test_recording", False),
-            "incognito_mode": self.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE),
-            "audio_device_index": self.get_setting("audio_device_index", DEFAULT_AUDIO_DEVICE_INDEX),
-            "text_fg": self.get_setting("text_fg", DEFAULT_TEXT_FG),
-            "text_bg": self.get_setting("text_bg", DEFAULT_TEXT_BG),
-            "select_fg": self.get_setting("select_fg", DEFAULT_SELECT_FG),
-            "select_bg": self.get_setting("select_bg", DEFAULT_SELECT_BG),
-            "highlight_fg": self.get_setting("highlight_fg", DEFAULT_HIGHLIGHT_FG),
-            "highlight_bg": self.get_setting("highlight_bg", DEFAULT_HIGHLIGHT_BG),
-            "output_mode": self.get_setting("output_mode", DEFAULT_OUTPUT_MODE),
-            "push_to_talk_key": self.get_setting("push_to_talk_key", DEFAULT_PUSH_TO_TALK_KEY)
-        }
+        return self.get_setting('plugins', {}).get('specific_settings', {}).get(plugin_name, {})
 
     @handle_exceptions
-    def get_default_settings(self):
+    def set_plugin_settings(self, plugin_name: str, settings: Dict[str, Any]) -> None:
+        """
+        Setzt die Einstellungen für ein spezifisches Plugin.
+
+        Args:
+            plugin_name (str): Name des Plugins.
+            settings (Dict[str, Any]): Ein Dictionary mit den neuen Plugin-Einstellungen.
+        """
+        plugins_settings = self.get_setting('plugins', {})
+        specific_settings = plugins_settings.get('specific_settings', {})
+        specific_settings[plugin_name] = settings
+        plugins_settings['specific_settings'] = specific_settings
+        self.set_setting('plugins', plugins_settings)
+
+    def get_default_settings(self) -> Dict[str, Any]:
         """
         Liefert ein Dictionary mit den Standardeinstellungen der Anwendung.
 
         Returns:
-            dict: Ein Dictionary mit Standardeinstellungen
+            Dict[str, Any]: Ein Dictionary mit Standardeinstellungen.
         """
         return {
             "language": DEFAULT_LANGUAGE,
@@ -279,184 +247,71 @@ class SettingsManager:
             }
         }
 
-    @handle_exceptions
-    def get_plugin_settings(self, plugin_name: str) -> Dict[str, Any]:
-        """
-        Ruft die Einstellungen für ein spezifisches Plugin ab.
-
-        Args:
-            plugin_name (str): Name des Plugins
-
-        Returns:
-            Dict[str, Any]: Ein Dictionary mit den Plugin-Einstellungen
-        """
-        plugin_settings = self.get_setting(f"plugins.specific_settings.{plugin_name}", {})
-        global_settings = self.get_setting("plugins.global_settings", {})
-        return {**global_settings, **plugin_settings}
-
-    @handle_exceptions
-    def set_plugin_settings(self, plugin_name: str, settings: Dict[str, Any]) -> None:
-        """
-        Setzt die Einstellungen für ein spezifisches Plugin und speichert sie sofort.
-
-        Args:
-            plugin_name (str): Name des Plugins
-            settings (Dict[str, Any]): Ein Dictionary mit den neuen Plugin-Einstellungen
-        """
-        if 'plugins' not in self.settings:
-            self.settings['plugins'] = {}
-        if 'specific_settings' not in self.settings['plugins']:
-            self.settings['plugins']['specific_settings'] = {}
-        self.settings['plugins']['specific_settings'][plugin_name] = settings
-        self.save_settings()
-        logger.info(f"Einstellungen für Plugin {plugin_name} gespeichert")
-
-    @handle_exceptions
-    def print_current_settings(self):
-        """
-        Gibt die aktuellen Einstellungen aus.
-
-        Diese Methode protokolliert die wesentlichen Einstellungen und die Anzahl der aktiven Plugins.
-        """
-        essential_settings = ['language', 'model', 'theme', 'incognito_mode', 'output_mode']
-        logger.info("Wesentliche Einstellungen:")
-        for key in essential_settings:
-            value = self.settings.get(key, "Nicht gesetzt")
-            logger.info(f"{key}: {value}")
-
-        logger.info("Plugin-Einstellungen:")
-        logger.info(f"  Anzahl aktiver Plugins: {len(self.settings.get('plugins', {}).get('enabled_plugins', []))}")
-
-    @handle_exceptions
-    def sync_settings_from_file(self):
-        """
-        Synchronisiert den internen Zustand mit der JSON-Datei.
-
-        Diese Methode liest die aktuellen Einstellungen aus der JSON-Datei und
-        aktualisiert den internen Zustand des SettingsManager entsprechend.
-        Wenn die Datei nicht existiert, wird sie mit Standardeinstellungen erstellt.
-        """
-        if DEBUG_LOGGING:
-            logger.debug("Beginne sync_settings_from_file")
-        if not os.path.exists(self.settings_file):
-            logger.warning(f"Einstellungsdatei {self.settings_file} nicht gefunden. Erstelle neue Datei mit Standardeinstellungen.")
-            self.save_settings()
-            return
-
-        try:
-            with open(self.settings_file, 'r') as f:
-                file_settings = json.load(f)
-
-            old_text_content = self.settings.get('text_content', '')
-            old_enabled_plugins = self.settings.get('plugins', {}).get('enabled_plugins', [])
-
-            self.settings = self.merge_dicts(self.settings, file_settings)
-
-            new_text_content = self.settings.get('text_content', '')
-            new_enabled_plugins = self.settings.get('plugins', {}).get('enabled_plugins', [])
-
-            if old_text_content != new_text_content:
-                logger.warning(f"text_content geändert während sync_settings_from_file.")
-
-            if DEBUG_LOGGING:
-                logger.debug(f"Aktivierte Plugins vor sync: {old_enabled_plugins}")
-                logger.debug(f"Aktivierte Plugins nach sync: {new_enabled_plugins}")
-
-            logger.debug("Einstellungen erfolgreich mit Datei synchronisiert")
-        except json.JSONDecodeError:
-            logger.error(f"Fehler beim Lesen der Einstellungsdatei. Die Datei könnte beschädigt sein.")
-            backup_file = f"{self.settings_file}.bak"
-            os.rename(self.settings_file, backup_file)
-            logger.info(f"Beschädigte Einstellungsdatei wurde als {backup_file} gesichert.")
-            self.save_settings()
-        except Exception as e:
-            logger.error(f"Unerwarteter Fehler beim Synchronisieren der Einstellungen: {e}")
-
-        if DEBUG_LOGGING:
-            logger.debug(f"Aktivierte Plugins nach sync_settings_from_file: {self.settings.get('plugins', {}).get('enabled_plugins', [])}")
-
-    @handle_exceptions
-    def get_enabled_plugins(self) -> List[str]:
-        """
-        Gibt eine Liste der aktivierten Plugins zurück.
-
-        Returns:
-            List[str]: Eine Liste der Namen der aktivierten Plugins
-        """
-        plugins_settings = self.get_setting("plugins", {})
-        enabled_plugins = plugins_settings.get("enabled_plugins", [])
-        if DEBUG_LOGGING:
-            logger.debug(f"get_enabled_plugins aufgerufen. Ergebnis: {enabled_plugins}")
-        return enabled_plugins
-
-    @handle_exceptions
-    def set_enabled_plugins(self, enabled_plugins: List[str]) -> None:
-        """
-        Setzt die Liste der aktivierten Plugins.
-
-        Args:
-            enabled_plugins (List[str]): Eine Liste der Namen der zu aktivierenden Plugins
-        """
-        if DEBUG_LOGGING:
-            logger.debug(f"set_enabled_plugins aufgerufen mit: {enabled_plugins}")
-        plugins_settings = self.get_setting("plugins", {})
-        plugins_settings["enabled_plugins"] = enabled_plugins
-        if DEBUG_LOGGING:
-            logger.debug(f"Vor set_setting Aufruf: {plugins_settings}")
-        self.set_setting("plugins", plugins_settings)
-        if DEBUG_LOGGING:
-            logger.debug(f"Aktivierte Plugins aktualisiert (Nach set_setting Aufruf): {enabled_plugins}")
-        # Temporär zum Testen
-        self.save_settings()
-        if DEBUG_LOGGING:
-            logger.debug(f"save_settings aufgerufen")
-
-    def update_nested_dict(self, d: Dict, keys: List[str], value: Any):
-        """
-        Aktualisiert ein verschachteltes Dictionary basierend auf einer Liste von Schlüsseln.
-
-        Args:
-            d (Dict): Das zu aktualisierende Dictionary
-            keys (List[str]): Eine Liste von Schlüsseln, die den Pfad zum zu aktualisierenden Wert darstellen
-            value (Any): Der neue Wert, der gesetzt werden soll
-        """
-        for key in keys[:-1]:
-            d = d.setdefault(key, {})
-        d[keys[-1]] = value
-
     @property
-    def text_content(self):
-        return self.settings.get('text_content', '')
+    def text_content(self) -> str:
+        """
+        Getter für den text_content.
+
+        Returns:
+            str: Der aktuelle Textinhalt.
+        """
+        return self.get_setting('text_content', '')
 
     @text_content.setter
-    def text_content(self, value):
-        old_value = self.settings.get('text_content', '')
-        self.settings['text_content'] = value
-        if DEBUG_LOGGING:
-            logger.debug(f"text_content geändert von '{old_value}' zu '{value}'")
-        self.save_setting('text_content', value)
+    def text_content(self, value: str) -> None:
+        """
+        Setter für den text_content.
+
+        Args:
+            value (str): Der neue Textinhalt.
+        """
+        self.set_setting('text_content', value)
+
+    def get_current_settings(self):
+        """
+        Gibt eine Kopie der aktuellen Einstellungen zurück.
+
+        Returns:
+            Dict[str, Any]: Eine Kopie der aktuellen Einstellungen.
+        """
+        return self.settings.copy()
+
+    def migrate_settings(self):
+        """Migriert alte Einstellungsformate in das neue Format."""
+        if 'plugins.enabled_plugins' in self.settings:
+            plugins_settings = self.settings.get('plugins', {})
+            plugins_settings['enabled_plugins'] = self.settings.pop('plugins.enabled_plugins')
+            self.settings['plugins'] = plugins_settings
+            self.save_settings()
+            if DEBUG_LOGGING:
+                logger.debug("Einstellungen migriert: 'plugins.enabled_plugins' in 'plugins.enabled_plugins' verschoben")
 
 # Zusätzliche Erklärungen:
 
-# 1. Bedingtes Debug-Logging:
-#    Die Einführung der DEBUG_LOGGING Konstante ermöglicht es, detaillierte Debug-Logs
-#    bei Bedarf zu aktivieren oder zu deaktivieren, ohne den Code zu ändern.
+# 1. Thread-Sicherheit:
+#    Die Verwendung von threading.Lock stellt sicher, dass alle Operationen auf den Einstellungen
+#    thread-sicher sind. Dies ist besonders wichtig in einer Anwendung, die möglicherweise
+#    mehrere Threads verwendet, um gleichzeitige Zugriffe und Dateninkonsistenzen zu vermeiden.
 
-# 2. Optimierte merge_dicts Methode:
-#    Die Logging-Aufrufe in dieser Methode wurden reduziert und unter die DEBUG_LOGGING
-#    Bedingung gestellt, um die Performance zu verbessern.
+# 2. Fehlerbehandlung:
+#    Die Methoden load_settings und save_settings enthalten robuste Fehlerbehandlung,
+#    um mit fehlenden oder beschädigten Einstellungsdateien umzugehen. Dies erhöht die
+#    Zuverlässigkeit der Anwendung.
 
-# 3. Reduzierte Logging-Ausgaben:
-#    Vollständige Einstellungs-Dumps wurden entfernt oder reduziert, um die Log-Dateigröße
-#    zu minimieren und die Leistung zu verbessern.
+# 3. Logging:
+#    Detailliertes Logging wird durch die DEBUG_LOGGING Konstante gesteuert. Dies ermöglicht
+#    eine flexible Debuggingunterstützung ohne Leistungseinbußen im Produktionsbetrieb.
 
-# 4. Verbesserte Fehlerbehandlung:
-#    Die Fehlerbehandlung wurde beibehalten und in einigen Fällen verbessert, um
-#    robusteres Verhalten bei Dateioperationen zu gewährleisten.
+# 4. Plugin-Verwaltung:
+#    Die Methoden set_enabled_plugins, get_enabled_plugins und toggle_plugin bieten eine
+#    zentrale Stelle für die Verwaltung von Plugin-Aktivierungen. Dies vereinfacht die
+#    Integration des Plugin-Systems in die Hauptanwendung.
 
-# 5. Konsistente Verwendung von Docstrings:
-#    Alle öffentlichen Methoden haben nun Docstrings, die ihre Funktionalität,
-#    Parameter und Rückgabewerte beschreiben.
+# 5. Konfigurierbarkeit:
+#    Die Verwendung von Konstanten aus der config.py-Datei (wie DEFAULT_LANGUAGE, DEFAULT_WHISPER_MODEL, etc.)
+#    macht die Anwendung hochgradig konfigurierbar und erleichtert zukünftige Anpassungen.
 
-# Diese Änderungen zielen darauf ab, die Leistung zu verbessern und gleichzeitig
-# die Möglichkeit zu erhalten, bei Bedarf detaillierte Debug-Informationen zu erhalten.
+# 6. Einstellungsmigration:
+#    Die migrate_settings Methode wurde hinzugefügt, um alte Einstellungsformate automatisch
+#    in das neue Format zu konvertieren. Dies gewährleistet die Kompatibilität mit älteren Versionen
+#    der Anwendung und erleichtert Updates.

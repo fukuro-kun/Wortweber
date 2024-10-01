@@ -39,6 +39,7 @@ class MainWindow:
         """
         self.root = root
         self.gui = gui
+        self.settings_manager = self.gui.settings_manager
         self.setup_ui()
         logger.info("MainWindow initialisiert")
 
@@ -106,12 +107,13 @@ class MainWindow:
         self.transcription_time = tk.Label(right_frame, text="0.00 s", bg="black", fg="white", anchor="e")
         self.transcription_time.pack(side=tk.LEFT)
 
-        self.auto_copy_var = tk.BooleanVar(value=self.gui.settings_manager.get_setting("auto_copy"))
+        self.auto_copy_var = tk.BooleanVar(value=self.settings_manager.get_setting("auto_copy", False))
         self.auto_copy_checkbox = tk.Checkbutton(right_frame, text="Auto-Kopieren", variable=self.auto_copy_var,
                                                  bg="black", fg="white", selectcolor="black", activebackground="black",
                                                  command=self.on_auto_copy_change)
         self.auto_copy_checkbox.pack(side=tk.RIGHT)
 
+        self.load_settings()
         logger.info("UI-Setup abgeschlossen")
 
     @handle_exceptions
@@ -130,6 +132,7 @@ class MainWindow:
             self.model_status.config(text=model)
             if "Geladen" in model:
                 self.model_status.config(fg="green")
+                self.settings_manager.set_setting("current_model", model.split(" - ")[0])
             elif "Wird geladen" in model:
                 self.model_status.config(fg="yellow")
             else:
@@ -137,7 +140,7 @@ class MainWindow:
 
         if output_mode:
             self.output_mode_status.config(text=output_mode)
-            self.gui.settings_manager.set_setting("output_mode", output_mode)
+            self.settings_manager.set_setting("output_mode", output_mode)
 
         if status:
             self.main_status.config(text=status)
@@ -159,8 +162,19 @@ class MainWindow:
     def on_auto_copy_change(self):
         """Behandelt Änderungen der Auto-Kopieren-Einstellung."""
         auto_copy_value = self.auto_copy_var.get()
-        self.gui.settings_manager.set_setting("auto_copy", auto_copy_value)
+        self.settings_manager.set_setting("auto_copy", auto_copy_value)
         logger.debug(f"Auto-Kopieren-Einstellung geändert auf: {auto_copy_value}")
+
+    @handle_exceptions
+    def load_settings(self):
+        """Lädt die gespeicherten Einstellungen und aktualisiert die UI-Elemente."""
+        self.auto_copy_var.set(self.settings_manager.get_setting("auto_copy", False))
+        current_model = self.settings_manager.get_setting("current_model", "")
+        if current_model:
+            self.update_status_bar(model=f"{current_model} - Geladen")
+        current_output_mode = self.settings_manager.get_setting("output_mode", "textfenster")
+        self.update_status_bar(output_mode=current_output_mode)
+        logger.info("Einstellungen geladen und UI aktualisiert")
 
 # Zusätzliche Erklärungen:
 
@@ -193,3 +207,8 @@ class MainWindow:
 # 8. Plugin-Leiste:
 #    Ein neuer Frame für die Plugin-Leiste wurde im oberen rechten Bereich des OptionsPanel hinzugefügt,
 #    um Platz für Plugin-spezifische UI-Elemente zu schaffen.
+
+# 9. Einstellungen laden:
+#    Die neue load_settings Methode wurde hinzugefügt, um alle relevanten Einstellungen beim Start zu laden
+#    und die UI-Elemente entsprechend zu aktualisieren. Dies gewährleistet, dass die Benutzeroberfläche
+#    immer den aktuellen Einstellungen entspricht.
