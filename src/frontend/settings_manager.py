@@ -24,7 +24,7 @@ from src.config import *
 from src.utils.error_handling import handle_exceptions, logger
 
 # Globale Konstante für bedingtes Debug-Logging
-DEBUG_LOGGING = False
+DEBUG_LOGGING = True
 
 class SettingsManager:
     """
@@ -66,6 +66,8 @@ class SettingsManager:
         'user_settings.json' Datei. Sie wird verwendet, um Änderungen zu persistieren
         und um die Datei mit Standardwerten zu initialisieren, falls sie nicht existiert.
         """
+        if DEBUG_LOGGING:
+            logger.debug(f"Speichere Einstellungen. Aktivierte Plugins: {self.settings.get('plugins', {}).get('enabled_plugins', [])}")
         with open(self.settings_file, 'w') as f:
             json.dump(self.settings, f, indent=4)
         logger.info(f"Einstellungen in {self.settings_file} gespeichert")
@@ -84,7 +86,8 @@ class SettingsManager:
             try:
                 with open(self.settings_file, "r") as f:
                     settings = json.load(f)
-                logger.debug("Einstellungen erfolgreich geladen")
+                if DEBUG_LOGGING:
+                    logger.info(f"Einstellungen geladen. Aktivierte Plugins: {settings.get('plugins', {}).get('enabled_plugins', [])}")
                 return settings
             except json.JSONDecodeError:
                 logger.error("Fehler beim Laden der Einstellungen. Verwende Standardeinstellungen.")
@@ -116,19 +119,26 @@ class SettingsManager:
         Returns:
             Dict: Das zusammengeführte Dictionary.
         """
-        if DEBUG_LOGGING:
-            logger.debug(f"Beginne merge_dicts")
+        #if DEBUG_LOGGING:
+        #    logger.debug(f"Beginne merge_dicts")
         for key, value in default.items():
             if isinstance(value, dict) and isinstance(current.get(key), dict):
                 current[key] = self.merge_dicts(value, current.get(key, {}))
             else:
-                if key in current and current[key] != value and DEBUG_LOGGING:
+                if key not in current:
+                    current[key] = value
+                elif key == 'enabled_plugins' and isinstance(value, list) and isinstance(current[key], list):
+                    # Spezielle Behandlung für enabled_plugins
+                    current[key] = list(set(current[key] + value))  # Entfernt Duplikate
+                elif key in current and current[key] != value and DEBUG_LOGGING:
                     logger.debug(f"Wert für {key} geändert. Alt: {current[key]}, Neu: {value}")
-                current[key] = value
         return current
+
 
     @handle_exceptions
     def set_setting(self, key: str, value: Any) -> None:
+        if key == "plugins":
+            logger.debug(f"set_setting aufgerufen für {key} mit Wert {value}") # DEBUGDEBUG
         old_value = self.get_setting(key)
         if old_value != value:
             if DEBUG_LOGGING:
@@ -139,11 +149,14 @@ class SettingsManager:
             for k in keys[:-1]:
                 target = target.setdefault(k, {})
             target[keys[-1]] = value
-
+            if DEBUG_LOGGING:
+                logger.debug(f"set_setting aufgerufen für {key} mit Wert {value}")
             self.save_setting(key, value)
 
     @handle_exceptions
     def save_setting(self, key: str, value: Any) -> None:
+        if key == "plugins":
+            logger.debug(f"save_setting aufgerufen für {key} mit Wert {value}") # DEBUGDEBUG
         """
         Speichert eine einzelne Einstellung und aktualisiert die JSON-Datei.
 
@@ -155,10 +168,17 @@ class SettingsManager:
             if DEBUG_LOGGING:
                 logger.debug(f"save_setting aufgerufen. Schlüssel: {key}, Wert: '{value}'")
 
+            keys = key.split('.')
+            target = self.settings
+            for k in keys[:-1]:
+                target = target.setdefault(k, {})
+            target[keys[-1]] = value
+
             with open(self.settings_file, 'w') as f:
                 json.dump(self.settings, f, indent=4)
 
-            logger.debug(f"Einstellung in Datei gespeichert: {key}")
+            if DEBUG_LOGGING:
+                logger.debug(f"Einstellung in Datei gespeichert: {key}")
         except Exception as e:
             logger.error(f"Fehler beim Speichern der Einstellung {key} in Datei: {e}")
             raise
@@ -328,11 +348,19 @@ class SettingsManager:
                 file_settings = json.load(f)
 
             old_text_content = self.settings.get('text_content', '')
+            old_enabled_plugins = self.settings.get('plugins', {}).get('enabled_plugins', [])
+
             self.settings = self.merge_dicts(self.settings, file_settings)
+
             new_text_content = self.settings.get('text_content', '')
+            new_enabled_plugins = self.settings.get('plugins', {}).get('enabled_plugins', [])
 
             if old_text_content != new_text_content:
                 logger.warning(f"text_content geändert während sync_settings_from_file.")
+
+            if DEBUG_LOGGING:
+                logger.debug(f"Aktivierte Plugins vor sync: {old_enabled_plugins}")
+                logger.debug(f"Aktivierte Plugins nach sync: {new_enabled_plugins}")
 
             logger.debug("Einstellungen erfolgreich mit Datei synchronisiert")
         except json.JSONDecodeError:
@@ -344,6 +372,9 @@ class SettingsManager:
         except Exception as e:
             logger.error(f"Unerwarteter Fehler beim Synchronisieren der Einstellungen: {e}")
 
+        if DEBUG_LOGGING:
+            logger.debug(f"Aktivierte Plugins nach sync_settings_from_file: {self.settings.get('plugins', {}).get('enabled_plugins', [])}")
+
     @handle_exceptions
     def get_enabled_plugins(self) -> List[str]:
         """
@@ -353,7 +384,10 @@ class SettingsManager:
             List[str]: Eine Liste der Namen der aktivierten Plugins
         """
         plugins_settings = self.get_setting("plugins", {})
-        return plugins_settings.get("enabled_plugins", [])
+        enabled_plugins = plugins_settings.get("enabled_plugins", [])
+        if DEBUG_LOGGING:
+            logger.debug(f"get_enabled_plugins aufgerufen. Ergebnis: {enabled_plugins}")
+        return enabled_plugins
 
     @handle_exceptions
     def set_enabled_plugins(self, enabled_plugins: List[str]) -> None:
@@ -363,9 +397,19 @@ class SettingsManager:
         Args:
             enabled_plugins (List[str]): Eine Liste der Namen der zu aktivierenden Plugins
         """
+        if DEBUG_LOGGING:
+            logger.debug(f"set_enabled_plugins aufgerufen mit: {enabled_plugins}")
         plugins_settings = self.get_setting("plugins", {})
         plugins_settings["enabled_plugins"] = enabled_plugins
+        if DEBUG_LOGGING:
+            logger.debug(f"Vor set_setting Aufruf: {plugins_settings}")
         self.set_setting("plugins", plugins_settings)
+        if DEBUG_LOGGING:
+            logger.debug(f"Aktivierte Plugins aktualisiert (Nach set_setting Aufruf): {enabled_plugins}")
+        # Temporär zum Testen
+        self.save_settings()
+        if DEBUG_LOGGING:
+            logger.debug(f"save_settings aufgerufen")
 
     def update_nested_dict(self, d: Dict, keys: List[str], value: Any):
         """

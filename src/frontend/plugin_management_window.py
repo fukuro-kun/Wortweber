@@ -107,7 +107,7 @@ class PluginManagementWindow(tk.Toplevel):
             item = tree.insert("", "end", values=(
                 plugin_name,
                 plugin_info['version'],
-                "☑" if is_active else "☐",
+                "Aktiv" if is_active else "Inaktiv",
                 "☑" if is_enabled else "☐",
                 "⚙"
             ))
@@ -159,11 +159,11 @@ class PluginManagementWindow(tk.Toplevel):
             plugin_name (str): Der Name des Plugins, dessen Status geändert werden soll.
         """
         enabled_plugins = self.plugin_manager.settings_manager.get_enabled_plugins()
-        if plugin_name in enabled_plugins:
-            enabled_plugins.remove(plugin_name)
-        else:
-            enabled_plugins.append(plugin_name)
-        self.plugin_manager.settings_manager.set_enabled_plugins(enabled_plugins)
+        is_enabled = plugin_name in enabled_plugins
+
+        # Nutzen Sie hier die neue Methode des PluginManagers
+        self.plugin_manager.set_plugin_enabled_at_startup(plugin_name, not is_enabled)
+
         self.update_plugin_list(self.tree)
 
     @handle_exceptions
@@ -254,3 +254,11 @@ class PluginManagementWindow(tk.Toplevel):
             PluginManagementWindow: Eine neue Instanz des Plugin-Verwaltungsfensters.
         """
         return cls(parent, plugin_manager, gui)
+
+# Zusätzliche Erklärungen:
+# Die Klasse PluginManagementWindow implementiert ein Verwaltungsfenster für Plugins.
+# Sie ermöglicht es dem Benutzer, Plugins zu aktivieren/deaktivieren, deren Einstellungen zu ändern
+# und festzulegen, ob ein Plugin beim nächsten Start der Anwendung aktiviert werden soll.
+# Die Methode toggle_plugin_enabled wurde angepasst, um die neue Methode set_plugin_enabled_at_startup
+# des PluginManagers zu verwenden, was eine klare Trennung zwischen dem aktuellen Aktivierungsstatus
+# und der Einstellung für den nächsten Start gewährleistet.
