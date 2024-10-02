@@ -17,8 +17,7 @@
 # Standardbibliotheken
 import json
 import os
-import threading
-from threading import Timer
+from threading import RLock, Timer
 from typing import Any, Dict, List, Optional
 
 # Projektspezifische Module
@@ -38,7 +37,7 @@ class SettingsManager:
     Attributes:
         settings_file (str): Der Pfad zur JSON-Datei, in der die Einstellungen gespeichert werden.
         settings (Dict[str, Any]): Ein Dictionary, das die aktuellen Einstellungen enthält.
-        lock (threading.Lock): Ein Lock-Objekt für Thread-Sicherheit.
+        lock (threading.RLock): Ein RLock-Objekt für Thread-Sicherheit.
     """
 
     def __init__(self, settings_file: str = "user_settings.json"):
@@ -49,17 +48,17 @@ class SettingsManager:
             settings_file (str): Der Pfad zur JSON-Datei für die Einstellungen.
         """
         self.settings_file = settings_file
-        self.lock = threading.Lock()
+        self.lock = RLock()
         self.settings: Dict[str, Any] = {}
         self.load_settings()
         self.save_timer = None
         self.migrate_settings()
 
     def delayed_save(self):
-        """Verzögert das Speichern der Einstellungen um 5 Sekunden."""
+        """Verzögert das Speichern der Einstellungen um 1.5 Sekunden."""
         if self.save_timer:
             self.save_timer.cancel()
-        self.save_timer = Timer(5.0, self.save_settings)
+        self.save_timer = Timer(1.5, self.save_settings)
         self.save_timer.start()
 
     def load_settings(self) -> None:
@@ -124,9 +123,35 @@ class SettingsManager:
             old_value = self.settings.get(key)
             if old_value != value:
                 self.settings[key] = value
-                self.delayed_save()
+                if key in DELAYED_SAVE_SETTINGS:
+                    self.delayed_save()
+                else:
+                    self.save_settings_instant()
                 if DEBUG_LOGGING:
                     logger.debug(f"Einstellung geändert. Schlüssel: {key}, Alter Wert: {old_value}, Neuer Wert: {value}")
+
+    @handle_exceptions
+    def set_setting_instant(self, key: str, value: Any) -> None:
+        """
+        Setzt den Wert einer bestimmten Einstellung und speichert sie sofort.
+
+        Args:
+            key (str): Der Schlüssel der zu setzenden Einstellung.
+            value (Any): Der neue Wert der Einstellung.
+        """
+        with self.lock:
+            old_value = self.settings.get(key)
+            if old_value != value:
+                self.settings[key] = value
+                self.save_settings_instant()
+                if DEBUG_LOGGING:
+                    logger.debug(f"Einstellung sofort gespeichert. Schlüssel: {key}, Alter Wert: {old_value}, Neuer Wert: {value}")
+
+    def save_settings_instant(self) -> None:
+        """Speichert die Einstellungen sofort."""
+        if self.save_timer:
+            self.save_timer.cancel()
+        self.save_settings()
 
     def update_settings(self, new_settings: Dict[str, Any]) -> None:
         """
@@ -288,8 +313,8 @@ class SettingsManager:
             if DEBUG_LOGGING:
                 logger.debug("Einstellungen migriert: 'plugins.enabled_plugins' in 'plugins.enabled_plugins' verschoben")
 
-
     def clean_settings(self) -> None:
+        """Bereinigt die Einstellungen von unerwünschten oder veralteten Einträgen."""
         self.settings.pop('plugins.specific_settings.Ollama LLM Chat Plugin', None)
         # Stellen Sie sicher, dass alle Plugin-Einstellungen unter plugins.specific_settings.[plugin_name] sind
         if 'plugins' in self.settings and 'specific_settings' in self.settings['plugins']:
@@ -302,9 +327,10 @@ class SettingsManager:
 # Zusätzliche Erklärungen:
 
 # 1. Thread-Sicherheit:
-#    Die Verwendung von threading.Lock stellt sicher, dass alle Operationen auf den Einstellungen
-#    thread-sicher sind. Dies ist besonders wichtig in einer Anwendung, die möglicherweise
-#    mehrere Threads verwendet, um gleichzeitige Zugriffe und Dateninkonsistenzen zu vermeiden.
+#    Die Verwendung von threading.RLock stellt sicher, dass alle Operationen auf den Einstellungen
+#    thread-sicher sind und verhindert Deadlocks bei verschachtelten Aufrufen. Dies ist besonders wichtig
+#    in einer Anwendung, die möglicherweise mehrere Threads verwendet, um gleichzeitige Zugriffe
+#    und Dateninkonsistenzen zu vermeiden.
 
 # 2. Fehlerbehandlung:
 #    Die Methoden load_settings und save_settings enthalten robuste Fehlerbehandlung,
@@ -328,3 +354,15 @@ class SettingsManager:
 #    Die migrate_settings Methode wurde hinzugefügt, um alte Einstellungsformate automatisch
 #    in das neue Format zu konvertieren. Dies gewährleistet die Kompatibilität mit älteren Versionen
 #    der Anwendung und erleichtert Updates.
+
+# 7. Verzögertes und sofortiges Speichern:
+#    Die Implementierung unterscheidet zwischen Einstellungen, die verzögert gespeichert werden können
+#    (wie Fenstergeometrie) und solchen, die sofort gespeichert werden müssen. Dies optimiert die
+#    Performance und gewährleistet gleichzeitig die Datenpersistenz für kritische Einstellungen.
+
+# 8. Unterschied zwischen "aktiv" und "enabled" Status eines Plugins:
+#    - "Enabled" bedeutet, dass ein Plugin beim Programmstart aktiviert werden soll.
+#    - "Aktiv" bedeutet, dass ein Plugin derzeit läuft und seine Funktionalität zur Verfügung stellt.
+#    Ein Plugin kann "enabled" sein, ohne aktuell "aktiv" zu sein, z.B. wenn es beim Start nicht
+#    erfolgreich geladen werden konnte. Diese Unterscheidung ermöglicht eine feinere Kontrolle
+#    über den Lebenszyklus von Plugins.

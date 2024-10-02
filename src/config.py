@@ -48,6 +48,9 @@ HIGHLIGHT_DURATION = 2000  # Dauer der Texthighlights in Millisekunden
 DEFAULT_FONT_SIZE = 12  # Standard-Textgröße
 DEFAULT_FONT_FAMILY = "Nimbus Mono L"  # Standard-Schriftart
 
+# Einstellungen, die verzögert gespeichert werden sollen
+DELAYED_SAVE_SETTINGS = ['window_geometry', 'plugin_window_geometry', 'options_window_geometry']
+
 # Audio-Einstellungen
 AUDIO_FORMAT = pyaudio.paInt16  # 16-bit int Sampling
 AUDIO_CHANNELS = 1  # Mono-Aufnahme

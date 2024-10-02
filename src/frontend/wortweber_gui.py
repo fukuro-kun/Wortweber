@@ -40,14 +40,11 @@ from src.frontend.options_window import OptionsWindow
 from src.frontend.theme_manager import ThemeManager
 from src.frontend.input_processor import InputProcessor
 from src.frontend.settings_manager import SettingsManager
-from src.config import DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY, DEFAULT_PUSH_TO_TALK_KEY, DEFAULT_WHISPER_MODEL
+from src.config import DEFAULT_WINDOW_SIZE, DEFAULT_CHAR_DELAY, DEFAULT_PUSH_TO_TALK_KEY, DEFAULT_WHISPER_MODEL, DEBUG_LOGGING
 from src.utils.error_handling import handle_exceptions, logger
 from src.plugin_system.plugin_manager import PluginManager
 from src.frontend.context_menu import create_context_menu
 from src.frontend.plugin_management_window import PluginManagementWindow
-
-# Globale Konstante für bedingtes Debug-Logging
-DEBUG_LOGGING = False
 
 class WordweberGUI:
     """
@@ -206,6 +203,7 @@ class WordweberGUI:
 
     @handle_exceptions
     def on_closing(self) -> None:
+        """Behandelt das Schließen der Anwendung."""
         logger.info("Anwendung wird geschlossen")
         self.input_processor.stop_listener()
 
@@ -219,7 +217,7 @@ class WordweberGUI:
 
         # Speichern des aktuellen Textinhalts
         current_text = self.transcription_panel.text_widget.get("1.0", tk.END).strip()
-        self.settings_manager.set_setting("text_content", current_text)
+        self.settings_manager.set_setting_instant("text_content", current_text)
 
         # Aufräumen des Transkriptionsmodells
         if self.backend.transcriber.model is not None:
@@ -235,7 +233,7 @@ class WordweberGUI:
     def save_current_geometry(self) -> None:
         """Speichert die aktuelle Fenstergeometrie in den Einstellungen."""
         current_geometry = self.root.winfo_geometry()
-        self.settings_manager.set_setting("window_geometry", current_geometry)
+        self.settings_manager.set_setting_instant("window_geometry", current_geometry)
         if DEBUG_LOGGING:
             logger.debug(f"Fenstergeometrie beim Schließen gespeichert: {current_geometry}")
 
@@ -343,8 +341,8 @@ class WordweberGUI:
         """Initialisiert die Verzögerungseinstellungen."""
         delay_mode = self.settings_manager.get_setting("delay_mode", "no_delay")
         char_delay = self.settings_manager.get_setting("char_delay", DEFAULT_CHAR_DELAY)
-        self.settings_manager.set_setting("delay_mode", delay_mode)
-        self.settings_manager.set_setting("char_delay", char_delay)
+        self.settings_manager.set_setting_instant("delay_mode", delay_mode)
+        self.settings_manager.set_setting_instant("char_delay", char_delay)
         logger.info(f"Verzögerungseinstellungen initialisiert: Modus={delay_mode}, Verzögerung={char_delay}")
 
     @handle_exceptions
@@ -367,7 +365,7 @@ class WordweberGUI:
         :param new_shortcut: Der neue Shortcut, der angezeigt werden soll
         """
         self.options_panel.update_shortcut_display(new_shortcut)
-        self.settings_manager.set_setting("push_to_talk_key", new_shortcut)
+        self.settings_manager.set_setting_instant("push_to_talk_key", new_shortcut)
 
     @handle_exceptions
     def rebuild_plugin_bar(self) -> None:
@@ -535,7 +533,7 @@ class WordweberGUI:
 
 # 4. Einstellungsverwaltung:
 #    Die Klasse interagiert eng mit dem SettingsManager, um Benutzereinstellungen zu laden,
-#    zu speichern und anzuwenden.
+#    zu speichern und anzuwenden. Die Methode set_setting_instant wird für sofortige Speicherungen verwendet.
 
 # 5. Theming und Farbverwaltung:
 #    Der ThemeManager wird verwendet, um das Erscheinungsbild der Anwendung anzupassen.

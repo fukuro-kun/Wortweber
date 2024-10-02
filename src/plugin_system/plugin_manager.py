@@ -194,7 +194,7 @@ class PluginManager:
         else:
             enabled_plugins.discard(plugin_name)
         self.settings_manager.set_enabled_plugins(list(enabled_plugins))
-        self.settings_manager.save_settings()  # Speichern Sie die Änderungen sofort
+        self.settings_manager.save_settings_instant()  # Speichern Sie die Änderungen sofort
         logger.info(f"Plugin {plugin_name} {'aktiviert' if enabled else 'deaktiviert'} für den nächsten Start")
         if DEBUG_LOGGING:
             logger.debug(f"Aktualisierte Liste der beim Start zu aktivierenden Plugins: {list(enabled_plugins)}")

@@ -216,7 +216,7 @@ class ThemeManager:
             if self.root.winfo_exists():
                 self.root.set_theme(theme_name)
                 self.current_theme.set(theme_name)
-                self.settings_manager.set_setting("theme", theme_name)
+                self.settings_manager.set_setting_instant("theme", theme_name)
         except tk.TclError:
             pass
 
@@ -241,7 +241,7 @@ class ThemeManager:
                 preview_frame.config(bg=new_color)
 
                 setting_name = str(color_var).split('.')[-1]
-                self.settings_manager.set_setting(setting_name, new_color)
+                self.settings_manager.set_setting_instant(setting_name, new_color)
 
                 if DEBUG_LOGGING:
                     logger.debug(f"Farbe '{setting_name}' auf '{new_color}' geändert.")

@@ -26,17 +26,18 @@ from src.config import (
     HIGHLIGHT_DURATION, DEFAULT_FONT_SIZE, DEFAULT_FONT_FAMILY,
     DEFAULT_INCOGNITO_MODE, DEFAULT_TEXT_FG, DEFAULT_TEXT_BG,
     DEFAULT_SELECT_FG, DEFAULT_SELECT_BG, DEFAULT_HIGHLIGHT_FG,
-    DEFAULT_HIGHLIGHT_BG
+    DEFAULT_HIGHLIGHT_BG, DEBUG_LOGGING
 )
 from src.frontend.context_menu import create_context_menu
 from src.utils.error_handling import handle_exceptions, logger
 
-# Globale Konstante für bedingtes Debug-Logging
-DEBUG_LOGGING = False
-
 class TranscriptionPanel(ttk.Frame):
     """
     Panel zur Anzeige und Bearbeitung von Transkriptionen in der Wortweber-Anwendung.
+
+    Diese Klasse verwaltet das Haupttextfeld für Transkriptionen und bietet
+    Funktionen zum Einfügen, Löschen und Kopieren von Text sowie zur Anpassung
+    von Schriftart, -größe und Farben.
     """
 
     @handle_exceptions
@@ -95,8 +96,8 @@ class TranscriptionPanel(ttk.Frame):
         self.font_family = family
         self.font_size = size
         self.text_widget.configure(font=font)
-        self.settings_manager.set_setting("font_family", family)
-        self.settings_manager.set_setting("font_size", size)
+        self.settings_manager.set_setting_instant("font_family", family)
+        self.settings_manager.set_setting_instant("font_size", size)
         logger.info(f"Schriftart auf {family}, Größe {size} geändert")
 
     @handle_exceptions
@@ -146,7 +147,6 @@ class TranscriptionPanel(ttk.Frame):
             logger.info(f"Text eingefügt und hervorgehoben (Incognito-Modus aktiv). Länge: {len(text)} Zeichen")
         self.restore_cursor_position(cursor_position)
 
-
     @handle_exceptions
     def clear_transcription(self):
         """Löscht den gesamten Text im Transkriptionsfeld."""
@@ -172,7 +172,7 @@ class TranscriptionPanel(ttk.Frame):
         text_content = self.text_widget.get("1.0", tk.END).strip()
         if DEBUG_LOGGING:
             logger.debug(f"save_text aufgerufen. Neuer text_content: '{text_content[:50]}...'")
-        self.settings_manager.set_setting("text_content", text_content)
+        self.settings_manager.set_setting_instant("text_content", text_content)
         incognito_mode = self.settings_manager.get_setting("incognito_mode", DEFAULT_INCOGNITO_MODE)
         if not incognito_mode and DEBUG_LOGGING:
             logger.debug(f"Transkriptionstext gespeichert. Länge: {len(text_content)} Zeichen")
@@ -217,7 +217,11 @@ class TranscriptionPanel(ttk.Frame):
             self.throttled_log("Textauswahl geändert")
 
     def throttled_log(self, message):
-        """Loggt eine Nachricht, aber nicht öfter als alle 100 ms."""
+        """
+        Loggt eine Nachricht, aber nicht öfter als alle 100 ms.
+
+        Diese Methode verhindert übermäßiges Logging bei schnell aufeinanderfolgenden Ereignissen.
+        """
         current_time = time.time()
         if current_time - self.last_selection_log > self.selection_log_delay:
             if DEBUG_LOGGING:
@@ -258,9 +262,19 @@ class TranscriptionPanel(ttk.Frame):
         self.update_colors(text_fg, text_bg, select_fg, select_bg, highlight_fg, highlight_bg)
 
     def save_cursor_position(self):
+        """
+        Speichert die aktuelle Cursorposition.
+
+        :return: Die aktuelle Cursorposition als String
+        """
         return self.text_widget.index(tk.INSERT)
 
     def restore_cursor_position(self, position):
+        """
+        Stellt die Cursorposition wieder her.
+
+        :param position: Die wiederherzustellende Cursorposition als String
+        """
         self.text_widget.mark_set(tk.INSERT, position)
         self.text_widget.see(tk.INSERT)
 
@@ -268,11 +282,13 @@ class TranscriptionPanel(ttk.Frame):
 
 # 1. Die Klasse TranscriptionPanel verwaltet das Haupttextfeld für die Transkriptionen.
 # 2. Sie bietet Funktionen zum Einfügen, Löschen und Kopieren von Text.
-# 3. Die Schriftgröße kann dynamisch angepasst werden.
-# 4. Änderungen am Text werden automatisch gespeichert.
+# 3. Die Schriftgröße und -art können dynamisch angepasst werden.
+# 4. Änderungen am Text werden automatisch und sofort gespeichert (set_setting_instant).
 # 5. Ein Kontextmenü ermöglicht zusätzliche Textbearbeitungsfunktionen.
 # 6. Die Klasse interagiert eng mit dem SettingsManager, um Benutzereinstellungen zu persistieren.
 # 7. Die update_colors Methode ermöglicht die dynamische Anpassung der Textfarben.
 # 8. Die Implementierung berücksichtigt den Incognito-Modus, um sensible Informationen zu schützen.
 # 9. Das bedingte Logging (DEBUG_LOGGING) ermöglicht eine feinere Kontrolle über die Menge der generierten Logs.
-# 10. Die neue Methode load_colors_from_settings lädt die Farbeinstellungen beim Start und wendet sie an.
+# 10. Die Methode load_colors_from_settings lädt die Farbeinstellungen beim Start und wendet sie an.
+# 11. Die Methoden save_cursor_position und restore_cursor_position ermöglichen es,
+#     die Cursorposition beim Einfügen von Text beizubehalten, was die Benutzererfahrung verbessert.

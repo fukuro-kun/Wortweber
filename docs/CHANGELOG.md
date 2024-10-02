@@ -5,6 +5,19 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.29.2] - 2024-10-02
+### Geändert
+- Implementierung von RLock zur Vermeidung von Deadlocks bei Einstellungsänderungen
+- Optimierung der Speichervorgänge für Einstellungen
+- Restrukturierung und Vereinfachung der TODO-Liste für bessere Übersichtlichkeit und Priorisierung
+
+### Behoben
+- Behebung eines Deadlock-Problems beim Ändern des Ausgabemodus
+
+### Dokumentation
+- Aktualisierung der TODO-Liste mit klarer Priorisierung in drei Kategorien (Hohe, Mittlere, Niedrige Priorität)
+- Hinzufügung neuer Aufgaben zur Überprüfung der Stabilität und Performanz nach RLock-Implementierung
+
 ## [0.29.1] - 2024-10-02
 ### Behoben
 - Korrektur der Speicherung von Plugin-Einstellungen und Aktivierungsstatus

@@ -1,3 +1,21 @@
+# Optimierung der Einstellungsverwaltung (Version 0.29.2)
+
+## Begründung für die Änderungen
+1. Behebung von Deadlock-Problemen bei gleichzeitigen Einstellungsänderungen
+2. Verbesserung der Zuverlässigkeit bei der Speicherung von Einstellungen
+3. Optimierung der Performanz bei häufigen Einstellungsänderungen
+
+## Hauptänderungen
+1. Ersetzung von threading.Lock durch threading.RLock in der SettingsManager-Klasse
+2. Einführung einer set_setting_instant Methode für sofortige Speicherung kritischer Einstellungen
+3. Anpassung der Speicherlogik zur Vermeidung von Deadlocks bei verschachtelten Lock-Aufrufen
+4. Optimierung der verzögerten Speicherung für bestimmte Einstellungen
+
+## Auswirkungen
+- Verbesserte Stabilität bei gleichzeitigen Einstellungsänderungen
+- Erhöhte Reaktionsfähigkeit der Benutzeroberfläche bei kritischen Einstellungsänderungen
+- Konsistentere Speicherung von Einstellungen, insbesondere bei Programmbeendigung
+
 # Optimierung der Plugin-Verwaltung und Einstellungsspeicherung (Version 0.29.1)
 
 ## Begründung für die Änderungen

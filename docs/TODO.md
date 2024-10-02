@@ -1,67 +1,22 @@
-# TODO Liste für Wortweber
+# TODO-Liste für Wortweber
 
-## Kernfunktionen
-### Hohe Priorität
-- [ ] Durchführung umfassender Tests für die neue Shortcut-Funktionalität
-- [ ] Überprüfung und Optimierung der Gerätekompatibilität für verschiedene Systemkonfigurationen
-- [ ] Durchführung umfassender Tests für die Zahlwort-Konvertierungsfunktionalität
-- [x] Entwicklung einer detaillierten API-Dokumentation für Plugin-Entwickler
+## Hohe Priorität
+1. [ ] Durchführung umfangreicher Tests zur Überprüfung der Stabilität nach RLock-Implementierung
+2. [ ] Überwachung der Anwendung auf mögliche Performanzprobleme bei häufigen Einstellungsänderungen
+3. [ ] Implementierung von Unit-Tests für die Plugin-Einstellungsspeicherung
+4. [ ] Optimierung des Ressourcenmanagements in kritischen Komponenten
+5. [ ] Überprüfung und Optimierung der Gerätekompatibilität für verschiedene Systemkonfigurationen
 
-### Mittlere Priorität
-- [ ] Implementierung umfassender Tests für das überarbeitete Plugin-System
-- [ ] Optimieren der Effizienz der Zahlwortverarbeitung für sehr große Zahlen
-- [ ] Implementierung zusätzlicher Module für die Ausgabe (z.B. Ollama-Unterstützung)
-- [ ] Überprüfen und ggf. Verbessern der Fehlerbehandlung in der TextProcessor-Klasse
+## Mittlere Priorität
+6. [ ] Implementierung umfassender Tests für das überarbeitete Plugin-System
+7. [ ] Implementierung eines Logging-Mechanismus zur Überwachung der Dauer von Speichervorgängen
+8. [ ] Überprüfung und ggf. Optimierung der verzögerten Speicherlogik für bestimmte Einstellungen
+9. [ ] Erweiterung der Typ-Annotationen auf alle Teile des Codes
+10. [ ] Verbesserung der Benutzerführung durch Tooltips und erweiterte Einstellungsmöglichkeiten
 
-### Niedrige Priorität
-- [ ] Implementierung eines Mechanismus zur Überprüfung von Plugin-Abhängigkeiten
-- [ ] Entwicklung zusätzlicher Beispiel-Plugins zur Demonstration der Systemfähigkeiten
-- [ ] Untersuchung der Unterstützung verschiedener Audiocodecs
-- [ ] Evaluierung alternativer Spracherkennungsmodelle für zukünftige Integration
-- [x] Implementierung eines Plugin-Systems
-
-## Benutzeroberfläche und Bedienung
-### Hohe Priorität
-- [ ] Implementierung von Unit-Tests für die Incognito-Modus-Funktionalität
-- [ ] Überprüfung der Kompatibilität mit verschiedenen Eingabeformaten
-- [ ] Entwicklung eines Plans für regelmäßige manuelle UI-Tests
-
-### Mittlere Priorität
-- [ ] Implementierung eines Internationalisierungssystems für zukünftige Mehrsprachigkeit
-- [ ] Erstellung einer detaillierten Dokumentation für den Incognito-Modus
-- [ ] Verbesserung der Benutzerführung durch Tooltips und erweiterte Einstellungsmöglichkeiten
-
-### Niedrige Priorität
-- [ ] Anpassungen für Mehrbildschirm-Setups
-- [ ] Implementierung einer Mindestfenstergröße
-- [ ] Implementierung von Funktionen zum Zurücksetzen von Einstellungen, einschließlich Farbeinstellungen
-
-## Qualitätssicherung und Dokumentation
-### Hohe Priorität
-- [ ] Überprüfung und Verbesserung der Testabdeckung
-- [ ] Erweiterung der Typ-Annotationen auf alle Teile des Codes
-- [ ] Entwicklung eines Konzepts für konsistente Namenskonventionen
-
-### Mittlere Priorität
-- [ ] Umfassende Erweiterung der Testabdeckung für kritische Funktionen und UI-Komponenten
-- [ ] Einrichtung einer Staging-Umgebung und Entwicklung eines Rollback-Plans für Releases
-- [ ] Überprüfung und Optimierung der Importstruktur in allen Dateien
-
-### Kontinuierliche Verbesserungen
-- [ ] Durchführung regelmäßiger Code-Reviews und Aktualisierung von Abhängigkeiten
-- [ ] Verbesserung der Dokumentation, insbesondere für Textoperationen
-- [ ] Regelmäßige Überprüfung und Aktualisierung von Code-Kommentaren
-
-## Erweiterungen und Optimierungen
-### Hohe Priorität
-- [ ] Optimierung des Ressourcenmanagements in kritischen Komponenten
-- [ ] Überprüfung und Zentralisierung von hartcodierten Werten in der Konfigurationsdatei
-- [ ] Optimierung der Testausführung, einschließlich Parallelisierung
-
-### Mittlere Priorität
-- [ ] Evaluierung von asyncio für verbesserte Nebenläufigkeit in der Audioverarbeitung
-- [ ] Implementierung von Unit-Tests für neue Komponenten wie `wortweber.sh`
-- [ ] Untersuchung von Performance-Problemen im Plugin-System
-
-## Agentenbasierte Funktionen
-- [ ] Entwicklung des Single-Agent-Systems (KI-Modell mit Bash-Zugang)
+## Niedrige Priorität
+11. [ ] Implementierung eines Mechanismus zur Überprüfung von Plugin-Abhängigkeiten
+12. [ ] Entwicklung zusätzlicher Beispiel-Plugins zur Demonstration der Systemfähigkeiten
+13. [ ] Evaluierung alternativer Ansätze wie asynchrones Speichern für zukünftige Optimierungen
+14. [ ] Untersuchung der Unterstützung verschiedener Audiocodecs
+15. [ ] Implementierung eines Internationalisierungssystems für zukünftige Mehrsprachigkeit

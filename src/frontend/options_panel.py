@@ -121,7 +121,7 @@ class OptionsPanel(ttk.Frame):
         und protokolliert die Änderung.
         """
         new_language = self.language_var.get()
-        self.settings_manager.set_setting("language", new_language)
+        self.settings_manager.set_setting_instant("language", new_language)
         logger.info(f"Sprache geändert auf: {new_language}")
 
     @handle_exceptions
@@ -135,7 +135,7 @@ class OptionsPanel(ttk.Frame):
         :param event: Das Ereignis, das die Änderung ausgelöst hat (wird nicht verwendet)
         """
         new_model = self.model_var.get()
-        self.settings_manager.set_setting("model", new_model)
+        self.settings_manager.set_setting_instant("model", new_model)
         self.gui.load_model_async(new_model)
         logger.info(f"Whisper-Modell geändert auf: {new_model}")
 
@@ -148,7 +148,7 @@ class OptionsPanel(ttk.Frame):
         und protokolliert die Änderung.
         """
         new_output_mode = self.output_mode_var.get()
-        self.settings_manager.set_setting("output_mode", new_output_mode)
+        self.settings_manager.set_setting_instant("output_mode", new_output_mode)
         self.gui.main_window.update_status_bar(output_mode=new_output_mode)
         logger.info(f"Ausgabemodus geändert auf: {new_output_mode}")
 
@@ -172,7 +172,7 @@ class OptionsPanel(ttk.Frame):
         :param new_shortcut: Der neue Shortcut, der angezeigt werden soll
         """
         self.shortcut_label.config(text=f"{new_shortcut} um aufzunehmen")
-        self.settings_manager.set_setting("push_to_talk_key", new_shortcut)
+        self.settings_manager.set_setting_instant("push_to_talk_key", new_shortcut)
         logger.info(f"Shortcut-Anzeige aktualisiert auf: {new_shortcut}")
 
     @handle_exceptions
@@ -183,8 +183,8 @@ class OptionsPanel(ttk.Frame):
         :param delay_mode: Der neue Verzögerungsmodus
         :param char_delay: Die neue Zeichenverzögerung
         """
-        self.settings_manager.set_setting("delay_mode", delay_mode)
-        self.settings_manager.set_setting("char_delay", char_delay)
+        self.settings_manager.set_setting_instant("delay_mode", delay_mode)
+        self.settings_manager.set_setting_instant("char_delay", char_delay)
         logger.info(f"Verzögerungseinstellungen aktualisiert: Modus={delay_mode}, Verzögerung={char_delay}")
 
 
@@ -223,3 +223,9 @@ class OptionsPanel(ttk.Frame):
 # 8. Einstellungen laden:
 #    Die neue load_settings Methode stellt sicher, dass alle UI-Elemente beim Start
 #    der Anwendung mit den gespeicherten Einstellungen initialisiert werden.
+
+# 9. Sofortige Einstellungsspeicherung:
+#    Die Methoden on_language_change, on_model_change, on_output_mode_change,
+#    update_shortcut_display und update_delay_settings verwenden nun set_setting_instant
+#    anstelle von set_setting, um die Änderungen sofort zu speichern und die Reaktionszeit
+#    der Anwendung zu verbessern.

@@ -132,7 +132,7 @@ class MainWindow:
             self.model_status.config(text=model)
             if "Geladen" in model:
                 self.model_status.config(fg="green")
-                self.settings_manager.set_setting("current_model", model.split(" - ")[0])
+                self.settings_manager.set_setting_instant("current_model", model.split(" - ")[0])
             elif "Wird geladen" in model:
                 self.model_status.config(fg="yellow")
             else:
@@ -140,7 +140,7 @@ class MainWindow:
 
         if output_mode:
             self.output_mode_status.config(text=output_mode)
-            self.settings_manager.set_setting("output_mode", output_mode)
+            self.settings_manager.set_setting_instant("output_mode", output_mode)
 
         if status:
             self.main_status.config(text=status)
@@ -162,7 +162,7 @@ class MainWindow:
     def on_auto_copy_change(self):
         """Behandelt Änderungen der Auto-Kopieren-Einstellung."""
         auto_copy_value = self.auto_copy_var.get()
-        self.settings_manager.set_setting("auto_copy", auto_copy_value)
+        self.settings_manager.set_setting_instant("auto_copy", auto_copy_value)
         logger.debug(f"Auto-Kopieren-Einstellung geändert auf: {auto_copy_value}")
 
     @handle_exceptions
@@ -201,7 +201,7 @@ class MainWindow:
 #    was eine flexible und effiziente Statusanzeige ermöglicht.
 
 # 7. Sofortige Einstellungsspeicherung:
-#    Die on_auto_copy_change Methode wurde hinzugefügt, um Änderungen der Auto-Kopieren-Einstellung sofort zu speichern.
+#    Die on_auto_copy_change Methode wurde angepasst, um Änderungen der Auto-Kopieren-Einstellung sofort zu speichern.
 #    In der update_status_bar Methode wird nun der Ausgabemodus sofort gespeichert, wenn er sich ändert.
 
 # 8. Plugin-Leiste:
@@ -209,6 +209,6 @@ class MainWindow:
 #    um Platz für Plugin-spezifische UI-Elemente zu schaffen.
 
 # 9. Einstellungen laden:
-#    Die neue load_settings Methode wurde hinzugefügt, um alle relevanten Einstellungen beim Start zu laden
+#    Die load_settings Methode wurde implementiert, um alle relevanten Einstellungen beim Start zu laden
 #    und die UI-Elemente entsprechend zu aktualisieren. Dies gewährleistet, dass die Benutzeroberfläche
 #    immer den aktuellen Einstellungen entspricht.
