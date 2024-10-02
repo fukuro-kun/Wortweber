@@ -1,3 +1,20 @@
+# Optimierung der Plugin-Verwaltung und Einstellungsspeicherung (Version 0.29.1)
+
+## Begründung für die Änderungen
+1. Behebung von Inkonsistenzen bei der Speicherung von Plugin-Einstellungen
+2. Verbesserung der Zuverlässigkeit der Plugin-Aktivierung und -Deaktivierung
+3. Optimierung des Logging-Systems für verbesserte Fehlerdiagnose
+
+## Hauptänderungen
+1. Überarbeitung der Logik zur Speicherung von Plugin-Einstellungen in `SettingsManager`
+2. Anpassung des `PluginManager` zur konsistenten Verwaltung von aktiven und aktivierten Plugins
+3. Erweiterung des Logging-Systems für detailliertere Ausgaben bei Plugin-Operationen
+
+## Auswirkungen
+- Verbesserte Zuverlässigkeit bei der Verwaltung von Plugin-Zuständen
+- Erhöhte Transparenz durch erweitertes Logging
+- Konsistentere Benutzererfahrung bei der Plugin-Verwaltung
+
 # Plugin-System Refactoring (Version 0.28.0)
 
 ## Begründung für das Refactoring

@@ -124,7 +124,7 @@ class PluginManager:
     @handle_exceptions
     def activate_plugin(self, plugin_name: str) -> bool:
         """
-        Aktiviert ein spezifisches Plugin.
+        Aktiviert das Plugin zur Laufzeit, ändert nicht den "enabled" Status für den nächsten Start
 
         Args:
             plugin_name (str): Name des zu aktivierenden Plugins.
@@ -152,7 +152,7 @@ class PluginManager:
     @handle_exceptions
     def deactivate_plugin(self, plugin_name: str) -> bool:
         """
-        Deaktiviert ein spezifisches Plugin.
+        Deaktiviert das Plugin zur Laufzeit, ändert nicht den "enabled" Status für den nächsten Start
 
         Args:
             plugin_name (str): Name des zu deaktivierenden Plugins.
@@ -182,6 +182,7 @@ class PluginManager:
     def set_plugin_enabled_at_startup(self, plugin_name: str, enabled: bool) -> None:
         """
         Setzt den Aktivierungsstatus eines Plugins für den nächsten Start.
+        Ändert nur den "enabled" Status für den nächsten Start, nicht den aktuellen Aktivierungsstatus.
 
         Args:
             plugin_name (str): Name des Plugins.
@@ -193,6 +194,7 @@ class PluginManager:
         else:
             enabled_plugins.discard(plugin_name)
         self.settings_manager.set_enabled_plugins(list(enabled_plugins))
+        self.settings_manager.save_settings()  # Speichern Sie die Änderungen sofort
         logger.info(f"Plugin {plugin_name} {'aktiviert' if enabled else 'deaktiviert'} für den nächsten Start")
         if DEBUG_LOGGING:
             logger.debug(f"Aktualisierte Liste der beim Start zu aktivierenden Plugins: {list(enabled_plugins)}")

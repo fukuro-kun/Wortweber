@@ -26,6 +26,9 @@ from src.plugin_system.plugin_interface import AbstractPlugin
 from src.utils.error_handling import handle_exceptions, logger
 from src.config import DEFAULT_PLUGIN_SETTINGS
 
+# Globale Konstante für bedingtes Debug-Logging
+DEBUG_LOGGING = True
+
 class PluginLoader:
     """
     Verantwortlich für das dynamische Laden von Plugin-Modulen.
@@ -156,9 +159,10 @@ class PluginLoader:
         """
         Validiert die gegebenen Einstellungen für ein Plugin und ergänzt fehlende Standardeinstellungen.
 
-        Diese Methode kombiniert die Standardeinstellungen des Plugins mit den übergebenen Einstellungen
-        und den globalen Standardeinstellungen. Sie stellt sicher, dass alle erforderlichen Einstellungen
-        vorhanden sind und ignoriert unbekannte Einstellungen.
+        Diese Methode kombiniert die Standardeinstellungen des Plugins mit den übergebenen Einstellungen,
+        den globalen Standardeinstellungen und den vom Plugin als gültig definierten Einstellungen.
+        Sie stellt sicher, dass alle erforderlichen Einstellungen vorhanden sind und
+        ignoriert unbekannte Einstellungen.
 
         Args:
             plugin (AbstractPlugin): Die Plugin-Instanz
@@ -168,11 +172,12 @@ class PluginLoader:
             Dict[str, Any]: Ein Dictionary mit validierten und vervollständigten Einstellungen
         """
         default_settings = plugin.get_default_settings()
+        valid_settings = set(plugin.get_valid_settings())
         validated_settings = default_settings.copy()
 
         if settings:
             for key, value in settings.items():
-                if key in default_settings:
+                if key in default_settings or key in valid_settings:
                     # Hier könnte eine typspezifische Validierung hinzugefügt werden
                     validated_settings[key] = value
                 else:
@@ -182,6 +187,14 @@ class PluginLoader:
         for key, value in DEFAULT_PLUGIN_SETTINGS['global'].items():
             if key not in validated_settings:
                 validated_settings[key] = value
+
+        # Überprüfe, ob alle gültigen Einstellungen vorhanden sind
+        for key in valid_settings:
+            if key not in validated_settings:
+                logger.warning(f"Fehlende gültige Einstellung '{key}' für Plugin '{plugin.name}'")
+
+        if DEBUG_LOGGING:
+            logger.debug(f"Validierte Einstellungen für Plugin '{plugin.name}': {validated_settings}")
 
         return validated_settings
 

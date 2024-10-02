@@ -87,10 +87,12 @@ class SettingsManager:
         """
         with self.lock:
             try:
+                self.clean_settings()  # Bereinigen vor dem Speichern
                 with open(self.settings_file, 'w') as f:
                     json.dump(self.settings, f, indent=4)
                 if DEBUG_LOGGING:
                     logger.debug(f"Einstellungen in {self.settings_file} gespeichert")
+                    logger.debug(f"Gespeicherte Einstellungen: {json.dumps(self.settings, indent=2)}")
             except IOError as e:
                 logger.error(f"Fehler beim Speichern der Einstellungen: {e}")
 
@@ -285,6 +287,17 @@ class SettingsManager:
             self.save_settings()
             if DEBUG_LOGGING:
                 logger.debug("Einstellungen migriert: 'plugins.enabled_plugins' in 'plugins.enabled_plugins' verschoben")
+
+
+    def clean_settings(self) -> None:
+        self.settings.pop('plugins.specific_settings.Ollama LLM Chat Plugin', None)
+        # Stellen Sie sicher, dass alle Plugin-Einstellungen unter plugins.specific_settings.[plugin_name] sind
+        if 'plugins' in self.settings and 'specific_settings' in self.settings['plugins']:
+            for plugin_name, settings in self.settings['plugins']['specific_settings'].items():
+                if isinstance(settings, dict):
+                    self.settings['plugins']['specific_settings'][plugin_name] = settings
+        if DEBUG_LOGGING:
+            logger.debug(f"Bereinigte Einstellungen: {json.dumps(self.settings, indent=2)}")
 
 # Zusätzliche Erklärungen:
 

@@ -227,6 +227,10 @@ class AbstractPlugin(ABC):
         """
         return []
 
+    def get_valid_settings(self) -> List[str]:
+        """Gibt eine Liste der gültigen Einstellungsnamen für dieses Plugin zurück."""
+        return []
+
     # Zusätzliche Erklärungen:
 
     # Die get_context_menu_entries Methode wurde hinzugefügt, um Plugins die Möglichkeit zu geben,

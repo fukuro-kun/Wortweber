@@ -360,6 +360,9 @@ class OllamaLLMChatPlugin(AbstractPlugin):
         """
         self.process_text(text)
 
+    def get_valid_settings(self) -> List[str]:
+        return ['system_message', 'llm_model', 'ollama_base_url', 'max_text_length', 'processing_timeout']
+
 # Zusätzliche Erklärungen:
 
 # 1. Chatverlauf:
