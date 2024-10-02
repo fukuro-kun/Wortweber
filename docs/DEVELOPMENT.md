@@ -224,7 +224,55 @@ Bei Fragen oder Problemen ein Issue auf GitHub erstellen oder sich an den Projek
 
 ## 18. Historie
 
-### Version 0.25.0 (aktuell)
+### Version 0.29.3 (aktuell)
+- Aktualisierung der Dokumentation zur Reflektion der Änderungen im Einstellungsmanagement
+- Verbesserung der Erklärungen zu RLock, set_setting_instant und verzögerter Speicherung in der Entwicklerdokumentation
+- Klarere Beschreibung der Best Practices für die Verwendung des aktualisierten Einstellungsmanagements
+
+### Version 0.29.2
+- Implementierung von RLock zur Vermeidung von Deadlocks bei Einstellungsänderungen
+- Optimierung der Speichervorgänge für Einstellungen
+- Restrukturierung und Vereinfachung der TODO-Liste für bessere Übersichtlichkeit und Priorisierung
+
+### Version 0.29.1
+- Korrektur der Speicherung von Plugin-Einstellungen und Aktivierungsstatus
+- Verbesserung der Konsistenz zwischen `enabled_plugins` und `active_plugins`
+- Optimierung der Plugin-Aktivierungslogik
+- Erweiterung des Logging-Systems für bessere Fehlerdiagnose
+
+### Version 0.29.0
+- Erweiterte UI-Funktionalitäten für Plugins (Menüeinträge, Kontextmenüs, Plugin-Leiste)
+- Verbesserte Event-System-Integration für Plugins
+- Neue Best Practices für UI-Integration und Event-Handling
+- Umfassendes Plugin-Beispiel zur Demonstration neuer Funktionalitäten
+
+### Version 0.28.0
+- Erweiterung des Plugin-Systems mit verbesserter UI-Integration
+- Dynamische Plugin-Leiste im Hauptfenster
+- Erweiterte Menüeinträge für Plugins
+- Verbesserte Event-Kommunikation zwischen PluginManager und GUI
+- Ollama-LLM-Chat-Plugin als Beispielimplementierung
+
+### Version 0.27.1
+- Mermaid-Diagramm zur Visualisierung des Plugin-Lebenszyklus in PLUGINSYSTEM.md
+- Erweiterte Erklärung des Plugin-Lebenszyklus in der Dokumentation
+
+### Version 0.27.0
+- Umfassende Dokumentation des Plugin-Systems
+- Erweiterte Funktionalität für Plugin-Validierung in PluginLoader
+- Verbesserte Fehlerbehandlung und Logging in PluginManager
+- Aktualisierte Beschreibungen für Event-System und Einstellungsverwaltung
+
+### Version 0.26.1
+- Behebung des Problems mit doppelten Log-Einträgen bei Audioaufnahmen
+
+### Version 0.26.0
+- Erweitertes Plugin-System mit Unterstützung für Abhängigkeiten
+- Neue Methoden in AbstractPlugin: on_update(), get_config_ui(), und register_events()
+- Möglichkeit zum Neuladen einzelner Plugins
+- Automatische Auflösung von Plugin-Abhängigkeiten
+
+### Version 0.25.0
 - Erstellung einer umfassenden Dokumentation für das Plugin-System (PLUGINSYSTEM.md)
 - Ausarbeitung detaillierter Konzepte für zukünftige Plugin-System-Erweiterungen
 - Erweiterung und Verfeinerung des Glossars für Plugin-Begriffe und -Konzepte

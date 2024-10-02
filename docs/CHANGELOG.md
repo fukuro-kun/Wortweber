@@ -5,6 +5,13 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.29.3] - 2024-10-02
+### Geändert
+- Aktualisierung der Dokumentation zur Reflektion der Änderungen im Einstellungsmanagement
+- Verbesserung der Erklärungen zu RLock, set_setting_instant und verzögerter Speicherung in der Entwicklerdokumentation
+### Verbessert
+- Klarere Beschreibung der Best Practices für die Verwendung des aktualisierten Einstellungsmanagements
+
 ## [0.29.2] - 2024-10-02
 ### Geändert
 - Implementierung von RLock zur Vermeidung von Deadlocks bei Einstellungsänderungen

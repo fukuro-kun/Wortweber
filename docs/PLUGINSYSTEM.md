@@ -907,7 +907,23 @@ Status: Implementiert
 class PluginLoader:
     def validate_plugin_settings(self, plugin: AbstractPlugin, settings: Optional[Dict[str, Any]]) -> Dict[str, Any]:
         # Implementierung der Validierungslogik
-        pass
+        default_settings = plugin.get_default_settings()
+        valid_settings = set(plugin.get_valid_settings())
+        validated_settings = default_settings.copy()
+
+        if settings:
+            for key, value in settings.items():
+                if key in default_settings or key in valid_settings:
+                    validated_settings[key] = value
+                else:
+                    logger.warning(f"Unbekannte Einstellung '{key}' für Plugin '{plugin.name}' ignoriert")
+
+        # Füge globale Standardeinstellungen hinzu, falls nicht vorhanden
+        for key, value in DEFAULT_PLUGIN_SETTINGS['global'].items():
+            if key not in validated_settings:
+                validated_settings[key] = value
+
+        return validated_settings
 ```
 
 ## 6.2 Zugriff auf Einstellungen
@@ -931,7 +947,7 @@ class MyPlugin(AbstractPlugin):
 
 ### 6.2.2 Aktualisieren von Einstellungen
 
-Plugins können ihre Einstellungen mit der `set_settings`-Methode aktualisieren.
+Plugins können ihre Einstellungen mit der `set_settings`-Methode aktualisieren. Für kritische Einstellungen, die sofort gespeichert werden müssen, steht die `set_setting_instant`-Methode zur Verfügung.
 
 Status: Implementiert
 
@@ -939,9 +955,8 @@ Beispiel:
 ```python
 class MyPlugin(AbstractPlugin):
     def update_font_size(self, new_size: int):
-        settings = self.get_settings()
-        settings["font_size"] = new_size
-        self.set_settings(settings)
+        self.set_setting_instant("font_size", new_size)
+        logger.info(f"Schriftgröße auf {new_size} aktualisiert")
 ```
 
 ## 6.3 Persistenz von Einstellungen
@@ -973,7 +988,38 @@ class MyPlugin(AbstractPlugin):
         # Initialisierung mit geladenen Einstellungen
 ```
 
-## 6.4 Best Practices für die Einstellungsverwaltung
+## 6.4 Verzögerte Speicherung
+
+Für Einstellungen, die nicht sofort gespeichert werden müssen, verwendet Wortweber eine verzögerte Speicherung, um die Performanz zu optimieren.
+
+Status: Implementiert
+
+```python
+class SettingsManager:
+    def delayed_save(self):
+        if self.save_timer:
+            self.save_timer.cancel()
+        self.save_timer = Timer(1.5, self.save_settings)
+        self.save_timer.start()
+```
+
+## 6.5 Thread-Sicherheit
+
+Die Einstellungsverwaltung verwendet RLock, um Thread-Sicherheit zu gewährleisten und Deadlocks zu vermeiden.
+
+Status: Implementiert
+
+```python
+class SettingsManager:
+    def __init__(self):
+        self.lock = RLock()
+
+    def set_setting(self, key: str, value: Any) -> None:
+        with self.lock:
+            # Implementierung...
+```
+
+## 6.6 Best Practices für die Einstellungsverwaltung
 
 1. **Standardwerte**: Definieren Sie sinnvolle Standardwerte für alle Einstellungen im Konstruktor.
 2. **Validierung**: Überprüfen Sie die Gültigkeit von Einstellungswerten in der `set_settings`-Methode.
@@ -982,7 +1028,7 @@ class MyPlugin(AbstractPlugin):
 5. **Benutzerfreundlichkeit**: Verwenden Sie aussagekräftige Namen und Beschreibungen für Ihre Einstellungen.
 6. **Versionierung**: Behandeln Sie Änderungen an der Einstellungsstruktur sorgfältig, um Kompatibilitätsprobleme zu vermeiden.
 
-## 6.5 Verschlüsselung sensibler Daten
+## 6.7 Verschlüsselung sensibler Daten
 
 Status: In Entwicklung
 
@@ -1005,8 +1051,12 @@ class MyPlugin(AbstractPlugin):
 
 Diese geplante Funktion wird es ermöglichen, sensible Daten sicher zu speichern und zu verwalten, ohne sie im Klartext in den Einstellungen zu hinterlegen.
 
+# Zusätzliche Erklärungen
 
-Die effektive Nutzung der Einstellungsverwaltung ermöglicht es Plugins, flexibel und anpassbar zu sein, was die Benutzererfahrung und die Vielseitigkeit von Wortweber erheblich verbessert.
+- Die Unterscheidung zwischen `set_setting` und `set_setting_instant` ermöglicht eine optimierte Leistung durch verzögerte Speicherung für nicht-kritische Einstellungen, während kritische Einstellungen sofort gespeichert werden.
+- Die Verwendung von RLock stellt sicher, dass mehrere Threads sicher auf die Einstellungen zugreifen können, ohne Deadlocks zu verursachen.
+- Die Validierung von Einstellungen im PluginLoader gewährleistet, dass nur gültige und erwartete Einstellungen für jedes Plugin verwendet werden, was die Stabilität und Sicherheit des Systems erhöht.
+- Der "aktive" Status eines Plugins bezieht sich auf den aktuellen Laufzeitstatus, während der "enabled" Status angibt, ob ein Plugin beim Anwendungsstart aktiviert werden soll. Diese Unterscheidung ermöglicht eine flexiblere Kontrolle über den Plugin-Lebenszyklus.# 6. Einstellungsverwaltung für Plugins
 
 
 # 7. Best Practices
@@ -1221,6 +1271,31 @@ def get_default_settings(self) -> Dict[str, Any]:
         "api_key": None  # Muss vom Benutzer gesetzt werden
     }
 ```
+
+### 7.6.3 Effizientes und sicheres Einstellungsmanagement
+
+Verwenden Sie `set_setting_instant` für kritische Einstellungen, die sofort persistent gespeichert werden müssen. Nutzen Sie `set_setting` für häufig ändernde, weniger kritische Einstellungen, um die Performanz zu optimieren und übermäßige Schreibvorgänge zu vermeiden.
+
+```python
+class MyPlugin(AbstractPlugin):
+    def activate(self, settings: Dict[str, Any]) -> None:
+        # Kritische Einstellung sofort speichern
+        self.settings_manager.set_setting_instant("api_key", settings.get("api_key"))
+
+        # Weniger kritische, häufig ändernde Einstellung
+        self.settings_manager.set_setting("window_position", settings.get("window_position"))
+
+    def on_window_move(self, new_position: Tuple[int, int]) -> None:
+        # Häufig ändernde Einstellung, verzögerte Speicherung
+        self.settings_manager.set_setting("window_position", new_position)
+
+    def update_api_key(self, new_key: str) -> None:
+        # Kritische Änderung, sofortige Speicherung
+        self.settings_manager.set_setting_instant("api_key", new_key)
+```
+
+Beachten Sie, dass die Standardeinstellung auf sofortige Speicherung (`set_setting_instant`) gesetzt ist, um Datenverlust zu vermeiden. Verwenden Sie `set_setting` nur für Einstellungen, bei denen häufige Änderungen erwartet werden und eine leichte Verzögerung in der Persistenz akzeptabel ist, wie z.B. UI-Positionen oder nicht-kritische Benutzereinstellungen.
+
 
 ## 7.7 Testbarkeit
 

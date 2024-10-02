@@ -77,6 +77,9 @@ Die zentrale Klasse zur Verwaltung von Plugins in Wortweber. Verantwortlich für
 ### Reflection
 Die Fähigkeit eines Programms, seine eigene Struktur zu untersuchen und zu modifizieren. In Wortweber wird Reflection für die dynamische Plugin-Verwaltung und -Konfiguration genutzt.
 
+### RLock
+Ein wiedereintrittsfähiges Lock (Reentrant Lock) in Python, das für verbesserte Thread-Sicherheit im Einstellungsmanagement von Wortweber verwendet wird. Es erlaubt demselben Thread, ein Lock mehrmals zu erwerben, ohne sich selbst zu blockieren, was besonders nützlich für verschachtelte Aufrufe innerhalb des SettingsManagers ist.
+
 ## S
 
 ### Sandbox
@@ -88,10 +91,15 @@ Der Prozess der Umwandlung von Objekten in ein Format, das gespeichert oder übe
 ## T
 
 ### Thread-Sicherheit
-Die Eigenschaft eines Programms oder einer Komponente, korrekt zu funktionieren, wenn mehrere Threads gleichzeitig darauf zugreifen.
+DDie Eigenschaft einer Softwarekomponente, korrekt zu funktionieren, wenn sie von mehreren Threads gleichzeitig verwendet wird. In Wortweber wird dies im Einstellungsmanagement durch die Verwendung von RLock gewährleistet, was eine sichere gleichzeitige Zugriffe und Änderungen von Einstellungen ermöglicht.
 
 ### Type Hinting
 Die Praxis, Typinformationen zu Variablen, Funktionsparametern und Rückgabewerten hinzuzufügen. Verbessert die Lesbarkeit und ermöglicht statische Typüberprüfungen.
+
+## V
+
+### Verzögerte Speicherung
+Ein Mechanismus im Einstellungsmanagement von Wortweber, der das Speichern von Einstellungen für eine kurze Zeit verzögert. Dies optimiert die Performanz bei häufigen Einstellungsänderungen, indem es mehrere Änderungen zu einem einzelnen Speichervorgang zusammenfasst.
 
 ## W
 
