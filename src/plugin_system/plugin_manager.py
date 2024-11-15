@@ -97,40 +97,94 @@ class PluginManager:
 
         self.load_enabled_plugins()
         self.verify_plugin_status()
+        self.check_plugin_consistency()
 
         logger.info(f"Insgesamt {len(self.plugins)} Plugins geladen, {len(self.active_plugins)} aktiv")
 
     @handle_exceptions
     def load_enabled_plugins(self) -> None:
         """
-        Lädt und aktiviert alle Plugins, die als 'enabled' markiert sind.
-
-        Diese Methode aktiviert alle Plugins, die in den Einstellungen als aktiviert
-        markiert sind, und löst deren Abhängigkeiten auf.
+        Lädt und aktiviert alle Plugins, die in den Einstellungen als 'enabled' markiert sind.
+        Wird beim Start der Anwendung aufgerufen.
         """
         enabled_plugins = self.settings_manager.get_enabled_plugins()
         if DEBUG_LOGGING:
-            logger.debug(f"Versuche, folgende Plugins zu laden: {enabled_plugins}")
+            logger.debug(f"Lade Plugins, die beim Start aktiviert werden sollen: {enabled_plugins}")
+        
         for plugin_name in enabled_plugins:
             if plugin_name in self.plugins and plugin_name not in self.active_plugins:
-                self.activate_plugin(plugin_name)
+                if self.activate_plugin(plugin_name):
+                    logger.info(f"Plugin {plugin_name} beim Start aktiviert")
+                else:
+                    logger.warning(f"Plugin {plugin_name} konnte beim Start nicht aktiviert werden")
             elif plugin_name not in self.plugins:
-                logger.warning(f"Zuvor aktiviertes Plugin nicht gefunden: {plugin_name}")
+                logger.warning(f"Konfiguriertes Plugin nicht gefunden: {plugin_name}")
 
         self.resolve_dependencies()
+
+    @handle_exceptions
+    def set_plugin_enabled_at_startup(self, plugin_name: str, enabled: bool) -> None:
+        """
+        Setzt den Aktivierungsstatus eines Plugins für den nächsten Start der Anwendung.
+        Diese Methode ändert NUR die persistente Konfiguration und nicht den aktuellen Laufzeit-Status.
+        Die Änderungen werden sofort in die Einstellungsdatei geschrieben.
+
+        Args:
+            plugin_name (str): Der Name des zu konfigurierenden Plugins.
+            enabled (bool): True, wenn das Plugin beim nächsten Start aktiviert werden soll,
+                          False, wenn es deaktiviert bleiben soll.
+
+        Beispiel:
+            # Plugin für nächsten Start aktivieren
+            plugin_manager.set_plugin_enabled_at_startup("MeinPlugin", True)
+            
+            # Plugin für nächsten Start deaktivieren, aktueller Status bleibt unverändert
+            plugin_manager.set_plugin_enabled_at_startup("MeinPlugin", False)
+        """
+        if plugin_name not in self.plugins:
+            logger.warning(f"Plugin {plugin_name} existiert nicht")
+            return
+
+        enabled_plugins = set(self.settings_manager.get_enabled_plugins())
+        
+        if enabled:
+            enabled_plugins.add(plugin_name)
+        else:
+            enabled_plugins.discard(plugin_name)
+        
+        self.settings_manager.set_enabled_plugins(list(enabled_plugins))
+        self.settings_manager.save_settings_instant()  # Sofortiges Speichern ist wichtig
+        
         if DEBUG_LOGGING:
-            logger.debug(f"Insgesamt {len(self.plugins)} Plugins geladen, {len(self.active_plugins)} aktiv")
+            logger.debug(f"Plugin {plugin_name} für nächsten Start konfiguriert: {'aktiviert' if enabled else 'deaktiviert'}")
+            logger.debug(f"Aktuell aktive Plugins: {self.active_plugins}")
+            logger.debug(f"Beim Start zu aktivierende Plugins: {list(enabled_plugins)}")
 
     @handle_exceptions
     def activate_plugin(self, plugin_name: str) -> bool:
         """
-        Aktiviert das Plugin zur Laufzeit, ändert nicht den "enabled" Status für den nächsten Start
+        Aktiviert ein Plugin zur Laufzeit der Anwendung.
+        Diese Methode ändert NUR den aktuellen Laufzeit-Status und nicht die persistente Konfiguration.
+        Das Plugin bleibt aktiv bis zum Neustart der Anwendung oder bis es explizit deaktiviert wird.
+
+        Die Methode führt folgende Schritte aus:
+        1. Lädt die Plugin-spezifischen Einstellungen
+        2. Ruft die activate()-Methode des Plugins auf
+        3. Registriert die Plugin-Events
+        4. Aktualisiert die UI-Elemente und Menüeinträge
 
         Args:
-            plugin_name (str): Name des zu aktivierenden Plugins.
+            plugin_name (str): Der Name des zu aktivierenden Plugins.
 
         Returns:
-            bool: True, wenn das Plugin erfolgreich aktiviert wurde, sonst False.
+            bool: True bei erfolgreicher Aktivierung, False bei Fehlern oder wenn das Plugin
+                 nicht existiert oder bereits aktiv ist.
+
+        Beispiel:
+            if plugin_manager.activate_plugin("MeinPlugin"):
+                print("Plugin wurde erfolgreich aktiviert")
+            else:
+                print("Aktivierung fehlgeschlagen")
         """
         if plugin_name in self.plugins and plugin_name not in self.active_plugins:
             plugin = self.plugins[plugin_name]
@@ -138,7 +192,7 @@ class PluginManager:
             try:
                 plugin.activate(settings)
                 self.active_plugins.append(plugin_name)
-                logger.info(f"Plugin aktiviert: {plugin_name}")
+                logger.info(f"Plugin aktiviert (nur Laufzeit): {plugin_name}")
                 plugin.register_events(self.event_system)
                 self.update_plugin_ui_elements(plugin_name)
                 self.update_plugin_menu_entries(plugin_name)
@@ -152,13 +206,27 @@ class PluginManager:
     @handle_exceptions
     def deactivate_plugin(self, plugin_name: str) -> bool:
         """
-        Deaktiviert das Plugin zur Laufzeit, ändert nicht den "enabled" Status für den nächsten Start
+        Deaktiviert ein Plugin zur Laufzeit der Anwendung.
+        Diese Methode ändert NUR den aktuellen Laufzeit-Status und nicht die persistente Konfiguration.
+        
+        Die Methode führt folgende Schritte aus:
+        1. Ruft die deactivate()-Methode des Plugins auf
+        2. Speichert eventuell zurückgegebene Plugin-Einstellungen
+        3. Entfernt alle Plugin-Events, UI-Elemente und Menüeinträge
+        4. Entfernt das Plugin aus der Liste aktiver Plugins
 
         Args:
-            plugin_name (str): Name des zu deaktivierenden Plugins.
+            plugin_name (str): Der Name des zu deaktivierenden Plugins.
 
         Returns:
-            bool: True, wenn das Plugin erfolgreich deaktiviert wurde, sonst False.
+            bool: True bei erfolgreicher Deaktivierung, False bei Fehlern oder wenn das Plugin
+                 nicht existiert oder bereits inaktiv ist.
+
+        Beispiel:
+            if plugin_manager.deactivate_plugin("MeinPlugin"):
+                print("Plugin wurde erfolgreich deaktiviert")
+            else:
+                print("Deaktivierung fehlgeschlagen")
         """
         if plugin_name in self.active_plugins:
             plugin = self.plugins[plugin_name]
@@ -167,7 +235,7 @@ class PluginManager:
                 if settings:
                     self.settings_manager.set_plugin_settings(plugin_name, settings)
                 self.active_plugins.remove(plugin_name)
-                logger.info(f"Plugin deaktiviert: {plugin_name}")
+                logger.info(f"Plugin deaktiviert (nur Laufzeit): {plugin_name}")
                 self.remove_plugin_events(plugin)
                 self.remove_plugin_ui_elements(plugin_name)
                 self.remove_plugin_menu_entries(plugin_name)
@@ -177,27 +245,6 @@ class PluginManager:
             except Exception as e:
                 logger.error(f"Fehler beim Deaktivieren des Plugins {plugin_name}: {str(e)}")
         return False
-
-    @handle_exceptions
-    def set_plugin_enabled_at_startup(self, plugin_name: str, enabled: bool) -> None:
-        """
-        Setzt den Aktivierungsstatus eines Plugins für den nächsten Start.
-        Ändert nur den "enabled" Status für den nächsten Start, nicht den aktuellen Aktivierungsstatus.
-
-        Args:
-            plugin_name (str): Name des Plugins.
-            enabled (bool): True, wenn das Plugin beim Start aktiviert werden soll, sonst False.
-        """
-        enabled_plugins = set(self.settings_manager.get_enabled_plugins())
-        if enabled:
-            enabled_plugins.add(plugin_name)
-        else:
-            enabled_plugins.discard(plugin_name)
-        self.settings_manager.set_enabled_plugins(list(enabled_plugins))
-        self.settings_manager.save_settings_instant()  # Speichern Sie die Änderungen sofort
-        logger.info(f"Plugin {plugin_name} {'aktiviert' if enabled else 'deaktiviert'} für den nächsten Start")
-        if DEBUG_LOGGING:
-            logger.debug(f"Aktualisierte Liste der beim Start zu aktivierenden Plugins: {list(enabled_plugins)}")
 
     @handle_exceptions
     def remove_plugin_events(self, plugin: AbstractPlugin) -> None:
@@ -344,39 +391,53 @@ class PluginManager:
         ]
 
     @handle_exceptions
-    def verify_plugin_status(self) -> bool:
+    def verify_plugin_status(self) -> None:
         """
-        Überprüft und korrigiert den Status aller Plugins beim Laden.
+        Überprüft und bereinigt den Plugin-Status der Anwendung.
+        
+        Diese Methode führt folgende Überprüfungen und Bereinigungen durch:
+        1. Entfernt nicht mehr existierende Plugins aus den persistenten Einstellungen
+        2. Identifiziert Plugins, die nur zur Laufzeit aktiv sind
+        3. Identifiziert Plugins, die in der Start-Konfiguration aktiviert, aber derzeit inaktiv sind
+        4. Protokolliert alle gefundenen Inkonsistenzen für Debugging-Zwecke
 
-        Returns:
-            bool: True, wenn Änderungen vorgenommen wurden, sonst False.
+        Die Methode nimmt keine automatischen Korrekturen am Laufzeit-Status vor, sondern
+        dient hauptsächlich der Bereinigung der persistenten Einstellungen und der
+        Protokollierung von Status-Inkonsistenzen.
+
+        Beispiel:
+            # Überprüft den Status aller Plugins und bereinigt die Einstellungen
+            plugin_manager.verify_plugin_status()
+            
+            # Anschließend können die Logs auf Inkonsistenzen überprüft werden
         """
-        changes_made = False
+        # Hole aktuelle Einstellungen
         enabled_plugins = set(self.settings_manager.get_enabled_plugins())
-        if DEBUG_LOGGING:
-            logger.debug(f"Überprüfe Plugin-Status. Aktivierte Plugins laut Einstellungen: {enabled_plugins}")
+        available_plugins = set(self.plugins.keys())
+        active_plugins = set(self.active_plugins)
 
-        # Entferne nicht existierende Plugins
-        enabled_plugins = {p for p in enabled_plugins if p in self.plugins}
-
-        # Aktiviere alle Plugins, die als aktiviert gespeichert sind
-        for plugin_name in enabled_plugins - set(self.active_plugins):
-            self.activate_plugin(plugin_name)
-            changes_made = True
-
-        # Deaktiviere alle Plugins, die aktiv sind, aber nicht als aktiviert gespeichert sind
-        for plugin_name in set(self.active_plugins) - enabled_plugins:
-            self.deactivate_plugin(plugin_name)
-            changes_made = True
-
-        if changes_made:
+        # Entferne nicht existierende Plugins aus den Einstellungen
+        removed_plugins = enabled_plugins - available_plugins
+        if removed_plugins:
+            enabled_plugins = enabled_plugins & available_plugins
             self.settings_manager.set_enabled_plugins(list(enabled_plugins))
-            if DEBUG_LOGGING:
-                logger.debug(f"Plugin-Status aktualisiert. Neue aktivierte Plugins: {enabled_plugins}")
+            self.settings_manager.save_settings_instant()
+            logger.warning(f"Nicht existierende Plugins aus Einstellungen entfernt: {removed_plugins}")
+
+        # Protokolliere Unterschiede zwischen Laufzeit-Status und Start-Konfiguration
+        runtime_only = active_plugins - enabled_plugins
+        if runtime_only:
+            logger.info(f"Plugins nur zur Laufzeit aktiv (werden beim nächsten Start nicht aktiviert): {runtime_only}")
+
+        startup_only = enabled_plugins - active_plugins
+        if startup_only:
+            logger.info(f"Plugins in Start-Konfiguration aber derzeit nicht aktiv: {startup_only}")
 
         if DEBUG_LOGGING:
-            logger.debug(f"Plugin-Status verifiziert. Aktive Plugins: {', '.join(self.active_plugins)}")
-        return changes_made
+            logger.debug("Plugin-Status-Übersicht:")
+            logger.debug(f"Verfügbare Plugins: {available_plugins}")
+            logger.debug(f"Aktuell aktive Plugins: {active_plugins}")
+            logger.debug(f"Beim Start zu aktivierende Plugins: {enabled_plugins}")
 
     @handle_exceptions
     def get_plugin_ui_elements(self) -> Dict[str, Dict[str, Any]]:
@@ -488,6 +549,21 @@ class PluginManager:
         self.plugin_context_menu_entries.pop(plugin_name, None)
         if DEBUG_LOGGING:
             logger.debug(f"Kontextmenüeinträge für Plugin {plugin_name} entfernt")
+
+    @handle_exceptions
+    def check_plugin_consistency(self) -> None:
+        """
+        Überprüft die Konsistenz zwischen aktiven Plugins und gespeicherten Einstellungen.
+        Wird nach kritischen Operationen aufgerufen.
+        """
+        enabled_plugins = set(self.settings_manager.get_enabled_plugins())
+        active_plugins = set(self.active_plugins)
+        
+        if enabled_plugins != active_plugins:
+            logger.warning("Inkonsistenz zwischen aktiven Plugins und Einstellungen gefunden")
+            logger.debug(f"Enabled in settings: {enabled_plugins}")
+            logger.debug(f"Actually active: {active_plugins}")
+            self.verify_plugin_status()
 
     @handle_exceptions
     def cleanup(self):

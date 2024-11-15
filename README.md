@@ -20,80 +20,38 @@ Wortweber befindet sich in einer frühen Entwicklungsphase und ist noch nicht f�
 Wortweber verfügt über ein umfangreiches Plugin-System, das es Entwicklern ermöglicht, die Funktionalität der Anwendung zu erweitern. Detaillierte Informationen zur Architektur, Entwicklung und Nutzung von Plugins finden Sie in der [Plugin-System-Dokumentation](docs/PLUGINSYSTEM.md).
 
 
-## Installation und Nutzung
+## Installation
 
 ### Voraussetzungen
 
-- Python 3.11 oder höher
-- Conda (für einfache Installation und Verwaltung der Umgebung)
-- xclip (für Zwischenablagenoperationen unter Linux)
+- Linux-Betriebssystem
+- Conda (Miniconda oder Anaconda)
+- Systemabhängigkeiten (werden automatisch installiert)
 
-### Installation
+### Automatische Installation
 
-#### 1. Python installieren
-
-Wenn Sie Python 3.12 installieren möchten, können Sie folgendes Kommando in Ihrem Terminal ausführen:
-
-```
-sudo apt install python3.12
-```
-
-#### 2. Conda installieren
-
-Wir empfehlen die Installation von Miniconda. Folgen Sie diesen Schritten:
-
+1. Klonen Sie das Repository:
 ```bash
-mkdir -p ~/miniconda3
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
-bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
-rm ~/miniconda3/miniconda.sh
+git clone [Repository-URL]
+cd Wortweber
 ```
 
-Diese Befehle laden die neueste 64-Bit-Version des Linux-Installers herunter, benennen ihn um, installieren ihn im Hintergrund und löschen anschließend den Installer.
+2. Führen Sie das Installationsskript aus:
+```bash
+./install_and_test.sh
+```
 
-Für detailliertere Anweisungen besuchen Sie: https://docs.anaconda.com/miniconda/#quick-command-line-install
+Das Skript wird automatisch:
+- Eine neue Conda-Umgebung mit Python 3.12 erstellen
+- Alle notwendigen System- und Python-Abhängigkeiten installieren
+- Ein Startskript (wortweber.sh) erstellen
 
-#### 3. Wortweber installieren
+### Anwendung starten
 
-1. Öffnen Sie ein Terminal und klonen Sie das Wortweber-Repository:
-   ```
-   git clone https://github.com/fukuro-kun/Wortweber.git
-   cd Wortweber
-   ```
-
-2. Führen Sie das Installations- und Testskript aus:
-   ```
-   bash install_and_test.sh
-   ```
-
-3. Folgen Sie den Anweisungen im Terminal. Sie werden möglicherweise nach Ihrem Passwort gefragt, um Systemabhängigkeiten zu installieren.
-
-### Wichtige Hinweise
-
-- Die Installation kann je nach System unterschiedlich verlaufen und zusätzliche Schritte erfordern.
-- Bei Problemen konsultieren Sie bitte den Abschnitt "Problembehebung" in dieser README oder erstellen Sie ein Issue auf GitHub.
-- Stellen Sie sicher, dass Sie nach der Installation von Miniconda Ihr Terminal neu starten oder `source ~/.bashrc` ausführen, um die Conda-Umgebung zu aktivieren.
-
-Wir arbeiten kontinuierlich daran, den Installationsprozess zu verbessern. Wenn Sie auf Schwierigkeiten stoßen, zögern Sie nicht, uns um Hilfe zu bitten.
-
-### Verwendung
-
-Nach der Installation können Sie Wortweber auf zwei Arten starten:
-
-1. Verwenden Sie das bereitgestellte Shell-Skript:
-   ```
-   ./wortweber.sh
-   ```
-
-   Dieses Skript aktiviert automatisch die richtige Conda-Umgebung und startet die Anwendung.
-
-2. Alternativ können Sie die Anwendung manuell starten:
-   ```
-   conda activate wortweber
-   python -m src.wortweber
-   ```
-
-3. Drücken und halten Sie die F12-Taste, um zu sprechen. Lassen Sie die Taste los, um die Aufnahme zu beenden und die Transkription zu starten.
+Nach erfolgreicher Installation können Sie die Anwendung wie folgt starten:
+```bash
+./wortweber.sh
+```
 
 ## Projektstruktur
 

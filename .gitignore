@@ -31,3 +31,5 @@ tests/test_data/
 # Persönlische Demo-Files
 
 Demo*.py
+plugins/*copy*.py
+plugins/*dup*.py

@@ -5,6 +5,22 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.29.4] - 2024-11-15
+### Geändert
+- Grundlegende Überarbeitung des Plugin-Management-Systems
+- Strikte Trennung zwischen Laufzeit-Status und Start-Konfiguration von Plugins
+- Implementierung von sofortigem Speichern für Plugin-Einstellungen
+
+### Verbessert
+- Ausführlichere Dokumentation der Plugin-Management-Methoden
+- Detaillierteres Logging für Plugin-Status-Änderungen
+- Klarere Fehlermeldungen bei Plugin-Aktivierung/-Deaktivierung
+
+### Technisch
+- Refaktorierung der Plugin-Manager-Klasse für bessere Wartbarkeit
+- Optimierung der Persistenz von Plugin-Einstellungen
+- Verbesserung der Thread-Sicherheit bei Plugin-Status-Änderungen
+
 ## [0.29.3] - 2024-10-02
 ### Geändert
 - Aktualisierung der Dokumentation zur Reflektion der Änderungen im Einstellungsmanagement
@@ -318,7 +334,7 @@ und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lan
 ## [0.21.4] - 2024-09-18
 ### Hinzugefügt
 - Integration von xclip als Systemabhängigkeit für verbesserte Zwischenablagenfunktionalität
-- Erweiterter Installationsprozess mit automatischer xclip-Installation
+- Erweitertes Installationsprozess mit automatischer xclip-Installation
 - Zusätzliche Fehlerbehebungshinweise für Pyperclip-bezogene Probleme
 
 ### Geändert
@@ -593,15 +609,19 @@ und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lan
 
 ## [0.12.0] - 2024-09-13
 ### Geändert
-- Umfangreiches Refactoring zur Zentralisierung der Konfigurationseinstellungen in `config.py`
-- Verbesserte Modularität und Wartbarkeit des Codes durch Nutzung zentraler Konfigurationsvariablen
+- Umfassendes Code-Refactoring zur Verbesserung der Struktur und Lesbarkeit
+- Einführung von Klassen für bessere Kapselung: WordweberState, AudioProcessor, Transcriber, und WordweberGUI
+- Verbesserte Fehlerbehandlung in kritischen Funktionen
+- Hinzufügung ausführlicher Docstrings zu allen Klassen und Methoden
+- Überarbeitung der Konfigurationsdatei mit Einführung von HIGHLIGHT_DURATION
 
-### Verbessert
-- Optimierte Struktur für einfachere zukünftige Anpassungen und Erweiterungen
-- Verbesserte Konsistenz bei der Verwendung von Konfigurationseinstellungen im gesamten Projekt
+### Hinzugefügt
+- Neue Typ-Annotationen zur Verbesserung der Code-Qualität und Wartbarkeit
+- Explizite Typüberprüfungen zur Behandlung potenzieller None-Werte
 
 ### Behoben
-- Behebung potenzieller Inkonsistenzen bei der Verwendung von Standardwerten
+- Behebung von Problemen mit der asynchronen Modellladung
+- Korrektur der Audiodatenverarbeitung für konsistentere Ergebnisse
 
 ## [0.11.3] - 2024-09-13
    ### Behoben

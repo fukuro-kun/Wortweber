@@ -47,10 +47,12 @@ class OllamaLLMChatPlugin(AbstractPlugin):
         self._input_text = None
         self._chat_history = []
         self._system_message = "Du bist ein hilfreicher Assistent."
-        self._llm_model = "llama3.1:8b-instruct-q6_K"
+        self._llm_model = "llama3.1:8b-instruct-q6_K" #mistral-small:22b-instruct-2409-q6_K
         self._ollama_base_url = "http://localhost:11434"
         self._ollama_chat_endpoint = "/api/chat"
         self._ollama_tags_endpoint = "/api/tags"
+        self._context = ""
+        self._max_context_length = 32768  # Ähnlich wie im Beispiel
 
     @property
     def name(self) -> str:
@@ -82,6 +84,7 @@ class OllamaLLMChatPlugin(AbstractPlugin):
         self._system_message = settings.get('system_message', self._system_message)
         self._llm_model = settings.get('llm_model', self._llm_model)
         self._ollama_base_url = settings.get('ollama_base_url', self._ollama_base_url)
+        self._chat_history = settings.get('chat_history', [])
 
     def deactivate(self) -> Optional[Dict[str, Any]]:
         """
@@ -179,23 +182,37 @@ class OllamaLLMChatPlugin(AbstractPlugin):
         bg_color = style.lookup('TFrame', 'background')
         fg_color = style.lookup('TLabel', 'foreground')
 
-        self._chat_display = tk.Text(self._chat_window, wrap='word',
+        # PanedWindow für Chat und Eingabefeld
+        paned_window = ttk.PanedWindow(self._chat_window, orient=tk.VERTICAL)
+        paned_window.pack(expand=True, fill='both', padx=10, pady=10)
+
+        # Chat-Anzeige mit Scrollbar
+        chat_frame = tk.Frame(paned_window)
+        paned_window.add(chat_frame, weight=3)  # Gewicht für die Größe des Chatfensters
+        scrollbar = tk.Scrollbar(chat_frame, orient="vertical")
+        self._chat_display = tk.Text(chat_frame, wrap='word',
                                     bg=bg_color, fg=fg_color, insertbackground=fg_color)
-        self._chat_display.pack(expand=True, fill='both', padx=10, pady=10)
+        scrollbar.config(command=self._chat_display.yview)
+        self._chat_display.config(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+        self._chat_display.pack(expand=True, fill='both')
 
-        input_frame = ttk.Frame(self._chat_window)
-        input_frame.pack(fill='x', padx=10, pady=10)
-
-        self._input_text = tk.Text(input_frame, height=3, wrap='word',
+        # Eingabefeld mit Scrollbar
+        input_frame = tk.Frame(paned_window)
+        paned_window.add(input_frame, weight=1)  # Gewicht für die Größe des Eingabefelds
+        scrollbar = tk.Scrollbar(input_frame, orient="vertical")
+        self._input_text = tk.Text(input_frame, height=5, wrap='word',
                                 bg=bg_color, fg=fg_color, insertbackground=fg_color)
-        self._input_text.pack(side='left', expand=True, fill='both')
+        scrollbar.config(command=self._input_text.yview)
+        self._input_text.config(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+        self._input_text.pack(expand=True, fill='both')
 
         send_button = ttk.Button(input_frame, text="Senden", command=self.send_message)
-        send_button.pack(side='right')
+        send_button.pack(side='left', pady=5)
 
     @handle_exceptions
     def send_message(self):
-        """Sendet die Nachricht aus dem Eingabefeld an das LLM und aktualisiert den Chat-Verlauf."""
         if self._input_text:
             user_message = self._input_text.get("1.0", tk.END).strip()
             if user_message:
@@ -205,18 +222,16 @@ class OllamaLLMChatPlugin(AbstractPlugin):
 
     @handle_exceptions
     def get_llm_response(self, user_message: str):
-        """
-        Holt die Antwort vom LLM und aktualisiert den Chat-Verlauf.
-
-        Args:
-            user_message (str): Die Nachricht des Benutzers.
-        """
         if not self.test_api_connection():
-            self.update_chat_display("Error: Keine Verbindung zur Ollama API möglich. Bitte überprüfen Sie Ihre Einstellungen und stellen Sie sicher, dass der Ollama-Dienst läuft.")
+            self.update_chat_display("Error: Keine Verbindung zur Ollama API möglich.")
             return
 
         # Füge die Benutzernachricht zum Chatverlauf hinzu
         self._chat_history.append({"role": "user", "content": user_message})
+
+        # Begrenze die Länge des Chatverlaufs
+        while len(json.dumps(self._chat_history)) > self._max_context_length:
+            self._chat_history.pop(0)
 
         payload = {
             "model": self._llm_model,
@@ -228,7 +243,7 @@ class OllamaLLMChatPlugin(AbstractPlugin):
             response = requests.post(f"{self._ollama_base_url}{self._ollama_chat_endpoint}", json=payload, stream=True, timeout=30)
             response.raise_for_status()
 
-            self.update_chat_display("\nAssistant: ")
+            self.update_chat_display("\nAI: ")
             full_response = ""
             for line in response.iter_lines():
                 if line:
@@ -242,9 +257,14 @@ class OllamaLLMChatPlugin(AbstractPlugin):
                         logger.warning(f"Konnte Zeile nicht als JSON dekodieren: {line}")
 
             if full_response:
-                # Füge die LLM-Antwort zum Chatverlauf hinzu
+                # Füge die AI-Antwort zum Chatverlauf hinzu
                 self._chat_history.append({"role": "assistant", "content": full_response})
-                self.update_chat_display("\n")  # Neue Zeile nach der Antwort
+
+                # Begrenze erneut die Länge des Chatverlaufs
+                while len(json.dumps(self._chat_history)) > self._max_context_length:
+                    self._chat_history.pop(0)
+
+                self.update_chat_display("\n")
                 logger.info(f"Vollständige Antwort erhalten, Länge: {len(full_response)} Zeichen")
             else:
                 self.update_chat_display("Error: Keine lesbare Antwort vom LLM erhalten.")

@@ -171,11 +171,10 @@ class SettingsManager:
         Args:
             enabled_plugins (List[str]): Eine Liste der Namen der zu aktivierenden Plugins.
         """
-        plugins_settings = self.get_setting('plugins', {})
-        plugins_settings['enabled_plugins'] = enabled_plugins
-        self.set_setting('plugins', plugins_settings)
-        # Entfernen des alten Schlüssels, falls vorhanden
-        self.settings.pop('plugins.enabled_plugins', None)
+        with self.lock:
+            plugins_settings = self.get_setting('plugins', {})
+            plugins_settings['enabled_plugins'] = enabled_plugins
+            self.set_setting('plugins', plugins_settings)
 
     def get_enabled_plugins(self) -> List[str]:
         """
