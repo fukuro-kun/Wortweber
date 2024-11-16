@@ -83,7 +83,10 @@ DEFAULT_HIGHLIGHT_FG = "#FFFFFF"  # Standard-Textfarbe für Hervorhebung
 DEFAULT_HIGHLIGHT_BG = "#FF0000"  # Standard-Hintergrundfarbe für Hervorhebung
 
 # Whisper-Modelle
-WHISPER_MODELS = ["tiny", "base", "small", "medium", "large"]  # Verfügbare Whisper-Modelle
+WHISPER_MODELS = [
+    "tiny", "base", "small", "medium", "large",  # Standard-Modelle
+    "large-v3"  # Neuestes Modell
+]  # Verfügbare Whisper-Modelle
 
 # Unterstützte Sprachen
 SUPPORTED_LANGUAGES = {

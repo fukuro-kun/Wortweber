@@ -5,6 +5,22 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt der [Semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.29.5] - 2024-01-16
+
+### Verbessert
+- Umfassende Dokumentation des Whisper-Transkriptionssystems
+- Optimierte Code-Kommentare im Transcriber-Modul
+
+### Technisch
+- Konsolidierung der OpenAI Whisper-Implementation
+- Verbesserte Ressourcenverwaltung für GPU/CPU-Nutzung
+- Optimierte Speicherfreigabe für CUDA-Ressourcen
+
+### Dokumentation
+- Detaillierte Entwickler-Dokumentation für das Transkriptionssystem
+- Ausführliche Erklärungen zur Whisper-Modell-Architektur
+- Verbesserte API-Dokumentation der Transcriber-Klasse
+
 ## [0.29.4] - 2024-11-15
 ### Geändert
 - Grundlegende Überarbeitung des Plugin-Management-Systems
